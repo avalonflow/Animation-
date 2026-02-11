@@ -1,126 +1,187 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3D Milky Way Fly-Through</title>
+<title>Cinematic Galaxy</title>
 <style>
-  body, html {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    height: 100%;
-    width: 100%;
-    background: black;
-  }
-  canvas {
-    display: block;
-  }
+  body { margin: 0; overflow: hidden; background: black; }
+  canvas { display: block; }
 </style>
 </head>
 <body>
-<canvas id="milkyWay"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
 <script>
-const canvas = document.getElementById('milkyWay');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const scene = new THREE.Scene();
 
-const centerX = canvas.width/2;
-const centerY = canvas.height/2;
-let mouseX = centerX;
-let mouseY = centerY;
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  5000
+);
+camera.position.set(0, 0, 0);
 
-// Create 3D stars for Milky Way
-const stars = [];
-const STAR_COUNT = 1500;
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+document.body.appendChild(renderer.domElement);
 
-for(let i=0;i<STAR_COUNT;i++){
-    const radius = Math.random()*200 + 50;
-    const angle = Math.random()*Math.PI*2;
-    stars.push({
-        x: Math.cos(angle)*radius,
-        y: (Math.random()-0.5)*50,
-        z: Math.sin(angle)*radius,
-        size: Math.random()*1.2+0.5,
-        color: `hsl(${Math.random()*60+180}, ${Math.random()*40+60}%, ${Math.random()*30+70}%)`
-    });
-}
+// === POST PROCESSING BLOOM ===
+const composer = new THREE.EffectComposer(renderer);
+composer.addPass(new THREE.RenderPass(scene, camera));
 
-// Shooting stars
-const shootingStars = [];
-const SHOOTING_COUNT = 5;
-for(let i=0;i<SHOOTING_COUNT;i++){
-    shootingStars.push({x:0,y:0,z:0,length:0,speed:0,active:false});
-}
+const bloomPass = new THREE.UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  1.5,
+  0.4,
+  0.85
+);
+composer.addPass(bloomPass);
 
-// Draw a single star as a glowing circle
-function drawStar(x,y,size,color){
-    const grad = ctx.createRadialGradient(x,y,0,x,y,size);
-    grad.addColorStop(0,color);
-    grad.addColorStop(0.5,color);
-    grad.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(x,y,size,0,Math.PI*2);
-    ctx.fill();
-}
+// === GALAXY SPHERE ===
+const textureLoader = new THREE.TextureLoader();
+const galaxyTexture = textureLoader.load("your-image.png");
 
-// Draw frame
-function draw(){
-    ctx.fillStyle='rgba(0,0,0,0.2)'; // slight trail effect
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-
-    for(let s of stars){
-        // Move stars forward (toward the camera)
-        s.z -= 2;
-        if(s.z<-200) s.z = 200; // loop back for continuous fly-through
-
-        const k = 300/(s.z+300);
-        const x = s.x*k + centerX + (mouseX-centerX)/50;
-        const y = s.y*k + centerY + (mouseY-centerY)/50;
-        const size = s.size*k;
-
-        drawStar(x,y,size,s.color);
-    }
-
-    // Shooting stars
-    for(let s of shootingStars){
-        if(!s.active && Math.random()<0.005){
-            s.active=true;
-            s.x=Math.random()*canvas.width;
-            s.y=Math.random()*canvas.height/2;
-            s.length=Math.random()*150+50;
-            s.speed=Math.random()*15+8;
-        }
-        if(s.active){
-            ctx.strokeStyle='rgba(255,255,255,0.8)';
-            ctx.lineWidth=2;
-            ctx.beginPath();
-            ctx.moveTo(s.x,s.y);
-            ctx.lineTo(s.x-s.length,s.y+s.length);
-            ctx.stroke();
-
-            s.x+=s.speed;
-            s.y+=s.speed;
-
-            if(s.x>canvas.width || s.y>canvas.height) s.active=false;
-        }
-    }
-
-    requestAnimationFrame(draw);
-}
-
-draw();
-
-window.addEventListener('resize',()=>{
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+const sphereGeometry = new THREE.SphereGeometry(1500, 128, 128);
+const sphereMaterial = new THREE.MeshBasicMaterial({
+  map: galaxyTexture,
+  side: THREE.BackSide
 });
-window.addEventListener('mousemove',(e)=>{
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+const galaxySphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+scene.add(galaxySphere);
+
+// === BLACK HOLE CORE ===
+const coreGeometry = new THREE.SphereGeometry(80, 64, 64);
+const coreMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+const core = new THREE.Mesh(coreGeometry, coreMaterial);
+core.position.set(0, 0, -400);
+scene.add(core);
+
+// === NEBULA FOG ===
+const fogGeometry = new THREE.SphereGeometry(1400, 64, 64);
+const fogMaterial = new THREE.MeshBasicMaterial({
+  color: 0x331144,
+  transparent: true,
+  opacity: 0.08,
+  side: THREE.BackSide
+});
+const fog = new THREE.Mesh(fogGeometry, fogMaterial);
+scene.add(fog);
+
+// === SPACE DUST ===
+const dustGeometry = new THREE.BufferGeometry();
+const dustCount = 4000;
+const positions = new Float32Array(dustCount * 3);
+
+for (let i = 0; i < dustCount * 3; i++) {
+  positions[i] = (Math.random() - 0.5) * 3000;
+}
+
+dustGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+const dustMaterial = new THREE.PointsMaterial({
+  color: 0xffffff,
+  size: 2,
+  transparent: true,
+  opacity: 0.8
+});
+
+const dust = new THREE.Points(dustGeometry, dustMaterial);
+scene.add(dust);
+
+// === SHOOTING STARS ===
+function createMeteor() {
+  const geometry = new THREE.CylinderGeometry(0.5, 0.5, 100, 8);
+  const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const meteor = new THREE.Mesh(geometry, material);
+
+  meteor.rotation.z = Math.PI / 4;
+  meteor.position.set(
+    (Math.random() - 0.5) * 1000,
+    (Math.random() - 0.5) * 1000,
+    -800
+  );
+
+  scene.add(meteor);
+
+  function animateMeteor() {
+    meteor.position.x += 25;
+    meteor.position.y -= 25;
+    meteor.position.z += 25;
+
+    if (meteor.position.z > 800) {
+      scene.remove(meteor);
+    } else {
+      requestAnimationFrame(animateMeteor);
+    }
+  }
+
+  animateMeteor();
+}
+
+setInterval(createMeteor, 3500);
+
+// === CAMERA CONTROL ===
+let mouseX = 0;
+let mouseY = 0;
+
+document.addEventListener("mousemove", (e) => {
+  mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+  mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+// === WARP MODE ===
+let warp = false;
+document.addEventListener("click", () => warp = !warp);
+
+let speed = 0.5;
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Spiral galaxy rotation
+  galaxySphere.rotation.y += 0.0005;
+  fog.rotation.y += 0.0003;
+
+  // Mouse camera drift
+  camera.rotation.y += (mouseX * 0.05 - camera.rotation.y) * 0.05;
+  camera.rotation.x += (mouseY * 0.05 - camera.rotation.x) * 0.05;
+
+  // Forward movement
+  if (warp) {
+    speed = 8;
+    dustMaterial.size = 6;
+    bloomPass.strength = 2.5;
+  } else {
+    speed = 0.5;
+    dustMaterial.size = 2;
+    bloomPass.strength = 1.5;
+  }
+
+  camera.position.z -= speed;
+
+  if (camera.position.z < -1400) {
+    camera.position.z = 0;
+  }
+
+  composer.render();
+}
+
+animate();
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
 });
 </script>
+
 </body>
-</html>
+  </html>
