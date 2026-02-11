@@ -3,117 +3,231 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inside Galaxy</title>
+<title>AvalonFlow Landing Page</title>
 <style>
-  body { margin:0; overflow:hidden; background:black; }
-  canvas { display:block; }
+    /* ---------- Reset & Body ---------- */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #0d0d0d;
+        color: #fff;
+        overflow-x: hidden;
+    }
+
+    /* ---------- Floating Background ---------- */
+    #floating-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background: radial-gradient(circle at bottom, #1a0d3a, #0d0d0d);
+        overflow: hidden;
+    }
+    .particle {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.6;
+        animation: floatParticles linear infinite;
+        box-shadow: 0 0 10px #6b2cd8, 0 0 20px #6b2cd8;
+    }
+    @keyframes floatParticles {
+        0% { transform: translateY(100vh) scale(0.3); opacity: 0; }
+        50% { opacity: 1; }
+        100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    /* ---------- Hero Section ---------- */
+    .hero {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        padding: 120px 20px 60px 20px;
+    }
+    .hero h1 {
+        font-size: 3rem;
+        color: #6b2cd8;
+        margin-bottom: 20px;
+    }
+    .hero p {
+        font-size: 1.2rem;
+        max-width: 700px;
+        margin: 0 auto 40px auto;
+        line-height: 1.5;
+        color: #fff;
+    }
+    #ctaButton {
+        display: inline-block;
+        padding: 15px 30px;
+        background: #6b2cd8;
+        color: #fff;
+        font-size: 18px;
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(107,44,216,0.4);
+    }
+    #ctaButton:hover {
+        background: #8e44ad;
+        box-shadow: 0 6px 20px rgba(107,44,216,0.6);
+        transform: translateY(-2px);
+    }
+
+    /* ---------- 3-Step Flow ---------- */
+    .steps {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 40px;
+        padding: 60px 20px;
+        text-align: center;
+    }
+    .step {
+        flex: 1 1 200px;
+        max-width: 250px;
+        background: rgba(107,44,216,0.1);
+        padding: 20px;
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+    }
+    .step:hover {
+        transform: translateY(-10px);
+    }
+    .step h3 {
+        margin-bottom: 15px;
+        color: #6b2cd8;
+    }
+    .step p {
+        font-size: 0.95rem;
+        line-height: 1.4;
+        color: #fff;
+    }
+
+    /* ---------- Testimonials ---------- */
+    .testimonials {
+        position: relative;
+        z-index: 2;
+        padding: 60px 20px;
+        text-align: center;
+        background: rgba(107,44,216,0.05);
+    }
+    .testimonials p em {
+        font-size: 1.1rem;
+        color: #6b2cd8;
+    }
+    .testimonials ul {
+        list-style: none;
+        margin-top: 20px;
+    }
+    .testimonials li {
+        max-width: 700px;
+        margin: 0 auto;
+        font-size: 1rem;
+        opacity: 1;
+        transition: opacity 0.8s ease;
+    }
+    .fade-out {
+        opacity: 0;
+    }
+
+    /* ---------- Footer ---------- */
+    footer {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        padding: 30px 20px;
+        font-size: 0.9rem;
+        color: #aaa;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media(max-width:768px){
+        .hero h1 { font-size: 2.2rem; }
+        .hero p { font-size: 1rem; }
+        .steps { flex-direction: column; gap: 30px; }
+    }
 </style>
 </head>
 <body>
 
-<!-- Three.js library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+<!-- Floating Particle Background -->
+<div id="floating-bg"></div>
 
+<!-- Hero Section -->
+<section class="hero">
+    <h1>Move Beyond Your Paycheck Today</h1>
+    <p>AvalonFlow is an automation-powered support ecosystem designed to bring clarity to demanding schedules — while creating room for measurable progress and additional earning potential.</p>
+    <a href="https://yourformlink.com" id="ctaButton">Get Started</a>
+</section>
+
+<!-- 3-Step Flow -->
+<section class="steps">
+    <div class="step">
+        <h3>Step 1: Fill Form</h3>
+        <p>Tell us a bit about yourself — it takes less than 1 minute.</p>
+    </div>
+    <div class="step">
+        <h3>Step 2: Pick Plan</h3>
+        <p>Choose a plan that fits your goals and schedule.</p>
+    </div>
+    <div class="step">
+        <h3>Step 3: Access Dashboard</h3>
+        <p>Start using AvalonFlow to automate, earn, and track progress instantly.</p>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials">
+    <p><em>Reflections from members:</em></p>
+    <ul id="testimonialList">
+        <li>“My shifts are demanding, and I don’t always have time to explore new options. What stood out for me was how simple and structured this felt.” — Charlotte</li>
+    </ul>
+</section>
+
+<!-- Footer -->
+<footer>
+    &copy; 2026 AvalonFlow. All Rights Reserved.
+</footer>
+
+<!-- Scripts -->
 <script>
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 5000);
-camera.position.set(0,0,0);
+/* ---------- Floating Particles ---------- */
+const bg = document.getElementById('floating-bg');
+const colors = ['#6b2cd8','#9b59b6','#8e44ad'];
 
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
-// Galaxy sphere
-const loader = new THREE.TextureLoader();
-const galaxyTexture = loader.load("file_00000000f4d871f7bb1a20abaae63d6b.png"); // replace with your image
-
-const galaxySphere = new THREE.Mesh(
-  new THREE.SphereGeometry(1500, 128, 128),
-  new THREE.MeshBasicMaterial({map: galaxyTexture, side: THREE.BackSide})
-);
-scene.add(galaxySphere);
-
-// Space dust
-const dustGeometry = new THREE.BufferGeometry();
-const dustCount = 3000;
-const positions = new Float32Array(dustCount*3);
-
-for(let i=0;i<dustCount*3;i++){
-  positions[i] = (Math.random()-0.5)*3000;
+function particle() {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const s = Math.random()*20+10;
+    p.style.width = s+'px';
+    p.style.height = s+'px';
+    p.style.left = Math.random()*100+'vw';
+    p.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random()*3)]}, transparent)`;
+    p.style.animationDuration = (Math.random()*20+10)+'s';
+    bg.appendChild(p);
+    setTimeout(()=>p.remove(),30000);
 }
-dustGeometry.setAttribute('position', new THREE.BufferAttribute(positions,3));
+setInterval(particle,800);
 
-const dust = new THREE.Points(
-  dustGeometry,
-  new THREE.PointsMaterial({color:0xffffff, size:2, transparent:true, opacity:0.7})
-);
-scene.add(dust);
-
-// Shooting stars
-function createMeteor(){
-  const meteorGeom = new THREE.CylinderGeometry(0.5,0.5,100,8);
-  const meteorMat = new THREE.MeshBasicMaterial({color:0xffffff});
-  const meteor = new THREE.Mesh(meteorGeom, meteorMat);
-  meteor.rotation.z = Math.PI/4;
-  meteor.position.set(
-    (Math.random()-0.5)*1000,
-    (Math.random()-0.5)*1000,
-    -800
-  );
-  scene.add(meteor);
-
-  const speed = 25;
-  function animateMeteor(){
-    meteor.position.x += speed;
-    meteor.position.y -= speed;
-    meteor.position.z += speed;
-    if(meteor.position.z > 800) scene.remove(meteor);
-    else requestAnimationFrame(animateMeteor);
-  }
-  animateMeteor();
-}
-setInterval(createMeteor,3500);
-
-// Mouse drift
-let mouseX=0, mouseY=0;
-document.addEventListener('mousemove', e=>{
-  mouseX = (e.clientX/window.innerWidth-0.5)*2;
-  mouseY = (e.clientY/window.innerHeight-0.5)*2;
-});
-
-// Warp speed toggle
-let warp = false;
-document.addEventListener('click', ()=> warp = !warp);
-
-// Animate
-function animate(){
-  requestAnimationFrame(animate);
-
-  // Galaxy rotation
-  galaxySphere.rotation.y += 0.0005;
-
-  // Camera drift
-  camera.rotation.y += (mouseX*0.05 - camera.rotation.y)*0.05;
-  camera.rotation.x += (mouseY*0.05 - camera.rotation.x)*0.05;
-
-  // Forward movement
-  const speed = warp ? 8 : 0.5;
-  dust.material.size = warp ? 6 : 2;
-
-  camera.position.z -= speed;
-  if(camera.position.z < -1400) camera.position.z = 0;
-
-  renderer.render(scene, camera);
-}
-animate();
-
-// Resize
-window.addEventListener('resize', ()=>{
-  camera.aspect = window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
+/* ---------- Rotating Testimonials ---------- */
+const testimonials = [
+    "“My shifts are demanding, and I don’t always have time to explore new options. What stood out for me was how simple and structured this felt.” — Charlotte",
+    "“As an educator, I value clarity and systems that make sense. This felt grounded and realistic.” — Emily",
+    "“I finally saw progress without feeling overwhelmed.” — Ava"
+];
+let tIndex = 0;
+const testimonialLi = document.querySelector("#testimonialList li");
+setInterval(()=>{
+    testimonialLi.classList.add("fade-out");
+    setTimeout(()=>{
+        testimonialLi.innerText = testimonials[tIndex];
+        testimonialLi.classList.remove("fade-out");
+        tIndex = (tIndex+1) % testimonials.length;
+    },800);
+},4000);
 </script>
+
 </body>
 </html>
