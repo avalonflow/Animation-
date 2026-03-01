@@ -195,10 +195,7 @@ footer { position: fixed; bottom: 0; width: 100%; text-align: center; padding: 1
     <h2>AvalonFlow</h2>
     <button onclick="nav('/dashboard')">Dashboard</button>
     <button onclick="nav('/ecosystem')">Ecosystem</button>
-    <button onclick="nav('/plans')">Plans</button>
-    <button onclick="nav('/rewards')">Rewards</button>
     <button onclick="nav('/support')">Support</button>
-    <button onclick="logout()">Logout</button>
 </div>
 <div id="overlay" onclick="toggleSidebar()"></div>
 
@@ -256,7 +253,6 @@ const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('overlay');
 function toggleSidebar(){ sidebar.classList.toggle('open'); overlay.classList.toggle('active'); }
 function nav(p){ location.href=p; }
-function logout(){ location.href='https://profile-login.avalonflow.site'; }
 
 /* ---------- Notification ---------- */
 function notify(msg){
