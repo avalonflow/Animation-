@@ -288,6 +288,7 @@
 
 <!-- Floating Particle Background -->
 <div id="floating-bg"></div>
+    <button id="menuBtn" onclick="toggleSidebar()">☰</button>
 
 <header style="text-align: center; padding: 40px 0;">
   <div style="
@@ -308,6 +309,19 @@
          style="max-width: 90%; max-height: 90%; height: auto;">
   </div>
 </header>
+
+    <div id="sidebar">
+        <h2>AvalonFlow</h2>
+        <button onclick="navigateTo('/avalonflow.site')">Homepage</button>
+        <button onclick="navigateTo('/ecosystem')">Ecosystem</button>
+        <button onclick="navigateTo('/support')">Support</button>
+    </div>
+
+    <div id="overlay" onclick="toggleSidebar()"></div>
+
+    <div id="content">
+        <!-- Ecosystem Panel -->
+        <div id="avalonFlow.site" class="panel">
 
 <!-- Hero Section -->
 <section class="hero">
@@ -372,6 +386,17 @@ function particle() {
     setTimeout(()=>p.remove(),30000);
 }
 setInterval(particle,800);
+
+        /* Sidebar toggle */
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        function toggleSidebar(){
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+        function navigateTo(page){
+            window.location.href = page;
+        }
 
         /* Dashboard Progress Bar Animation */
         const progressFill = document.getElementById("progressFill");
