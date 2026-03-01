@@ -300,6 +300,28 @@ function particle() {
 }
 setInterval(particle,800);
 
+        /* Dashboard Progress Bar Animation */
+        const progressFill = document.getElementById("progressFill");
+        const fillDuration = 12*60*60*1000; // 12 hours
+        let startTime = localStorage.getItem("logicalWingStart");
+        if(!startTime){
+            startTime = Date.now();
+            localStorage.setItem("logicalWingStart", startTime);
+        } else { startTime = parseInt(startTime); }
+
+        function updateDashboardProgress(){
+            const now = Date.now();
+            let elapsed = now - startTime;
+            if(elapsed >= fillDuration){
+                startTime = now;
+                localStorage.setItem("logicalWingStart", startTime);
+                elapsed = 0;
+            }
+            const timeProgress = (elapsed/fillDuration)*100;
+            progressFill.style.width = timeProgress+"%";
+        }
+        setInterval(updateDashboardProgress,1000);
+
 /* ---------- Rotating Testimonials ---------- */
 const testimonials = [
     "“My shifts are demanding, and I don’t always have time to explore new options. What stood out for me was how simple and structured this felt.” — Charlotte",
