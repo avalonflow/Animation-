@@ -233,12 +233,20 @@ function generateTicket() {
     notify('Ticket reference generated.');
 
 function copyTicket() {
-    if (!lastTicket) {
-        notify('Generate a ticket first.');
+    const ticketText = document.getElementById('ticketResult').innerText;
+
+    if (!ticketText) {
+        notify("No ticket to copy.");
         return;
     }
-    navigator.clipboard.writeText(lastTicket)
-        .then(() => notify('Ticket copied to clipboard.'));
+
+    navigator.clipboard.writeText(ticketText)
+        .then(() => {
+            notify("Ticket copied to clipboard ✅");
+        })
+        .catch(() => {
+            notify("Failed to copy ticket.");
+        });
 }
 
     // --- Analytics Update ---
@@ -279,13 +287,6 @@ themeToggle.addEventListener('click', ()=>{
     const mode=document.body.classList.contains('light-mode')?'light':'dark';
     localStorage.setItem('theme', mode);
     notify(`Switched to ${mode} mode`);
-});
-
-// ---------- Keyboard Shortcuts ----------
-document.addEventListener('keydown', e=>{
-    if(e.key==='s'||e.key==='S'){ document.getElementById('issueInput').focus(); e.preventDefault(); }
-    if(e.key==='t'||e.key==='T'){ document.querySelector('.button').click(); e.preventDefault(); }
-    if(e.key==='c'||e.key==='C'){ document.getElementById('botInput').focus(); e.preventDefault(); }
 });
 
 // ---------- Kairos Bot / FAQ ----------
