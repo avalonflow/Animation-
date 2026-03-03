@@ -314,21 +314,23 @@
     <h3>Ecosystem Overview</h3>
 
     <!-- Logical Wing Card -->
-    <div class="glass-card interactive-card">
-        <div class="card-header">
-            <strong>🪽 Logical Wing</strong>
-            <span class="badge">Hybrid AI</span>
-        </div>
-        <em>Where Structure Meets Intelligence</em>
-        <p class="summary">
-            Operational core powered by hybrid intelligence systems, combining reliable automation with human reasoning.
-        </p>
-        <p class="details">
-            Enables steady progress, risk management, and dynamic scalability. Metrics include uptime, processing load, and logical throughput. 
-        </p>
-        <blockquote>“When logic finds balance, systems begin to think — and life begins to flow.”</blockquote>
-        <button class="toggle-btn">Read More</button>
+<div class="glass-card interactive-card">
+    <div class="card-header">
+        <strong>🪽 Logical Wing</strong>
+        <span class="badge">Hybrid AI</span>
     </div>
+    <em>Where Structure Meets Intelligence</em>
+    <p class="summary">
+        Operational core powered by hybrid intelligence systems, combining reliable automation with human reasoning.
+    </p>
+    <p class="details">
+        Enables steady progress, risk management, and dynamic scalability. Metrics include uptime, processing load, and logical throughput. 
+    </p>
+    <blockquote style="display: none;">
+        “When logic finds balance, systems begin to think — and life begins to flow.”
+    </blockquote>
+    <button class="toggle-btn">Read More</button>
+</div>
 
             <!-- Mini TV Walkthrough -->
     <p style="text-align:center; font-weight:bold; margin-top:20px;">
@@ -349,21 +351,23 @@
     </div>
 
             <!-- Emotional Wing Card -->
-    <div class="glass-card interactive-card">
-        <div class="card-header">
-            <strong>💫 Emotional Wing</strong>
-            <span class="badge">Stability</span>
-        </div>
-        <em>The Living Core of AvalonFlow</em>
-        <p class="summary">
-            Supports long-term clarity, calm, and meaningful rewards for the ecosystem.
-        </p>
-        <p class="details">
-            Ensures work, growth, and life are balanced. Contributes to resilience, engagement, and systemic harmony.
-        </p>
-        <blockquote>• Each wing contributes to stability across work, growth, and life.</blockquote>
-        <button class="toggle-btn">Read More</button>
+<div class="glass-card interactive-card">
+    <div class="card-header">
+        <strong>💫 Emotional Wing</strong>
+        <span class="badge">Stability</span>
     </div>
+    <em>The Living Core of AvalonFlow</em>
+    <p class="summary">
+        Supports long-term clarity, calm, and meaningful rewards for the ecosystem.
+    </p>
+    <p class="details">
+        Ensures work, growth, and life are balanced. Contributes to resilience, engagement, and systemic harmony.
+    </p>
+    <blockquote style="display: none;">
+        “Each wing contributes to stability across work, growth, and life.” 
+    </blockquote>
+    <button class="toggle-btn">Read More</button>
+</div>
 </div>
 
     <!-- Sticky Footer -->
@@ -403,9 +407,15 @@
 /* ---------- Toggle Card Details ---------- */
 document.querySelectorAll('.toggle-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        const details = btn.previousElementSibling;
-        details.style.display = details.style.display === 'none' ? 'block' : 'none';
-        btn.textContent = btn.textContent === 'Read More' ? 'Read Less' : 'Read More';
+        // Find the blockquote inside the same card
+        const blockquote = btn.parentElement.querySelector('blockquote');
+        if (blockquote) {
+            if (blockquote.style.display === 'block') {
+                blockquote.style.display = 'none';
+                btn.textContent = 'Read More';
+            } else {
+                blockquote.style.display = 'block';
+                btn.textContent = 'Read Less';
     });
 });
 
