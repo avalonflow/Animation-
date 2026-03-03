@@ -5,20 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>AvalonFlow Support</title>
 
-            <!-- Favicon -->
 <link rel="icon" href="/favicon.png" type="image/png" sizes="48x48">
 
-        <!-- Structured Data for Logo -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "AvalonFlow",
-      "url": "https://avalonflow.site",
-      "logo": "https://avalonFlow.site/favicon.png"
-    }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "AvalonFlow",
+  "url": "https://avalonflow.site",
+  "logo": "https://avalonFlow.site/favicon.png"
+}
 </script>
-
 
 <style>
 /* ---------- Base ---------- */
@@ -26,27 +23,10 @@ body { font-family: Arial, sans-serif; margin: 0; background: #0d0d0d; color: #f
 button { cursor: pointer; } 
 a { color: inherit; text-decoration: none; }
 
-        /* ---------- Floating Background ---------- */
-        #floating-bg {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background: radial-gradient(circle at bottom, #1a0d3a, #0d0d0d);
-            overflow: hidden;
-        }
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.6;
-            animation: floatParticles linear infinite;
-            box-shadow: 0 0 10px #6b2cd8, 0 0 20px #6b2cd8;
-        }
-        @keyframes floatParticles {
-            0% { transform: translateY(100vh) scale(0.3); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
-        }
+/* ---------- Floating Background ---------- */
+#floating-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(circle at bottom, #1a0d3a, #0d0d0d); overflow: hidden; }
+.particle { position: absolute; border-radius: 50%; opacity: 0.6; animation: floatParticles linear infinite; box-shadow: 0 0 10px #6b2cd8, 0 0 20px #6b2cd8; }
+@keyframes floatParticles { 0% { transform: translateY(100vh) scale(0.3); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-10vh) scale(1); opacity: 0; } }
 
 /* ---------- Sidebar ---------- */
 #sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: rgba(15,15,25,0.95); backdrop-filter: blur(14px); z-index: 5; padding: 25px; transform: translateX(-100%); transition: transform 0.3s ease; }
@@ -69,126 +49,77 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- Buttons ---------- */
 .button { background: #6b2cd8; color: #fff; border: none; border-radius: 10px; padding: 12px 18px; margin-top: 12px; width: 100%; font-size: 16px; }
-
-/* ---------- Input ---------- */
 .input { width: 100%; padding: 12px; border-radius: 10px; border: none; margin-top: 12px; background: rgba(255,255,255,0.15); color: #fff; }
 
 /* ---------- Menu Button ---------- */
 #menuBtn { position: fixed; top: 20px; left: 20px; z-index: 6; background: #6b2cd8; border: none; color: #fff; padding: 12px 14px; border-radius: 10px; }
 
+/* ---------- Dark/Light Mode Toggle ---------- */
+#themeToggle { position: fixed; top: 20px; right: 20px; z-index: 6; padding: 10px 14px; border-radius:10px; background:#6b2cd8; color:#fff; border:none; cursor:pointer; }
+
 /* ---------- Footer ---------- */
 footer { position: fixed; bottom: 0; width: 100%; text-align: center; padding: 18px 0; font-size: 14px; color: #aaa; background: rgba(15,15,25,0.95); backdrop-filter: blur(12px); box-shadow: 0 -5px 20px rgba(0,0,0,0.4); z-index: 6; }
 
-    /* Notification Bar */
-    .notification-bar {
-        position: fixed;
-        top: -80px;
-        right: 20px;
-        background: rgba(30, 144, 255, 0.25);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(30,144,255,0.4);
-        color: #fff;
-        padding: 12px 18px;
-        border-radius: 12px;
-        font-size: 14px;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-        transition: top 0.5s ease, opacity 0.5s ease;
-        z-index: 9999;
-        opacity: 0;
-        max-width: 350px;
-        white-space: normal;
-        overflow: hidden;
-    }
-    .notification-bar.show {
-        top: 20px;
-        opacity: 1;
-    }
-    .notification-bar::before {
-        content: '';
-        position: absolute;
-        left: -50%;
-        top: 0;
-        width: 50%;
-        height: 100%;
-        background: rgba(255,255,255,0.3);
-        transform: skewX(-25deg);
-        animation: liquidWave 2s linear infinite;
-    }
-    @keyframes liquidWave {
-        0% { left: -50%; }
-        100% { left: 100%; }
-    }
+/* ---------- Notification Bar ---------- */
+.notification-bar { position: fixed; top: -80px; right: 20px; background: rgba(30, 144, 255, 0.25); backdrop-filter: blur(12px); border: 1px solid rgba(30,144,255,0.4); color: #fff; padding: 12px 18px; border-radius: 12px; font-size: 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); transition: top 0.5s ease, opacity 0.5s ease; z-index: 9999; opacity: 0; max-width: 350px; white-space: normal; overflow: hidden; }
+.notification-bar.show { top: 20px; opacity: 1; }
+.notification-bar::before { content: ''; position: absolute; left: -50%; top: 0; width: 50%; height: 100%; background: rgba(255,255,255,0.3); transform: skewX(-25deg); animation: liquidWave 2s linear infinite; }
+@keyframes liquidWave { 0% { left: -50%; } 100% { left: 100%; } }
 
 /* ---------- Live Status Badge ---------- */
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    border-radius: 20px;
-    font-size: 14px;
-    margin-bottom: 15px;
-}
-.status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #00ff6a;
-    box-shadow: 0 0 10px #00ff6a;
-}
+.status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 20px; font-size: 14px; margin-bottom: 15px; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: #00ff6a; box-shadow: 0 0 10px #00ff6a; }
 .status-offline { background: #ccc; box-shadow: 0 0 5px #ccc; }
 
-/* ---------- Kairos Bot Card (Content Flow) ---------- */
-#assistantBotCard {
-    width: 100%;
-    max-width: 400px;
-    margin-top: 20px;
-    padding: 18px;
-    z-index: 1;
-}
-#botHeader {
-    background: rgba(107,44,216,0.8);
-    color: #fff;
-    text-align: center;
-    padding: 10px;
-    font-weight: bold;
-    border-radius: 12px 12px 0 0;
-}
-#botMessagesContainer {
-    height: 180px;
-    overflow-y: auto;
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    padding: 10px;
-    border-radius: 0 0 12px 12px;
-}
+/* ---------- Kairos Bot ---------- */
+#assistantBotCard { width: 100%; max-width: 400px; margin-top: 20px; padding: 18px; z-index: 1; }
+#botHeader { background: rgba(107,44,216,0.8); color: #fff; text-align: center; padding: 10px; font-weight: bold; border-radius: 12px 12px 0 0; }
+#botMessagesContainer { height: 180px; overflow-y: auto; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); padding: 10px; border-radius: 0 0 12px 12px; }
 #botMessagesContainer .bot { text-align: left; color: #b3b3ff; margin-bottom: 4px; font-size: 13px; }
 #botMessagesContainer .user { text-align: right; color: #9b59b6; margin-bottom: 4px; font-size: 13px; }
 #botMessagesContainer .ambient { text-align: center; color: #aaa; font-size: 12px; opacity: 0.8; }
+#botInput { flex: 1; padding: 8px; border: none; border-radius: 10px; background: rgba(255,255,255,0.1); color: #fff; margin-right: 4px; }
+#botSendBtn { background: rgba(107,44,216,0.8); border:none; color:#fff; border-radius:10px; padding:8px 12px; cursor:pointer; }
 
-#botInput {
-    flex: 1;
-    padding: 8px;
-    border: none;
-    border-radius: 10px;
+/* ---------- Dark/Light Mode ---------- */
+body.light-mode { background: #f5f5f5; color: #111; }
+body.light-mode #sidebar { background: rgba(255,255,255,0.95); color: #111; }
+body.light-mode .glass-card { background: rgba(255,255,255,0.85); color: #111; }
+body.light-mode .button { background: #6b2cd8; color: #fff; }
+body.light-mode .notification-bar { background: rgba(30,144,255,0.25); color: #111; border-color: rgba(30,144,255,0.4); }
+
+#ticketFile {
     background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 6px;
     color: #fff;
-    margin-right: 4px;
+    width: 100%;
 }
-#botSendBtn {
-    background: rgba(107,44,216,0.8);
-    border:none;
-    color:#fff;
-    border-radius:10px;
-    padding:8px 12px;
-    cursor:pointer;
+#analyticsPanel div {
+    background: rgba(107,44,216,0.15);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 14px;
 }
+
+.badge-item {
+    background: linear-gradient(90deg,#6b2cd8,#9b59b6);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    box-shadow: 0 0 6px rgba(107,44,216,0.7);
+}
+
+/* ---------- Mobile Notification Adjustments ---------- */
+@media(max-width:600px){ .notification-bar { top: 10px; right: 10px; max-width: 90%; font-size: 13px; } }
 </style>
 </head>
 <body>
 
 <div id="floating-bg"></div>
 <button id="menuBtn" onclick="toggleSidebar()">☰</button>
+<button id="themeToggle">🌙 Toggle Dark/Light</button>
 <div id="supportNotification" class="notification-bar"></div>
 
 <div id="sidebar">
@@ -200,6 +131,7 @@ footer { position: fixed; bottom: 0; width: 100%; text-align: center; padding: 1
 <div id="overlay" onclick="toggleSidebar()"></div>
 
 <div id="content">
+    <!-- Ticket / Support Card -->
     <div class="glass-card">
         <div class="status-badge">
             <span id="statusDot" class="status-dot"></span>
@@ -210,11 +142,47 @@ footer { position: fixed; bottom: 0; width: 100%; text-align: center; padding: 1
         <p>Generate a ticket reference before contacting support for faster resolution.</p>
         <input id="issueInput" class="input" placeholder="Brief issue description (optional)" />
         <button class="button" onclick="generateTicket()">Generate Ticket Reference</button>
+        <button class="button" onclick="copyTicket()">Copy Ticket Reference</button>
         <p id="ticketResult" style="margin-top:15px;font-weight:bold;"></p>
         <a href="mailto:avalonflow@usa.com" class="button" onclick="notify('Include your ticket reference in the email.')">Email Support</a>
+        <select id="issueCategory" class="input" style="margin-top:12px;">
+            <option value="">Select Issue Category</option>
+            <option value="technical">Technical</option>
+            <option value="billing">Billing</option>
+            <option value="account">Account</option>
+            <option value="other">Other</option>
+        </select>
     </div>
 
-    <!-- Assistant Bot -->
+<div class="glass-card" id="gamificationPanel">
+    <h3>🏆 Your Engagement</h3>
+    <div style="display:flex; gap:12px; flex-wrap: wrap; margin-bottom:12px;" id="badgesContainer">
+        <!-- Badges will appear here dynamically -->
+    </div>
+
+    <div style="margin-bottom:12px;">
+        <strong>🔥 Streak:</strong> <span id="streakCount">0</span> days
+    </div>
+
+    <div style="margin-bottom:12px;">
+        <strong>🎯 Rewards Progress:</strong>
+        <div style="background: rgba(255,255,255,0.1); border-radius:10px; height:20px; overflow:hidden;">
+            <div id="rewardProgressBar" style="width:0%; height:100%; background:#6b2cd8; transition:width 0.5s;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- File Upload -->
+<label for="ticketFile" style="margin-top:12px; display:block;">Attach a file (optional):</label>
+<input type="file" id="ticketFile" style="margin-top:6px; color:#fff;"/>
+
+<!-- Analytics Panel -->
+<div class="glass-card" id="analyticsPanel" style="margin-top:24px;">
+    <h3>📊 Support Analytics (Simulated)</h3>
+    <div id="issueCounts" style="display:flex; flex-direction:column; gap:6px;"></div>
+</div>
+
+    <!-- Assistant Bot / FAQ -->
     <div class="glass-card" id="assistantBotCard">
         <div id="botHeader">💬 Chat with Kairos</div>
         <div id="botMessagesContainer"></div>
@@ -225,164 +193,143 @@ footer { position: fixed; bottom: 0; width: 100%; text-align: center; padding: 1
     </div>
 </div>
 
-    <!-- Sticky Footer -->
-    <footer>
-        © 2026 AvalonFlow • Powered by Centrical™
-    </footer>
+<footer>© 2026 AvalonFlow • Powered by Centrical™</footer>
 
 <script>
-        /* Floating particles */
-        const bg = document.getElementById('floating-bg');
-        const colors = ['#6b2cd8','#9b59b6','#8e44ad'];
-        function particle() {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            const s = Math.random()*20+10;
-            p.style.width = s+'px';
-            p.style.height = s+'px';
-            p.style.left = Math.random()*100+'vw';
-            p.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random()*3)]}, transparent)`;
-            p.style.animationDuration = (Math.random()*20+10)+'s';
-            bg.appendChild(p);
-            setTimeout(()=>p.remove(),30000);
-        }
-        setInterval(particle,800); 
+// ---------- Floating Particles ----------
+const bg = document.getElementById('floating-bg');
+const colors = ['#6b2cd8','#9b59b6','#8e44ad'];
+function particle() { const p=document.createElement('div'); p.className='particle'; const s=Math.random()*20+10; p.style.width=s+'px'; p.style.height=s+'px'; p.style.left=Math.random()*100+'vw'; p.style.background=`radial-gradient(circle, ${colors[Math.floor(Math.random()*3)]}, transparent)`; p.style.animationDuration=(Math.random()*20+10)+'s'; bg.appendChild(p); setTimeout(()=>p.remove(),30000); }
+setInterval(particle,800);
 
-/* ---------- Sidebar ---------- */
+// ---------- Sidebar ----------
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('overlay');
 function toggleSidebar(){ sidebar.classList.toggle('open'); overlay.classList.toggle('active'); }
 function nav(p){ location.href=p; }
 
-/* ---------- Notification ---------- */
-function notify(msg){
-    const n=document.getElementById('supportNotification');
-    n.textContent=msg;
-    n.classList.add('show');
-    setTimeout(()=>n.classList.remove('show'),3000);
-}
+// ---------- Notification ----------
+function notify(msg){ const n=document.getElementById('supportNotification'); n.textContent=msg; n.classList.add('show'); setTimeout(()=>n.classList.remove('show'),3000); }
 
-/* ---------- Ticket Generator ---------- */
+// ---------- Ticket System ----------
+let lastTicket='';
 function generateTicket(){
     const stamp=Date.now().toString().slice(-6);
     const rand=Math.random().toString(36).substring(2,6).toUpperCase();
-    const ref=`AF-SUP-${stamp}-${rand}`;
-    document.getElementById('ticketResult').textContent = `Ticket Reference: ${ref}`;
+    lastTicket=`AF-SUP-${stamp}-${rand}`;
+    document.getElementById('ticketResult').textContent=`Ticket Reference: ${lastTicket}`;
     notify('Ticket reference generated.');
 }
-
-/* ---------- Mini TV ---------- */
-const tvMessages = [
-    "Support desk is available to guide you through every step.",
-    "Having issues? Generate a ticket reference before emailing.",
-    "Clear communication speeds up resolution.",
-    "Our support desk is standing by."
-];
-let tvIndex = 0;
-function rotateTV(){
-    document.getElementById('miniTV').textContent = tvMessages[tvIndex];
-    tvIndex = (tvIndex + 1) % tvMessages.length;
+function copyTicket(){
+    if(!lastTicket){ notify('Generate a ticket first.'); return; }
+    navigator.clipboard.writeText(lastTicket).then(()=>notify('Ticket copied to clipboard.'));
 }
-rotateTV();
-setInterval(rotateTV, 4000);
 
-/* ---------- Live Status ---------- */
+// ---------- Mini TV ----------
+const tvMessages = [
+    {type:'tip', text:"Support desk is available to guide you through every step."},
+    {type:'announcement', text:"Having issues? Generate a ticket reference before emailing."},
+    {type:'motivation', text:"Clear communication speeds up resolution."},
+    {type:'tip', text:"Our support desk is standing by."}
+];
+let tvIndex=0;
+function rotateTV(){ const msg=tvMessages[tvIndex]; const tv=document.getElementById('miniTV'); tv.textContent=msg.text; tv.dataset.type=msg.type; tvIndex=(tvIndex+1)%tvMessages.length; }
+rotateTV(); setInterval(rotateTV,4000);
+
+// ---------- Live Status ----------
 function updateStatus(){
-    const now = new Date();
-    const estHour = (now.getUTCHours()-5+24)%24;
-    const estDay = now.getUTCDay();
-    const isOffice = (estDay>=1 && estDay<=7) && (estHour>=9 && estHour<18);
-    const dot=document.getElementById('statusDot');
-    const text=document.getElementById('statusText');
+    const now=new Date(); const estHour=(now.getUTCHours()-5+24)%24; const estDay=now.getUTCDay(); const isOffice=(estDay>=1 && estDay<=7) && (estHour>=9 && estHour<18);
+    const dot=document.getElementById('statusDot'); const text=document.getElementById('statusText');
     if(isOffice){ dot.className='status-dot'; text.textContent='Support Desk Online'; }
     else { dot.className='status-dot status-offline'; text.textContent='Support Desk Offline'; }
 }
-updateStatus();
-setInterval(updateStatus,60000);
+updateStatus(); setInterval(updateStatus,60000);
 
-/* ---------- Welcome ---------- */
+// ---------- Dark/Light Mode ----------
+const themeToggle = document.getElementById('themeToggle');
+if(localStorage.getItem('theme')==='light') document.body.classList.add('light-mode');
+themeToggle.addEventListener('click', ()=>{
+    document.body.classList.toggle('light-mode');
+    const mode=document.body.classList.contains('light-mode')?'light':'dark';
+    localStorage.setItem('theme', mode);
+    notify(`Switched to ${mode} mode`);
+});
 
-window.onload = () => {
+// ---------- Keyboard Shortcuts ----------
+document.addEventListener('keydown', e=>{
+    if(e.key==='s'||e.key==='S'){ document.getElementById('issueInput').focus(); e.preventDefault(); }
+    if(e.key==='t'||e.key==='T'){ document.querySelector('.button').click(); e.preventDefault(); }
+    if(e.key==='c'||e.key==='C'){ document.getElementById('botInput').focus(); e.preventDefault(); }
+});
 
-notify('Get assistance or clarification here.');
+// ---------- Kairos Bot / FAQ ----------
+const botMessagesContainer=document.getElementById('botMessagesContainer');
+const botInput=document.getElementById('botInput');
+const botSendBtn=document.getElementById('botSendBtn');
+const quotes=[ "Believe in yourself and all that you are.", "Small steps each day lead to big results.", "Life is about moments, not things.", "Consistency is the key to success.", "Every day is a fresh start.", "Faith is the compass that guides you through life’s storms.", "Pray not just for what you want, but   for the strength to receive it.", "Trust God’s timing; He never runs late.", "Your faith can move mountains, but your actions must build the path.", "God doesn’t call the equipped; He equips the called.", "Gratitude turns what we have into enough.", "Serve with love, and blessings will follow silently.", "When you focus on God, life focuses for you.", "Don’t chase money; build systems that make money chase you.", "Financial freedom begins when you learn to control your money, not your lifestyle.", "Save like a pessimist, invest like an optimist.", "Wealth grows when patience waters it daily.", "Your income is limited only by your imagination and action.", "Make your money work harder than you do.", "Life rewards those who act, not those who wait.", "Every setback is a setup for a stronger comeback.", "Your comfort zone is a beautiful place, but nothing ever grows there.", "Consistency beats talent when talent doesn’t show up.", "The storms of life shape the strongest sailors.", "Dream big, start small, move consistently." ];
 
-};
-
-const botMessagesContainer = document.getElementById('botMessagesContainer'); // Kairos container
-const botInput = document.getElementById('botInput');
-const botSendBtn = document.getElementById('botSendBtn');
-
-const quotes = [
-  "Believe in yourself and all that you are.",
-  "Small steps each day lead to big results.",
-  "Life is about moments, not things.",
-  "Consistency is the key to success.",
-  "Every day is a fresh start.",
-  "Faith is the compass that guides you through life’s storms.",
-  "Pray not just for what you want, but   for the strength to receive it.",
-  "Trust God’s timing; He never runs late.",
-  "Your faith can move mountains, but your actions must build the path.",
-  "God doesn’t call the equipped; He equips the called.",
-  "Gratitude turns what we have into enough.",
-  "Serve with love, and blessings will follow silently.",
-  "When you focus on God, life focuses for you.",
-  "Don’t chase money; build systems that make money chase you.",
-  "Financial freedom begins when you learn to control your money, not your lifestyle.",
-  "Save like a pessimist, invest like an optimist.",
-  "Wealth grows when patience waters it daily.",
-  "Your income is limited only by your imagination and action.",
-  "Make your money work harder than you do.",
-  "Life rewards those who act, not those who wait.",
-  "Every setback is a setup for a stronger comeback.",
-  "Your comfort zone is a beautiful place, but nothing ever grows there.",
-  "Consistency beats talent when talent doesn’t show up.",
-  "The storms of life shape the strongest sailors.",
-  "Dream big, start small, move consistently." 
+const faqs=[
+  {q:"How do I reset my password?", a:"Click 'Forgot password' on the login page and follow instructions."},
+  {q:"How can I update my billing info?", a:"Navigate to your account settings, then 'Billing' to update payment methods."},
+  {q:"Where can I view my ticket history?", a:"All your submitted tickets and their status are visible under 'Support > My Tickets'."},
+  {q:"How do I contact live support?", a:"Generate a ticket and email support at avalonflow@usa.com including your reference."},
+  {q:"What are the support hours?", a:"Support is online Monday–Sunday, 9 AM to 6 PM EST."},
+  {q:"Can I change my subscription plan?", a:"Yes, go to 'Account Settings > Subscription' and select your preferred plan."},
+  {q:"How do I report a bug?", a:"Generate a ticket under 'Technical' category and describe the issue in detail."},
+  {q:"Where can I find tutorials?", a:"Tutorials are available in the 'Ecosystem > Guides & Tutorials' section."},
+  {q:"Is there a mobile app?", a:"Yes, AvalonFlow app is available on iOS and Android."},
+  {q:"Can I integrate AvalonFlow with other apps?", a:"Yes, check 'Integrations' in your account settings for supported apps."},
+  {q:"How do I track my rewards?", a:"Ask Kairos in chat or check your 'Rewards Dashboard' to see progress bars."},
+  {q:"What if I forget my ticket reference?", a:"You can generate a new one, but include any old reference if available when emailing support."},
+  {q:"How secure is my data?", a:"AvalonFlow uses industry-standard encryption and secure storage protocols."},
+  {q:"Can I receive notifications on mobile?", a:"Yes, enable mobile notifications in your account settings or browser."},
+  {q:"How do I toggle dark/light mode?", a:"Click the 🌙 Toggle Dark/Light button at the top-right corner."},
+  {q:"Are keyboard shortcuts available?", a:"Yes, 'S' focuses issue input, 'T' generates ticket, 'C' focuses chat input."},
+  {q:"Who can I contact for urgent issues?", a:"For urgent issues, generate a ticket and mark it 'High Priority', then email support."}
 ];
 
+// ---------- Bot Functions ----------
 function addBotMessage(msg, type='bot'){
-    const div = document.createElement('div');
-    div.className = type;
-    div.textContent = msg;
-    div.style.opacity = 0;
+    const div=document.createElement('div');
+    div.className=type;
+    div.textContent=msg;
+    div.style.opacity=0;
     botMessagesContainer.appendChild(div);
 
-    // Fade-in
-    let opacity = 0;
-    const fadeIn = setInterval(()=>{
-        opacity += 0.05;
-        div.style.opacity = opacity;
-        if(opacity >= 1) clearInterval(fadeIn);
-    }, 30);
+    let opacity=0;
+    const fadeIn=setInterval(()=>{
+        opacity+=0.05;
+        div.style.opacity=opacity;
+        if(opacity>=1) clearInterval(fadeIn);
+    },30);
 
-    // Keep scroll at bottom
-    botMessagesContainer.scrollTop = botMessagesContainer.scrollHeight;
+    botMessagesContainer.scrollTop=botMessagesContainer.scrollHeight;
 
-    // Remove oldest messages if more than 10
-    while(botMessagesContainer.children.length > 10){
+    while(botMessagesContainer.children.length>10){
         botMessagesContainer.removeChild(botMessagesContainer.children[0]);
     }
 }
 
-function addUserMessage(msg){
-    addBotMessage(msg, 'user');
-}
+function addUserMessage(msg){ addBotMessage(msg,'user'); }
 
-// Bot logic
 function botReply(msg){
-    msg = msg.toLowerCase();
-    const unlocked=JSON.parse(localStorage.getItem('unlockedPlans'))||{};
-    const unlockTimes=JSON.parse(localStorage.getItem('unlockTimes'))||{};
+    msg=msg.toLowerCase();
+
     if(/hi|hello|hey|yo/.test(msg)){
         addBotMessage("Hi! I'm Kairos. I can guide you, provide info on rewards, or share motivational quotes.");
     }
-    else if(msg.includes('who are you') || msg.includes('yourself')){
-        addBotMessage("I’m Kairos, your guide through AvalonFlow. I provide tips, motivational quotes, and info about your rewards.");
+    else if(msg.includes('faq')){
+        addBotMessage("Here are some frequently asked questions:");
+        faqs.forEach(f=>{
+            addBotMessage(`Q: ${f.q}\nA: ${f.a}`);
+        });
     }
     else if(msg.includes('quote')){
         addBotMessage(quotes[Math.floor(Math.random()*quotes.length)]);
     }
     else if(msg.includes('reward') || msg.includes('progress') || msg.includes('plan')){
+        let unlocked=JSON.parse(localStorage.getItem('unlockedPlans'))||{};
+        let unlockTimes=JSON.parse(localStorage.getItem('unlockTimes'))||{};
         let response="Plan progress:\n";
         ['premium','basic','lite'].forEach(plan=>{
             if(unlocked[plan]){
@@ -395,43 +342,159 @@ function botReply(msg){
         });
         addBotMessage(response);
     }
-    else if(msg.includes('faq')){
-        addBotMessage("Here's a list of common FAQs...");
-    }
     else if(msg.includes('support') || msg.includes('help')){
         addBotMessage("You can email support at avalonflow@usa.com. Make sure to include your ticket reference.");
     }
-    else {
-        addBotMessage("I can provide tips, motivational quotes, info about AvalonFlow, or guide you to support.");
-    }
+    else addBotMessage("I can provide tips, motivational quotes, info about AvalonFlow, or guide you to support.");
 }
 
-// Send button
-botSendBtn.addEventListener('click', ()=>{
-    const msg = botInput.value.trim();
+botSendBtn.addEventListener('click',()=>{
+    const msg=botInput.value.trim();
     if(!msg) return;
     addUserMessage(msg);
     botInput.value='';
-    setTimeout(()=>botReply(msg), 500);
+    setTimeout(()=>botReply(msg),500);
 });
 
-// Enter key
 botInput.addEventListener('keypress', e=>{
     if(e.key==='Enter') botSendBtn.click();
 });
 
-// Ambient messages every 10s if no user messages
+// --- AI-Powered Auto-Suggestions ---
+const autoSuggest = [
+    {keywords: ['ticket', 'issue', 'problem'], suggestion: 'You can generate a ticket reference above to track your issue.'},
+    {keywords: ['faq', 'question'], suggestion: 'Try exploring our FAQ section for quick answers.'},
+    {keywords: ['chat', 'kairos'], suggestion: 'You can ask me directly here for guidance.'},
+    {keywords: ['reward', 'progress'], suggestion: 'Check your reward progress in the gamification panel.'},
+    {keywords: ['support', 'help'], suggestion: 'You can email support at avalonflow@usa.com with your ticket reference.'}
+];
+
+botInput.addEventListener('input', e => {
+    const msg = e.target.value.toLowerCase();
+    const found = autoSuggest.find(s => s.keywords.some(k => msg.includes(k)));
+    if(found) notify(`💡 Tip: ${found.suggestion}`);
+});
+
+// --- File Upload for Tickets ---
+const ticketFile = document.getElementById('ticketFile');
+let uploadedFileName = null;
+ticketFile.addEventListener('change', e => {
+    if(e.target.files.length > 0) uploadedFileName = e.target.files[0].name;
+});
+
+// --- Simulated Analytics ---
+const issueCountsContainer = document.getElementById('issueCounts');
+// Simulated issue categories and counts
+let issueCounts = {
+    "Login Issues": 5,
+    "Payment Problems": 2,
+    "Feature Requests": 3,
+    "Bug Reports": 4
+};
+
+function renderAnalytics(){
+    issueCountsContainer.innerHTML = '';
+    Object.entries(issueCounts).forEach(([issue, count]) => {
+        const div = document.createElement('div');
+        div.textContent = `${issue}: ${count} submissions`;
+        issueCountsContainer.appendChild(div);
+    });
+}
+
+// Call render on load
+renderAnalytics();
+
+// Hook into ticket generation to update analytics (simulate)
+document.getElementById('ticketResult').addEventListener('DOMSubtreeModified', ()=>{
+    const input = document.getElementById('issueInput').value || 'Miscellaneous';
+    if(issueCounts[input]) issueCounts[input] += 1;
+    else issueCounts[input] = 1;
+    renderAnalytics();
+});
+
+// Initialize gamification data in localStorage
+if(!localStorage.getItem('kairosGamification')){
+    localStorage.setItem('kairosGamification', JSON.stringify({
+        streak: 0,
+        lastActive: null,
+        badges: [],
+        rewardProgress: 0
+    }));
+}
+
+const gamificationData = JSON.parse(localStorage.getItem('kairosGamification'));
+const badgesContainer = document.getElementById('badgesContainer');
+const streakCount = document.getElementById('streakCount');
+const rewardProgressBar = document.getElementById('rewardProgressBar');
+
+// Utility: Save gamification
+function saveGamification(){
+    localStorage.setItem('kairosGamification', JSON.stringify(gamificationData));
+}
+
+// Update streak
+function updateStreak(){
+    const today = new Date().toDateString();
+    if(gamificationData.lastActive !== today){
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate()-1);
+        if(gamificationData.lastActive === yesterday.toDateString()){
+            gamificationData.streak += 1; // Continue streak
+        } else {
+            gamificationData.streak = 1; // Reset streak
+        }
+        gamificationData.lastActive = today;
+        gamificationData.rewardProgress = Math.min(100, gamificationData.rewardProgress + 10); // Increment progress
+        saveGamification();
+    }
+    streakCount.textContent = gamificationData.streak;
+    rewardProgressBar.style.width = gamificationData.rewardProgress + '%';
+}
+
+// Add badge
+function earnBadge(name){
+    if(!gamificationData.badges.includes(name)){
+        gamificationData.badges.push(name);
+        const badgeEl = document.createElement('span');
+        badgeEl.className = 'badge-item';
+        badgeEl.textContent = name;
+        badgesContainer.appendChild(badgeEl);
+        saveGamification();
+    }
+}
+
+// Load existing badges
+gamificationData.badges.forEach(b => earnBadge(b));
+
+// Simulate earning badges based on actions
+function simulateUserAction(action){
+    if(action === 'chat') earnBadge('💬 Engaged in Chat');
+    if(action === 'ticket') earnBadge('📄 Ticket Generated');
+    if(action === 'faq') earnBadge('❓ Explored FAQs');
+    updateStreak();
+}
+
+// Initial load
+updateStreak();
+
+// Example: Hook into your existing functions
+// When a user sends a message:
+botSendBtn.addEventListener('click', ()=> simulateUserAction('chat'));
+
+// When ticket is generated:
+document.getElementById('ticketResult').addEventListener('DOMSubtreeModified', ()=> simulateUserAction('ticket'));
+
+// ---------- Ambient Messages ----------
 setInterval(()=>{
     if(botMessagesContainer.querySelector('.user')===null){
-        const msg = quotes[Math.floor(Math.random()*quotes.length)];
-        const ambientDiv = document.createElement('div');
+        const msg=quotes[Math.floor(Math.random()*quotes.length)];
+        const ambientDiv=document.createElement('div');
         ambientDiv.className='ambient';
         ambientDiv.textContent=msg;
         ambientDiv.style.opacity=0;
         botMessagesContainer.appendChild(ambientDiv);
         botMessagesContainer.scrollTop=botMessagesContainer.scrollHeight;
 
-        // fade-in
         let opacity=0;
         let fadeIn=setInterval(()=>{
             opacity+=0.05;
@@ -439,7 +502,6 @@ setInterval(()=>{
             if(opacity>=0.8) clearInterval(fadeIn);
         },50);
 
-        // fade-out after 10s
         setTimeout(()=>{
             let fadeOut=setInterval(()=>{
                 opacity-=0.05;
@@ -452,4 +514,4 @@ setInterval(()=>{
 
 </script>
 </body>
-  </html>
+</html>
