@@ -178,7 +178,7 @@ body.light-mode .notification-bar { background: rgba(30,144,255,0.25); color: #1
 
 <!-- Analytics Panel -->
 <div class="glass-card" id="analyticsPanel" style="margin-top:24px;">
-    <h3>📊 Support Analytics (Simulated)</h3>
+    <h3>📊 Support Analytics</h3>
     <div id="issueCounts" style="display:flex; flex-direction:column; gap:6px;"></div>
 </div>
 
@@ -231,6 +231,15 @@ function generateTicket() {
 
     // Notify the user
     notify('Ticket reference generated.');
+
+function copyTicket() {
+    if (!lastTicket) {
+        notify('Generate a ticket first.');
+        return;
+    }
+    navigator.clipboard.writeText(lastTicket)
+        .then(() => notify('Ticket copied to clipboard.'));
+}
 
     // --- Analytics Update ---
     const input = document.getElementById('issueInput').value || 'Miscellaneous';
