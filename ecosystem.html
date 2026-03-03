@@ -411,7 +411,6 @@
 /* ---------- Toggle Card Details ---------- */
 document.querySelectorAll('.toggle-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        // Find the blockquote inside the same card
         const blockquote = btn.parentElement.querySelector('blockquote');
         if (blockquote) {
             if (blockquote.style.display === 'block') {
