@@ -213,16 +213,33 @@ function notify(msg){ const n=document.getElementById('supportNotification'); n.
 
 // ---------- Ticket System ----------
 let lastTicket='';
-function generateTicket(){
-    const stamp=Date.now().toString().slice(-6);
-    const rand=Math.random().toString(36).substring(2,6).toUpperCase();
-    lastTicket=`AF-SUP-${stamp}-${rand}`;
-    document.getElementById('ticketResult').textContent=`Ticket Reference: ${lastTicket}`;
+function generateTicket() {
+    const stamp = Date.now().toString().slice(-6);
+    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+    lastTicket = `AF-SUP-${stamp}-${rand}`;
+
+    // Show ticket reference
+    let ticketText = `Ticket Reference: ${lastTicket}`;
+
+    // Include uploaded file if exists
+    if (uploadedFileName) {
+        ticketText += ` | Attached: ${uploadedFileName}`;
+        uploadedFileName = null; // reset after ticket generation
+    }
+
+    document.getElementById('ticketResult').textContent = ticketText;
+
+    // Notify the user
     notify('Ticket reference generated.');
-}
-function copyTicket(){
-    if(!lastTicket){ notify('Generate a ticket first.'); return; }
-    navigator.clipboard.writeText(lastTicket).then(()=>notify('Ticket copied to clipboard.'));
+
+    // --- Analytics Update ---
+    const input = document.getElementById('issueInput').value || 'Miscellaneous';
+    if (issueCounts[input]) issueCounts[input] += 1;
+    else issueCounts[input] = 1;
+    renderAnalytics();
+
+    // --- Gamification ---
+    simulateUserAction('ticket');
 }
 
 // ---------- Mini TV ----------
@@ -362,11 +379,9 @@ botInput.addEventListener('keypress', e=>{
 
 // --- AI-Powered Auto-Suggestions ---
 const autoSuggest = [
-    {keywords: ['ticket', 'issue', 'problem'], suggestion: 'You can generate a ticket reference above to track your issue.'},
-    {keywords: ['faq', 'question'], suggestion: 'Try exploring our FAQ section for quick answers.'},
-    {keywords: ['chat', 'kairos'], suggestion: 'You can ask me directly here for guidance.'},
-    {keywords: ['reward', 'progress'], suggestion: 'Check your reward progress in the gamification panel.'},
-    {keywords: ['support', 'help'], suggestion: 'You can email support at avalonflow@usa.com with your ticket reference.'}
+    {keywords:['ticket','issue','support'], suggestion:"Remember to generate a ticket reference for faster support."},
+    {keywords:['faq','question'], suggestion:"You can type 'FAQ' to see common questions."},
+    {keywords:['quote','motivation'], suggestion:"Type 'quote' to get a motivational message from Kairos."}
 ];
 
 botInput.addEventListener('input', e => {
@@ -463,8 +478,13 @@ function earnBadge(name){
     }
 }
 
-// Load existing badges
-gamificationData.badges.forEach(b => earnBadge(b));
+// Load existing badges from localStorage
+gamificationData.badges.forEach(b => {
+    const badgeEl = document.createElement('span');
+    badgeEl.className = 'badge-item';
+    badgeEl.textContent = b;
+    badgesContainer.appendChild(badgeEl);
+});
 
 // Simulate earning badges based on actions
 function simulateUserAction(action){
@@ -486,31 +506,20 @@ document.getElementById('ticketResult').addEventListener('DOMSubtreeModified', (
 
 // ---------- Ambient Messages ----------
 setInterval(()=>{
-    if(botMessagesContainer.querySelector('.user')===null){
-        const msg=quotes[Math.floor(Math.random()*quotes.length)];
-        const ambientDiv=document.createElement('div');
-        ambientDiv.className='ambient';
-        ambientDiv.textContent=msg;
-        ambientDiv.style.opacity=0;
-        botMessagesContainer.appendChild(ambientDiv);
-        botMessagesContainer.scrollTop=botMessagesContainer.scrollHeight;
+    const msg = quotes[Math.floor(Math.random()*quotes.length)];
+    const ambientDiv = document.createElement('div');
+    ambientDiv.className = 'ambient';
+    ambientDiv.textContent = msg;
+    ambientDiv.style.opacity = 0;
+    botMessagesContainer.appendChild(ambientDiv);
+    botMessagesContainer.scrollTop = botMessagesContainer.scrollHeight;
 
-        let opacity=0;
-        let fadeIn=setInterval(()=>{
-            opacity+=0.05;
-            ambientDiv.style.opacity=opacity;
-            if(opacity>=0.8) clearInterval(fadeIn);
-        },50);
-
-        setTimeout(()=>{
-            let fadeOut=setInterval(()=>{
-                opacity-=0.05;
-                ambientDiv.style.opacity=opacity;
-                if(opacity<=0){ clearInterval(fadeOut); ambientDiv.remove(); }
-            },50);
-        },10000);
-    }
-},10000);
+    // Use CSS transition for fade
+    ambientDiv.style.transition = 'opacity 1s';
+    setTimeout(()=>ambientDiv.style.opacity = 0.8, 50); // fade in
+    setTimeout(()=>ambientDiv.style.opacity = 0, 10000); // fade out
+    setTimeout(()=>ambientDiv.remove(), 11000); // remove after fade out
+}, 10000);
 
 </script>
 </body>
