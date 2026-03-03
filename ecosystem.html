@@ -332,23 +332,27 @@
     <button class="toggle-btn">Read More</button>
 </div>
 
-            <!-- Mini TV Walkthrough -->
-    <p style="text-align:center; font-weight:bold; margin-top:20px;">
-        Interactive walkthrough: hybrid mechanisms in motion
-    </p>
-    <div class="video-container">
-        <video id="ecosystemVideo" controls controlsList="nodownload noplaybackrate" loop muted autoplay>
-            <source src="assets/videos/VID_20250912_055134.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        <div class="video-overlay">
-            <span class="video-tag">Live Metrics: 92% Uptime</span>
-        </div>
-        <div class="video-controls">
-            <label for="volumeControl" style="margin-right:6px;">Volume:</label>
-            <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="1">
-        </div>
+            <!-- Mini TV Walkthrough with Live Metrics -->
+<p style="text-align:center; font-weight:bold; margin-top:20px;">
+    Interactive walkthrough: hybrid mechanisms in motion
+</p>
+
+<div class="video-container">
+    <video id="ecosystemVideo" controls controlsList="nodownload noplaybackrate" loop muted autoplay>
+        <source src="assets/videos/VID_20250912_055134.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- Live Metrics Overlay -->
+    <div class="video-overlay">
+        <span class="video-tag" id="liveMetrics">Live Metrics: 92% Uptime</span>
     </div>
+
+    <div class="video-controls">
+        <label for="volumeControl" style="margin-right:6px;">Volume:</label>
+        <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="1">
+    </div>
+</div>
 
             <!-- Emotional Wing Card -->
 <div class="glass-card interactive-card">
@@ -449,12 +453,28 @@ cards.forEach(card => observer.observe(card));
             setTimeout(()=>notification.classList.remove("show"), 3300);
         });
 
-        /* Video Volume Control */
-        const video = document.getElementById("ecosystemVideo");
-        const volumeControl = document.getElementById("volumeControl");
-        volumeControl.addEventListener("input", e => {
-            video.volume = e.target.value;
-        });
+        // Video Volume Control
+    const video = document.getElementById("ecosystemVideo");
+    const volumeControl = document.getElementById("volumeControl");
+    volumeControl.addEventListener("input", e => {
+        video.volume = e.target.value;
+    });
+
+    // Live Metrics Update
+    const metricsEl = document.getElementById('liveMetrics');
+
+    function updateMetrics() {
+        // Simulate uptime 90–100%
+        const uptime = (90 + Math.random() * 10).toFixed(1);
+
+        // Simulate processing load 40–80%
+        const load = (40 + Math.random() * 40).toFixed(0);
+
+        metricsEl.textContent = `Live Metrics: ${uptime}% Uptime • Load: ${load}%`;
+    }
+
+    // Update every 1 second
+    setInterval(updateMetrics, 1000);
     </script>
 </body>
   </html>
