@@ -217,6 +217,78 @@
         .video-controls input[type=range] {
             width: 100px;
         }
+
+/* ---------- Card Interactivity & Tiered Web3 Styling ---------- */
+.interactive-card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(18px);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 15px 35px rgba(107,44,216,0.45);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+.interactive-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 25px 50px rgba(107,44,216,0.6);
+}
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.badge {
+    background: linear-gradient(90deg,#6b2cd8,#9b59b6);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #fff;
+    box-shadow: 0 0 6px rgba(107,44,216,0.7);
+}
+.summary { margin-bottom: 6px; }
+.details { display: none; margin-bottom: 6px; }
+.toggle-btn {
+    background: #6b2cd8;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s ease;
+}
+.toggle-btn:hover { background: #9b59b6; }
+
+/* ---------- Scroll-trigger Fade-in ---------- */
+.interactive-card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.interactive-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ---------- Mini TV Overlay ---------- */
+.video-container { position: relative; border-radius: 16px; overflow: hidden; }
+.video-overlay {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(107,44,216,0.25);
+    backdrop-filter: blur(8px);
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #fff;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(107,44,216,0.5);
+}
     </style>
 </head>
 
@@ -237,47 +309,62 @@
     <div id="overlay" onclick="toggleSidebar()"></div>
 
     <div id="content">
-        <!-- Ecosystem Panel -->
-        <div id="ecosystem" class="panel">
-            <h3>Ecosystem Overview</h3>
+        <!-- ---------- Ecosystem Panel (Futuristic Web3 Upgrade) ---------- -->
+<div id="ecosystem" class="panel">
+    <h3>Ecosystem Overview</h3>
 
-            <div class="glass-card">
-                <strong>🪽 The Logical Wing</strong><br>
-                <em>Where Structure Meets Intelligence</em>
-                <p>
-                    Represents the operational core — powered by a hybrid intelligence
-                    infrastructure that combines reliable systems with thoughtful human
-                    reasoning, enabling steady and sustainable progress.
-                </p>
-                <blockquote>“When logic finds balance, systems begin to think — and life begins to flow.”</blockquote>
-            </div>
+    <!-- Logical Wing Card -->
+    <div class="glass-card interactive-card">
+        <div class="card-header">
+            <strong>🪽 Logical Wing</strong>
+            <span class="badge">Hybrid AI</span>
+        </div>
+        <em>Where Structure Meets Intelligence</em>
+        <p class="summary">
+            Operational core powered by hybrid intelligence systems, combining reliable automation with human reasoning.
+        </p>
+        <p class="details">
+            Enables steady progress, risk management, and dynamic scalability. Metrics include uptime, processing load, and logical throughput. 
+        </p>
+        <blockquote>“When logic finds balance, systems begin to think — and life begins to flow.”</blockquote>
+        <button class="toggle-btn">Read More</button>
+    </div>
 
             <!-- Mini TV Walkthrough -->
-            <p style="text-align:center; font-weight:bold; margin-top:20px;">
-                View a walkthrough snapshot of the hybrid mechanisms in motion
-            </p>
-            <div class="video-container">
-                <video id="ecosystemVideo" controls controlsList="nodownload noplaybackrate">
-                    <source src="assets/videos/VID_20250912_055134.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-                <div class="video-controls">
-                    <label for="volumeControl" style="margin-right:6px;">Volume:</label>
-                    <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="1">
-                </div>
-            </div>
-
-            <div class="glass-card">
-                <strong>💫 The Emotional Wing</strong><br>
-                <em>The Living Core of AvalonFlow</em>
-                <p>
-                    Supports stability, rhythm, and long-term well-being — ensuring
-                    progress translates into calm, clarity, and meaningful rewards.
-                </p>
-                <blockquote>• Each wing contributes on how the branches impact stability across work, growth, and life.</blockquote>
-            </div>
+    <p style="text-align:center; font-weight:bold; margin-top:20px;">
+        Interactive walkthrough: hybrid mechanisms in motion
+    </p>
+    <div class="video-container">
+        <video id="ecosystemVideo" controls controlsList="nodownload noplaybackrate" loop muted autoplay>
+            <source src="assets/videos/VID_20250912_055134.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="video-overlay">
+            <span class="video-tag">Live Metrics: 92% Uptime</span>
+        </div>
+        <div class="video-controls">
+            <label for="volumeControl" style="margin-right:6px;">Volume:</label>
+            <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="1">
         </div>
     </div>
+
+            <!-- Emotional Wing Card -->
+    <div class="glass-card interactive-card">
+        <div class="card-header">
+            <strong>💫 Emotional Wing</strong>
+            <span class="badge">Stability</span>
+        </div>
+        <em>The Living Core of AvalonFlow</em>
+        <p class="summary">
+            Supports long-term clarity, calm, and meaningful rewards for the ecosystem.
+        </p>
+        <p class="details">
+            Ensures work, growth, and life are balanced. Contributes to resilience, engagement, and systemic harmony.
+        </p>
+        <blockquote>• Each wing contributes to stability across work, growth, and life.</blockquote>
+        <button class="toggle-btn">Read More</button>
+    </div>
+</div>
 
     <!-- Sticky Footer -->
     <footer>
@@ -312,6 +399,24 @@
         function navigateTo(page){
             window.location.href = page;
         }
+
+/* ---------- Toggle Card Details ---------- */
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const details = btn.previousElementSibling;
+        details.style.display = details.style.display === 'none' ? 'block' : 'none';
+        btn.textContent = btn.textContent === 'Read More' ? 'Read Less' : 'Read More';
+    });
+});
+
+/* ---------- Scroll-trigger Fade-in ---------- */
+const cards = document.querySelectorAll('.interactive-card');
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if(entry.isIntersecting) entry.target.classList.add('visible');
+    });
+}, { threshold: 0.2 });
+cards.forEach(card => observer.observe(card));
 
         /* Ecosystem Notification (Dashboard style with shimmer) */
         window.addEventListener("load", () => {
