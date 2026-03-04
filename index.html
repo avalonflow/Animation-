@@ -474,11 +474,25 @@ body::before {
         <line x1="350" y1="80" x2="350" y2="220" />
     </svg>
 
-    <div class="node" style="top:150px; left:80px;">AvalonCare</div>
-    <div class="node" style="top:60px; left:330px;">Flow Engine</div>
-    <div class="node" style="top:150px; left:580px;">Centrical™</div>
-    <div class="node" style="top:230px; left:330px;">Support Layer</div>
+    <!-- Node 1: opens a PDF -->
+    <div class="node" style="top:150px; left:80px;" onclick="window.open('assets/documents/guide.pdf', '_blank')">
+        AvalonCare
+    </div>
 
+    <!-- Node 2: opens another PDF -->
+    <div class="node" style="top:60px; left:330px;" onclick="window.open('assets/documents/flow-engine.pdf', '_blank')">
+        Flow Engine
+    </div>
+
+    <!-- Node 3: links to external site -->
+    <div class="node" style="top:150px; left:580px;" onclick="window.open('https://centrical.com', '_blank')">
+        Centrical™
+    </div>
+
+    <!-- Node 4: opens another PDF -->
+    <div class="node" style="top:230px; left:330px;" onclick="window.open('assets/documents/support-layer.pdf', '_blank')">
+        Support Layer
+    </div>
 </section>
 
 <!-- 3-Step Flow -->
