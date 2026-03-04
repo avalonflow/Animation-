@@ -203,18 +203,21 @@ function nav(p){ location.href=p; }
 function notify(msg){ const n=document.getElementById('supportNotification'); n.textContent=msg; n.classList.add('show'); setTimeout(()=>n.classList.remove('show'),3000); }
 
 // ---------- Ticket System ----------
-let lastTicket='';
-function generateTicket() {
-    const stamp = Date.now().toString().slice(-6);
-    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
-    lastTicket = `AF-SUP-${stamp}-${rand}`;
+let lastTicket = '';
 
 function recordTicketGenerated() {
     let tickets = parseInt(localStorage.getItem("ticketsGenerated") || 0);
     tickets += 1;
     localStorage.setItem("ticketsGenerated", tickets);
+
+    // Update badges immediately
     updateEngagementUI();
 }
+
+function generateTicket() {
+    const stamp = Date.now().toString().slice(-6);
+    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+    lastTicket = `AF-SUP-${stamp}-${rand}`;
 
     // Show ticket reference
     let ticketText = `Ticket Reference: ${lastTicket}`;
@@ -231,13 +234,14 @@ function recordTicketGenerated() {
     notify('Ticket reference generated.');
 
     // --- Analytics Update ---
-    const input = document.getElementById('issueInput').value || 'Miscellaneous';
+    const inputEl = document.getElementById('issueInput');
+    const input = inputEl ? inputEl.value || 'Miscellaneous' : 'Miscellaneous';
     if (issueCounts[input]) issueCounts[input] += 1;
     else issueCounts[input] = 1;
     renderAnalytics();
 
-    // --- Gamification ---
-    simulateUserAction('ticket');
+    // --- Gamification: record ticket generation ---
+    recordTicketGenerated();
 }
 
 // ---------- Mini TV ----------
@@ -356,22 +360,33 @@ function botReply(msg){
     else addBotMessage("I can provide tips, motivational quotes, info about AvalonFlow, or guide you to support.");
 }
 
-botSendBtn.addEventListener('click',()=>{
-    const msg=botInput.value.trim();
-    if(!msg) return;
+// ---------- Hook Chat Messages ----------
+botSendBtn.addEventListener('click', () => {
+    const msg = botInput.value.trim();
+    if (!msg) return;
+
+    // Add user message
     addUserMessage(msg);
-    botInput.value='';
-    setTimeout(()=>botReply(msg),500);
+
+    // Record the chat for badges
+    recordChatMessage();
+
+    botInput.value = '';
+    setTimeout(() => botReply(msg), 500);
 });
 
-botInput.addEventListener('keypress', e=>{
-    if(e.key==='Enter') botSendBtn.click();
+botInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') botSendBtn.click();
 });
 
+// ---------- Record Chat Messages ----------
 function recordChatMessage() {
+    // Increment messages sent
     let chats = parseInt(localStorage.getItem("messagesSent") || 0);
     chats += 1;
     localStorage.setItem("messagesSent", chats);
+
+    // Update badges immediately
     updateEngagementUI();
 }
 
@@ -443,30 +458,31 @@ function simulateTraffic(){
 
 simulateTraffic();
 
+// ---------- Update Engagement UI ----------
 function updateEngagementUI() {
     const badgesContainer = document.getElementById("badgesContainer");
 
     // Clear old badges
     badgesContainer.innerHTML = "";
 
-    // Example badges
+    // Tickets and chats
     const tickets = parseInt(localStorage.getItem("ticketsGenerated") || 0);
     const chats = parseInt(localStorage.getItem("messagesSent") || 0);
 
-    if(tickets >= 1) addBadge("🎫 First Ticket");
-    if(tickets >= 5) addBadge("🎟️ Ticket Master");
-    if(chats >= 1) addBadge("💬 First Chat");
-    if(chats >= 10) addBadge("🗣️ Chat Pro");
+    if (tickets >= 1) addBadge("🎫 First Ticket");
+    if (tickets >= 5) addBadge("🎟️ Ticket Master");
+    if (chats >= 1) addBadge("💬 First Chat");
+    if (chats >= 10) addBadge("🗣️ Chat Pro");
 
     // Update streak — simple version: store last visit date
     const today = new Date().toDateString();
     const lastVisit = localStorage.getItem("lastVisit");
     let streak = parseInt(localStorage.getItem("streak") || 0);
 
-    if(lastVisit === today) {
+    if (lastVisit === today) {
         // already counted today
     } else {
-        if(lastVisit === new Date(Date.now() - 86400000).toDateString()) {
+        if(lastVisit === new Date(Date.now() - 86400000).toDateString()){
             streak += 1; // consecutive day
         } else {
             streak = 1; // reset streak
@@ -478,6 +494,7 @@ function updateEngagementUI() {
     document.getElementById("streakCount").innerText = streak;
 }
 
+// ---------- Add a Badge ----------
 function addBadge(text) {
     const div = document.createElement("div");
     div.className = "badge-item";
