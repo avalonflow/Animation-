@@ -209,6 +209,13 @@ function generateTicket() {
     const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
     lastTicket = `AF-SUP-${stamp}-${rand}`;
 
+function recordTicketGenerated() {
+    let tickets = parseInt(localStorage.getItem("ticketsGenerated") || 0);
+    tickets += 1;
+    localStorage.setItem("ticketsGenerated", tickets);
+    updateEngagementUI();
+}
+
     // Show ticket reference
     let ticketText = `Ticket Reference: ${lastTicket}`;
 
@@ -361,6 +368,13 @@ botInput.addEventListener('keypress', e=>{
     if(e.key==='Enter') botSendBtn.click();
 });
 
+function recordChatMessage() {
+    let chats = parseInt(localStorage.getItem("messagesSent") || 0);
+    chats += 1;
+    localStorage.setItem("messagesSent", chats);
+    updateEngagementUI();
+}
+
 // --- AI-Powered Auto-Suggestions ---
 const autoSuggest = [
     {keywords:['ticket','issue','support'], suggestion:"Remember to generate a ticket reference for faster support."},
@@ -429,82 +443,47 @@ function simulateTraffic(){
 
 simulateTraffic();
 
-// Initialize gamification data in localStorage
-if(!localStorage.getItem('kairosGamification')){
-    localStorage.setItem('kairosGamification', JSON.stringify({
-        streak: 0,
-        lastActive: null,
-        badges: [],
-        rewardProgress: 0
-    }));
-}
+function updateEngagementUI() {
+    const badgesContainer = document.getElementById("badgesContainer");
 
-const gamificationData = JSON.parse(localStorage.getItem('kairosGamification'));
-const badgesContainer = document.getElementById('badgesContainer');
-const streakCount = document.getElementById('streakCount');
-const rewardProgressBar = document.getElementById('rewardProgressBar');
+    // Clear old badges
+    badgesContainer.innerHTML = "";
 
-// Utility: Save gamification
-function saveGamification(){
-    localStorage.setItem('kairosGamification', JSON.stringify(gamificationData));
-}
+    // Example badges
+    const tickets = parseInt(localStorage.getItem("ticketsGenerated") || 0);
+    const chats = parseInt(localStorage.getItem("messagesSent") || 0);
 
-// Update streak
-function updateStreak(){
+    if(tickets >= 1) addBadge("🎫 First Ticket");
+    if(tickets >= 5) addBadge("🎟️ Ticket Master");
+    if(chats >= 1) addBadge("💬 First Chat");
+    if(chats >= 10) addBadge("🗣️ Chat Pro");
+
+    // Update streak — simple version: store last visit date
     const today = new Date().toDateString();
-    if(gamificationData.lastActive !== today){
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate()-1);
-        if(gamificationData.lastActive === yesterday.toDateString()){
-            gamificationData.streak += 1; // Continue streak
+    const lastVisit = localStorage.getItem("lastVisit");
+    let streak = parseInt(localStorage.getItem("streak") || 0);
+
+    if(lastVisit === today) {
+        // already counted today
+    } else {
+        if(lastVisit === new Date(Date.now() - 86400000).toDateString()) {
+            streak += 1; // consecutive day
         } else {
-            gamificationData.streak = 1; // Reset streak
+            streak = 1; // reset streak
         }
-        gamificationData.lastActive = today;
-        gamificationData.rewardProgress = Math.min(100, gamificationData.rewardProgress + 10); // Increment progress
-        saveGamification();
+        localStorage.setItem("streak", streak);
+        localStorage.setItem("lastVisit", today);
     }
-    streakCount.textContent = gamificationData.streak;
-    rewardProgressBar.style.width = gamificationData.rewardProgress + '%';
+
+    document.getElementById("streakCount").innerText = streak;
 }
 
-// Add badge
-function earnBadge(name){
-    if(!gamificationData.badges.includes(name)){
-        gamificationData.badges.push(name);
-        const badgeEl = document.createElement('span');
-        badgeEl.className = 'badge-item';
-        badgeEl.textContent = name;
-        badgesContainer.appendChild(badgeEl);
-        saveGamification();
-    }
+function addBadge(text) {
+    const div = document.createElement("div");
+    div.className = "badge-item";
+    div.textContent = text;
+    document.getElementById("badgesContainer").appendChild(div);
 }
-
-// Load existing badges from localStorage
-gamificationData.badges.forEach(b => {
-    const badgeEl = document.createElement('span');
-    badgeEl.className = 'badge-item';
-    badgeEl.textContent = b;
-    badgesContainer.appendChild(badgeEl);
-});
-
-// Simulate earning badges based on actions
-function simulateUserAction(action){
-    if(action === 'chat') earnBadge('💬 Engaged in Chat');
-    if(action === 'ticket') earnBadge('📄 Ticket Generated');
-    if(action === 'faq') earnBadge('❓ Explored FAQs');
-    updateStreak();
-}
-
-// Initial load
-updateStreak();
-
-// Example: Hook into your existing functions
-// When a user sends a message:
-botSendBtn.addEventListener('click', ()=> simulateUserAction('chat'));
-
-// When ticket is generated:
-document.getElementById('ticketResult').addEventListener('DOMSubtreeModified', ()=> simulateUserAction('ticket'));
 
 // ---------- Ambient Messages ----------
 setInterval(()=>{
