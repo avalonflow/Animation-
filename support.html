@@ -142,14 +142,24 @@ body.light-mode .notification-bar { background: rgba(30,144,255,0.25); color: #1
         <p>Generate a ticket reference before contacting support for faster resolution.</p>
         <button class="button" onclick="generateTicket()">Generate Ticket Reference</button>
         <p id="ticketResult" style="margin-top:15px;font-weight:bold;"></p>
-        <a href="mailto:avalonflow@usa.com" class="button" onclick="notify('Include your ticket reference in the email.')">Email Support</a>
-        <select id="issueCategory" class="input" style="margin-top:15px;">
-            <option value="">Select Issue Category</option>
-            <option value="technical">Technical</option>
-            <option value="billing">Billing</option>
-            <option value="account">Account</option>
-            <option value="other">Other</option>
-        </select>
+        <!-- Email Support Button -->
+<a href="mailto:avalonflow@usa.com" 
+   class="button" 
+   style="margin-bottom:12px;" 
+   onclick="notify('Include your ticket reference in the email.')">
+   Email Support
+</a>
+
+<!-- Issue Category Dropdown -->
+<select id="issueCategory" 
+        class="input" 
+        style="margin-top:0;">
+    <option value="">Select Issue Category</option>
+    <option value="technical">Technical</option>
+    <option value="billing">Billing</option>
+    <option value="account">Account</option>
+    <option value="other">Other</option>
+</select>
     </div>
 
     <!-- Gamification Panel -->
