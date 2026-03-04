@@ -177,6 +177,11 @@ body::before {
         line-height: 1.5;
         color: #fff;
     }
+
+.hero-buttons {
+    margin-top: 20px;
+}
+
     #ctaButton {
         display: inline-block;
         padding: 15px 30px;
@@ -255,24 +260,45 @@ body::before {
 }
 
 .ecosystem-map {
-    display: flex;
-    justify-content: center;
-    gap: 60px;
-    padding: 80px 20px;
     position: relative;
+    height: 300px;
+    margin: 100px 0;
+}
+
+.connection-lines {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.connection-lines line {
+    stroke: #6b2cd8;
+    stroke-width: 2;
+    stroke-dasharray: 6;
+    animation: dashMove 6s linear infinite;
+    filter: drop-shadow(0 0 6px #6b2cd8);
+}
+
+@keyframes dashMove {
+    to {
+        stroke-dashoffset: -20;
+    }
 }
 
 .node {
-    padding: 20px 30px;
+    position: absolute;
+    padding: 14px 24px;
     border-radius: 12px;
     background: rgba(107,44,216,0.1);
     border: 1px solid #6b2cd8;
+    z-index: 2;
     transition: all 0.3s ease;
 }
 
 .node:hover {
-    box-shadow: 0 0 25px #6b2cd8;
-    transform: translateY(-8px);
+    box-shadow: 0 0 30px #6b2cd8;
+    transform: scale(1.05);
 }
 
         /* ---------- Progress Bar ---------- */
@@ -404,24 +430,29 @@ body::before {
         <div id="index" class="panel">
 
 <!-- Hero Section -->
-<section class="hero">
-    <h1>Move Beyond Your Paycheck Today</h1>
-    <p>AvalonFlow is an automation-powered support ecosystem designed to generate additional daily income — while creating room for measurable progress in demanding schedules</p>
-    <a href="https://link.avalonflow.site/forms" id="ctaButton">Get Started</a>
+<section class="hero">  
+    <h1>Move Beyond Your Paycheck Today</h1>  
+    <p>AvalonFlow is an automation-powered support ecosystem designed to generate additional daily income — while creating room for measurable progress in demanding schedules</p>  
+    
+    <div class="hero-buttons">
+        <a href="https://link.avalonflow.site/forms" id="ctaButton">Get Started</a>  
+        <a href="/ecosystem" class="secondary-cta">Explore Ecosystem</a>
+    </div>
 </section>
-
-<a href="/ecosystem" class="secondary-cta">Explore Ecosystem</a>
 
 <section class="ecosystem-map fade-section">
-    <div class="node">AvalonCare</div>
-    <div class="node">Flow Engine</div>
-    <div class="node">Centrical™</div>
-    <div class="node">Support Layer</div>
-</section>
 
-<section class="activity fade-section">
-    <h3>Live Ecosystem Activity</h3>
-    <div id="activityFeed">Initializing ecosystem cycle...</div>
+    <svg class="connection-lines" viewBox="0 0 800 300" preserveAspectRatio="none">
+        <line x1="150" y1="150" x2="350" y2="80" />
+        <line x1="350" y1="80" x2="550" y2="150" />
+        <line x1="350" y1="80" x2="350" y2="220" />
+    </svg>
+
+    <div class="node" style="top:150px; left:80px;">AvalonCare</div>
+    <div class="node" style="top:60px; left:330px;">Flow Engine</div>
+    <div class="node" style="top:150px; left:580px;">Centrical™</div>
+    <div class="node" style="top:230px; left:330px;">Support Layer</div>
+
 </section>
 
 <!-- 3-Step Flow -->
