@@ -179,6 +179,10 @@ body::before {
     }
 
 .hero-buttons {
+    display: flex;
+    flex-wrap: wrap;       /* prevents overlap if container is too small */
+    gap: 15px;             /* space between buttons */
+    justify-content: center; /* center horizontally */
     margin-top: 20px;
 }
 
@@ -399,17 +403,6 @@ body::before {
         align-items: center;
         gap: 25px;
     }
-
-#ctaButton,
-    .secondary-cta {
-        width: 100%; /* optional: make full width on mobile */
-        text-align: center;
-    }
-
-    .secondary-cta {
-        margin-left: 0; /* remove desktop left margin */
-    }
-}
 
     .connection-lines {
         display: none;
