@@ -31,6 +31,18 @@
         button { cursor: pointer; }
         a { color: inherit; text-decoration: none; }
 
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+}
+
         /* ---------- Sidebar ---------- */
         #sidebar {
             position: fixed;
@@ -68,6 +80,18 @@
             display: none;
         }
         #overlay.active { display: block; }
+
+.activity {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+#activityFeed {
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #6b2cd8;
+    transition: opacity 0.6s ease;
+}
 
         /* ---------- Content ---------- */
         #content {
@@ -134,10 +158,18 @@
         padding: 30px 20px 60px 20px;
     }
     .hero h1 {
-        font-size: 3rem;
-        color: #6b2cd8;
-        margin-bottom: 20px;
-    }
+    font-size: 3rem;
+    background: linear-gradient(90deg,#6b2cd8,#b393ff,#6b2cd8);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 6s linear infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
     .hero p {
         font-size: 1.2rem;
         max-width: 700px;
@@ -162,6 +194,22 @@
         box-shadow: 0 6px 20px rgba(107,44,216,0.6);
         transform: translateY(-2px);
     }
+
+.secondary-cta {
+    display: inline-block;
+    margin-left: 15px;
+    padding: 15px 30px;
+    border: 1px solid #6b2cd8;
+    border-radius: 8px;
+    color: #6b2cd8;
+    transition: all 0.3s ease;
+}
+
+.secondary-cta:hover {
+    background: #6b2cd8;
+    color: #fff;
+    box-shadow: 0 0 20px #6b2cd8;
+}
 
     /* ---------- 3-Step Flow ---------- */
     .steps {
@@ -194,6 +242,38 @@
         line-height: 1.4;
         color: #fff;
     }
+
+.fade-section {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s ease;
+}
+
+.fade-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.ecosystem-map {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    padding: 80px 20px;
+    position: relative;
+}
+
+.node {
+    padding: 20px 30px;
+    border-radius: 12px;
+    background: rgba(107,44,216,0.1);
+    border: 1px solid #6b2cd8;
+    transition: all 0.3s ease;
+}
+
+.node:hover {
+    box-shadow: 0 0 25px #6b2cd8;
+    transform: translateY(-8px);
+}
 
         /* ---------- Progress Bar ---------- */
         #progressContainer {
@@ -330,6 +410,20 @@
     <a href="https://link.avalonflow.site/forms" id="ctaButton">Get Started</a>
 </section>
 
+<a href="/ecosystem" class="secondary-cta">Explore Ecosystem</a>
+
+<section class="ecosystem-map fade-section">
+    <div class="node">AvalonCare</div>
+    <div class="node">Flow Engine</div>
+    <div class="node">Centrical™</div>
+    <div class="node">Support Layer</div>
+</section>
+
+<section class="activity fade-section">
+    <h3>Live Ecosystem Activity</h3>
+    <div id="activityFeed">Initializing ecosystem cycle...</div>
+</section>
+
 <!-- 3-Step Flow -->
 <section class="steps">
     <div class="step">
@@ -397,6 +491,55 @@ setInterval(particle,800);
         function navigateTo(page){
             window.location.href = page;
         }
+
+const faders = document.querySelectorAll('.fade-section');
+
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if(entry.isIntersecting){
+            entry.target.classList.add('visible');
+        }
+    });
+});
+
+faders.forEach(section => {
+    observer.observe(section);
+});
+
+const magneticBtns = document.querySelectorAll('#ctaButton');
+
+magneticBtns.forEach(btn => {
+    btn.addEventListener('mousemove', e => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width/2;
+        const y = e.clientY - rect.top - rect.height/2;
+        btn.style.transform = `translate(${x*0.2}px, ${y*0.2}px)`;
+    });
+
+    btn.addEventListener('mouseleave', () => {
+        btn.style.transform = 'translate(0,0)';
+    });
+});
+
+const activities = [
+    "New branch cycle activated.",
+    "Automation layer synchronized.",
+    "Rewards flow recalibrated.",
+    "Support node stabilized.",
+    "Global ecosystem pulse detected."
+];
+
+let aIndex = 0;
+const feed = document.getElementById("activityFeed");
+
+setInterval(()=>{
+    feed.style.opacity = 0;
+    setTimeout(()=>{
+        feed.innerText = activities[aIndex];
+        feed.style.opacity = 1;
+        aIndex = (aIndex+1)%activities.length;
+    },600);
+},4000);
 
         /* Dashboard Progress Bar Animation */
         const progressFill = document.getElementById("progressFill");
