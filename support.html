@@ -140,9 +140,7 @@ body.light-mode .notification-bar { background: rgba(30,144,255,0.25); color: #1
         <p><strong>Behind every smooth interaction is a dedicated team member. 👩‍💼💻</strong></p>
         <div class="mini-tv" id="miniTV"></div>
         <p>Generate a ticket reference before contacting support for faster resolution.</p>
-        <input id="issueInput" class="input" placeholder="Brief issue description (optional)" />
         <button class="button" onclick="generateTicket()">Generate Ticket Reference</button>
-        <button class="button" onclick="copyTicket()">Copy Ticket Reference</button>
         <p id="ticketResult" style="margin-top:15px;font-weight:bold;"></p>
         <a href="mailto:avalonflow@usa.com" class="button" onclick="notify('Include your ticket reference in the email.')">Email Support</a>
         <select id="issueCategory" class="input" style="margin-top:12px;">
@@ -163,12 +161,6 @@ body.light-mode .notification-bar { background: rgba(30,144,255,0.25); color: #1
     <div style="margin-bottom:12px;">
         <strong>🔥 Streak:</strong> <span id="streakCount">0</span> days
     </div>
-
-    <div style="margin-bottom:12px;">
-        <strong>🎯 Rewards Progress:</strong>
-        <div style="background: rgba(255,255,255,0.1); border-radius:10px; height:20px; overflow:hidden;">
-            <div id="rewardProgressBar" style="width:0%; height:100%; background:#6b2cd8; transition:width 0.5s;"></div>
-        </div>
     </div>
 </div>
 
@@ -231,23 +223,6 @@ function generateTicket() {
 
     // Notify the user
     notify('Ticket reference generated.');
-
-function copyTicket() {
-    const ticketText = document.getElementById('ticketResult').innerText;
-
-    if (!ticketText) {
-        notify("No ticket to copy.");
-        return;
-    }
-
-    navigator.clipboard.writeText(ticketText)
-        .then(() => {
-            notify("Ticket copied to clipboard ✅");
-        })
-        .catch(() => {
-            notify("Failed to copy ticket.");
-        });
-}
 
     // --- Analytics Update ---
     const input = document.getElementById('issueInput').value || 'Miscellaneous';
@@ -407,35 +382,53 @@ ticketFile.addEventListener('change', e => {
     if(e.target.files.length > 0) uploadedFileName = e.target.files[0].name;
 });
 
-// --- Simulated Analytics ---
-const issueCountsContainer = document.getElementById('issueCounts');
-// Simulated issue categories and counts
-let issueCounts = {
-    "Login Issues": 5,
-    "Payment Problems": 2,
-    "Feature Requests": 3,
-    "Bug Reports": 4
+// ---------- DAILY RESET ----------
+const today = new Date().toDateString();
+const storedDate = localStorage.getItem("analyticsDate");
+
+if (storedDate !== today) {
+    localStorage.removeItem("issueCounts");
+    localStorage.setItem("analyticsDate", today);
+}
+
+// ---------- LOAD OR CREATE ANALYTICS ----------
+let issueCounts = JSON.parse(localStorage.getItem("issueCounts")) || {
+    "Login Issues": Math.floor(Math.random() * 10) + 5,
+    "Payment Problems": Math.floor(Math.random() * 6) + 2,
+    "Feature Requests": Math.floor(Math.random() * 8) + 3,
+    "Bug Reports": Math.floor(Math.random() * 7) + 4
 };
 
+const issueCountsContainer = document.getElementById('issueCounts');
+
+// ---------- RENDER FUNCTION ----------
 function renderAnalytics(){
     issueCountsContainer.innerHTML = '';
+
     Object.entries(issueCounts).forEach(([issue, count]) => {
         const div = document.createElement('div');
         div.textContent = `${issue}: ${count} submissions`;
         issueCountsContainer.appendChild(div);
     });
+
+    localStorage.setItem("issueCounts", JSON.stringify(issueCounts));
 }
 
-// Call render on load
+// Initial render
 renderAnalytics();
 
-// Hook into ticket generation to update analytics (simulate)
-document.getElementById('ticketResult').addEventListener('DOMSubtreeModified', ()=>{
-    const input = document.getElementById('issueInput').value || 'Miscellaneous';
-    if(issueCounts[input]) issueCounts[input] += 1;
-    else issueCounts[input] = 1;
+// ---------- SIMULATE OTHER USERS ----------
+function simulateTraffic(){
+    const categories = Object.keys(issueCounts);
+    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+    issueCounts[randomCategory] += 1;
     renderAnalytics();
-});
+
+    const nextTime = Math.random() * 20000 + 20000;
+    setTimeout(simulateTraffic, nextTime);
+}
+
+simulateTraffic();
 
 // Initialize gamification data in localStorage
 if(!localStorage.getItem('kairosGamification')){
