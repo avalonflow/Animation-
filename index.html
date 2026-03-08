@@ -43,7 +43,7 @@ body::before {
     z-index: 0;
 }
 
-        /* ---------- Sidebar ---------- */
+                /* ---------- Sidebar ---------- */
         #sidebar {
             position: fixed;
             top: 0;
@@ -58,7 +58,11 @@ body::before {
             transition: transform 0.3s ease;
         }
         #sidebar.open { transform: translateX(0); }
-        #sidebar h2 { color: #6b2cd8; margin-top: 0; }
+        #sidebar h2{
+font-size:22px;
+margin-bottom:20px;
+color:#a78bfa;
+}
         #sidebar button {
             width: 100%;
             margin: 12px 0;
@@ -70,16 +74,6 @@ body::before {
             font-size: 16px;
         }
 
-        /* ---------- Overlay ---------- */
-        #overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
-            z-index: 4;
-            display: none;
-        }
-        #overlay.active { display: block; }
 
 .activity {
     text-align: center;
@@ -115,7 +109,7 @@ body::before {
             font-size: 16px;
         }
 
-        /* ---------- Menu Button ---------- */
+                /* ---------- Menu Button ---------- */
         #menuBtn {
             position: fixed;
             top: 20px;
@@ -126,7 +120,12 @@ body::before {
             color: #fff;
             padding: 12px 14px;
             border-radius: 10px;
-        }
+}
+
+/* move button when sidebar opens */
+#menuBtn.shift{
+left:300px;
+}
 
         /* ---------- Floating Background ---------- */
         #floating-bg {
@@ -552,16 +551,23 @@ function particle() {
 }
 setInterval(particle,800);
 
-        /* Sidebar toggle */
+                /* Sidebar toggle */
         const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        function toggleSidebar(){
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
-        }
-        function navigateTo(page){
-            window.location.href = page;
-        }
+const content = document.getElementById('content');
+
+const menuBtn = document.getElementById('menuBtn');
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menuBtn');
+
+    sidebar.classList.toggle('open');
+    menuBtn.classList.toggle('shift');
+}
+
+function navigateTo(page){
+    window.location.href = page;
+}
 
 const faders = document.querySelectorAll('.fade-section');
 
