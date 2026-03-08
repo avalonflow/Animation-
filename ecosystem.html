@@ -53,7 +53,7 @@
             100% { transform: translateY(-10vh) scale(1); opacity: 0; }
         }
 
-        /* ---------- Sidebar ---------- */
+                /* ---------- Sidebar ---------- */
         #sidebar {
             position: fixed;
             top: 0;
@@ -68,7 +68,11 @@
             transition: transform 0.3s ease;
         }
         #sidebar.open { transform: translateX(0); }
-        #sidebar h2 { color: #6b2cd8; margin-top: 0; }
+        #sidebar h2{
+font-size:22px;
+margin-bottom:20px;
+color:#a78bfa;
+}
         #sidebar button {
             width: 100%;
             margin: 12px 0;
@@ -80,16 +84,6 @@
             font-size: 16px;
         }
 
-        /* ---------- Overlay ---------- */
-        #overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
-            z-index: 4;
-            display: none;
-        }
-        #overlay.active { display: block; }
 
         /* ---------- Content ---------- */
         #content {
@@ -124,7 +118,7 @@
             font-size: 16px;
         }
 
-        /* ---------- Menu Button ---------- */
+                /* ---------- Menu Button ---------- */
         #menuBtn {
             position: fixed;
             top: 20px;
@@ -135,7 +129,12 @@
             color: #fff;
             padding: 12px 14px;
             border-radius: 10px;
-        }
+}
+
+/* move button when sidebar opens */
+#menuBtn.shift{
+left:300px;
+}
 
         /* ---------- Footer ---------- */
         footer {
@@ -397,16 +396,23 @@
         }
         setInterval(particle,800);
 
-        /* Sidebar toggle */
+                /* Sidebar toggle */
         const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        function toggleSidebar(){
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
-        }
-        function navigateTo(page){
-            window.location.href = page;
-        }
+const content = document.getElementById('content');
+
+const menuBtn = document.getElementById('menuBtn');
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menuBtn');
+
+    sidebar.classList.toggle('open');
+    menuBtn.classList.toggle('shift');
+}
+
+function navigateTo(page){
+    window.location.href = page;
+}
 
 /* ---------- Toggle Card Details ---------- */
 document.querySelectorAll('.toggle-btn').forEach(btn => {
