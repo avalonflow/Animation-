@@ -303,6 +303,34 @@ left:300px;
     transform: scale(1.05);
 }
 
+.activity {
+    text-align: center;
+    padding: 30px 20px;
+    font-family: Georgia, serif; /* keep your main font */
+}
+
+#activityFeed {
+    font-size: 1.1rem;
+    color: #8e44ad;
+    text-shadow: 
+        0 0 5px #6b2cd8,
+        0 0 10px #9b59b6,
+        0 0 20px #b393ff,
+        0 0 30px #6b2cd8;
+    background: rgba(255, 255, 255, 0.05);
+    display: inline-block;
+    padding: 14px 28px;
+    border-radius: 12px;
+    border: 1px solid rgba(107, 44, 216, 0.5);
+    box-shadow: 0 0 15px #6b2cd8, 0 0 25px #b393ff;
+    transition: all 0.5s ease;
+}
+
+#activityFeed.fade {
+    opacity: 0;
+    transform: translateY(15px) rotateX(10deg);
+}
+
         /* ---------- Progress Bar ---------- */
         #progressContainer {
             width: 45%;
@@ -510,6 +538,10 @@ left:300px;
     </div>
 </section>
 
+<div class="activity">
+    <div id="activityFeed">Initializing activity feed...</div>
+</div>
+
             <!-- Progress Bar -->
             <div id="progressContainer">
                 <div class="progress-bar">
@@ -609,14 +641,14 @@ const activities = [
 let aIndex = 0;
 const feed = document.getElementById("activityFeed");
 
-setInterval(()=>{
-    feed.style.opacity = 0;
-    setTimeout(()=>{
+setInterval(() => {
+    feed.classList.add("fade"); // fade out
+    setTimeout(() => {
         feed.innerText = activities[aIndex];
-        feed.style.opacity = 1;
-        aIndex = (aIndex+1)%activities.length;
-    },600);
-},4000);
+        feed.classList.remove("fade"); // fade in
+        aIndex = (aIndex + 1) % activities.length;
+    }, 600);
+}, 4000);
 
         /* Dashboard Progress Bar Animation */
         const progressFill = document.getElementById("progressFill");
