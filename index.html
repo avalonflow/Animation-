@@ -630,25 +630,30 @@ magneticBtns.forEach(btn => {
     });
 });
 
-const activities = [
-    "New branch cycle activated.",
-    "Automation layer synchronized.",
-    "Rewards flow recalibrated.",
-    "Support node stabilized.",
-    "Global ecosystem pulse detected."
-];
-
-let aIndex = 0;
 const feed = document.getElementById("activityFeed");
 
-setInterval(() => {
-    feed.classList.add("fade"); // fade out
+// Define activities with their display intervals (in milliseconds)
+const activities = [
+    { text: "New branch cycle activated.", interval: 12 * 60 * 60 * 1000 }, // 12 hours
+    { text: "Automation layer synchronized.", interval: 6 * 60 * 60 * 1000 }, // 6 hours
+    { text: "Returns flow recalibrated.", interval: 4 * 1000 }, // 4 seconds
+    { text: "Support node stabilized.", interval: 60 * 60 * 1000 }, // 1 hour
+    { text: "Global ecosystem pulse detected.", interval: 4 * 1000 } // 4 seconds
+];
+
+// Function to show an activity with fade
+function showActivity(activity) {
+    feed.classList.add("fade");
     setTimeout(() => {
-        feed.innerText = activities[aIndex];
-        feed.classList.remove("fade"); // fade in
-        aIndex = (aIndex + 1) % activities.length;
-    }, 600);
-}, 4000);
+        feed.innerText = activity.text;
+        feed.classList.remove("fade");
+        // Schedule the next display
+        setTimeout(() => showActivity(activity), activity.interval);
+    }, 600); // fade duration
+}
+
+// Start all activities independently
+activities.forEach(activity => showActivity(activity));
 
         /* Dashboard Progress Bar Animation */
         const progressFill = document.getElementById("progressFill");
@@ -675,7 +680,7 @@ setInterval(() => {
 /* ---------- Rotating Testimonials ---------- */
 const testimonials = [
     "“My shifts are demanding, and I don’t always have time to explore new options. What stood out for me was how simple and rewarding this felt.” — Charlotte",
-    "“As an educator, I value clarity and systems that make sense. This felt grounded and realistic.” — Emily",
+    "“As an educator, I value clarity and systems that make sense. This was profitable and realistic.” — Emily",
     "“I finally saw progress without feeling overwhelmed.” — Ava"
 ];
 let tIndex = 0;
