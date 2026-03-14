@@ -238,6 +238,13 @@ left:300px;
         border-radius: 12px;
         transition: transform 0.3s ease;
     }
+
+.step-image {
+    width: 100%; /* or a smaller width, e.g., 300px */
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 8px; /* optional for rounded corners */
+}
     .step:hover {
         transform: translateY(-10px);
     }
@@ -544,15 +551,17 @@ left:300px;
 <section class="steps">
     <div class="step">
         <h3>Step 1: Sign-up for AvalonCare Membership</h3>
-        <p>Personalize your account &  provide your withdrawal details — it takes less than 1 minute</p>
+        <p>Personalize your account & provide your withdrawal details — it takes less than 1 minute</p>
     </div>
     <div class="step">
         <h3>Step 2: AvalonCare Access</h3>
         <p>Choose a plan that fits your personal needs and budget</p>
+        <img src="path/to/your-image-step2.png" alt="Choose your plan" class="step-image">
     </div>
     <div class="step">
         <h3>Step 3: Sign-in to your Dashboard</h3>
         <p>Start using AvalonFlow to enjoy returns paid directly to your preferred wallet, and track progress instantly</p>
+        <img src="path/to/your-image-step3.png" alt="Dashboard tracking" class="step-image">
     </div>
 </section>
 
