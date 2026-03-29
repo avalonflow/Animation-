@@ -509,10 +509,13 @@ header .logo-card img {
 /* ---------- Mobile ---------- */
 /* ---------- Mobile ---------- */
 @media (max-width: 768px) {
-.ecosystem-svg {
-width: 150%;
-transform: translateX(-25%);
-margin: -60px auto -10px;
+  /* Shift AvalonCare to the right */
+  .ecosystem-svg g:nth-child(2) rect {  /* AvalonCare rect */
+    x: 120px; 
+  }
+  .ecosystem-svg g:nth-child(2) text {  /* AvalonCare text */
+    x: 200px;
+  }
 }
 
 .node-group text {
