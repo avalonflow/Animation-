@@ -451,71 +451,35 @@ header .logo-card img {
 }
 
 /* ---------- Ecosystem Map Wrapper ---------- */
-.ecosystem-map {
-  position: relative;
-  padding: 40px 20px;
-}
-
-/* relative container that scales */
-.ecosystem-wrapper {
-  position: relative;
+.ecosystem-svg {
   width: 100%;
-  max-width: 800px;   /* desktop width */
-  aspect-ratio: 800 / 300; /* keeps original proportions */
-  margin: 0 auto;
+  height: auto;
 }
 
-/* connection lines fill wrapper */
-.connection-lines {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-.connection-lines line {
+.ecosystem-svg line {
   stroke: #6b2cd8;
   stroke-width: 2;
   stroke-dasharray: 6;
   animation: dashMove 6s linear infinite;
-  filter: drop-shadow(0 0 6px #6b2cd8);
 }
 
-@keyframes dashMove {
-  to { stroke-dashoffset: -20; }
-}
-
-/* nodes absolutely positioned inside wrapper */
-.node {
-  position: absolute;
-  z-index: 2;
-  padding: 12px 18px;
-  border-radius: 12px;
-  background: rgba(107,44,216,0.1);
-  border: 1px solid #6b2cd8;
+.node-group rect {
+  fill: rgba(107,44,216,0.1);
+  stroke: #6b2cd8;
+  transition: 0.3s;
   cursor: pointer;
-  transition: all 0.3s ease;
 }
 
-.node:hover {
+.node-group:hover rect {
+  filter: drop-shadow(0 0 10px #6b2cd8);
   transform: scale(1.05);
-  box-shadow: 0 0 20px #6b2cd8;
+  transform-origin: center;
 }
 
-/* ---------- Mobile Fix ---------- */
-@media (max-width: 768px) {
-  .ecosystem-wrapper {
-    max-width: 100%;
-    aspect-ratio: auto; /* height adjusts automatically */
-  }
-
-  /* scale down nodes slightly */
-  .node {
-    transform: scale(0.7);
-    transform-origin: top left;
-  }
+.node-group text {
+  fill: #fff;
+  font-size: 14px;
+  pointer-events: none;
 }
 
 .activity {
@@ -693,30 +657,35 @@ header .logo-card img {
   <div class="ecosystem-wrapper">
 
     <!-- Connection lines -->
-    <svg class="connection-lines" viewBox="0 0 800 300" preserveAspectRatio="none">
-      <line x1="150" y1="150" x2="350" y2="80" />
-      <line x1="350" y1="80" x2="550" y2="150" />
-      <line x1="350" y1="80" x2="350" y2="220" />
-    </svg>
+    <svg viewBox="0 0 800 300" class="ecosystem-svg">
 
-    <!-- Nodes -->
-    <div class="node" style="top:150px; left:80px;" onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf','_blank')">
-      AvalonCare
-    </div>
+  <!-- Lines -->
+  <line x1="150" y1="150" x2="400" y2="80" />
+  <line x1="400" y1="80" x2="650" y2="150" />
+  <line x1="400" y1="80" x2="400" y2="240" />
 
-    <div class="node" style="top:60px; left:330px;" onclick="window.open('assets/documents/Avalonflow Official Brochure.pdf','_blank')">
-      Flow Engine
-    </div>
+  <!-- Nodes -->
+  <g class="node-group" onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf','_blank')">
+    <rect x="110" y="130" width="80" height="40" rx="10"/>
+    <text x="150" y="155" text-anchor="middle">AvalonCare</text>
+  </g>
 
-    <div class="node" style="top:150px; left:580px;" onclick="window.open('https://centrical.com','_blank')">
-      Centrical™
-    </div>
+  <g class="node-group" onclick="window.open('assets/documents/Avalonflow Official Brochure.pdf','_blank')">
+    <rect x="350" y="60" width="100" height="40" rx="10"/>
+    <text x="400" y="85" text-anchor="middle">Flow Engine</text>
+  </g>
 
-    <div class="node" style="top:230px; left:330px;" onclick="window.open('/support','_blank')">
-      Support Layer
-    </div>
+  <g class="node-group" onclick="window.open('https://centrical.com','_blank')">
+    <rect x="610" y="130" width="80" height="40" rx="10"/>
+    <text x="650" y="155" text-anchor="middle">Centrical™</text>
+  </g>
 
-  </div>
+  <g class="node-group" onclick="window.open('/support','_blank')">
+    <rect x="350" y="220" width="100" height="40" rx="10"/>
+    <text x="400" y="245" text-anchor="middle">Support Layer</text>
+  </g>
+
+</svg>
 </section>
 
 <!-- 3-Step Flow -->
