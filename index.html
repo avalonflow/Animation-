@@ -452,18 +452,17 @@ header .logo-card img {
 
 /* ---------- Ecosystem Section ---------- */
 .ecosystem-map {
-  padding: 20px 20px 0; /* 🔥 reduce top/bottom space */
-  overflow: hidden;
+  padding: 10px 20px 0;
+  overflow: visible; /* 🔥 prevents clipping */
 }
 
 /* ---------- SVG Layout (BIG FIX HERE) ---------- */
 .ecosystem-svg {
-  width: 130%;                 /* 🔥 enlarge map */
+  width: 100%;                 /* 🔥 enlarge map */
   max-width: 1200px;
   height: auto;
   display: block;
   margin: -80px auto -20px;    /* 🔥 pull up + remove bottom gap */
-  transform: translateX(-15%); /* keep centered */
 }
 
 /* ---------- Lines ---------- */
@@ -697,21 +696,28 @@ header .logo-card img {
 
     <!-- Arrow Definition (FIXED) -->
     <defs>
-      <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
-        <path d="M0,0 L0,12 L12,6 z" fill="#6b2cd8" />
-      </marker>
-    </defs>
+  <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+    <path d="M0,0 L0,14 L14,7 z" fill="#6b2cd8" />
+  </marker>
+</defs>
 
     <!-- Connection Lines (FIXED alignment + arrows) -->
     
     <!-- AvalonCare → Flow Engine -->
-    <line x1="250" y1="150" x2="400" y2="120" marker-end="url(#arrow)" />
+    <!-- AvalonCare → Flow Engine -->
+<line x1="250" y1="150" x2="400" y2="120" marker-end="url(#arrow)" />
 
-    <!-- Flow Engine → Centrical -->
-    <line x1="400" y1="120" x2="550" y2="150" marker-end="url(#arrow)" />
+<!-- Flow Engine → AvalonCare (NEW 🔥) -->
+<line x1="400" y1="120" x2="250" y2="150" marker-end="url(#arrow)" />
 
-    <!-- Flow Engine → Support -->
-    <line x1="400" y1="120" x2="400" y2="210" marker-end="url(#arrow)" />
+<!-- Flow Engine → Centrical -->
+<line x1="400" y1="120" x2="550" y2="150" marker-end="url(#arrow)" />
+
+<!-- Flow Engine → Support -->
+<line x1="400" y1="120" x2="400" y2="210" marker-end="url(#arrow)" />
+
+<!-- Support → Flow Engine (optional but balanced 🔥) -->
+<line x1="400" y1="210" x2="400" y2="120" marker-end="url(#arrow)" />
 
     <!-- AvalonCare -->
     <g class="node-group" onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf','_blank')">
