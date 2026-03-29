@@ -510,9 +510,10 @@ header .logo-card img {
 @media (max-width: 768px) {
   .ecosystem-svg {
     width: 150%;
-    transform: translateX(-25%);
+    transform: translateX(-22%); /* shifted slightly less left */
     margin: -60px auto -10px;
   }
+}
 
   .node-group text {
     font-size: 15px;
@@ -702,27 +703,23 @@ header .logo-card img {
 </defs>
 
     <!-- Connection Lines (FIXED alignment + arrows) -->
-    
-    <!-- AvalonCare → Flow Engine -->
-    <!-- AvalonCare → Flow Engine -->
-<line x1="250" y1="150" x2="400" y2="120" marker-end="url(#arrow)" />
-
-<!-- Flow Engine → AvalonCare (NEW 🔥) -->
-<line x1="400" y1="120" x2="250" y2="150" marker-end="url(#arrow)" />
+<!-- Flow Engine → AvalonCare -->
+<line x1="460" y1="145" x2="250" y2="150" marker-end="url(#arrow)" />
 
 <!-- Flow Engine → Centrical -->
-<line x1="400" y1="120" x2="550" y2="150" marker-end="url(#arrow)" />
+<line x1="460" y1="145" x2="550" y2="150" marker-end="url(#arrow)" />
 
 <!-- Flow Engine → Support -->
-<line x1="400" y1="120" x2="400" y2="210" marker-end="url(#arrow)" />
+<line x1="460" y1="145" x2="400" y2="210" marker-end="url(#arrow)" />
 
-<!-- Support → Flow Engine (optional but balanced 🔥) -->
-<line x1="400" y1="210" x2="400" y2="120" marker-end="url(#arrow)" />
+<!-- Support → Flow Engine (optional but balanced) -->
+<line x1="400" y1="210" x2="460" y2="145" marker-end="url(#arrow)" />
 
     <!-- AvalonCare -->
     <g class="node-group" onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf','_blank')">
-      <rect x="90" y="120" width="160" height="60" rx="16"/>
-      <text x="170" y="150" text-anchor="middle">AvalonCare</text>
+      transform="translate(290,150)"> <!-- shifted from 250 → 290 -->
+  <rect width="120" height="50" rx="12" ry="12" />
+  <text x="60" y="25" text-anchor="middle">AvalonCare</text>
     </g>
 
     <!-- Flow Engine -->
