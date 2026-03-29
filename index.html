@@ -452,16 +452,18 @@ header .logo-card img {
 
 /* ---------- Ecosystem Section ---------- */
 .ecosystem-map {
-  padding: 40px 20px 20px;
+  padding: 20px 20px 0; /* 🔥 reduce top/bottom space */
+  overflow: hidden;
 }
 
-/* ---------- SVG Layout ---------- */
+/* ---------- SVG Layout (BIG FIX HERE) ---------- */
 .ecosystem-svg {
-  width: 100%;
-  max-width: 1000px;
+  width: 130%;                 /* 🔥 enlarge map */
+  max-width: 1200px;
   height: auto;
   display: block;
-  margin: -40px auto 20px; /* 🔥 pulls it closer to button */
+  margin: -80px auto -20px;    /* 🔥 pull up + remove bottom gap */
+  transform: translateX(-15%); /* keep centered */
 }
 
 /* ---------- Lines ---------- */
@@ -473,7 +475,7 @@ header .logo-card img {
   filter: drop-shadow(0 0 6px #6b2cd8);
 }
 
-/* Arrow animation */
+/* Animation */
 @keyframes dashMove {
   to {
     stroke-dashoffset: -20;
@@ -482,13 +484,14 @@ header .logo-card img {
 
 /* ---------- Nodes ---------- */
 .node-group rect {
-  fill: rgba(107,44,216,0.1);
+  fill: rgba(107,44,216,0.12);
   stroke: #6b2cd8;
+  stroke-width: 1.5;
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
-/* Hover effect */
+/* Hover */
 .node-group:hover rect {
   filter: drop-shadow(0 0 14px #6b2cd8);
   transform: scale(1.05);
@@ -498,20 +501,22 @@ header .logo-card img {
 /* Text */
 .node-group text {
   fill: #ffffff;
-  font-size: 16px;
+  font-size: 17px;  /* 🔥 bigger */
   font-weight: 600;
   dominant-baseline: middle;
   pointer-events: none;
 }
 
-/* ---------- Mobile Optimization ---------- */
+/* ---------- Mobile ---------- */
 @media (max-width: 768px) {
   .ecosystem-svg {
-    margin: -20px auto 10px; /* less aggressive pull on mobile */
+    width: 150%;
+    transform: translateX(-25%);
+    margin: -60px auto -10px;
   }
 
   .node-group text {
-    font-size: 14px;
+    font-size: 15px;
   }
 }
 
@@ -690,17 +695,23 @@ header .logo-card img {
 
   <svg viewBox="0 0 800 300" class="ecosystem-svg">
 
-    <!-- Arrow Definition -->
+    <!-- Arrow Definition (FIXED) -->
     <defs>
-      <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-        <path d="M0,0 L0,6 L9,3 z" fill="#6b2cd8" />
+      <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+        <path d="M0,0 L0,12 L12,6 z" fill="#6b2cd8" />
       </marker>
     </defs>
 
-    <!-- Connection Lines (FIXED to edges, not center) -->
-    <line x1="250" y1="150" x2="400" y2="110" marker-end="url(#arrow)" />
-    <line x1="400" y1="110" x2="550" y2="150" marker-end="url(#arrow)" />
-    <line x1="400" y1="110" x2="400" y2="210" marker-end="url(#arrow)" />
+    <!-- Connection Lines (FIXED alignment + arrows) -->
+    
+    <!-- AvalonCare → Flow Engine -->
+    <line x1="250" y1="150" x2="400" y2="120" marker-end="url(#arrow)" />
+
+    <!-- Flow Engine → Centrical -->
+    <line x1="400" y1="120" x2="550" y2="150" marker-end="url(#arrow)" />
+
+    <!-- Flow Engine → Support -->
+    <line x1="400" y1="120" x2="400" y2="210" marker-end="url(#arrow)" />
 
     <!-- AvalonCare -->
     <g class="node-group" onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf','_blank')">
