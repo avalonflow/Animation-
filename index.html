@@ -451,14 +451,21 @@ header .logo-card img {
 }
 
 .ecosystem-map {
-    position: relative;
-    min-height: 380px;
+    display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative; /* needed for absolute lines */
+        gap: 25px;
+        min-height: 300px; /* reserve space for SVG */
 }
 
 .connection-lines {
     position: absolute;
     width: 100%;
-    height: 100%;
+    height: auto;
+position: absolute;
+    top: 0;
+    left: 0;
     z-index: 1;
 }
 
@@ -483,7 +490,9 @@ header .logo-card img {
     background: rgba(107,44,216,0.1);
     border: 1px solid #6b2cd8;
     z-index: 2;
+margin-bottom: 15px;
     transition: all 0.3s ease;
+transform: scale(0.5);
 }
 
 .node:hover {
@@ -636,17 +645,6 @@ header .logo-card img {
         align-items: center;
         gap: 25px;
     }
-
-    .connection-lines {
-        display: none;
-    }
-
-    .node {
-        position: relative;
-        top: auto !important;
-        left: auto !important;
-    }
-}
 </style>
 </head>
 <body>
@@ -686,8 +684,7 @@ header .logo-card img {
 </section>
 
 <section class="ecosystem-map fade-section">
-
-    <svg class="connection-lines" viewBox="0 0 800 300" preserveAspectRatio="none">
+    <svg class="connection-lines" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid meet">
         <line x1="150" y1="150" x2="350" y2="80" />
         <line x1="350" y1="80" x2="550" y2="150" />
         <line x1="350" y1="80" x2="350" y2="220" />
