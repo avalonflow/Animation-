@@ -690,31 +690,33 @@ header .logo-card img {
 </section>
 
 <section class="ecosystem-map fade-section">
-    <svg class="connection-lines" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid meet">
-        <line x1="150" y1="150" x2="350" y2="80" />
-        <line x1="350" y1="80" x2="550" y2="150" />
-        <line x1="350" y1="80" x2="350" y2="220" />
+  <div class="ecosystem-wrapper">
+
+    <!-- Connection lines -->
+    <svg class="connection-lines" viewBox="0 0 800 300" preserveAspectRatio="none">
+      <line x1="150" y1="150" x2="350" y2="80" />
+      <line x1="350" y1="80" x2="550" y2="150" />
+      <line x1="350" y1="80" x2="350" y2="220" />
     </svg>
 
-    <!-- Node 1: opens a PDF -->
-    <div class="node" style="top:150px; left:80px;" onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf', '_blank')">
-        AvalonCare
+    <!-- Nodes -->
+    <div class="node" style="top:150px; left:80px;" onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf','_blank')">
+      AvalonCare
     </div>
 
-    <!-- Node 2: opens another PDF -->
-    <div class="node" style="top:60px; left:330px;" onclick="window.open('assets/documents/Avalonflow Official Brochure.pdf', '_blank')">
-        Flow Engine
+    <div class="node" style="top:60px; left:330px;" onclick="window.open('assets/documents/Avalonflow Official Brochure.pdf','_blank')">
+      Flow Engine
     </div>
 
-    <!-- Node 3: links to external site -->
-    <div class="node" style="top:150px; left:580px;" onclick="window.open('https://centrical.com', '_blank')">
-        Centrical™
+    <div class="node" style="top:150px; left:580px;" onclick="window.open('https://centrical.com','_blank')">
+      Centrical™
     </div>
 
-    <!-- Node 4: opens another PDF -->
-    <div class="node" style="top:230px; left:330px;" onclick="window.open('/support', '_blank')">
-        Support Layer
+    <div class="node" style="top:230px; left:330px;" onclick="window.open('/support','_blank')">
+      Support Layer
     </div>
+
+  </div>
 </section>
 
 <!-- 3-Step Flow -->
