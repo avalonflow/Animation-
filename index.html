@@ -96,6 +96,11 @@ color:#a78bfa;
             margin: 0 auto;
             padding-bottom: 80px;
         }
+@media (max-width: 768px) {
+    #content {
+        padding: 20px 15px;
+    }
+}
 
         /* ---------- Buttons ---------- */
         .button {
@@ -156,9 +161,37 @@ left:300px;
     text-align: center;
     padding: 20px 20px 60px 20px; /* small top padding instead of 10px */
     margin-top: 0; /* ensure no extra margin from flow */
+min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
+
+@media (max-width: 768px) {
+    header {
+        padding: 20px 0;
+    }
+
+    .logo-card {
+        height: 120px;
+    }
+
+    .hero {
+        padding: 10px 15px 30px;
+    }
+
     .hero h1 {
-    font-size: 3rem;
+        font-size: 1.8rem;
+    }
+
+    .hero p {
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+    }
+}
+
+    .hero h1 {
+    font-size: clamp(1.8rem, 5vw, 3rem);
     background: linear-gradient(90deg,#6b2cd8,#b393ff,#6b2cd8);
     background-size: 200% auto;
     -webkit-background-clip: text;
@@ -184,6 +217,18 @@ left:300px;
     gap: 15px;             /* space between buttons */
     justify-content: center; /* center horizontally */
     margin-top: 20px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    scroll-snap-type: y mandatory;
+}
+
+section {
+    scroll-snap-align: start;
 }
 
     #ctaButton {
