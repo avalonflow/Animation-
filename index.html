@@ -453,14 +453,18 @@ header .logo-card img {
 /* ---------- Ecosystem Map Wrapper ---------- */
 .ecosystem-svg {
   width: 100%;
+  max-width: 900px; /* 👈 slightly bigger than before */
   height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 .ecosystem-svg line {
   stroke: #6b2cd8;
-  stroke-width: 2;
+  stroke-width: 2.5;
   stroke-dasharray: 6;
   animation: dashMove 6s linear infinite;
+  filter: drop-shadow(0 0 6px #6b2cd8);
 }
 
 .node-group rect {
@@ -472,13 +476,15 @@ header .logo-card img {
 
 .node-group:hover rect {
   filter: drop-shadow(0 0 10px #6b2cd8);
-  transform: scale(1.05);
+  transform: scale(1.06);
   transform-origin: center;
 }
 
 .node-group text {
   fill: #fff;
-  font-size: 14px;
+  font-size: 15px; /* 👈 bigger text */
+  font-weight: 500;
+  dominant-baseline: middle;
   pointer-events: none;
 }
 
@@ -660,29 +666,32 @@ header .logo-card img {
     <svg viewBox="0 0 800 300" class="ecosystem-svg">
 
   <!-- Lines -->
-  <line x1="150" y1="150" x2="400" y2="80" />
-  <line x1="400" y1="80" x2="650" y2="150" />
-  <line x1="400" y1="80" x2="400" y2="240" />
+  <line x1="170" y1="150" x2="400" y2="90" />
+  <line x1="400" y1="90" x2="630" y2="150" />
+  <line x1="400" y1="90" x2="400" y2="235" />
 
-  <!-- Nodes -->
+  <!-- AvalonCare -->
   <g class="node-group" onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf','_blank')">
-    <rect x="110" y="130" width="80" height="40" rx="10"/>
-    <text x="150" y="155" text-anchor="middle">AvalonCare</text>
+    <rect x="110" y="125" width="120" height="50" rx="14"/>
+    <text x="170" y="155" text-anchor="middle">AvalonCare</text>
   </g>
 
+  <!-- Flow Engine -->
   <g class="node-group" onclick="window.open('assets/documents/Avalonflow Official Brochure.pdf','_blank')">
-    <rect x="350" y="60" width="100" height="40" rx="10"/>
-    <text x="400" y="85" text-anchor="middle">Flow Engine</text>
+    <rect x="330" y="65" width="140" height="50" rx="14"/>
+    <text x="400" y="95" text-anchor="middle">Flow Engine</text>
   </g>
 
+  <!-- Centrical -->
   <g class="node-group" onclick="window.open('https://centrical.com','_blank')">
-    <rect x="610" y="130" width="80" height="40" rx="10"/>
-    <text x="650" y="155" text-anchor="middle">Centrical™</text>
+    <rect x="570" y="125" width="120" height="50" rx="14"/>
+    <text x="630" y="155" text-anchor="middle">Centrical™</text>
   </g>
 
+  <!-- Support -->
   <g class="node-group" onclick="window.open('/support','_blank')">
-    <rect x="350" y="220" width="100" height="40" rx="10"/>
-    <text x="400" y="245" text-anchor="middle">Support Layer</text>
+    <rect x="330" y="210" width="140" height="50" rx="14"/>
+    <text x="400" y="240" text-anchor="middle">Support Layer</text>
   </g>
 
 </svg>
