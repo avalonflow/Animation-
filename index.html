@@ -509,15 +509,56 @@ header .logo-card img {
 /* ---------- Mobile ---------- */
 /* ---------- Mobile ---------- */
 @media (max-width: 768px) {
+
+  /* ---------- Enlarge SVG on mobile ---------- */
   .ecosystem-svg {
-    width: 100%;        /* instead of 150% */
-    transform: none;    /* remove the translateX */
+    width: 120%;            /* slightly bigger map */
+    max-width: 1200px;      /* optional cap */
+    transform: none;        /* remove previous translate */
     margin: -60px auto -10px;
   }
 
-  /* AvalonCare shift if needed */
-  .ecosystem-svg g:nth-child(2) rect { x: 120px; }
-  .ecosystem-svg g:nth-child(2) text { x: 200px; }
+  /* ---------- Shift AvalonCare to the right ---------- */
+  .ecosystem-svg g:nth-child(2) rect {  /* AvalonCare rect */
+    x: 120px; 
+  }
+  .ecosystem-svg g:nth-child(2) text {  /* AvalonCare text */
+    x: 200px;
+  }
+
+  /* ---------- Adjust Flow Engine for balance ---------- */
+  .ecosystem-svg g:nth-child(3) rect {  /* Flow Engine rect */
+    x: 310px;
+    y: 50px;
+  }
+  .ecosystem-svg g:nth-child(3) text {  /* Flow Engine text */
+    x: 400px;
+    y: 80px;
+  }
+
+  /* ---------- Adjust Centrical for balance ---------- */
+  .ecosystem-svg g:nth-child(4) rect {  /* Centrical rect */
+    x: 570px;
+  }
+  .ecosystem-svg g:nth-child(4) text {  /* Centrical text */
+    x: 650px;
+  }
+
+  /* ---------- Adjust Support Layer for balance ---------- */
+  .ecosystem-svg g:nth-child(5) rect {  /* Support Layer rect */
+    x: 310px;
+    y: 210px;
+  }
+  .ecosystem-svg g:nth-child(5) text {  /* Support Layer text */
+    x: 400px;
+    y: 240px;
+  }
+
+  /* ---------- Optional: smaller node text ---------- */
+  .node-group text {
+    font-size: 15px;
+  }
+
 }
 
 .node-group text {
