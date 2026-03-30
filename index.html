@@ -518,8 +518,8 @@ header .logo-card img {
 
 /* ---------- Nodes ---------- */
 .node-group {
-  cursor: pointer;
-  pointer-events: all; /* 🔥 ensures taps register on mobile */
+    pointer-events: all;
+    touch-action: manipulation;   /* optional, improves reliability on mobile */
 }
 
 .node-group rect {
@@ -551,12 +551,11 @@ header .logo-card img {
 @media (max-width: 768px) {
   .ecosystem-svg {
     transform: scale(1.23);      /* keep the scale */
-    transform-origin: top center;
-  }
-
-  /* Ensure taps work on scaled elements */
-  .node-group {
-    pointer-events: auto;  /* required for mobile taps */
+    transform-origin: top center; /* keeps layout centered */
+    
+    /* 🔥 Fix pointer events on scaled SVG */
+    transform-box: fill-box;      /* maps clicks correctly to scaled elements */
+    pointer-events: all;
   }
 
   /* Shift AvalonCare to the right */
