@@ -550,24 +550,27 @@ header .logo-card img {
 /* ---------- Mobile ---------- */
 /* ---------- Mobile ---------- */
 @media (max-width: 768px) {
-.ecosystem-svg {
-transform: scale(1.23);      / keep the scale /
-transform-origin: top center; / keeps layout centered */
 
-/* 🔥 Fix pointer events on scaled SVG */  
-transform-box: fill-box;      /* maps clicks correctly to scaled elements */  
-pointer-events: all;
+  .node-group text {
+    font-size: 18px;
+  }
 
-}
+  /* Scale all nodes individually for mobile */
+  .ecosystem-svg .node-group {
+    transform: scale(1.23);
+    transform-origin: center center;
+  }
 
-/* Shift AvalonCare to the right */
-.ecosystem-svg g:nth-child(2) rect {
-x: 100px;
-width: 160px;
-height: 80px;
-}
-.ecosystem-svg g:nth-child(2) text {
-x: 180px;
+  /* Optional: shift AvalonCare to center visually */
+  .ecosystem-svg g:nth-child(1) rect {
+    x: 120px;
+    width: 160px;
+    height: 80px;
+  }
+  .ecosystem-svg g:nth-child(1) text {
+    x: 200px;
+  }
+
 }
 
 .node-group text {
@@ -767,29 +770,48 @@ font-size: 18px;
 <!-- Flow Engine → Support -->
 <line x1="400" y1="120" x2="400" y2="210" marker-end="url(#arrow)" />
 
-   <!-- AvalonCare -->  <g class="node-group"  
-onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf','_blank')">
-<rect x="90" y="120" width="160" height="60" rx="16"/>
-<text x="170" y="150" text-anchor="middle">AvalonCare</text>
-</g>
+   <div class="ecosystem-map">
+<svg class="ecosystem-svg" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
 
-<!-- Flow Engine -->  <g class="node-group"  
-onclick="window.open('assets/documents/Avalonflow Official Brochure.pdf','_blank')">
-<rect x="310" y="50" width="180" height="60" rx="16"/>
-<text x="400" y="80" text-anchor="middle">Flow Engine</text>
-</g>
+  <!-- Arrow Marker Definition -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6b2cd8"/>
+    </marker>
+  </defs>
 
-<!-- Centrical -->  <g class="node-group"  
-onclick="window.open('https://centrical.com','_blank')">
-<rect x="550" y="120" width="160" height="60" rx="16"/>
-<text x="630" y="150" text-anchor="middle">Centrical™</text>
-</g>
+  <!-- Flow Engine → AvalonCare -->
+  <line x1="400" y1="80" x2="170" y2="150" marker-end="url(#arrow)" />
+  
+  <!-- Flow Engine → Centrical -->
+  <line x1="400" y1="80" x2="630" y2="150" marker-end="url(#arrow)" />
+  
+  <!-- Flow Engine → Support Layer -->
+  <line x1="400" y1="80" x2="400" y2="240" marker-end="url(#arrow)" />
 
-<!-- Support Layer -->  <g class="node-group"  
-onclick="window.open('/support','_blank')">
-<rect x="310" y="210" width="180" height="60" rx="16"/>
-<text x="400" y="240" text-anchor="middle">Support Layer</text>
-</g>
+  <!-- AvalonCare -->
+  <g class="node-group" onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf','_blank')">
+    <rect x="90" y="120" width="160" height="60" rx="16"/>
+    <text x="170" y="150" text-anchor="middle">AvalonCare</text>
+  </g>
+
+  <!-- Flow Engine -->
+  <g class="node-group" onclick="window.open('assets/documents/Avalonflow Official Brochure.pdf','_blank')">
+    <rect x="310" y="50" width="180" height="60" rx="16"/>
+    <text x="400" y="80" text-anchor="middle">Flow Engine</text>
+  </g>
+
+  <!-- Centrical -->
+  <g class="node-group" onclick="window.open('https://centrical.com','_blank')">
+    <rect x="550" y="120" width="160" height="60" rx="16"/>
+    <text x="630" y="150" text-anchor="middle">Centrical™</text>
+  </g>
+
+  <!-- Support Layer -->
+  <g class="node-group" onclick="window.open('/support','_blank')">
+    <rect x="310" y="210" width="180" height="60" rx="16"/>
+    <text x="400" y="240" text-anchor="middle">Support Layer</text>
+  </g>
 </svg>
 
 </section>
