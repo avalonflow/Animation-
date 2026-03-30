@@ -550,8 +550,13 @@ header .logo-card img {
 /* ---------- Mobile ---------- */
 @media (max-width: 768px) {
   .ecosystem-svg {
-    transform: scale(1.23);      /* 🔥 only on mobile */
+    transform: scale(1.23);      /* keep the scale */
     transform-origin: top center;
+  }
+
+  /* Ensure taps work on scaled elements */
+  .node-group {
+    pointer-events: auto;  /* required for mobile taps */
   }
 
   /* Shift AvalonCare to the right */
@@ -563,7 +568,6 @@ header .logo-card img {
   .ecosystem-svg g:nth-child(2) text {
     x: 180px;
   }
-}
 
   .node-group text {
     font-size: 18px;
