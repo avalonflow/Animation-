@@ -501,15 +501,15 @@ margin: -120px auto -30px;
 }
 
 /* ---------- Lines ---------- */
-/* ---------- Lines ---------- */
 .animated-line {
-  stroke: #6b2cd8;
+  stroke: #6b2cd8;      /* ensure visible stroke */
   stroke-width: 2.5;
   stroke-dasharray: 6;
-  filter: drop-shadow(0 0 6px #6b2cd8);
+  stroke-linecap: round; /* smooth ends for dashed line */
+  filter: drop-shadow(0 0 6px #6b2cd8); 
 }
 
-/* Individual animations for each line */
+/* Individual animations */
 .flow1 { animation: dashMove 3s linear infinite; }
 .flow2 { animation: dashMove 4s linear infinite; }
 .flow3 { animation: dashMove 5s linear infinite; }
@@ -742,10 +742,10 @@ margin: -120px auto -30px;
       </marker>
     </defs>
 
-    <!-- Animated Connection Lines -->
-    <line x1="400" y1="120" x2="250" y2="150" marker-end="url(#arrow)" class="animated-line flow1"/>
-    <line x1="400" y1="120" x2="550" y2="150" marker-end="url(#arrow)" class="animated-line flow2"/>
-    <line x1="400" y1="120" x2="400" y2="210" marker-end="url(#arrow)" class="animated-line flow3"/>
+    <!-- Animated Connection Lines FIXED -->
+<line x1="400" y1="120" x2="250" y2="150" stroke="#6b2cd8" stroke-width="2.5" stroke-dasharray="6" marker-end="url(#arrow)" class="animated-line flow1"/>
+<line x1="400" y1="120" x2="550" y2="150" stroke="#6b2cd8" stroke-width="2.5" stroke-dasharray="6" marker-end="url(#arrow)" class="animated-line flow2"/>
+<line x1="400" y1="120" x2="400" y2="210" stroke="#6b2cd8" stroke-width="2.5" stroke-dasharray="6" marker-end="url(#arrow)" class="animated-line flow3"/>
 
     <!-- Nodes -->
     <g class="node-group" onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf','_blank')">
