@@ -272,17 +272,29 @@ section {
     display: flex;
     flex-wrap: nowrap;
     justify-content: center;
-    gap: 10px;              /* cleaner than margins */
   }
 
   #ctaButton,
   .secondary-cta {
-    flex: 1;                /* share space */
-    min-width: 0;           /* 🔥 prevents overflow */
+    flex: 1;                 /* 👈 each takes equal width */
+    max-width: 48%;          /* 👈 prevents overflow */
     text-align: center;
 
-    margin: 0;              /* remove margin conflicts */
-    /* ✅ KEEP your original padding (15px 30px stays untouched) */
+    margin: 0 5px;
+    padding: 14px 10px;      /* 👈 keeps shape but fits */
+    font-size: 15px;
+
+    border-radius: 8px;
+  }
+
+  #ctaButton {
+    background: #6b2cd8;
+    color: #fff;
+  }
+
+  .secondary-cta {
+    border: 1px solid #6b2cd8;
+    color: #6b2cd8;
   }
 }
 
