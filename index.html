@@ -545,15 +545,16 @@ margin: -220px auto -70px;
 
 /* ---------- Mobile ---------- */
 @media (max-width: 768px) {
-  /* Section stays in place for layout purposes */
+
+  /* Move entire ecosystem section upward without transform */
   .ecosystem-map {
-    transform: none; 
+    position: relative;
+    top: -150px; /* adjust this value to sit just under the hero button */
   }
 
-  /* SVG moves up, no scale */
+  /* Ensure SVG itself is untransformed */
   .ecosystem-svg {
-    transform: translateY(-150px); /* move up */
-    transform-origin: top center;
+    transform: none;
   }
 }
 
