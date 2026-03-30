@@ -546,11 +546,12 @@ margin: -220px auto -70px;
 /* ---------- Mobile ---------- */
 @media (max-width: 768px) {
   .ecosystem-wrapper {
-    transform: scale(1.23); 
+    transform: none; 
     transform-origin: top center;
   }
   .ecosystem-svg {
-    transform: none; /* keep SVG itself untransformed */
+    transform: scale(1.23); /* keep SVG itself untransformed */
+translateY(-300px);
   }
 }
 
