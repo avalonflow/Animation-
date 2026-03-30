@@ -544,14 +544,14 @@ margin: -220px auto -70px;
 }
 
 /* ---------- Mobile ---------- */
+/* ---------- Mobile ---------- */
 @media (max-width: 768px) {
-  .ecosystem-wrapper {
-    transform: scale(1.23); 
-    transform-origin: top center;
+  .ecosystem-map {
+    transform: translateY(-150px); /* moves whole SVG upward */
   }
+
   .ecosystem-svg {
-    transform: none); /* keep SVG itself untransformed */
-translateY(-600px);
+    transform: none; /* ensure no zoom or extra transforms */
   }
 }
 
