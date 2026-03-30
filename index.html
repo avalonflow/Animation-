@@ -544,14 +544,16 @@ margin: -220px auto -70px;
 }
 
 /* ---------- Mobile ---------- */
-/* ---------- Mobile ---------- */
 @media (max-width: 768px) {
+  /* Section stays in place for layout purposes */
   .ecosystem-map {
-    transform: translateY(-150px); /* moves whole SVG upward */
+    transform: none; 
   }
 
+  /* SVG moves up, no scale */
   .ecosystem-svg {
-    transform: none; /* ensure no zoom or extra transforms */
+    transform: translateY(-150px); /* move up */
+    transform-origin: top center;
   }
 }
 
