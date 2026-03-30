@@ -269,23 +269,22 @@ section {
 /* Keep buttons side by side on mobile without changing styles */
 @media (max-width: 768px) {
   .hero-buttons {
+    display: flex;
     flex-wrap: nowrap;
     justify-content: center;
-    overflow: hidden;   /* 🔥 prevents scroll + cut off */
   }
 
   #ctaButton,
   .secondary-cta {
     display: inline-block;
     width: auto;
-    margin-right: 10px;
-    margin-left: 0;
 
-    padding: 15px 20px;   /* 👈 slightly reduced so both fit */
+    margin: 0 5px;          /* 👈 balanced spacing (fixes overflow) */
+    padding: 12px 16px;     /* 👈 slightly smaller to fit screen */
+    font-size: 15px;
+
     border-radius: 8px;
-    font-size: 16px;      /* 👈 tiny scale down */
-
-    flex-shrink: 0;
+    flex-shrink: 1;         /* 👈 allow JUST enough shrink */
   }
 
   #ctaButton {
