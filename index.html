@@ -267,12 +267,19 @@ section {
 }
 
 @media (max-width: 768px) {
+  .hero-buttons {
+    flex-wrap: nowrap; /* don't wrap buttons */
+    justify-content: center; /* keep centered */
+  }
+
   #ctaButton,
   .secondary-cta {
-    display: inline-block;  /* keep side by side */
-    width: auto;             /* don’t force full width */
-    margin-right: 10px;      /* spacing between buttons */
-    margin-left: 0;          /* reset left margin */
+    flex: 0 1 auto; /* let them shrink if needed but stay inline */
+    margin-right: 10px;
+  }
+
+  .secondary-cta {
+    margin-left: 0;
   }
 }
 
@@ -473,6 +480,7 @@ header .logo-card img {
   height: auto;
   display: block;
   margin: -120px auto -30px;    /* 🔥 pull up + remove bottom gap */
+transform-origin: top center;
 }
 
 /* ---------- Lines ---------- */
