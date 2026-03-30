@@ -280,10 +280,12 @@ section {
     margin-right: 10px;
     margin-left: 0;
 
-    /* 🔥 Force button appearance */
     padding: 15px 30px;
     border-radius: 8px;
     font-size: 18px;
+
+    /* ✅ THIS is the missing piece */
+    flex-shrink: 0;   /* prevents button from collapsing */
   }
 
   #ctaButton {
