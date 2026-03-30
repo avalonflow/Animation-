@@ -266,20 +266,19 @@ section {
     box-shadow: 0 0 20px #6b2cd8;
 }
 
+/* Keep buttons side by side on mobile without changing styles */
 @media (max-width: 768px) {
   .hero-buttons {
-    flex-wrap: nowrap; /* don't wrap buttons */
-    justify-content: center; /* keep centered */
+    flex-wrap: nowrap;        /* prevent stacking */
+    justify-content: center;  /* keep them centered */
   }
 
   #ctaButton,
   .secondary-cta {
-    flex: 0 1 auto; /* let them shrink if needed but stay inline */
-    margin-right: 10px;
-  }
-
-  .secondary-cta {
-    margin-left: 0;
+    display: inline-block;  /* as it already is */
+    width: auto;            /* don’t force full width */
+    margin-right: 10px;     /* spacing between buttons */
+    margin-left: 0;         /* reset left margin */
   }
 }
 
@@ -480,7 +479,8 @@ header .logo-card img {
   height: auto;
   display: block;
   margin: -120px auto -30px;    /* 🔥 pull up + remove bottom gap */
-transform-origin: top center;
+transform: scale(1.4); /* 🔥 enlarge map */
+  transform-origin: top center; /* keeps top alignment */
 }
 
 /* ---------- Lines ---------- */
