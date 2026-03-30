@@ -266,6 +266,16 @@ section {
     box-shadow: 0 0 20px #6b2cd8;
 }
 
+@media (max-width: 768px) {
+  #ctaButton,
+  .secondary-cta {
+    display: inline-block;  /* keep side by side */
+    width: auto;             /* don’t force full width */
+    margin-right: 10px;      /* spacing between buttons */
+    margin-left: 0;          /* reset left margin */
+  }
+}
+
 /* ================= Header Logo Card Neon ================= */
 header .logo-card {
   display: inline-flex;
