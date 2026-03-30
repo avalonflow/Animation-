@@ -501,73 +501,64 @@ margin: -120px auto -30px;
 }
 
 /* ---------- Lines ---------- */
-.ecosystem-svg line {
-stroke: #6b2cd8;
-stroke-width: 2.5;
-stroke-dasharray: 6;
-animation: dashMove 6s linear infinite;
-filter: drop-shadow(0 0 6px #6b2cd8);
+/* ---------- Lines ---------- */
+.animated-line {
+  stroke: #6b2cd8;
+  stroke-width: 2.5;
+  stroke-dasharray: 6;
+  filter: drop-shadow(0 0 6px #6b2cd8);
 }
 
-/* Animation */
+/* Individual animations for each line */
+.flow1 { animation: dashMove 3s linear infinite; }
+.flow2 { animation: dashMove 4s linear infinite; }
+.flow3 { animation: dashMove 5s linear infinite; }
+
 @keyframes dashMove {
-to {
-stroke-dashoffset: -20;
-}
+  to { stroke-dashoffset: -20; }
 }
 
-/* ---------- Nodes ---------- /
-.node-group {
-cursor: pointer;
-pointer-events: all; / 🔥 ensures taps register on mobile */
-}
+/* ---------- Nodes ---------- */
+.node-group { cursor: pointer; pointer-events: all; }
 
 .node-group rect {
-fill: rgba(107,44,216,0.12);
-stroke: #6b2cd8;
-stroke-width: 1.5;
-transition: all 0.3s ease;
-cursor: pointer;
+  fill: rgba(107,44,216,0.12);
+  stroke: #6b2cd8;
+  stroke-width: 1.5;
+  transition: all 0.3s ease;
 }
 
-/* Hover */
 .node-group:hover rect {
-filter: drop-shadow(0 0 14px #6b2cd8);
-transform: scale(1.05);
-transform-origin: center;
+  filter: drop-shadow(0 0 14px #6b2cd8);
+  transform: scale(1.05);
+  transform-origin: center;
 }
 
-/* Text /
 .node-group text {
-fill: #ffffff;
-font-size: 17px;  / 🔥 bigger */
-font-weight: 600;
-dominant-baseline: middle;
-pointer-events: none;
+  fill: #ffffff;
+  font-size: 17px;
+  font-weight: 600;
+  dominant-baseline: middle;
+  pointer-events: none;
 }
 
-/* ---------- Mobile ---------- /
-/ ---------- Mobile ---------- /
+/* ---------- Mobile ---------- */
 @media (max-width: 768px) {
-.ecosystem-svg {
-transform: scale(1.23);      / 🔥 only on mobile */
-transform-origin: top center;
-}
+  .ecosystem-svg {
+    transform: scale(1.23);
+    transform-origin: top center;
+  }
 
-/* Shift AvalonCare to the right */
-.ecosystem-svg g:nth-child(2) rect {
-x: 100px;
-width: 160px;
-height: 80px;
-}
-.ecosystem-svg g:nth-child(2) text {
-x: 180px;
-}
-}
-
-.node-group text {
-font-size: 18px;
-}
+  /* Shift AvalonCare */
+  .ecosystem-svg g:nth-child(4) rect { 
+    x: 100px; 
+    width: 160px; 
+    height: 80px; 
+  }
+  .ecosystem-svg g:nth-child(4) text { 
+    x: 180px; 
+    font-size: 18px; 
+  }
 }
 
 .activity {
@@ -742,45 +733,40 @@ font-size: 18px;
 </section>
 
 <section class="ecosystem-map">
+  <svg viewBox="0 0 800 300" class="ecosystem-svg" xmlns="http://www.w3.org/2000/svg">
 
-  <svg viewBox="0 0 800 300" class="ecosystem-svg">
-
-    <!-- Arrow Definition (FIXED) -->
+    <!-- Arrow Definition -->
     <defs>
-  <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
-    <path d="M0,0 L0,14 L14,7 z" fill="#6b2cd8" />
-  </marker>
-</defs>
+      <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto">
+        <path d="M0,0 L0,14 L14,7 z" fill="#6b2cd8" />
+      </marker>
+    </defs>
 
-    <!-- Connection Lines (FIXED alignment + arrows) -->
-<!-- Flow Engine → AvalonCare (NEW 🔥) -->
-<line x1="400" y1="120" x2="250" y2="150" marker-end="url(#arrow)" />
+    <!-- Animated Connection Lines -->
+    <line x1="400" y1="120" x2="250" y2="150" marker-end="url(#arrow)" class="animated-line flow1"/>
+    <line x1="400" y1="120" x2="550" y2="150" marker-end="url(#arrow)" class="animated-line flow2"/>
+    <line x1="400" y1="120" x2="400" y2="210" marker-end="url(#arrow)" class="animated-line flow3"/>
 
-<!-- Flow Engine → Centrical -->
-<line x1="400" y1="120" x2="550" y2="150" marker-end="url(#arrow)" />
+    <!-- Nodes -->
+    <g class="node-group" onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf','_blank')">
+      <rect x="90" y="120" width="160" height="60" rx="16"/>
+      <text x="170" y="150" text-anchor="middle">AvalonCare</text>
+    </g>
 
-<!-- Flow Engine → Support -->
-<line x1="400" y1="120" x2="400" y2="210" marker-end="url(#arrow)" />
+    <g class="node-group" onclick="window.open('assets/documents/Avalonflow Official Brochure.pdf','_blank')">
+      <rect x="310" y="50" width="180" height="60" rx="16"/>
+      <text x="400" y="80" text-anchor="middle">Flow Engine</text>
+    </g>
 
-   <div class="ecosystem-map">
-<svg class="ecosystem-svg" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+    <g class="node-group" onclick="window.open('https://centrical.com','_blank')">
+      <rect x="550" y="120" width="160" height="60" rx="16"/>
+      <text x="630" y="150" text-anchor="middle">Centrical™</text>
+    </g>
 
-  <!-- Arrow Marker Definition -->
-  <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
-      <path d="M0,0 L10,5 L0,10 z" fill="#6b2cd8"/>
-    </marker>
-  </defs>
-
-   <!-- AvalonCare -->  <g class="node-group"    onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf','_blank')">  <rect x="90" y="120" width="160" height="60" rx="16"/>  
-<text x="170" y="150" text-anchor="middle">AvalonCare</text>  
-</g>  <!-- Flow Engine -->  <g class="node-group"    onclick="window.open('assets/documents/Avalonflow Official Brochure.pdf','_blank')">  <rect x="310" y="50" width="180" height="60" rx="16"/>  
-<text x="400" y="80" text-anchor="middle">Flow Engine</text>  
-</g>  <!-- Centrical -->  <g class="node-group"    onclick="window.open('https://centrical.com','_blank')">  <rect x="550" y="120" width="160" height="60" rx="16"/>  
-<text x="630" y="150" text-anchor="middle">Centrical™</text>  
-</g>  <!-- Support Layer -->  <g class="node-group"    onclick="window.open('/support','_blank')">  <rect x="310" y="210" width="180" height="60" rx="16"/>  
-<text x="400" y="240" text-anchor="middle">Support Layer</text>  
-</g>
+    <g class="node-group" onclick="window.open('/support','_blank')">
+      <rect x="310" y="210" width="180" height="60" rx="16"/>
+      <text x="400" y="240" text-anchor="middle">Support Layer</text>
+    </g>
 </svg>
 
 </section>
