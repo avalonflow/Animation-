@@ -487,17 +487,16 @@ header .logo-card img {
 /* ---------- Ecosystem Section ---------- */
 .ecosystem-map {
   padding: 10px 20px 0;
-  overflow: visible; /* 🔥 prevents clipping */
+  overflow: visible;
 }
 
-/* ---------- SVG Layout (BIG FIX HERE) ---------- */
+/* ---------- SVG Layout ---------- */
 .ecosystem-svg {
   width: 100%;
   max-width: 1200px;
   height: auto;
   display: block;
   margin: -120px auto -30px;
-  /* transform removed for desktop */
 }
 
 /* ---------- Lines ---------- */
@@ -507,19 +506,17 @@ header .logo-card img {
   stroke-dasharray: 6;
   animation: dashMove 6s linear infinite;
   filter: drop-shadow(0 0 6px #6b2cd8);
+  vector-effect: non-scaling-stroke; /* keeps stroke width consistent */
 }
 
-/* Animation */
 @keyframes dashMove {
-  to {
-    stroke-dashoffset: -20;
-  }
+  to { stroke-dashoffset: -20; }
 }
 
 /* ---------- Nodes ---------- */
 .node-group {
-    pointer-events: all;
-    touch-action: manipulation;   /* optional, improves reliability on mobile */
+  pointer-events: all;
+  touch-action: manipulation;
 }
 
 .node-group rect {
@@ -530,52 +527,51 @@ header .logo-card img {
   cursor: pointer;
 }
 
-/* Hover */
 .node-group:hover rect {
   filter: drop-shadow(0 0 14px #6b2cd8);
   transform: scale(1.05);
   transform-origin: center;
 }
 
-/* Text */
 .node-group text {
   fill: #ffffff;
-  font-size: 17px;  /* 🔥 bigger */
+  font-size: 17px;
   font-weight: 600;
   dominant-baseline: middle;
   pointer-events: none;
 }
 
-/* ---------- Mobile ---------- */
-/* ---------- Mobile ---------- */
-/* ---------- Mobile ---------- */
+/* ---------- Mobile Adjustments ---------- */
 @media (max-width: 768px) {
 
   .node-group text {
     font-size: 18px;
   }
 
-  /* Scale all nodes individually for mobile */
+  /* Scale nodes individually */
   .ecosystem-svg .node-group {
     transform: scale(1.23);
     transform-origin: center center;
   }
 
-  /* Optional: shift AvalonCare to center visually */
-  .ecosystem-svg g:nth-child(1) rect {
-    x: 120px;
-    width: 160px;
-    height: 80px;
-  }
-  .ecosystem-svg g:nth-child(1) text {
-    x: 200px;
+  /* Scale arrows proportionally */
+  .ecosystem-svg g.lines-group {
+    transform: scale(1.23);
+    transform-origin: 400px 200px; /* center of viewBox */
   }
 
-}
+  /* Final node positioning */
+  .ecosystem-svg g:nth-child(2) rect { x: 140px; y: 130px; width: 160px; height: 80px; }
+  .ecosystem-svg g:nth-child(2) text { x: 220px; y: 170px; }
 
-.node-group text {
-font-size: 18px;
-}
+  .ecosystem-svg g:nth-child(3) rect { x: 310px; y: 60px; }
+  .ecosystem-svg g:nth-child(3) text { x: 400px; y: 90px; }
+
+  .ecosystem-svg g:nth-child(4) rect { x: 570px; y: 130px; }
+  .ecosystem-svg g:nth-child(4) text { x: 650px; y: 170px; }
+
+  .ecosystem-svg g:nth-child(5) rect { x: 310px; y: 230px; }
+  .ecosystem-svg g:nth-child(5) text { x: 400px; y: 260px; }
 }
 
 .activity {
@@ -780,14 +776,12 @@ font-size: 18px;
     </marker>
   </defs>
 
-  <!-- Flow Engine → AvalonCare -->
-  <line x1="400" y1="80" x2="170" y2="150" marker-end="url(#arrow)" />
-  
-  <!-- Flow Engine → Centrical -->
-  <line x1="400" y1="80" x2="630" y2="150" marker-end="url(#arrow)" />
-  
-  <!-- Flow Engine → Support Layer -->
-  <line x1="400" y1="80" x2="400" y2="240" marker-end="url(#arrow)" />
+  <!-- Group all lines for scaling -->
+  <g class="lines-group">
+    <line x1="400" y1="80" x2="170" y2="150" marker-end="url(#arrow)" />
+    <line x1="400" y1="80" x2="630" y2="150" marker-end="url(#arrow)" />
+    <line x1="400" y1="80" x2="400" y2="240" marker-end="url(#arrow)" />
+  </g>
 
   <!-- AvalonCare -->
   <g class="node-group" onclick="window.open('assets/documents/🪽 AvalonCare — The Foundation Wing.pdf','_blank')">
