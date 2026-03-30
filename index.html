@@ -548,13 +548,15 @@ margin: -220px auto -70px;
 
   /* Move entire ecosystem section upward without transform */
   .ecosystem-map {
-    position: relative;
-    top: -150px; /* adjust this value to sit just under the hero button */
-  }
+padding: 10px 20px 0;
+overflow: visible; / 🔥 prevents clipping */
+margin-top: -200px;
+}
 
   /* Ensure SVG itself is untransformed */
   .ecosystem-svg {
     transform: none;
+transform-origin: top center;
   }
 }
 
