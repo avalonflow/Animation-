@@ -545,10 +545,15 @@ margin: -220px auto -70px;
 
 /* ---------- Mobile ---------- */
 @media (max-width: 768px) {
-  .ecosystem-svg {
-    transform: scale(1.23) 
+  .ecosystem-wrapper {
+    transform: scale(1.23) translateY(-320px);
     transform-origin: top center;
+    pointer-events: auto; /* ensure wrapper allows clicks */
   }
+  .ecosystem-svg {
+    transform: none; /* keep SVG itself untransformed */
+  }
+}
 
   /* Shift AvalonCare */
   .ecosystem-svg g:nth-child(4) rect { 
@@ -733,8 +738,8 @@ margin: -220px auto -70px;
     </div>
 </section>
 
-<section class="ecosystem-map">
-  <svg viewBox="0 100 800 300" class="ecosystem-svg" xmlns="http://www.w3.org/2000/svg">
+<section class="ecosystem-wrapper">
+  <svg class="ecosystem-svg" viewBox="0 0 800 400"> xmlns="http://www.w3.org/2000/svg">
 
     <!-- Arrow Definition -->
     <defs>
