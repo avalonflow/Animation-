@@ -269,20 +269,22 @@ section {
 /* Keep buttons side by side on mobile without changing styles */
 @media (max-width: 768px) {
   .hero-buttons {
+    display: flex;
     flex-wrap: nowrap;
     justify-content: center;
+    gap: 10px;   /* 👈 use this instead of margins */
   }
 
   #ctaButton,
   .secondary-cta {
     display: inline-block;
     width: auto;
-    margin-right: 10px;
-    margin-left: 0;
 
-    padding: 15px 17px;   /* 👈 slightly reduced so both fit */
+    margin: 0;   /* 👈 remove margin-right */
+
+    padding: 15px 17px;
     border-radius: 8px;
-    font-size: 16px;      /* 👈 tiny scale down */
+    font-size: 16px;
 
     flex-shrink: 0;
   }
