@@ -548,23 +548,22 @@ header .logo-card img {
 
 /* ---------- Mobile ---------- */
 /* ---------- Mobile ---------- */
+/* ---------- Mobile ---------- */
 @media (max-width: 768px) {
   .ecosystem-svg {
-    transform: scale(1.23);      /* keep the scale */
-    transform-origin: top center; /* keeps layout centered */
-    
-    /* 🔥 Fix pointer events on scaled SVG */
-    transform-box: fill-box;      /* maps clicks correctly to scaled elements */
+    transform: scale(1.23);
+    transform-origin: top center;
+    transform-box: fill-box;
     pointer-events: all;
   }
 
   /* Shift AvalonCare to the right */
-  .ecosystem-svg g:nth-child(2) rect {
+  .ecosystem-svg g:nth-child(1) rect {
     x: 100px;
     width: 160px;
     height: 80px;
   }
-  .ecosystem-svg g:nth-child(2) text {
+  .ecosystem-svg g:nth-child(1) text {
     x: 180px;
   }
 
