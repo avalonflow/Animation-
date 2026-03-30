@@ -269,16 +269,31 @@ section {
 /* Keep buttons side by side on mobile without changing styles */
 @media (max-width: 768px) {
   .hero-buttons {
-    flex-wrap: nowrap;        /* prevent stacking */
-    justify-content: center;  /* keep them centered */
+    flex-wrap: nowrap;
+    justify-content: center;
   }
 
   #ctaButton,
   .secondary-cta {
-    display: inline-block;  /* as it already is */
-    width: auto;            /* don’t force full width */
-    margin-right: 10px;     /* spacing between buttons */
-    margin-left: 0;         /* reset left margin */
+    display: inline-block;
+    width: auto;
+    margin-right: 10px;
+    margin-left: 0;
+
+    /* 🔥 Force button appearance */
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 18px;
+  }
+
+  #ctaButton {
+    background: #6b2cd8;
+    color: #fff;
+  }
+
+  .secondary-cta {
+    border: 1px solid #6b2cd8;
+    color: #6b2cd8;
   }
 }
 
