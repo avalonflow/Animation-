@@ -546,9 +546,8 @@ margin: -220px auto -70px;
 /* ---------- Mobile ---------- */
 @media (max-width: 768px) {
   .ecosystem-wrapper {
-    transform: scale(1.23) translateY(-150px);
+    transform: scale(1.23); 
     transform-origin: top center;
-    pointer-events: auto; /* ensure wrapper allows clicks */
   }
   .ecosystem-svg {
     transform: none; /* keep SVG itself untransformed */
@@ -738,8 +737,8 @@ margin: -220px auto -70px;
     </div>
 </section>
 
-<section class="ecosystem-wrapper">
-  <svg class="ecosystem-svg" viewBox="0 0 800 400"> xmlns="http://www.w3.org/2000/svg">
+<section class="ecosystem-map">
+  <svg class="ecosystem-svg" viewBox="0 50 800 400" xmlns="http://www.w3.org/2000/svg">
 
     <!-- Arrow Definition -->
     <defs>
