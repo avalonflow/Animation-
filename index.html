@@ -682,6 +682,47 @@ transform-origin: top center;
 
         .video-controls input[type=range] { width: 100px; }
 
+#boot-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #0b0f1a;
+  color: #00ffa6;
+  font-family: "Courier New", monospace;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  transition: opacity 0.6s ease, backdrop-filter 0.6s ease;
+}
+
+#boot-screen.fade-out {
+  opacity: 0;
+  backdrop-filter: blur(10px);
+}
+
+#boot-text {
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* Glow effect for System Ready */
+.glow {
+  color: #00ffa6;
+  text-shadow: 0 0 8px #00ffa6, 0 0 16px #00ffa6;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  #boot-text {
+    font-size: 12px;
+  }
+}
+
            /* ---------- Footer ---------- */
         footer {
             position: fixed;
@@ -717,6 +758,12 @@ transform-origin: top center;
     <img src="assets/pictures/imagitool-export (26).jpg" alt="AvalonFlow Logo">
   </div>
 </header>
+
+<div id="boot-screen">
+  <pre id="boot-text"></pre>
+</div>
+
+<audio id="type-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-keyboard-typing-1386.mp3" preload="auto"></audio>
 
     <div id="sidebar">
         <h2>AvalonFlow</h2>
@@ -976,6 +1023,111 @@ setInterval(()=>{
         tIndex = (tIndex+1) % testimonials.length;
     },800);
 },4000);
+
+// ✅ Get US Eastern Time date
+function getUSEasternDate() {
+  const now = new Date();
+
+  const estString = now.toLocaleString("en-US", {
+    timeZone: "America/New_York"
+  });
+
+  return new Date(estString);
+}
+
+// ✅ Month names
+const monthNames = [
+  "JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE",
+  "JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"
+];
+
+const estDate = getUSEasternDate();
+const monthIndex = estDate.getMonth();
+const year = estDate.getFullYear();
+
+const currentMonthUpper = monthNames[monthIndex];
+const currentMonthNormal = currentMonthUpper.charAt(0) + currentMonthUpper.slice(1).toLowerCase();
+
+// ✅ Dynamic lines
+const lines = [
+  "> Initializing AvalonFlow...",
+  "> Connecting financial nodes...",
+  "> Syncing Centrical™ AI...",
+  `> Cycle Detected: ${currentMonthUpper} ${year}`,
+  "",
+  "✓ System Ready",
+  "",
+  "✨ New Month Initialized.",
+  "",
+  `Welcome to ${currentMonthNormal}.`
+];
+
+const textElement = document.getElementById("boot-text");
+const sound = document.getElementById("type-sound");
+
+let lineIndex = 0;
+let charIndex = 0;
+
+// Mobile optimization
+const isMobile = window.innerWidth < 768;
+const typingSpeed = isMobile ? 12 : 22;
+const lineDelay = isMobile ? 180 : 280;
+
+function playSound() {
+  if (sound) {
+    sound.currentTime = 0;
+    sound.play().catch(() => {});
+  }
+}
+
+function typeLine() {
+  if (lineIndex >= lines.length) {
+    setTimeout(() => {
+      const boot = document.getElementById("boot-screen");
+      boot.classList.add("fade-out");
+
+      setTimeout(() => {
+        boot.style.display = "none";
+      }, 600);
+    }, 900);
+    return;
+  }
+
+  const currentLine = lines[lineIndex];
+
+  if (charIndex < currentLine.length) {
+    textElement.textContent += currentLine[charIndex];
+    charIndex++;
+
+    if (Math.random() > 0.6) playSound();
+
+    setTimeout(typeLine, typingSpeed);
+  } else {
+    textElement.textContent += "\n";
+
+    if (currentLine.includes("System Ready")) {
+      textElement.innerHTML = textElement.innerHTML.replace(
+        "✓ System Ready",
+        '<span class="glow">✓ System Ready</span>'
+      );
+    }
+
+    lineIndex++;
+    charIndex = 0;
+    setTimeout(typeLine, lineDelay);
+  }
+}
+
+// ✅ Unique key per month
+const storageKey = `avalon_boot_seen_${year}_${monthIndex}`;
+
+// ✅ Run only on 1st of month (US time) + once per user
+if (estDate.getDate() === 1 && !localStorage.getItem(storageKey)) {
+  typeLine();
+  localStorage.setItem(storageKey, "true");
+} else {
+  document.getElementById("boot-screen").style.display = "none";
+}
 
         // Video volume
         const video = document.getElementById("planVideo");
