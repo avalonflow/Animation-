@@ -713,15 +713,13 @@ transform-origin: top center;
   white-space: pre-wrap;
   max-width: 90%;
   text-align: center;
+  z-index: 2;
 }
 
 /* Glow/flicker for key lines */
 .glow {
   color: #00ffa6;
-  text-shadow:
-    0 0 4px #00ffa6,
-    0 0 8px #00ffa6,
-    0 0 12px #00ffa6;
+  text-shadow: 0 0 4px #00ffa6, 0 0 8px #00ffa6, 0 0 12px #00ffa6;
   animation: pulseGlow 1.5s infinite alternate;
 }
 
@@ -731,7 +729,7 @@ transform-origin: top center;
   100% { text-shadow: 0 0 4px #00ffa6, 0 0 8px #00ffa6; opacity: 0.9; }
 }
 
-/* Suspense ellipsis animation */
+/* Suspense ellipsis */
 .suspense::after {
   content: " ...";
   animation: ellipsis 1s steps(3, end) infinite;
@@ -747,8 +745,7 @@ transform-origin: top center;
 /* Blinking cursor */
 .cursor {
   display: inline-block;
-  width: 10px;
-  height: 20px;
+  width: 10px; height: 20px;
   background: #00ffa6;
   margin-left: 4px;
   animation: blink 1s infinite;
@@ -759,49 +756,31 @@ transform-origin: top center;
   25%,75% { opacity: 0; }
 }
 
-/* Mobile optimization */
+/* Final line glow */
+.final-glow {
+  color: #00ffa6;
+  text-shadow: 0 0 6px #00ffa6, 0 0 12px #00ffa6, 0 0 18px #00ffa6, 0 0 24px #00ffa6;
+  animation: finalGlow 1.2s ease-out;
+}
+
+@keyframes finalGlow {
+  0% { opacity: 0; }
+  50% { opacity: 1; text-shadow: 0 0 24px #00ffa6,0 0 36px #00ffa6; }
+  100% { opacity: 1; text-shadow: 0 0 12px #00ffa6,0 0 18px #00ffa6; }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
-  #boot-text {
-    font-size: 14px;
-  }
+  #boot-text { font-size: 14px; }
 }
 
-/* Optional subtle particle/data stream background */
-#boot-screen::before {
-  content: "";
+/* Particle Canvas */
+#particle-canvas {
   position: absolute;
-  width: 100%; height: 100%;
   top:0; left:0;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(0,255,166,0.05) 0px,
-    rgba(0,255,166,0.05) 2px,
-    transparent 2px,
-    transparent 6px
-  );
-  pointer-events: none;
-  animation: moveStream 2s linear infinite;
-}
-
-@keyframes moveStream {
-  0% { background-position-y: 0; }
-  100% { background-position-y: 8px; }
-}
-
-/* Existing styles remain, just add below */
-
-#matrix-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0; /* behind text */
-  pointer-events: none;
-}
-
-#boot-screen {
-  z-index: 9999; /* keep text above canvas */
+  width:100%; height:100%;
+  z-index:1;
+  pointer-events:none;
 }
 
            /* ---------- Footer ---------- */
@@ -840,10 +819,10 @@ transform-origin: top center;
   </div>
 </header>
 
-<canvas id="matrix-canvas"></canvas>
 <div id="boot-screen">
   <pre id="boot-text"></pre>
   <div class="cursor"></div>
+  <canvas id="particle-canvas"></canvas>
 </div>
 
 <audio id="type-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-keyboard-typing-1386.mp3" preload="auto"></audio>
@@ -1133,129 +1112,149 @@ const lines = [
   "✓ System Ready",
   "",
   "✨ New Month Initialized.",
-  "", 
-  "Suspense", // placeholder for suspense animation
+  "",
+  "Suspense", // suspense animation
   "",
   `Welcome to ${currentMonthNormal}.`
 ];
 
 const textElement = document.getElementById("boot-text");
 const sound = document.getElementById("type-sound");
-let lineIndex = 0;
-let charIndex = 0;
+let lineIndex=0, charIndex=0;
 
-const isMobile = window.innerWidth < 768;
-const typingSpeed = isMobile ? 15 : 40; // slower, cinematic
+const isMobile = window.innerWidth<768;
+const typingSpeed = isMobile ? 15 : 40; // cinematic slow
 const lineDelay = isMobile ? 250 : 400;
 
-function playSound() {
-  if (sound) {
-    sound.currentTime = 0;
-    sound.play().catch(()=>{});
-  }
+// PARTICLES
+const canvas = document.getElementById("particle-canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const particles = [];
+const particleCount = 80;
+
+// init particles
+for(let i=0;i<particleCount;i++){
+  particles.push({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    radius: Math.random()*2+1,
+    alpha: Math.random()*0.3+0.1,
+    speedY: Math.random()*0.5+0.1
+  });
 }
 
-function typeLine() {
-  if (lineIndex >= lines.length) {
-    setTimeout(()=> {
-      const boot = document.getElementById("boot-screen");
-      boot.classList.add("fade-out");
-      setTimeout(()=>{ boot.style.display="none"; }, 1000);
-    }, 1200);
+// draw loop
+function drawParticles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+    ctx.fillStyle=`rgba(0,255,166,${p.alpha})`;
+    ctx.fill();
+    p.y-=p.speedY;
+    if(p.y<0) p.y=canvas.height;
+    // subtle alpha flicker
+    p.alpha+= (Math.random()-0.5)*0.02;
+    if(p.alpha<0.05) p.alpha=0.05;
+    if(p.alpha>0.35) p.alpha=0.35;
+  });
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// pulse on typing
+function pulseParticles(){
+  particles.forEach(p=>{
+    p.alpha=Math.min(p.alpha+0.2,0.5);
+  });
+}
+
+// AI processing wave before final line
+function triggerProcessingWave(){
+  const duration=1200;
+  const startTime=performance.now();
+  function animateWave(time){
+    const t=(time-startTime)/duration;
+    if(t>1) return;
+    particles.forEach(p=>{
+      const dx=p.x-canvas.width/2;
+      const dy=p.y-canvas.height/2;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      const pulse=Math.max(0,1-dist/(canvas.width/2));
+      p.alpha=Math.min(p.alpha+0.5*pulse,0.5);
+    });
+    requestAnimationFrame(animateWave);
+  }
+  animateWave(performance.now());
+}
+
+// Play sound + particle pulse
+function playSound(){
+  if(sound){sound.currentTime=0; sound.play().catch(()=>{});}
+  pulseParticles();
+}
+
+// TYPE LINES
+function typeLine(){
+  if(lineIndex>=lines.length){
+    setTimeout(()=>{document.getElementById("boot-screen").classList.add("fade-out"); setTimeout(()=>{document.getElementById("boot-screen").style.display="none";},1000);},1200);
     return;
   }
 
-  let currentLine = lines[lineIndex];
+  let currentLine=lines[lineIndex];
 
   // suspense line
-  if (currentLine === "Suspense") {
-    const suspenseSpan = document.createElement("span");
+  if(currentLine==="Suspense"){
+    const suspenseSpan=document.createElement("span");
     suspenseSpan.classList.add("suspense");
-    suspenseSpan.textContent = "";
+    suspenseSpan.textContent="";
     textElement.appendChild(suspenseSpan);
-
     setTimeout(()=>{
       suspenseSpan.remove();
       lineIndex++;
-      setTimeout(typeLine, 300);
-    }, 1500); // duration of suspense
+      setTimeout(typeLine,300);
+    },1500);
     return;
   }
 
-  if (charIndex < currentLine.length) {
-    textElement.textContent += currentLine[charIndex];
-    charIndex++;
-    if (Math.random() > 0.6) playSound();
-    setTimeout(typeLine, typingSpeed);
-  } else {
-    textElement.textContent += "\n";
-
-    if (currentLine.includes("System Ready") || currentLine.includes("New Month Initialized")) {
-      textElement.innerHTML = textElement.innerHTML.replace(
-        currentLine,
-        `<span class="glow">${currentLine}</span>`
-      );
-    }
-
+  // final line glow + wave
+  if(currentLine.includes(`Welcome to ${currentMonthNormal}`)){
+    triggerProcessingWave();
+    const span=document.createElement("span");
+    span.classList.add("final-glow");
+    span.textContent=currentLine;
+    textElement.appendChild(span);
     lineIndex++;
-    charIndex = 0;
-    setTimeout(typeLine, lineDelay);
+    charIndex=0;
+    setTimeout(typeLine,lineDelay);
+    return;
+  }
+
+  if(charIndex<currentLine.length){
+    textElement.textContent+=currentLine[charIndex];
+    charIndex++;
+    if(Math.random()>0.6) playSound();
+    setTimeout(typeLine,typingSpeed);
+  } else {
+    textElement.textContent+="\n";
+    if(currentLine.includes("System Ready")||currentLine.includes("New Month Initialized")){
+      textElement.innerHTML=textElement.innerHTML.replace(currentLine,`<span class="glow">${currentLine}</span>`);
+    }
+    lineIndex++; charIndex=0;
+    setTimeout(typeLine,lineDelay);
   }
 }
 
 // Storage per month
-const storageKey = `avalon_boot_seen_${year}_${monthIndex}`;
-if (estDate.getDate() === 1 && !localStorage.getItem(storageKey)) {
+const storageKey=`avalon_boot_seen_${year}_${monthIndex}`;
+if(estDate.getDate()===1 && !localStorage.getItem(storageKey)){
   typeLine();
-  localStorage.setItem(storageKey, "true");
-} else {
-  document.getElementById("boot-screen").style.display = "none";
-}
-
-// MATRIX EFFECT
-const canvas = document.getElementById("matrix-canvas");
-const ctx = canvas.getContext("2d");
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-const fontSize = 16;
-const columns = Math.floor(canvas.width / fontSize);
-const drops = Array(columns).fill(1);
-
-function drawMatrix() {
-  ctx.fillStyle = "rgba(11,15,26,0.05)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.fillStyle = "#00ffa6";
-  ctx.font = fontSize + "px monospace";
-
-  for (let i = 0; i < drops.length; i++) {
-    const text = letters[Math.floor(Math.random() * letters.length)];
-    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-      drops[i] = 0;
-    }
-
-    drops[i]++;
-  }
-  requestAnimationFrame(drawMatrix);
-}
-
-// Start matrix effect only on boot-screen
-const estDate = getUSEasternDate();
-const monthIndex = estDate.getMonth();
-const year = estDate.getFullYear();
-const storageKey = `avalon_boot_seen_${year}_${monthIndex}`;
-
-if (estDate.getDate() === 1 && !localStorage.getItem(storageKey)) {
-  drawMatrix(); // start background animation
-  typeLine();
-  localStorage.setItem(storageKey, "true");
-} else {
-  document.getElementById("boot-screen").style.display = "none";
+  localStorage.setItem(storageKey,"true");
+}else{
+  document.getElementById("boot-screen").style.display="none";
 }
 
         // Video volume
