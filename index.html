@@ -204,6 +204,23 @@ margin: 10px 0;
     0% { background-position: 0% center; }
     100% { background-position: 200% center; }
 }
+
+.gradient-animation {
+background: linear-gradient(90deg,#6b2cd8,#b393ff,#6b2cd8);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 6s linear infinite;
+margin: 10px 0;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
+
+
     .hero p {
         font-size: 1.2rem;
         max-width: 700px;
@@ -893,18 +910,21 @@ transform-origin: top center;
 <!-- 3-Step Flow -->
 <section class="steps">
     <div class="step">
-        <h3>Step 1: Sign-up for AvalonCare Membership</h3>
+        <h3 class="gradient-animation" >Step 1: Sign-up to  AvalonCare</h3>
         <p>Personalize your account & provide your withdrawal details — it takes less than 1 minute</p>
+<img src="assets/pictures/IMG-20260412-WA0031.jpg" alt="Choose your plan" class="step-image">
     </div>
-    <div class="step">
-        <h3>Step 2: AvalonCare Access</h3>
-        <p>Choose a plan that fits your personal needs and budget</p>
-        <img src="assets/pictures/1773486491096.png" alt="Choose your plan" class="step-image">
+
+<div class="step">
+        <h3 class="gradient-animation" >Step 2: Sign-in to your Dashboard</h3>
+        <p>Enjoy 24-hour Returns paid directly to your preferred wallet, and track Real Time Progress</p>
+        <img src="assets/pictures/IMG-20260412-WA0023.jpg" alt="Dashboard tracking" class="step-image">
     </div>
+
     <div class="step">
-        <h3>Step 3: Sign-in to your Dashboard</h3>
-        <p>Start using AvalonFlow to enjoy returns paid directly to your preferred wallet, and track progress instantly</p>
-        <img src="assets/pictures/1767612257310-removebg-preview.png" alt="Dashboard tracking" class="step-image">
+        <h3 class="gradient-animation" >Step 3: AvalonCare Access</h3>
+        <p>Choose a plan that fits your Personal Needs And Budget</p>
+        <img src="assets/pictures/WA_1775999483405.jpeg" alt="Choose your plan" class="step-image">
     </div>
 </section>
 
