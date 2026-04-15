@@ -214,20 +214,26 @@ background: linear-gradient(90deg,#6b2cd8,#b393ff,#6b2cd8);
 margin: 10px 0;
 }
 
-@keyframes gradientShift {
-    0% { background-position: 0% center; }
-    100% { background-position: 200% center; }
-}
-
-
-
     .hero p {
-        font-size: 1.2rem;
+        font-size: 0.75rem;
         max-width: 700px;
         margin: 0 auto 40px auto;
         line-height: 1.5;
         color: #fff;
-    }
+  font-style: italic;         /* Italic text */
+  background: linear-gradient(90deg,#6b2cd8,#b393ff,#6b2cd8);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 6s linear infinite;
+  display: inline-block;      /* Needed for gradient text on multi-line */
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
 .hero-buttons {
     display: flex;
