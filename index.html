@@ -688,7 +688,7 @@ transform-origin: top center;
     border: 1px solid rgba(107, 44, 216, 0.5);
     box-shadow: 0 0 15px #6b2cd8, 0 0 25px #b393ff;
     transition: all 0.5s ease;
-margin-top: -140px;
+margin-top: -180px;
 }
 
 #activityFeed.fade {
@@ -758,31 +758,98 @@ margin-top: -140px;
         #progressText { margin-top: 8px; font-size: 14px; opacity: 0.8; color: #2d1b4e; }
 
     /* ---------- Testimonials ---------- */
-    .testimonials {
-        position: relative;
-        z-index: 2;
-        padding: 60px 20px;
-        text-align: center;
-        background: rgba(107,44,216,0.05);
-    }
-    .testimonials p em {
-        font-size: 1.1rem;
-        color: #6b2cd8;
-    }
-    .testimonials ul {
-        list-style: none;
-        margin-top: 20px;
-    }
-    .testimonials li {
-        max-width: 700px;
-        margin: 0 auto;
-        font-size: 1rem;
-        opacity: 1;
-        transition: opacity 0.8s ease;
-    }
-    .fade-out {
-        opacity: 0;
-    }
+.testimonials {
+    position: relative;
+    z-index: 2;
+    padding: 60px 20px;
+    text-align: center;
+    background: rgba(107,44,216,0.05);
+}
+
+/* Reused your original header styling to keep section headers looking uniform */
+.testimonials p em {
+    font-size: 1.1rem;
+    color: #6b2cd8;
+}
+
+.testimonials ul {
+    list-style: none;
+    margin-top: 20px;
+    padding: 0; /* Ensures the elements don't get pushed off-center on mobile */
+}
+
+/* UPGRADED TESTIMONIAL ITEM: Turned into a beautiful glass layout card */
+.testimonials li {
+    max-width: 500px; /* Snug width looks vastly better for cards on mobile layout screens */
+    margin: 0 auto;
+    font-size: 1rem;
+    opacity: 1;
+    transition: opacity 0.8s ease, transform 0.3s ease; /* Integrated transition hooks */
+    
+    /* Premium frosted structural finish styling */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.45));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 15px 30px rgba(107, 44, 216, 0.06);
+}
+
+/* Keeps your existing Javascript slider mechanics running flawlessly */
+.fade-out {
+    opacity: 0 !important;
+}
+
+/* ---------- Profile Card Layout Sub-Elements ---------- */
+.testimonial-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.testimonial-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #6b2cd8; /* Vibrant signature brand border frame */
+    box-shadow: 0 0 8px rgba(107, 44, 216, 0.25);
+}
+
+.profile-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #2d1b4e; /* Max contrast midnight purple for clear visibility */
+}
+
+.profile-title {
+    font-size: 0.8rem;
+    color: #6b2cd8;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* The actual text quote box formatting */
+.testimonial-quote {
+    font-size: 0.98rem;
+    line-height: 1.5;
+    color: #3a2463 !important; /* Premium imperial amethyst font for easy reading */
+    font-style: italic;
+    text-align: left;
+    margin: 0;
+}
+
 
         /* ---------- Mini TV Video ---------- */
         .video-container {
@@ -1039,16 +1106,29 @@ margin-top: -140px;
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <div id="progressText">Returns accumulate automatically daily—explore what each plan holds.</div>
+                <div id="progressText">Returns accumulate automatically daily—explore what each <span class="inline-gradient-animation">AVB Bond</span> holds.</div>
             </div>
 
 <!-- Testimonials -->
 <section class="testimonials">
     <p><em>Reflections from members:</em></p>
     <ul id="testimonialList">
-        <li>“My shifts are demanding, and I don’t always have time to explore new options. What stood out for me was how simple and rewarding this felt.” — Charlotte</li>
+        <li>
+            <div class="testimonial-profile">
+                <!-- Replace with your actual image file path when ready -->
+                <img src="assets/images/charlotte.jpg" alt="Charlotte" class="testimonial-avatar">
+                <div class="profile-details">
+                    <span class="profile-name">Charlotte</span>
+                    <span class="profile-title">Member</span>
+                </div>
+            </div>
+            <p class="testimonial-quote">
+                “My shifts are demanding, and I don’t always have time to explore new options. What stood out for me was how secure and rewarding this felt.”
+            </p>
+        </li>
     </ul>
 </section>
+
 
                 <!-- Mini TV: Member Reflection -->
         <p style="text-align:center; font-weight:bold; margin-top:20px;">From Investment to Impact</p>
@@ -1191,22 +1271,54 @@ activities.forEach(activity => showActivity(activity));
         }
         setInterval(updateDashboardProgress,1000);
 
-/* ---------- Rotating Testimonials ---------- */
+/* ---------- Rotating Testimonials (Upgraded) ---------- */
 const testimonials = [
-    "“My shifts are demanding, and I don’t always have time to explore new options. What stood out for me was how simple and rewarding this felt.” — Charlotte",
-    "“As an educator, I value clarity and systems that make sense. This was profitable and realistic.” — Emily",
-    "“I finally saw progress without feeling overwhelmed.” — Ava"
+    {
+        quote: "“My shifts are demanding, and I don’t always have time to explore new options. What stood out for me was how simple and rewarding this felt.”",
+        name: "Charlotte",
+        title: "Member",
+        img: "assets/images/charlotte.jpg"
+    },
+    {
+        quote: "“As an educator, I value clarity and systems that make sense. This was profitable and realistic.”",
+        name: "Emily",
+        title: "Educator",
+        img: "assets/images/emily.jpg"
+    },
+    {
+        quote: "“I finally saw progress without feeling overwhelmed.”",
+        name: "Ava",
+        title: "Member",
+        img: "assets/images/ava.jpg"
+    }
 ];
+
 let tIndex = 0;
 const testimonialLi = document.querySelector("#testimonialList li");
-setInterval(()=>{
+
+setInterval(() => {
     testimonialLi.classList.add("fade-out");
-    setTimeout(()=>{
-        testimonialLi.innerText = testimonials[tIndex];
+    
+    setTimeout(() => {
+        const current = testimonials[tIndex];
+        
+        // Inject the full component structure dynamically instead of plain innerText
+        testimonialLi.innerHTML = `
+            <div class="testimonial-profile">
+                <img src="${current.img}" alt="${current.name}" class="testimonial-avatar">
+                <div class="profile-details">
+                    <span class="profile-name">${current.name}</span>
+                    <span class="profile-title">${current.title}</span>
+                </div>
+            </div>
+            <p class="testimonial-quote">${current.quote}</p>
+        `;
+        
         testimonialLi.classList.remove("fade-out");
-        tIndex = (tIndex+1) % testimonials.length;
-    },800);
-},4000);
+        tIndex = (tIndex + 1) % testimonials.length;
+    }, 800);
+}, 4000);
+
 
 // US Eastern Date
 function getUSEasternDate() {
