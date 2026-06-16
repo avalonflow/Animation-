@@ -385,25 +385,40 @@ header .logo-card img {
     background: rgba(0,0,0,0.3);
     backdrop-filter: blur(8px);
 }
+
 .video-container video {
     width: 100%;
     display: block;
 }
 
-/* Hide play/pause button */
-.no-play-pause video::-webkit-media-controls-play-button {
+/* --- MOBILE & WEBKIT SURGICAL OVERRIDES --- */
+
+/* Strips out the large center play/pause touch indicator icon */
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-overlay-play-button {
     display: none !important;
+    -webkit-appearance: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Hides the bottom left control bar play/pause action button toggle */
+video::-webkit-media-controls-play-button {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
 .video-controls {
     display: flex;
     justify-content: flex-end;
     margin-top: 4px;
-    padding: 0 10px; /* Added slight padding for alignment */
 }
+
 .video-controls input[type=range] {
     width: 100px;
 }
+
 
 /* ---------- Card Interactivity & Tiered Web3 Styling ---------- */
 .interactive-card {
@@ -546,10 +561,10 @@ color: #6b2cd8 !important;
 
             <!-- Mini TV Walkthrough with Live Metrics -->
 <p style="text-align:center; font-weight:bold; margin-top:20px; color: #6b2cd8;">
-    Interactive Hybrid AI mechanisms
+    Interactive walkthrough: hybrid mechanisms in motion
 </p>
 
-<div class="video-container no-play-pause">
+<div class="video-container">
     <video id="ecosystemVideo" controls controlsList="nodownload noplaybackrate" loop muted autoplay>
         <source src="assets/videos/VID_20250912_055134.mp4" type="video/mp4">
         Your browser does not support the video tag.
@@ -564,6 +579,7 @@ color: #6b2cd8 !important;
         <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="1">
     </div>
 </div>
+
 
 
            
@@ -676,11 +692,23 @@ cards.forEach(card => observer.observe(card));
         });
 
         // Video Volume Control
-    const video = document.getElementById("ecosystemVideo");
-    const volumeControl = document.getElementById("volumeControl");
-    volumeControl.addEventListener("input", e => {
-        video.volume = e.target.value;
-    });
+const video = document.getElementById("ecosystemVideo");
+const volumeControl = document.getElementById("volumeControl");
+
+volumeControl.addEventListener("input", e => {
+    video.volume = e.target.value;
+});
+
+// Intercept and block play/pause triggers
+video.addEventListener('pause', () => {
+    video.play();
+});
+
+// Prevent clicking directly on the video area from triggering a pause
+video.addEventListener('click', (e) => {
+    e.preventDefault();
+});
+
 
     // Live Metrics Update
     const metricsEl = document.getElementById('liveMetrics');
