@@ -378,37 +378,67 @@ header .logo-card img {
 
 /* ---------- Card Interactivity & Tiered Web3 Styling ---------- */
 .interactive-card {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     border-radius: 20px;
     padding: 24px;
     margin-bottom: 24px;
-    box-shadow: 0 15px 35px rgba(107,44,216,0.45);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 15px 35px rgba(107, 44, 216, 0.45);
     position: relative;
+    
+    /* Unified transition tracking across state variations */
+    transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease;
 }
-.interactive-card:hover {
+
+/* Scroll-trigger Fade-in Initialization States */
+.interactive-card {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.interactive-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Hover Dynamics Layered Atop Visibility Animations */
+.interactive-card.visible:hover {
     transform: translateY(-10px);
-    box-shadow: 0 25px 50px rgba(107,44,216,0.6);
+    box-shadow: 0 25px 50px rgba(107, 44, 216, 0.6);
 }
+
 .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
 }
+
 .badge {
-    background: linear-gradient(90deg,#6b2cd8,#9b59b6);
+    background: linear-gradient(90deg, #6b2cd8, #9b59b6);
     padding: 4px 10px;
     border-radius: 12px;
     font-size: 12px;
     font-weight: bold;
     text-transform: uppercase;
     color: #fff;
-    box-shadow: 0 0 6px rgba(107,44,216,0.7);
+    box-shadow: 0 0 6px rgba(107, 44, 216, 0.7);
 }
-.summary { margin-bottom: 6px; }
-.details { display: none; margin-bottom: 6px; }
+
+.summary { 
+    margin-bottom: 6px; 
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.details { 
+    display: none; 
+    margin-bottom: 6px; 
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
 .toggle-btn {
     background: #6b2cd8;
     color: #fff;
@@ -419,18 +449,33 @@ header .logo-card img {
     font-size: 14px;
     transition: background 0.3s ease;
 }
-.toggle-btn:hover { background: #9b59b6; }
 
-/* ---------- Scroll-trigger Fade-in ---------- */
-.interactive-card {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+.toggle-btn:hover { 
+    background: #9b59b6; 
 }
-.interactive-card.visible {
-    opacity: 1;
-    transform: translateY(0);
+
+/* ---------- HIGH-CONTRAST INTELLIGENT TEXT REGULATION ---------- */
+
+/* Logical Wing: Grounded Structural Slate */
+.logical-wing h3,
+.logical-wing .card-header {
+    color: #2b2b3a !important; /* Fixed dark contrast for core titles */
 }
+.logical-wing .summary,
+.logical-wing .details {
+    color: #4e4e66 !important; /* High contrast body variant */
+}
+
+/* Emotional Wing: Deep Corporate Brand Purple */
+.emotional-wing h3,
+.emotional-wing .card-header {
+    color: #4a159d !important; /* Visible, premium brand title purple */
+}
+.emotional-wing .summary,
+.emotional-wing .details {
+    color: #5c5670 !important; /* Deep twilight description balance */
+}
+
 
 /* ---------- Mini TV Overlay ---------- */
 .video-container { position: relative; border-radius: 16px; overflow: hidden; }
@@ -478,10 +523,10 @@ header .logo-card img {
     <h3>Ecosystem Overview</h3>
 </div>
 
-    <!-- Logical Wing Card -->
-<div class="glass-card interactive-card">
+<!-- Logical Wing Card -->
+<div class="glass-card interactive-card logical-wing">
     <div class="card-header">
-        <strong>🪽 Logical Wing</strong>
+        <h3>🪽 Logical Wing</h3>
         <span class="badge">Hybrid AI</span>
     </div>
     <em>Where Structure Meets Intelligence</em>
@@ -496,6 +541,7 @@ header .logo-card img {
     </blockquote>
     <button class="toggle-btn">Read More</button>
 </div>
+
 
             <!-- Mini TV Walkthrough with Live Metrics -->
 <p style="text-align:center; font-weight:bold; margin-top:20px;">
@@ -519,10 +565,10 @@ header .logo-card img {
     </div>
 </div>
 
-            <!-- Emotional Wing Card -->
-<div class="glass-card interactive-card">
+           <!-- Emotional Wing Card -->
+<div class="glass-card interactive-card emotional-wing">
     <div class="card-header">
-        <strong>💫 Emotional Wing</strong>
+        <h3>💫 Emotional Wing</h3>
         <span class="badge">Stability</span>
     </div>
     <em>The Living Core of AvalonFlow</em>
@@ -537,6 +583,7 @@ header .logo-card img {
     </blockquote>
     <button class="toggle-btn">Read More</button>
 </div>
+
 </div>
 
     <!-- Sticky Footer -->
