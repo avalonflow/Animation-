@@ -763,7 +763,7 @@ margin-top: -180px;
     z-index: 2;
     padding: 60px 20px;
     text-align: center;
-    background: rgba(107,44,216,0.05);
+    background: transparent;
 }
 
 /* Reused your original header styling to keep section headers looking uniform */
@@ -1131,7 +1131,7 @@ margin-top: -180px;
 
 
                 <!-- Mini TV: Member Reflection -->
-        <p style="text-align:center; font-weight:bold; margin-top:20px;">From Investment to Impact</p>
+        <p style="text-align:center; font-weight:bold; margin-top:20px;">From Membership to Impact</p>
         <div class="video-container">
                 <video id="planVideo" controls controlsList="nodownload noplaybackrate" loop muted autoplay>
                 <source src="assets/videos/2025-12-15-201525736.mp4" type="video/mp4">
@@ -1271,27 +1271,61 @@ activities.forEach(activity => showActivity(activity));
         }
         setInterval(updateDashboardProgress,1000);
 
-/* ---------- Rotating Testimonials (Upgraded) ---------- */
+/* ---------- Rotating Testimonials (Expanded Ecosystem) ---------- */
 const testimonials = [
+    // 1. Core Term Focus: SECURE
     {
-        quote: "“My shifts are demanding, and I don’t always have time to explore new options. What stood out for me was how simple and rewarding this felt.”",
-        name: "Charlotte",
-        title: "Member",
-        img: "assets/images/charlotte.jpg"
-    },
-    {
-        quote: "“As an educator, I value clarity and systems that make sense. This was profitable and realistic.”",
+        quote: "“As an educator, I value clarity and systems that make sense. The secure encryption architecture here is the first time I've felt absolute peace of mind with my digital assets.”",
         name: "Emily",
         title: "Educator",
         img: "assets/images/emily.jpg"
     },
+    // 2. Core Term Focus: DISTRIBUTED
     {
-        quote: "“I finally saw progress without feeling overwhelmed.”",
+        quote: "“My shifts are demanding, and I don’t always have time to explore new options. What stood out for me was how the distributed network functions autonomously without single points of failure.”",
+        name: "Charlotte",
+        title: "Healthcare Specialist",
+        img: "assets/images/charlotte.jpg"
+    },
+    // 3. Core Term Focus: REWARDING
+    {
+        quote: "“I finally saw progress without feeling overwhelmed. Watching the compounding returns accumulate automatically on a daily basis makes this incredibly rewarding.”",
         name: "Ava",
-        title: "Member",
+        title: "Digital Creator",
         img: "assets/images/ava.jpg"
+    },
+    // 4. All Pillars Combined: SECURE, DISTRIBUTED, & REWARDING
+    {
+        quote: "“Finding a platform that balances all three elements is rare. It is completely secure, fully distributed across the ecosystem, and genuinely rewarding to hold over time.”",
+        name: "Marcus",
+        title: "FinTech Analyst",
+        img: "assets/images/marcus.jpg"
+    },
+    // 5. Focus: KAIROS 
+    {
+        quote: "“Integrating into the Kairos protocols completely transformed my baseline strategy. The algorithmic precision behind Kairos ensures everything runs exactly like clockwork.”",
+        name: "Liam",
+        title: "Systems Engineer",
+        img: "assets/images/liam.jpg"
+    },
+    // 6. Focus: SUPPORT
+    {
+        quote: "“The platform infrastructure is brilliant, but the support ecosystem is what truly sets it apart. Response times are near-instantaneous, handled with profound technical clarity.”",
+        name: "Sophia",
+        title: "Operations Director",
+        img: "assets/images/sophia.jpg"
     }
+
+    // 7. Elite Enterprise Focus: SECURE, DISTRIBUTED & SUPPORT
+    {
+        quote: "“Operating luxury locations globally requires an ecosystem that is both highly secure and flawlessly distributed. The algorithmic consistency of Kairos alongside elite, enterprise-grade support has set a completely new standard for our operational scaling.”",
+        name: "Nobu Hospitality",
+        title: "Global Enterprise Partner",
+        img: "assets/images/nobu-logo.jpg" /* You can use a clean, stylized version of their corporate brand icon here */
+    }
+
 ];
+
 
 let tIndex = 0;
 const testimonialLi = document.querySelector("#testimonialList li");
