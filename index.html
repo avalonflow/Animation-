@@ -769,9 +769,39 @@ margin-top: -180px;
 /* Reused your original header styling to keep section headers looking uniform */
 .testimonials p em {
     font-size: 1.1rem;
-    color: #6b2cd8;
-font-weight: bold;
+    font-weight: bold;
+    position: relative; /* Essential to anchor the ::after line correctly */
+    display: inline-block; /* Ensures the underline matches the width of the text block */
+
+    /* Animated gradient effect */
+    background: linear-gradient(90deg, #6b2cd8, #b393ff, #6b2cd8);
+    background-size: 200% auto;
+    animation: gradientShift 6s linear infinite;
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
+
+.testimonials p em::after {
+    content: "";
+    position: absolute;
+    left: 12.6%; /* Centers the 74.8% wide line perfectly under the text */
+    bottom: -6px;
+
+    width: 74.8%;
+    height: 2px;
+
+    background: #6b2cd8;
+    border-radius: 10px;
+
+    box-shadow:
+        0 0 8px #6b2cd8,
+        0 0 16px #6b2cd8,
+        0 0 24px #6b2cd8;
+
+    animation: neonPulse 2.8s ease-in-out infinite;
+}
+
 
 .testimonials ul {
     list-style: none;
@@ -1156,7 +1186,7 @@ font-weight: bold;
 
 <!-- Testimonials -->
 <section class="testimonials">
-    <p><em>Reflections from members:</em></p>
+    <p><em>Reflections from members</em></p>
     <ul id="testimonialList">
         <li>
             <div class="testimonial-profile">
