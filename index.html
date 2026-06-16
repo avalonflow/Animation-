@@ -554,6 +554,17 @@ header .logo-card img {
     color: #fff;
 }
 
+/* New style to animate just the AVB Bond text */
+.step p .inline-gradient-animation {
+    font-weight: 700; /* Makes it pop slightly thicker than the surrounding text */
+    background: linear-gradient(90deg, #6b2cd8, #b393ff, #6b2cd8);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 6s linear infinite; /* Reuses your existing title animation keyframes */
+    display: inline-block; /* Helps the browser render the text-clip smoothly */
+}
+
 
 .fade-section {
     opacity: 0;
@@ -984,8 +995,13 @@ transform-origin: top center;
 <!-- 3-Step Flow -->
 <section class="steps">
 <div class="step">
-        <h3 class="gradient-animation" >Sign-in to your Dashboard</h3>
-        <p>Sign-in to your Dashboard to choose a Bond that fits your Personal Needs And Budget</p>
+        <h3 class="gradient-animation">Access 🪽 AvalonCare</h3>
+<p>
+  Sign-in to your Dashboard to choose an 
+  <span class="inline-gradient-animation">AVB Bond</span> 
+  that fits your Personal Needs And Budget
+</p>
+
         <img src="assets/pictures/IMG-20260412-WA0023.jpg" alt="Dashboard tracking" class="step-image">
     </div>
 </section>
