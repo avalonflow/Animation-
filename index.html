@@ -905,43 +905,39 @@ margin-top: -180px;
   backdrop-filter: blur(12px);
 }
 
+/* ---------- SYSTEM TEXT CONSOLE LAYER ---------- */
 #boot-text {
   font-size: 16px;
   line-height: 1.8;
   white-space: pre-wrap;
-  max-width: 90%;
-  text-align: center;
+  width: 100%;
+  max-width: 420px;       /* Constrains terminal text block width */
+  text-align: left;       /* Keeps terminal syntax and bullet strings perfectly straight */
+  display: block;
+  margin: 0 auto;         /* Centers the code block on the screen */
   z-index: 2;
+  box-sizing: border-box;
 }
 
 /* ---------- FOUR SEASON TYPOGRAPHY THEMING ENGINE ---------- */
 
 /* Spring Texts (Mint) */
-.season-text-spring, #boot-screen.season-spring .cursor {
-  color: #00ffa6;
-  background-color: transparent;
-}
+.season-text-spring { color: #00ffa6; }
 #boot-screen.season-spring .cursor { background-color: #00ffa6; }
 .glow.season-text-spring { text-shadow: 0 0 8px #00ffa6, 0 0 16px rgba(0,255,166,0.4); }
 
 /* Summer Texts (Pure Dashboard Balance Cyan) */
-.season-text-summer, #boot-screen.season-summer, #boot-screen.season-summer .cursor {
-  color: #00f2fe;
-}
+.season-text-summer { color: #00f2fe; }
 #boot-screen.season-summer .cursor { background-color: #00f2fe; }
 .glow.season-text-summer { text-shadow: 0 0 8px #00f2fe, 0 0 20px rgba(0,242,254,0.6); }
 
 /* Autumn Texts (Harvest Matte Gold) */
-.season-text-autumn, #boot-screen.season-autumn, #boot-screen.season-autumn .cursor {
-  color: #fbbf24;
-}
+.season-text-autumn { color: #fbbf24; }
 #boot-screen.season-autumn .cursor { background-color: #fbbf24; }
 .glow.season-text-autumn { text-shadow: 0 0 8px #fbbf24, 0 0 16px rgba(251,191,36,0.5); }
 
 /* Winter Texts (Diamond Polar White) */
-.season-text-winter, #boot-screen.season-winter, #boot-screen.season-winter .cursor {
-  color: #ffffff;
-}
+.season-text-winter { color: #ffffff; }
 #boot-screen.season-winter .cursor { background-color: #ffffff; }
 .glow.season-text-winter { text-shadow: 0 0 8px #ffffff, 0 0 16px rgba(255,255,255,0.6); }
 
@@ -1001,7 +997,10 @@ margin-top: -180px;
 }
 
 @media (max-width: 768px) {
-  #boot-text { font-size: 14px; }
+  #boot-text { 
+    font-size: 14px; 
+    max-width: 330px; /* Sweeter compact bounding box for mobile layouts */
+  }
 }
 
 #particle-canvas {
@@ -1011,6 +1010,7 @@ margin-top: -180px;
   z-index: 1;
   pointer-events: none;
 }
+
 
 
 
@@ -1454,13 +1454,13 @@ if(bootScreenElement) {
 // ---------- RECONFIGURED CORPORATE TREASURY TERMINAL LOGS ----------
 const lines = [
   "> Initializing AvalonFlow...",
-  "> Connecting Financial Nodes...",
+  "> Connecting Treasury Nodes...",
   "> Syncing Kairos System™...",
   `> Cycle Detected: ${currentMonthUpper} ${year}`,
   "",
   "✓ System Ready",
   "",
-  "✨ Treasury Node Initialized.",
+  "✨ Treasury Node Connected.",
   "",
   "Suspense", // Managed cinematic suspense
   "",
