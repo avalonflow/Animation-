@@ -917,22 +917,31 @@ margin-top: -180px;
 /* ---------- FOUR SEASON TYPOGRAPHY THEMING ENGINE ---------- */
 
 /* Spring Texts (Mint) */
-.season-text-spring { color: #00ffa6; }
+.season-text-spring, #boot-screen.season-spring .cursor {
+  color: #00ffa6;
+  background-color: transparent;
+}
 #boot-screen.season-spring .cursor { background-color: #00ffa6; }
 .glow.season-text-spring { text-shadow: 0 0 8px #00ffa6, 0 0 16px rgba(0,255,166,0.4); }
 
 /* Summer Texts (Pure Dashboard Balance Cyan) */
-.season-text-summer { color: #00f2fe; }
+.season-text-summer, #boot-screen.season-summer, #boot-screen.season-summer .cursor {
+  color: #00f2fe;
+}
 #boot-screen.season-summer .cursor { background-color: #00f2fe; }
 .glow.season-text-summer { text-shadow: 0 0 8px #00f2fe, 0 0 20px rgba(0,242,254,0.6); }
 
 /* Autumn Texts (Harvest Matte Gold) */
-.season-text-autumn { color: #fbbf24; }
+.season-text-autumn, #boot-screen.season-autumn, #boot-screen.season-autumn .cursor {
+  color: #fbbf24;
+}
 #boot-screen.season-autumn .cursor { background-color: #fbbf24; }
 .glow.season-text-autumn { text-shadow: 0 0 8px #fbbf24, 0 0 16px rgba(251,191,36,0.5); }
 
 /* Winter Texts (Diamond Polar White) */
-.season-text-winter { color: #ffffff; }
+.season-text-winter, #boot-screen.season-winter, #boot-screen.season-winter .cursor {
+  color: #ffffff;
+}
 #boot-screen.season-winter .cursor { background-color: #ffffff; }
 .glow.season-text-winter { text-shadow: 0 0 8px #ffffff, 0 0 16px rgba(255,255,255,0.6); }
 
