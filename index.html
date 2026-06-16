@@ -1042,6 +1042,107 @@ margin-top: -180px;
   pointer-events: none;
 }
 
+/* ---------- GLASSMORPHISM FOOTER TRAY FRAMEWORK ---------- */
+.corporate-glass-footer-tray {
+  width: 100%;
+  position: relative;
+  box-sizing: border-box;
+  padding: 50px 30px 40px 30px; /* Balanced padding for a clean edge finish */
+  margin-top: 60px;
+  z-index: 5;
+  display: block;
+  
+  /* Glassmorphism Engine Configuration */
+  background: rgba(255, 255, 255, 0.04); 
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  
+  /* Sharp Architecture Rule */
+  border-radius: 0 !important; 
+  
+  /* Subtle Top Frost Horizon Border */
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  
+  /* Soft ambient drop depth */
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* Styling Helper for the Corporate Address Block */
+.corporate-address {
+  font-family: "Courier New", monospace;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #555566;
+  margin: 0;
+}
+
+/* Columns Positioning Grid */
+.footer-grid-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.footer-column h3 {
+  font-family: "Courier New", monospace;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #f5b324;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.footer-column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-column ul li {
+  margin-bottom: 12px;
+}
+
+.footer-column ul li a {
+  font-size: 0.95rem;
+  color: #555566;
+  text-decoration: none;
+  transition: color 0.3s ease, padding-left 0.3s ease;
+  display: inline-block;
+}
+
+.footer-column ul li a:hover {
+  color: #6b2cd8;
+  padding-left: 4px;
+}
+
+.social-links li a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Responsive Adaptive Interface for Mobile Screens */
+@media (max-width: 768px) {
+  .footer-grid-container {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding-left: 10px;
+  }
+  
+  .corporate-glass-footer-tray {
+    padding: 40px 20px 30px 20px;
+  }
+  
+  .corporate-address {
+    font-size: 0.9rem;
+  }
+}
 
 
 
@@ -1218,11 +1319,51 @@ margin-top: -180px;
             </div>
         </div>
 
+
+<!-- PREMIUM GLASS UTILITY FOOTER TRAY -->
+<div class="corporate-glass-footer-tray">
+  <div class="footer-grid-container">
+    
+    <!-- Column 1: Corporate Headquarters Address -->
+    <div class="footer-column address-column">
+      <h3>Headquarters</h3>
+      <p class="corporate-address">
+        199 Bay Street, Suite 700<br>
+        Toronto, ON M5L 1E9,<br>
+        Canada
+      </p>
     </div>
+
+    <!-- Column 2: Legal Operations -->
+    <div class="footer-column">
+      <h3>Legal Center</h3>
+      <ul>
+        <li><a href="#privacy">Privacy</a></li>
+        <li><a href="#terms">Terms</a></li>
+        <li><a href="#refunds">Refunds & cancellation</a></li>
+        <li><a href="#deletion">Data deletion</a></li>
+        <li><a href="#security">Security & trust</a></li>
+        <li><a href="#cookies">Cookies</a></li>
+      </ul>
+    </div>
+
+    <!-- Column 3: Network Channels -->
+    <div class="footer-column">
+      <h3>Social</h3>
+      <ul class="social-links">
+        <li><a href="#facebook"><i class="fab fa-facebook-f"></i> Facebook</a></li>
+        <li><a href="#instagram"><i class="fab fa-instagram"></i> Instagram</a></li>
+        <li><a href="#x"><i class="fab fa-x-twitter"></i> X</a></li>
+        <li><a href="#linkedin"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
 
     <!-- Sticky Footer -->
     <footer>
-        © 2026 AvalonFlow • Powered by Centrical™
+        © 2026 AvalonFlow Corp • All Rights Reserved 
     </footer>
 
 <!-- Scripts -->
