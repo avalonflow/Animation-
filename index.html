@@ -1047,8 +1047,13 @@ margin-top: -180px;
   width: 100%;
   position: relative;
   box-sizing: border-box;
-  padding: 50px 0px 40px 0px; /* Zeroed left and right padding to remove the card borders entirely */
-  margin-top: 60px;
+  
+  /* FIX 2: Increased bottom padding to 90px so icons never slide under the sticky footer */
+  padding: 40px 0px 90px 0px; 
+  
+  /* FIX 1: Negative top margin drags the tray up to touch the section above it */
+  margin-top: -20px; 
+  
   z-index: 5;
   display: block;
   
@@ -1148,13 +1153,16 @@ margin-top: -180px;
   }
   
   .corporate-glass-footer-tray {
-    padding: 40px 0px 30px 0px;
+    /* Maintained extra mobile clearance safety buffer */
+    padding: 30px 0px 80px 0px; 
+    margin-top: -15px;
   }
   
   .corporate-address {
     font-size: 0.9rem;
   }
 }
+
 
 
 
@@ -1337,14 +1345,25 @@ margin-top: -180px;
 <div class="corporate-glass-footer-tray">
   <div class="footer-grid-container">
     
-    <!-- Column 1: Corporate Headquarters Address -->
+    <!-- Column 1: Multi-Regional Corporate Offices -->
     <div class="footer-column address-column">
-      <h3>Headquarters</h3>
-      <p class="corporate-address">
-        199 Bay Street, Suite 700<br>
-        Toronto, ON M5L 1E9,<br>
-        Canada
-      </p>
+      <div class="office-location">
+        <h3>Headquarters</h3>
+        <p class="corporate-address">
+          199 Bay Street, Suite 700<br>
+          Toronto, ON M5L 1E9,<br>
+          Canada
+        </p>
+      </div>
+      
+      <div class="office-location" style="margin-top: 25px;">
+        <h3>US Office</h3>
+        <p class="corporate-address">
+          191 Broadway, Suite 700<br>
+          New York, NY 10007,<br>
+          USA
+        </p>
+      </div>
     </div>
 
     <!-- Column 2: Legal Operations -->
@@ -1372,6 +1391,7 @@ margin-top: -180px;
 
   </div>
 </div>
+
 
     <!-- Sticky Footer -->
     <footer>
