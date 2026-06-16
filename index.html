@@ -1047,27 +1047,20 @@ margin-top: -180px;
   width: 100%;
   position: relative;
   box-sizing: border-box;
-  padding: 50px 30px 40px 30px; /* Balanced padding for a clean edge finish */
+  padding: 50px 0px 40px 0px; /* Zeroed left and right padding to remove the card borders entirely */
   margin-top: 60px;
   z-index: 5;
   display: block;
   
-  /* Glassmorphism Engine Configuration */
-  background: rgba(255, 255, 255, 0.04); 
+  /* Flat Glassmorphism Engine (No 3D depth, no borders) */
+  background: rgba(255, 255, 255, 0.01); 
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   
-  /* Sharp Architecture Rule */
+  /* Completely stripped edges to kill the card look */
+  border: none !important;
   border-radius: 0 !important; 
-  
-  /* Subtle Top Frost Horizon Border */
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-left: none;
-  border-right: none;
-  border-bottom: none;
-  
-  /* Soft ambient drop depth */
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.05);
+  box-shadow: none !important;
 }
 
 /* Styling Helper for the Corporate Address Block */
@@ -1086,6 +1079,7 @@ margin-top: -180px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 40px;
+  padding: 0 20px; /* Internal content inset padding to substitute edge buffers safely */
 }
 
 .footer-column h3 {
@@ -1121,10 +1115,28 @@ margin-top: -180px;
   padding-left: 4px;
 }
 
-.social-links li a {
-  display: flex;
+/* ---------- HORIZONTAL ICON ALIGNMENT ENGINE ---------- */
+.social-links-row {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 20px;
   align-items: center;
-  gap: 10px;
+}
+
+.social-links-row li {
+  margin-bottom: 0 !important; /* Strips vertical list grouping space */
+}
+
+.social-links-row li a {
+  font-size: 1.25rem; /* Scales raw icons to a professional, readable balance */
+  color: #555566;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.social-links-row li a:hover {
+  color: #6b2cd8;
+  padding-left: 0 !important; /* Blocks horizontal alignment shifting on row links */
+  transform: scale(1.1);
 }
 
 /* Responsive Adaptive Interface for Mobile Screens */
@@ -1136,13 +1148,14 @@ margin-top: -180px;
   }
   
   .corporate-glass-footer-tray {
-    padding: 40px 20px 30px 20px;
+    padding: 40px 0px 30px 0px;
   }
   
   .corporate-address {
     font-size: 0.9rem;
   }
 }
+
 
 
 
@@ -1340,21 +1353,20 @@ margin-top: -180px;
       <ul>
         <li><a href="#privacy">Privacy</a></li>
         <li><a href="#terms">Terms</a></li>
-        <li><a href="#refunds">Refunds & cancellation</a></li>
         <li><a href="#deletion">Data deletion</a></li>
         <li><a href="#security">Security & trust</a></li>
         <li><a href="#cookies">Cookies</a></li>
       </ul>
     </div>
 
-    <!-- Column 3: Network Channels -->
+    <!-- Column 3: Network Channels (Pure Icons Only) -->
     <div class="footer-column">
       <h3>Social</h3>
-      <ul class="social-links">
-        <li><a href="#facebook"><i class="fab fa-facebook-f"></i> Facebook</a></li>
-        <li><a href="#instagram"><i class="fab fa-instagram"></i> Instagram</a></li>
-        <li><a href="#x"><i class="fab fa-x-twitter"></i> X</a></li>
-        <li><a href="#linkedin"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+      <ul class="social-links-row">
+        <li><a href="#facebook"><i class="fab fa-facebook-f"></i></a></li>
+        <li><a href="#instagram"><i class="fab fa-instagram"></i></a></li>
+        <li><a href="#x"><i class="fab fa-x-twitter"></i></a></li>
+        <li><a href="#linkedin"><i class="fab fa-linkedin"></i></a></li>
       </ul>
     </div>
 
