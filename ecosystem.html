@@ -375,28 +375,36 @@ header .logo-card img {
 }
 
         /* ---------- Mini TV Video ---------- */
-        .video-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin: 20px auto;
-            border-radius: 16px;
-            overflow: hidden;
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(8px);
-        }
-        .video-container video {
-            width: 100%;
-            display: block;
-        }
-        .video-controls {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 4px;
-        }
-        .video-controls input[type=range] {
-            width: 100px;
-        }
+.video-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(8px);
+}
+.video-container video {
+    width: 100%;
+    display: block;
+}
+
+/* Hide play/pause button */
+.no-play-pause video::-webkit-media-controls-play-button {
+    display: none !important;
+}
+
+.video-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+    padding: 0 10px; /* Added slight padding for alignment */
+}
+.video-controls input[type=range] {
+    width: 100px;
+}
+
 /* ---------- Card Interactivity & Tiered Web3 Styling ---------- */
 .interactive-card {
     background: rgba(255,255,255,0.08);
