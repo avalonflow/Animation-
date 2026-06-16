@@ -535,25 +535,26 @@ header .logo-card img {
     transform: translateY(0);
 }
 
-/* ---------- Ecosystem Section ---------- /
+/* ---------- Ecosystem Section ---------- */
 .ecosystem-map {
-padding: 10px 20px 0;
-overflow: visible; / 🔥 prevents clipping */
-margin-top: -500px;
-
+    padding: 0 20px 0;             /* Removed the 10px top padding to maximize visual space */
+    overflow: visible;             /* 🔥 prevents clipping */
+    position: relative;            /* Keep relative to establish a clean coordinate space */
     z-index: 10;
 }
 
-/* ---------- SVG Layout (BIG FIX HERE) ---------- /
+/* ---------- SVG Layout (BIG FIX HERE) ---------- */
 .ecosystem-svg {
-width: 100%;
-max-width: 1200px;
-height: auto;
-display: block;
-margin: -350px auto -70px !important;
-/ transform removed for desktop */
-position: relative;            /* Allows negative positioning to register cleanly */
+    width: 100%;
+    max-width: 1200px;
+    height: auto;
+    display: block;
+    margin: 0 auto;                /* Reset margins to standard settings to remove browser calculation conflicts */
+    
+    position: relative;            /* Keeps element structural path active */
+    transform: translateY(-240px) !important; /* 🔥 THIS IS THE FIX: Directly forces the rendering layer up by 240px */
 }
+
 
 /* ---------- Lines ---------- */
 .animated-line {
