@@ -540,6 +540,8 @@ header .logo-card img {
 padding: 10px 20px 0;
 overflow: visible; / 🔥 prevents clipping */
 margin-top: -500px !important;
+position: relative;            /* Allows negative positioning to register cleanly */
+    z-index: 10;
 }
 
 /* ---------- SVG Layout (BIG FIX HERE) ---------- /
