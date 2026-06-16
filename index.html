@@ -766,12 +766,11 @@ margin-top: -180px;
     background: transparent;
 }
 
-/* Reused your original header styling to keep section headers looking uniform */
 .testimonials p em {
     font-size: 1.1rem;
     font-weight: bold;
-    position: relative; /* Essential to anchor the ::after line correctly */
-    display: inline-block; /* Ensures the underline matches the width of the text block */
+    position: relative;    /* Essential to anchor the ::after line correctly */
+    display: inline-block; /* Ensures the underline stays bound to the text length */
 
     /* Animated gradient effect */
     background: linear-gradient(90deg, #6b2cd8, #b393ff, #6b2cd8);
@@ -785,10 +784,10 @@ margin-top: -180px;
 .testimonials p em::after {
     content: "";
     position: absolute;
-    left: 12.6%; /* Centers the 74.8% wide line perfectly under the text */
-    bottom: -6px;
+    left: 0;               /* Starts exactly at the beginning of the text */
+    bottom: -6px;          /* Perfectly spaced beneath the baseline */
 
-    width: 74.8%;
+    width: 100%;           /* Spans across the entire text length flawlessly */
     height: 2px;
 
     background: #6b2cd8;
@@ -801,6 +800,7 @@ margin-top: -180px;
 
     animation: neonPulse 2.8s ease-in-out infinite;
 }
+
 
 
 .testimonials ul {
