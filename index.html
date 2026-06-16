@@ -539,8 +539,7 @@ header .logo-card img {
 .ecosystem-map {
     padding: 0 20px 0;             /* Removed the 10px top padding to maximize visual space */
     overflow: visible;             /* 🔥 prevents clipping */
-    position: relative;            /* Keep relative to establish a clean coordinate space */
-    z-index: 10;
+    
 }
 
 /* ---------- SVG Layout (BIG FIX HERE) ---------- */
@@ -551,7 +550,7 @@ header .logo-card img {
     display: block;
     margin: 0 auto;                /* Reset margins to standard settings to remove browser calculation conflicts */
     
-    position: relative;            /* Keeps element structural path active */
+                
     transform: translateY(-100px) !important; /* 🔥 THIS IS THE FIX: Directly forces the rendering layer up by 240px */
 }
 
