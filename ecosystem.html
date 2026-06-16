@@ -407,7 +407,7 @@ header .logo-card img {
     box-shadow: 0 0 6px rgba(107,44,216,0.7);
 }
 .summary { margin-bottom: 6px; }
-.details { display: none; margin-bottom: 6px; color: #5c5670;}
+.details { display: none; margin-bottom: 6px;}
 .toggle-btn {
     background: #6b2cd8;
     color: #fff;
@@ -431,6 +431,14 @@ header .logo-card img {
     transform: translateY(0);
 }
 
+/* ---------- Targeted Text Color Mapping ---------- */
+.interactive-card h3, 
+.interactive-card .summary, 
+.interactive-card .details, 
+.interactive-card em, 
+.interactive-card blockquote {
+    color: #5c5670 !important;
+}
 
 /* ---------- Mini TV Overlay ---------- */
 .video-container { position: relative; border-radius: 16px; overflow: hidden; }
