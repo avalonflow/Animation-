@@ -1417,7 +1417,7 @@ const currentMonthNormal = currentMonthUpper.charAt(0) + currentMonthUpper.slice
 
 // ---------- DYNAMIC SEASONAL DATA ROUTER ----------
 let currentSeason = "";
-let baseParticleColor = "0, 255, 166"; 
+let baseParticleColor = "0, 255, 166"; // Default Mint
 
 if (monthIndex === 2 || monthIndex === 3 || monthIndex === 4) {
     currentSeason = "spring";      
@@ -1433,12 +1433,25 @@ if (monthIndex === 2 || monthIndex === 3 || monthIndex === 4) {
     baseParticleColor = "255, 255, 255"; 
 }
 
+const urlParams = new URLSearchParams(window.location.search);
+const forcedSeason = urlParams.get('forceSeason');
+
+if (forcedSeason && ["spring", "summer", "autumn", "winter"].includes(forcedSeason.toLowerCase())) {
+    currentSeason = forcedSeason.toLowerCase();
+    
+    if (currentSeason === "spring") baseParticleColor = "0, 255, 166";
+    else if (currentSeason === "summer") baseParticleColor = "0, 242, 254";
+    else if (currentSeason === "autumn") baseParticleColor = "251, 191, 36";
+    else if (currentSeason === "winter") baseParticleColor = "255, 255, 255";
+}
+
 const bootScreenElement = document.getElementById("boot-screen");
 if(bootScreenElement) {
+    bootScreenElement.className = ""; 
     bootScreenElement.classList.add(`season-${currentSeason}`);
 }
 
-// ---------- UPDATED TREASURY TERMINAL LOGS ----------
+// ---------- RECONFIGURED CORPORATE TREASURY TERMINAL LOGS ----------
 const lines = [
   "> Initializing AvalonFlow...",
   "> Connecting Financial Nodes...",
@@ -1449,7 +1462,7 @@ const lines = [
   "",
   "✨ Treasury Node Initialized.",
   "",
-  "Suspense", 
+  "Suspense", // Managed cinematic suspense
   "",
   "Welcome to AvalonFlow Corporate Treasury."
 ];
@@ -1470,7 +1483,6 @@ function unlockAudio() {
       sound.pause();
       sound.currentTime = 0;
       audioUnlocked = true;
-      // Remove handlers once successfully primed
       window.removeEventListener('click', unlockAudio);
       window.removeEventListener('touchstart', unlockAudio);
     }).catch(() => {});
@@ -1501,6 +1513,7 @@ for(let i=0; i<particleCount; i++){
 
 function drawParticles(){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
   particles.forEach(p => {
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
@@ -1530,6 +1543,7 @@ function drawParticles(){
     if(p.alpha < 0.05) p.alpha = 0.05;
     if(p.alpha > 0.40) p.alpha = 0.40;
   });
+  
   requestAnimationFrame(drawParticles);
 }
 drawParticles();
@@ -1559,12 +1573,7 @@ function triggerProcessingWave(){
 }
 
 function playSound(){
-  if(sound){ 
-    sound.currentTime = 0; 
-    sound.play().catch(() => {
-      // Quietly bypass if browser context still rejects it
-    }); 
-  }
+  if(sound){ sound.currentTime = 0; sound.play().catch(() => {}); }
   pulseParticles();
 }
 
@@ -1573,7 +1582,7 @@ function typeLine(){
   if(lineIndex >= lines.length){
     setTimeout(() => {
       document.getElementById("boot-screen").classList.add("fade-out"); 
-      setTimeout(() => { document.getElementById("boot-screen").style.style.display = "none"; }, 1000);
+      setTimeout(() => { document.getElementById("boot-screen").style.display = "none"; }, 1000);
     }, 1200);
     return;
   }
@@ -1594,11 +1603,10 @@ function typeLine(){
     return;
   }
 
-  // Final line target matching corporate treasury
-  if(currentLine.includes("Welcome to AvalonFlow Corporate Treasury")){
+  if(currentLine.includes("Welcome to AvalonFlow Corporate Treasury.")){
     triggerProcessingWave();
     const span = document.createElement("span");
-    span.className = `final-glow season-text-${currentSeason}`;
+    span.className = `final-glow glow season-text-${currentSeason}`;
     span.textContent = currentLine;
     textElement.appendChild(span);
     lineIndex++;
@@ -1616,7 +1624,7 @@ function typeLine(){
   } else {
     textElement.appendChild(document.createElement("br"));
     
-    if(currentLine.includes("System Ready") || currentLine.includes("Treasury Node Initialized")){
+    if(currentLine.includes("System Ready") || currentLine.includes("Treasury Node Initialized.")){
       const statusBlock = document.createElement("span");
       statusBlock.className = `glow season-text-${currentSeason}`;
       statusBlock.textContent = currentLine;
@@ -1629,27 +1637,24 @@ function typeLine(){
   }
 }
 
-// ---------- RECONFIGURED 24-HOUR TIME LOCK ENGINE ----------
+// ---------- UPGRADED 24-HOUR TIME LOCK ENGINE ----------
 const storageLockKey = "avalon_treasury_boot_timestamp";
 const lastBootTime = localStorage.getItem(storageLockKey);
 const currentTimeStamp = estDate.getTime(); 
 
-const twentyFourHours = 24 * 60 * 60 * 1000; // Time footprint in milliseconds
+const twentyFourHours = 24 * 60 * 60 * 1000; // 24 Hours in milliseconds
+const isTestingSeason = urlParams.has('forceSeason');
 
-// Check if query override is active OR if 24 hours have completely elapsed
-const urlParams = new URLSearchParams(window.location.search);
-const isTesting = urlParams.has('forceSeason');
-
-if (isTesting || !lastBootTime || (currentTimeStamp - parseInt(lastBootTime) > twentyFourHours)) {
+if (isTestingSeason || !lastBootTime || (currentTimeStamp - parseInt(lastBootTime) > twentyFourHours)) {
   typeLine();
-  // Only save the fresh timestamp if we aren't deliberately forcing a testing cycle
-  if (!isTesting) {
+  // Ensure timestamps are only captured on genuine dashboard reloads
+  if (!isTestingSeason) {
     localStorage.setItem(storageLockKey, currentTimeStamp.toString());
   }
 } else {
-  // Within 24 hours: Instantly reveal dashboard
   document.getElementById("boot-screen").style.display = "none";
 }
+
 
 
 
