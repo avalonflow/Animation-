@@ -917,31 +917,22 @@ margin-top: -180px;
 /* ---------- FOUR SEASON TYPOGRAPHY THEMING ENGINE ---------- */
 
 /* Spring Texts (Mint) */
-.season-text-spring, #boot-screen.season-spring .cursor {
-  color: #00ffa6;
-  background-color: transparent;
-}
+.season-text-spring { color: #00ffa6; }
 #boot-screen.season-spring .cursor { background-color: #00ffa6; }
 .glow.season-text-spring { text-shadow: 0 0 8px #00ffa6, 0 0 16px rgba(0,255,166,0.4); }
 
 /* Summer Texts (Pure Dashboard Balance Cyan) */
-.season-text-summer, #boot-screen.season-summer, #boot-screen.season-summer .cursor {
-  color: #00f2fe;
-}
+.season-text-summer { color: #00f2fe; }
 #boot-screen.season-summer .cursor { background-color: #00f2fe; }
 .glow.season-text-summer { text-shadow: 0 0 8px #00f2fe, 0 0 20px rgba(0,242,254,0.6); }
 
 /* Autumn Texts (Harvest Matte Gold) */
-.season-text-autumn, #boot-screen.season-autumn, #boot-screen.season-autumn .cursor {
-  color: #fbbf24;
-}
+.season-text-autumn { color: #fbbf24; }
 #boot-screen.season-autumn .cursor { background-color: #fbbf24; }
 .glow.season-text-autumn { text-shadow: 0 0 8px #fbbf24, 0 0 16px rgba(251,191,36,0.5); }
 
 /* Winter Texts (Diamond Polar White) */
-.season-text-winter, #boot-screen.season-winter, #boot-screen.season-winter .cursor {
-  color: #ffffff;
-}
+.season-text-winter { color: #ffffff; }
 #boot-screen.season-winter .cursor { background-color: #ffffff; }
 .glow.season-text-winter { text-shadow: 0 0 8px #ffffff, 0 0 16px rgba(255,255,255,0.6); }
 
@@ -1011,6 +1002,7 @@ margin-top: -180px;
   z-index: 1;
   pointer-events: none;
 }
+
 
 
            /* ---------- Footer ---------- */
@@ -1414,59 +1406,43 @@ const year = estDate.getFullYear();
 const currentMonthUpper = monthNames[monthIndex];
 const currentMonthNormal = currentMonthUpper.charAt(0) + currentMonthUpper.slice(1).toLowerCase();
 
-// ---------- DYNAMIC SEASONAL DATA ROUTER (WITH URL OVERRIDE) ----------
+// ---------- DYNAMIC SEASONAL DATA ROUTER ----------
 let currentSeason = "";
-let baseParticleColor = "0, 255, 166"; // Default Mint
+let baseParticleColor = "0, 255, 166"; 
 
-// 1. Evaluate automatically based on current date
 if (monthIndex === 2 || monthIndex === 3 || monthIndex === 4) {
-    currentSeason = "spring";      // March, April, May
-    baseParticleColor = "0, 255, 166"; // Vivid Mint Green 
+    currentSeason = "spring";      
+    baseParticleColor = "0, 255, 166"; 
 } else if (monthIndex === 5 || monthIndex === 6 || monthIndex === 7) {
-    currentSeason = "summer";      // June, July, August
-    baseParticleColor = "0, 242, 254"; // Pure Dashboard Cyan
+    currentSeason = "summer";      
+    baseParticleColor = "0, 242, 254"; 
 } else if (monthIndex === 8 || monthIndex === 9 || monthIndex === 10) {
-    currentSeason = "autumn";      // September, October, November
-    baseParticleColor = "251, 191, 36"; // Premium Matte Gold
+    currentSeason = "autumn";      
+    baseParticleColor = "251, 191, 36"; 
 } else {
-    currentSeason = "winter";      // December, January, February
-    baseParticleColor = "255, 255, 255"; // Diamond White
+    currentSeason = "winter";      
+    baseParticleColor = "255, 255, 255"; 
 }
 
-// 2. 🧪 TESTING ENGINE: Read query string parameters (?forceSeason=)
-const urlParams = new URLSearchParams(window.location.search);
-const forcedSeason = urlParams.get('forceSeason');
-
-if (forcedSeason && ["spring", "summer", "autumn", "winter"].includes(forcedSeason.toLowerCase())) {
-    currentSeason = forcedSeason.toLowerCase();
-    
-    // Remap engine asset color arrays to match forced override selection
-    if (currentSeason === "spring") baseParticleColor = "0, 255, 166";
-    else if (currentSeason === "summer") baseParticleColor = "0, 242, 254";
-    else if (currentSeason === "autumn") baseParticleColor = "251, 191, 36";
-    else if (currentSeason === "winter") baseParticleColor = "255, 255, 255";
-}
-
-// Inject seasonal target classes directly onto your DOM blocks
 const bootScreenElement = document.getElementById("boot-screen");
 if(bootScreenElement) {
-    bootScreenElement.className = ""; // Wipe default classes to prevent duplicates during override tests
     bootScreenElement.classList.add(`season-${currentSeason}`);
 }
 
+// ---------- UPDATED TREASURY TERMINAL LOGS ----------
 const lines = [
   "> Initializing AvalonFlow...",
-  "> Connecting financial nodes...",
-  "> Syncing Centrical™ AI...",
+  "> Connecting Financial Nodes...",
+  "> Syncing Kairos System™...",
   `> Cycle Detected: ${currentMonthUpper} ${year}`,
   "",
   "✓ System Ready",
   "",
-  "✨ New Month Initialized.",
+  "✨ Treasury Node Initialized.",
   "",
-  "Suspense", // Managed cinematic suspense
+  "Suspense", 
   "",
-  `Welcome to ${currentMonthNormal}.`
+  "Welcome to AvalonFlow Corporate Treasury."
 ];
 
 const textElement = document.getElementById("boot-text");
@@ -1476,6 +1452,23 @@ let lineIndex=0, charIndex=0;
 const isMobile = window.innerWidth < 768;
 const typingSpeed = isMobile ? 15 : 40; 
 const lineDelay = isMobile ? 250 : 400;
+
+// ---------- CHROME AUDIO AUTOPLAY UNLOCK ENGINE ----------
+let audioUnlocked = false;
+function unlockAudio() {
+  if (!audioUnlocked && sound) {
+    sound.play().then(() => {
+      sound.pause();
+      sound.currentTime = 0;
+      audioUnlocked = true;
+      // Remove handlers once successfully primed
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+    }).catch(() => {});
+  }
+}
+window.addEventListener('click', unlockAudio);
+window.addEventListener('touchstart', unlockAudio);
 
 // PARTICLES CANVAS SETUP
 const canvas = document.getElementById("particle-canvas");
@@ -1497,10 +1490,8 @@ for(let i=0; i<particleCount; i++){
   });
 }
 
-// DYNAMIC PARTICLES DRAW LOOP BASED ON SEASONS
 function drawParticles(){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
   particles.forEach(p => {
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
@@ -1530,7 +1521,6 @@ function drawParticles(){
     if(p.alpha < 0.05) p.alpha = 0.05;
     if(p.alpha > 0.40) p.alpha = 0.40;
   });
-  
   requestAnimationFrame(drawParticles);
 }
 drawParticles();
@@ -1560,7 +1550,12 @@ function triggerProcessingWave(){
 }
 
 function playSound(){
-  if(sound){ sound.currentTime = 0; sound.play().catch(() => {}); }
+  if(sound){ 
+    sound.currentTime = 0; 
+    sound.play().catch(() => {
+      // Quietly bypass if browser context still rejects it
+    }); 
+  }
   pulseParticles();
 }
 
@@ -1569,7 +1564,7 @@ function typeLine(){
   if(lineIndex >= lines.length){
     setTimeout(() => {
       document.getElementById("boot-screen").classList.add("fade-out"); 
-      setTimeout(() => { document.getElementById("boot-screen").style.display = "none"; }, 1000);
+      setTimeout(() => { document.getElementById("boot-screen").style.style.display = "none"; }, 1000);
     }, 1200);
     return;
   }
@@ -1590,7 +1585,8 @@ function typeLine(){
     return;
   }
 
-  if(currentLine.includes(`Welcome to ${currentMonthNormal}`)){
+  // Final line target matching corporate treasury
+  if(currentLine.includes("Welcome to AvalonFlow Corporate Treasury")){
     triggerProcessingWave();
     const span = document.createElement("span");
     span.className = `final-glow season-text-${currentSeason}`;
@@ -1611,7 +1607,7 @@ function typeLine(){
   } else {
     textElement.appendChild(document.createElement("br"));
     
-    if(currentLine.includes("System Ready") || currentLine.includes("New Month Initialized")){
+    if(currentLine.includes("System Ready") || currentLine.includes("Treasury Node Initialized")){
       const statusBlock = document.createElement("span");
       statusBlock.className = `glow season-text-${currentSeason}`;
       statusBlock.textContent = currentLine;
@@ -1624,19 +1620,28 @@ function typeLine(){
   }
 }
 
-// Storage Verification Logic Lock + Testing Bypass Engine
-const storageKey = `avalon_boot_seen_${year}_${monthIndex}`;
-const isTestingSeason = urlParams.has('forceSeason');
+// ---------- RECONFIGURED 24-HOUR TIME LOCK ENGINE ----------
+const storageLockKey = "avalon_treasury_boot_timestamp";
+const lastBootTime = localStorage.getItem(storageLockKey);
+const currentTimeStamp = estDate.getTime(); 
 
-if (isTestingSeason || (estDate.getDate() === 1 && !localStorage.getItem(storageKey))) {
+const twentyFourHours = 24 * 60 * 60 * 1000; // Time footprint in milliseconds
+
+// Check if query override is active OR if 24 hours have completely elapsed
+const urlParams = new URLSearchParams(window.location.search);
+const isTesting = urlParams.has('forceSeason');
+
+if (isTesting || !lastBootTime || (currentTimeStamp - parseInt(lastBootTime) > twentyFourHours)) {
   typeLine();
-  // Only set item if it's an actual live execution cycle (not a test bypass check)
-  if (!isTestingSeason && estDate.getDate() === 1) {
-    localStorage.setItem(storageKey, "true");
+  // Only save the fresh timestamp if we aren't deliberately forcing a testing cycle
+  if (!isTesting) {
+    localStorage.setItem(storageLockKey, currentTimeStamp.toString());
   }
 } else {
+  // Within 24 hours: Instantly reveal dashboard
   document.getElementById("boot-screen").style.display = "none";
 }
+
 
 
         // Video volume
