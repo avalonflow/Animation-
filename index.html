@@ -869,13 +869,11 @@ margin-top: -180px;
 
         .video-controls input[type=range] { width: 100px; }
 
-/* Screen */
+/* ---------- Upgraded Seasonal Boot Infrastructure ---------- */
 #boot-screen {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: #0b0f1a;
-  color: #00ffa6;
   font-family: "Courier New", monospace;
   display: flex;
   flex-direction: column;
@@ -887,13 +885,26 @@ margin-top: -180px;
   transition: opacity 0.8s ease, backdrop-filter 0.8s ease;
 }
 
-/* Fade out */
+/* ---------- FOUR SEASON ENVIRONMENT BACKDROPS ---------- */
+#boot-screen.season-spring {
+  background: #06140e; /* Emerald charcoal blend */
+}
+#boot-screen.season-summer {
+  background: #070a14; /* Deep midnight space blue */
+}
+#boot-screen.season-autumn {
+  background: #120e0b; /* Earthy wood-smoke charcoal */
+}
+#boot-screen.season-winter {
+  background: #030307; /* Freezing stark deep cosmic black */
+}
+
+/* Fade out hook logic */
 #boot-screen.fade-out {
   opacity: 0;
   backdrop-filter: blur(12px);
 }
 
-/* Text */
 #boot-text {
   font-size: 16px;
   line-height: 1.8;
@@ -903,72 +914,104 @@ margin-top: -180px;
   z-index: 2;
 }
 
-/* Glow/flicker for key lines */
-.glow {
+/* ---------- FOUR SEASON TYPOGRAPHY THEMING ENGINE ---------- */
+
+/* Spring Texts (Mint) */
+.season-text-spring, #boot-screen.season-spring .cursor {
   color: #00ffa6;
-  text-shadow: 0 0 4px #00ffa6, 0 0 8px #00ffa6, 0 0 12px #00ffa6;
+  background-color: transparent;
+}
+#boot-screen.season-spring .cursor { background-color: #00ffa6; }
+.glow.season-text-spring { text-shadow: 0 0 8px #00ffa6, 0 0 16px rgba(0,255,166,0.4); }
+
+/* Summer Texts (Pure Dashboard Balance Cyan) */
+.season-text-summer, #boot-screen.season-summer, #boot-screen.season-summer .cursor {
+  color: #00f2fe;
+}
+#boot-screen.season-summer .cursor { background-color: #00f2fe; }
+.glow.season-text-summer { text-shadow: 0 0 8px #00f2fe, 0 0 20px rgba(0,242,254,0.6); }
+
+/* Autumn Texts (Harvest Matte Gold) */
+.season-text-autumn, #boot-screen.season-autumn, #boot-screen.season-autumn .cursor {
+  color: #fbbf24;
+}
+#boot-screen.season-autumn .cursor { background-color: #fbbf24; }
+.glow.season-text-autumn { text-shadow: 0 0 8px #fbbf24, 0 0 16px rgba(251,191,36,0.5); }
+
+/* Winter Texts (Diamond Polar White) */
+.season-text-winter, #boot-screen.season-winter, #boot-screen.season-winter .cursor {
+  color: #ffffff;
+}
+#boot-screen.season-winter .cursor { background-color: #ffffff; }
+.glow.season-text-winter { text-shadow: 0 0 8px #ffffff, 0 0 16px rgba(255,255,255,0.6); }
+
+/* Dynamic Glow Pulse Loop */
+.glow {
   animation: pulseGlow 1.5s infinite alternate;
 }
-
 @keyframes pulseGlow {
-  0% { text-shadow: 0 0 4px #00ffa6, 0 0 8px #00ffa6; opacity: 0.8; }
-  50% { text-shadow: 0 0 8px #00ffa6, 0 0 16px #00ffa6; opacity: 1; }
-  100% { text-shadow: 0 0 4px #00ffa6, 0 0 8px #00ffa6; opacity: 0.9; }
+  0% { opacity: 0.85; }
+  100% { opacity: 1; }
 }
 
-/* Suspense ellipsis */
-.suspense::after {
-  content: " ...";
-  animation: ellipsis 1s steps(3, end) infinite;
+/* ---------- CLEAN AUTOMATED LOADING BAR FIX ---------- */
+.suspense-loader-row {
+    margin: 15px 0;
+    display: block;
+    width: 100%;
+}
+.suspense-pulse-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    animation: terminalFlash 1.2s ease-in-out infinite alternate;
+}
+/* Assign color values dynamically based on current parent setup rules */
+#boot-screen.season-spring .suspense-pulse-text { color: #00ffa6; }
+#boot-screen.season-summer .suspense-pulse-text { color: #00f2fe; }
+#boot-screen.season-autumn .suspense-pulse-text { color: #fbbf24; }
+#boot-screen.season-winter .suspense-pulse-text { color: #ffffff; }
+
+@keyframes terminalFlash {
+    0% { opacity: 0.3; }
+    100% { opacity: 1; }
 }
 
-@keyframes ellipsis {
-  0%, 20% { content: ""; }
-  40% { content: "."; }
-  60% { content: ".."; }
-  80%, 100% { content: "..."; }
-}
-
-/* Blinking cursor */
+/* Blinking terminal tracking block cursor */
 .cursor {
   display: inline-block;
-  width: 10px; height: 20px;
-  background: #00ffa6;
-  margin-left: 4px;
+  width: 10px; height: 18px;
+  margin-left: 6px;
+  vertical-align: middle;
   animation: blink 1s infinite;
 }
-
 @keyframes blink {
   0%,50%,100% { opacity: 1; }
   25%,75% { opacity: 0; }
 }
 
-/* Final line glow */
+/* Final screen entrance glow rule formatting variables */
 .final-glow {
-  color: #00ffa6;
-  text-shadow: 0 0 6px #00ffa6, 0 0 12px #00ffa6, 0 0 18px #00ffa6, 0 0 24px #00ffa6;
-  animation: finalGlow 1.2s ease-out;
+  font-weight: 700;
+  animation: finalGlow 1.2s ease-out forwards;
 }
-
 @keyframes finalGlow {
-  0% { opacity: 0; }
-  50% { opacity: 1; text-shadow: 0 0 24px #00ffa6,0 0 36px #00ffa6; }
-  100% { opacity: 1; text-shadow: 0 0 12px #00ffa6,0 0 18px #00ffa6; }
+  0% { opacity: 0; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
-/* Mobile */
 @media (max-width: 768px) {
   #boot-text { font-size: 14px; }
 }
 
-/* Particle Canvas */
 #particle-canvas {
   position: absolute;
-  top:0; left:0;
-  width:100%; height:100%;
-  z-index:1;
-  pointer-events:none;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+  pointer-events: none;
 }
+
 
            /* ---------- Footer ---------- */
             footer {
@@ -1371,6 +1414,46 @@ const year = estDate.getFullYear();
 const currentMonthUpper = monthNames[monthIndex];
 const currentMonthNormal = currentMonthUpper.charAt(0) + currentMonthUpper.slice(1).toLowerCase();
 
+// ---------- DYNAMIC SEASONAL DATA ROUTER (WITH URL OVERRIDE) ----------
+let currentSeason = "";
+let baseParticleColor = "0, 255, 166"; // Default Mint
+
+// 1. Evaluate automatically based on current date
+if (monthIndex === 2 || monthIndex === 3 || monthIndex === 4) {
+    currentSeason = "spring";      // March, April, May
+    baseParticleColor = "0, 255, 166"; // Vivid Mint Green 
+} else if (monthIndex === 5 || monthIndex === 6 || monthIndex === 7) {
+    currentSeason = "summer";      // June, July, August
+    baseParticleColor = "0, 242, 254"; // Pure Dashboard Cyan
+} else if (monthIndex === 8 || monthIndex === 9 || monthIndex === 10) {
+    currentSeason = "autumn";      // September, October, November
+    baseParticleColor = "251, 191, 36"; // Premium Matte Gold
+} else {
+    currentSeason = "winter";      // December, January, February
+    baseParticleColor = "255, 255, 255"; // Diamond White
+}
+
+// 2. 🧪 TESTING ENGINE: Read query string parameters (?forceSeason=)
+const urlParams = new URLSearchParams(window.location.search);
+const forcedSeason = urlParams.get('forceSeason');
+
+if (forcedSeason && ["spring", "summer", "autumn", "winter"].includes(forcedSeason.toLowerCase())) {
+    currentSeason = forcedSeason.toLowerCase();
+    
+    // Remap engine asset color arrays to match forced override selection
+    if (currentSeason === "spring") baseParticleColor = "0, 255, 166";
+    else if (currentSeason === "summer") baseParticleColor = "0, 242, 254";
+    else if (currentSeason === "autumn") baseParticleColor = "251, 191, 36";
+    else if (currentSeason === "winter") baseParticleColor = "255, 255, 255";
+}
+
+// Inject seasonal target classes directly onto your DOM blocks
+const bootScreenElement = document.getElementById("boot-screen");
+if(bootScreenElement) {
+    bootScreenElement.className = ""; // Wipe default classes to prevent duplicates during override tests
+    bootScreenElement.classList.add(`season-${currentSeason}`);
+}
+
 const lines = [
   "> Initializing AvalonFlow...",
   "> Connecting financial nodes...",
@@ -1381,7 +1464,7 @@ const lines = [
   "",
   "✨ New Month Initialized.",
   "",
-  "Suspense", // suspense animation
+  "Suspense", // Managed cinematic suspense
   "",
   `Welcome to ${currentMonthNormal}.`
 ];
@@ -1390,11 +1473,11 @@ const textElement = document.getElementById("boot-text");
 const sound = document.getElementById("type-sound");
 let lineIndex=0, charIndex=0;
 
-const isMobile = window.innerWidth<768;
-const typingSpeed = isMobile ? 15 : 40; // cinematic slow
+const isMobile = window.innerWidth < 768;
+const typingSpeed = isMobile ? 15 : 40; 
 const lineDelay = isMobile ? 250 : 400;
 
-// PARTICLES
+// PARTICLES CANVAS SETUP
 const canvas = document.getElementById("particle-canvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
@@ -1403,127 +1486,158 @@ canvas.height = window.innerHeight;
 const particles = [];
 const particleCount = 80;
 
-// init particles
-for(let i=0;i<particleCount;i++){
+for(let i=0; i<particleCount; i++){
   particles.push({
-    x: Math.random()*canvas.width,
-    y: Math.random()*canvas.height,
-    radius: Math.random()*2+1,
-    alpha: Math.random()*0.3+0.1,
-    speedY: Math.random()*0.5+0.1
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    radius: Math.random() * 2 + 1,
+    alpha: Math.random() * 0.3 + 0.1,
+    speedY: Math.random() * 0.5 + 0.1,
+    angle: Math.random() * Math.PI * 2 
   });
 }
 
-// draw loop
+// DYNAMIC PARTICLES DRAW LOOP BASED ON SEASONS
 function drawParticles(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  particles.forEach(p=>{
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  particles.forEach(p => {
     ctx.beginPath();
-    ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
-    ctx.fillStyle=`rgba(0,255,166,${p.alpha})`;
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${baseParticleColor}, ${p.alpha})`;
     ctx.fill();
-    p.y-=p.speedY;
-    if(p.y<0) p.y=canvas.height;
-    // subtle alpha flicker
-    p.alpha+= (Math.random()-0.5)*0.02;
-    if(p.alpha<0.05) p.alpha=0.05;
-    if(p.alpha>0.35) p.alpha=0.35;
+    
+    if (currentSeason === "spring") {
+        p.y -= p.speedY * 0.8;
+        p.x += Math.sin(p.angle) * 0.4;
+        p.angle += 0.02;
+    } else if (currentSeason === "summer") {
+        p.y -= p.speedY * 1.5;
+    } else if (currentSeason === "autumn") {
+        p.y += p.speedY * 0.8;
+        p.x += Math.sin(p.angle) * 0.5;
+        p.angle += 0.01;
+    } else {
+        p.y -= p.speedY * 0.2;
+    }
+    
+    if (p.y < 0 && currentSeason !== "autumn") p.y = canvas.height;
+    if (p.y > canvas.height && currentSeason === "autumn") p.y = 0;
+    if (p.x < 0) p.x = canvas.width;
+    if (p.x > canvas.width) p.x = 0;
+    
+    p.alpha += (Math.random() - 0.5) * 0.02;
+    if(p.alpha < 0.05) p.alpha = 0.05;
+    if(p.alpha > 0.40) p.alpha = 0.40;
   });
+  
   requestAnimationFrame(drawParticles);
 }
 drawParticles();
 
-// pulse on typing
 function pulseParticles(){
-  particles.forEach(p=>{
-    p.alpha=Math.min(p.alpha+0.2,0.5);
+  particles.forEach(p => {
+    p.alpha = Math.min(p.alpha + 0.2, 0.6);
   });
 }
 
-// AI processing wave before final line
 function triggerProcessingWave(){
-  const duration=1200;
-  const startTime=performance.now();
+  const duration = 1200;
+  const startTime = performance.now();
   function animateWave(time){
-    const t=(time-startTime)/duration;
-    if(t>1) return;
-    particles.forEach(p=>{
-      const dx=p.x-canvas.width/2;
-      const dy=p.y-canvas.height/2;
-      const dist=Math.sqrt(dx*dx+dy*dy);
-      const pulse=Math.max(0,1-dist/(canvas.width/2));
-      p.alpha=Math.min(p.alpha+0.5*pulse,0.5);
+    const t = (time - startTime) / duration;
+    if(t > 1) return;
+    particles.forEach(p => {
+      const dx = p.x - canvas.width / 2;
+      const dy = p.y - canvas.height / 2;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const pulse = Math.max(0, 1 - dist / (canvas.width / 2));
+      p.alpha = Math.min(p.alpha + 0.6 * pulse, 0.7);
     });
     requestAnimationFrame(animateWave);
   }
   animateWave(performance.now());
 }
 
-// Play sound + particle pulse
 function playSound(){
-  if(sound){sound.currentTime=0; sound.play().catch(()=>{});}
+  if(sound){ sound.currentTime = 0; sound.play().catch(() => {}); }
   pulseParticles();
 }
 
-// TYPE LINES
+// SECURE TYPEWRITER CORE
 function typeLine(){
-  if(lineIndex>=lines.length){
-    setTimeout(()=>{document.getElementById("boot-screen").classList.add("fade-out"); setTimeout(()=>{document.getElementById("boot-screen").style.display="none";},1000);},1200);
+  if(lineIndex >= lines.length){
+    setTimeout(() => {
+      document.getElementById("boot-screen").classList.add("fade-out"); 
+      setTimeout(() => { document.getElementById("boot-screen").style.display = "none"; }, 1000);
+    }, 1200);
     return;
   }
 
-  let currentLine=lines[lineIndex];
+  let currentLine = lines[lineIndex];
 
-  // suspense line
-  if(currentLine==="Suspense"){
-    const suspenseSpan=document.createElement("span");
-    suspenseSpan.classList.add("suspense");
-    suspenseSpan.textContent="";
-    textElement.appendChild(suspenseSpan);
-    setTimeout(()=>{
-      suspenseSpan.remove();
+  if(currentLine === "Suspense"){
+    const suspenseContainer = document.createElement("div");
+    suspenseContainer.className = "suspense-loader-row";
+    suspenseContainer.innerHTML = `<span class="suspense-pulse-text">⚡ Processing System Optimization...</span>`;
+    textElement.appendChild(suspenseContainer);
+    
+    setTimeout(() => {
+      suspenseContainer.remove();
       lineIndex++;
-      setTimeout(typeLine,300);
-    },1500);
+      setTimeout(typeLine, 300);
+    }, 1800); 
     return;
   }
 
-  // final line glow + wave
   if(currentLine.includes(`Welcome to ${currentMonthNormal}`)){
     triggerProcessingWave();
-    const span=document.createElement("span");
-    span.classList.add("final-glow");
-    span.textContent=currentLine;
+    const span = document.createElement("span");
+    span.className = `final-glow season-text-${currentSeason}`;
+    span.textContent = currentLine;
     textElement.appendChild(span);
     lineIndex++;
-    charIndex=0;
-    setTimeout(typeLine,lineDelay);
+    charIndex = 0;
+    setTimeout(typeLine, lineDelay);
     return;
   }
 
-  if(charIndex<currentLine.length){
-    textElement.textContent+=currentLine[charIndex];
+  if(charIndex < currentLine.length){
+    const charNode = document.createTextNode(currentLine[charIndex]);
+    textElement.appendChild(charNode);
     charIndex++;
-    if(Math.random()>0.6) playSound();
-    setTimeout(typeLine,typingSpeed);
+    if(Math.random() > 0.6) playSound();
+    setTimeout(typeLine, typingSpeed);
   } else {
-    textElement.textContent+="\n";
-    if(currentLine.includes("System Ready")||currentLine.includes("New Month Initialized")){
-      textElement.innerHTML=textElement.innerHTML.replace(currentLine,`<span class="glow">${currentLine}</span>`);
+    textElement.appendChild(document.createElement("br"));
+    
+    if(currentLine.includes("System Ready") || currentLine.includes("New Month Initialized")){
+      const statusBlock = document.createElement("span");
+      statusBlock.className = `glow season-text-${currentSeason}`;
+      statusBlock.textContent = currentLine;
+      textElement.innerHTML = textElement.innerHTML.replace(currentLine, statusBlock.outerHTML);
     }
-    lineIndex++; charIndex=0;
-    setTimeout(typeLine,lineDelay);
+    
+    lineIndex++; 
+    charIndex = 0;
+    setTimeout(typeLine, lineDelay);
   }
 }
 
-// Storage per month
-const storageKey=`avalon_boot_seen_${year}_${monthIndex}`;
-if(estDate.getDate()===1 && !localStorage.getItem(storageKey)){
+// Storage Verification Logic Lock + Testing Bypass Engine
+const storageKey = `avalon_boot_seen_${year}_${monthIndex}`;
+const isTestingSeason = urlParams.has('forceSeason');
+
+if (isTestingSeason || (estDate.getDate() === 1 && !localStorage.getItem(storageKey))) {
   typeLine();
-  localStorage.setItem(storageKey,"true");
-}else{
-  document.getElementById("boot-screen").style.display="none";
+  // Only set item if it's an actual live execution cycle (not a test bypass check)
+  if (!isTestingSeason && estDate.getDate() === 1) {
+    localStorage.setItem(storageKey, "true");
+  }
+} else {
+  document.getElementById("boot-screen").style.display = "none";
 }
+
 
         // Video volume
         const video = document.getElementById("planVideo");
