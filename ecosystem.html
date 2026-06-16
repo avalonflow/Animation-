@@ -391,9 +391,9 @@ header .logo-card img {
     display: block;
 }
 
-/* --- MOBILE & WEBKIT SURGICAL OVERRIDES --- */
+/* --- SURGICAL CONTROL REMOVALS --- */
 
-/* Strips out the large center play/pause touch indicator icon */
+/* Strips out the center play icon overlays */
 video::-webkit-media-controls-start-playback-button,
 video::-webkit-media-controls-overlay-play-button {
     display: none !important;
@@ -402,8 +402,23 @@ video::-webkit-media-controls-overlay-play-button {
     pointer-events: none !important;
 }
 
-/* Hides the bottom left control bar play/pause action button toggle */
+/* Hides the bottom left control bar play/pause toggle */
 video::-webkit-media-controls-play-button {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Hides the horizontal progress line / slider tracker */
+video::-webkit-media-controls-timeline {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Hides the numerical duration text string (e.g., 0:24 / 0:43) */
+video::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-time-remaining-display {
     display: none !important;
     opacity: 0 !important;
     pointer-events: none !important;
@@ -418,6 +433,7 @@ video::-webkit-media-controls-play-button {
 .video-controls input[type=range] {
     width: 100px;
 }
+
 
 
 /* ---------- Card Interactivity & Tiered Web3 Styling ---------- */
