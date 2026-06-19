@@ -882,6 +882,17 @@ video.addEventListener('click', (e) => {
 
     // Update every 1 second
     setInterval(updateMetrics, 1000);
-    </script>
+    // Remove the listener that fires immediately
+window.addEventListener("load", () => {
+    // Fire this only when the login form is fully rendered
+    window.parent.postMessage({
+        type: "UPDATE_TITLE",
+        title: "Profile Login" 
+    }, "*");
+});
+</script>
 </body>
-  </html>
+</html>
+--></div>
+</body>
+</html>
