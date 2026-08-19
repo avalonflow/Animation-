@@ -306,22 +306,50 @@
         // Initialize dynamic fee calculation on DOM load
         document.addEventListener("DOMContentLoaded", loadClearanceFee);
 
-        // 1. Countdown Timer Simulation
-        let timeLeft = 899; // 14 mins 59 secs
-        const timerElement = document.getElementById("countdown");
+        // 1. Synchronized Timer connected to localStorage (avb_expiry_time)
+const timerElement = document.getElementById("countdown");
 
-        const timerInterval = setInterval(() => {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            timerElement.textContent = 
-                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+function updateCountdownDisplay() {
+    // 1. Get or initialize the expiration timestamp
+    let expiryTime = parseInt(localStorage.getItem("avb_expiry_time"), 10);
+
+    if (!expiryTime) {
+        // Fallback: create 15-minute expiration if key is missing
+        expiryTime = Date.now() + 15 * 60 * 1000;
+        localStorage.setItem("avb_expiry_time", expiryTime);
+    }
+
+    // 2. Calculate remaining seconds using current system clock
+    const remainingSec = Math.max(0, Math.floor((expiryTime - Date.now()) / 1000));
+
+    // 3. Format into MM:SS display
+    const minutes = Math.floor(remainingSec / 60);
+    const seconds = remainingSec % 60;
+
+    if (timerElement) {
+        if (remainingSec <= 0) {
+            timerElement.textContent = "EXPIRED";
             
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                timerElement.textContent = "EXPIRED";
-            }
-            timeLeft--;
-        }, 1000);
+            // Clear timer & handle expiration cleanup
+            clearInterval(timerInterval);
+            localStorage.removeItem("avb_expiry_time");
+            localStorage.removeItem("avb_redirected_to_avb");
+            localStorage.removeItem("avb_session_state");
+
+            // Redirect and replace current history entry
+            window.location.replace("https://membership.avalonflow.site/notifications");
+            return;
+        }
+
+        timerElement.textContent = 
+            `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+}
+
+// Run immediately to avoid UI delay, then update every second
+updateCountdownDisplay();
+const timerInterval = setInterval(updateCountdownDisplay, 1000);
+
 
         // 2. Submission Handler
         async function submitClearanceCode() {
