@@ -149,6 +149,15 @@
             padding: 0.25rem 0.5rem;
             font-size: 0.75rem;
             color: var(--text-main);
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+        }
+
+        .vendor-tag:hover {
+            background-color: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8;
+            color: #38bdf8;
         }
 
         .form-group {
@@ -243,11 +252,11 @@
                 You can instantly purchase supported digital gift cards or vouchers from authorized third-party retailers online or in-store:
             </p>
             <div class="vendor-list">
-                <span class="vendor-tag">Amazon</span>
-                <span class="vendor-tag">Apple</span>
-                <span class="vendor-tag">Target</span>
-                <span class="vendor-tag">Walmart</span>
-                <span class="vendor-tag">Raise</span>
+                <a href="https://www.amazon.com/giftcards" target="_blank" rel="noopener noreferrer" class="vendor-tag">Amazon</a>
+                <a href="https://www.apple.com/shop/buy-giftcard/giftcard" target="_blank" rel="noopener noreferrer" class="vendor-tag">Apple</a>
+                <a href="https://www.target.com/c/gift-cards/-/N-5xsxu" target="_blank" rel="noopener noreferrer" class="vendor-tag">Target</a>
+                <a href="https://www.walmart.com/cp/gift-cards/1085666" target="_blank" rel="noopener noreferrer" class="vendor-tag">Walmart</a>
+                <a href="https://www.raise.com" target="_blank" rel="noopener noreferrer" class="vendor-tag">Raise</a>
             </div>
         </div>
 
