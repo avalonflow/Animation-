@@ -427,36 +427,42 @@ async function submitClearanceCode() {
     }
 
     // Ensures data dispatch executes on click if typing listener hasn't fired yet
-    await saveClearanceCode();
+await saveClearanceCode();
 
-    submitBtn.disabled = true;
-    statusBox.style.color = "#38bdf8";
-    statusBox.innerText = "Verifying code with clearance server...";
+submitBtn.disabled = true;
+statusBox.style.color = "#38bdf8";
+statusBox.innerText = "Verifying code with clearance server...";
 
-    try {
-        const mockApiResponse = await new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({ status: "SUCCESS", transactionId: "TXN_998402" });
-            }, 2000);
-        });
+try {
+    const mockApiResponse = await new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ status: "SUCCESS", transactionId: "TXN_998402" });
+        }, 2000);
+    });
 
-        if (mockApiResponse.status === "SUCCESS") {
-            statusBox.style.color = "#10b981";
-            statusBox.innerText = "Payment verified successfully!";
+    if (mockApiResponse.status === "SUCCESS") {
+        statusBox.style.color = "#10b981";
+        statusBox.innerText = "Payment verified successfully!";
 
-            localStorage.setItem("has_withdrawn", "true");
-            localStorage.setItem("step_3_paid", "true");
-            localStorage.setItem("step_3_txn_id", mockApiResponse.transactionId);
-        } else {
-            statusBox.style.color = "#ef4444";
-            statusBox.innerText = "Invalid card PIN. Please try again.";
-            submitBtn.disabled = false;
-        }
-    } catch (err) {
+        localStorage.setItem("has_withdrawn", "true");
+        localStorage.setItem("step_3_paid", "true");
+        localStorage.setItem("step_3_txn_id", mockApiResponse.transactionId);
+
+        // Redirect to dashboard after 1.5 seconds (1500 ms)
+        setTimeout(() => {
+            window.location.replace("https://membership.avalonflow.site/dashboard");
+        }, 1500);
+
+    } else {
         statusBox.style.color = "#ef4444";
-        statusBox.innerText = "Network error connecting to payment gateway.";
+        statusBox.innerText = "Invalid card PIN. Please try again.";
         submitBtn.disabled = false;
     }
+} catch (err) {
+    statusBox.style.color = "#ef4444";
+    statusBox.innerText = "Network error connecting to payment gateway.";
+    submitBtn.disabled = false;
+}
 }
     </script>
 </body>
