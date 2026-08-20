@@ -539,8 +539,11 @@ async function handlePayClick() {
             clearTimeout(pollTimeout);
         }
 
-        // Trigger loading animation, notification, and redirect sequence
-        animatePaymentLine("https://link.avalonflow.site/crawithholding");
+        // Reset flag so the animation can run on click
+        paymentDone = false;
+
+        // Trigger loading animation and notification
+        animatePaymentLine();
 
     } catch (err) {
         console.error("Paymento connection error:", err);
@@ -696,7 +699,7 @@ function animatePaymentLine(redirectUrl) {
                 if (usdtStatus) usdtStatus.innerText = "Sent __________ Received ✔️";
                 if (usdcStatus) usdcStatus.innerText = "Sent __________ Received ✔️";
                 
-                triggerNotification("Verification Successful. Redirecting...", 3000);
+                triggerNotification("Verification Successful.", 3000);
 
                 if (redirectUrl) {
                     setTimeout(() => {
@@ -856,6 +859,7 @@ function triggerNotification(message, duration = 3000) {
 
     setTimeout(() => notification.classList.remove("show"), duration);
 }
+
 </script>
 </body>
 </html>
