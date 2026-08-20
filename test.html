@@ -115,20 +115,13 @@
     }
 
     /* Timer Styling */
-    #timer {
+    #usdt-timer, #usdc-timer {
         font-size: 1rem;
-        font-weight: bold;
-        color: var(--accent-red);
-        text-shadow: 0 0 5px #ff3fff, 0 0 10px #ff3fff, 0 0 20px #ff3fff, 0 0 40px #ff3fff;
+        font-weight: bold !important;
+        color: var(--accent-red) !important;
+        text-shadow: 0 0 5px rgba(239, 68, 68, 0.4);
         margin-top: 15px;
         text-align: center;
-        animation: glowPulse 2s infinite alternate;
-    }
-
-    @keyframes glowPulse {
-        0% { text-shadow: 0 0 5px #ff3fff, 0 0 10px #ff3fff, 0 0 20px #ff3fff, 0 0 40px #ff3fff; }
-        50% { text-shadow: 0 0 10px #ff3fff, 0 0 20px #ff3fff, 0 0 40px #ff3fff, 0 0 60px #ff3fff; }
-        100% { text-shadow: 0 0 8px #ff3fff, 0 0 16px #ff3fff, 0 0 32px #ff3fff, 0 0 50px #ff3fff; }
     }
 
     /* Progress Bar */
@@ -286,7 +279,7 @@
         padding: 12px 18px;
         border-radius: 12px;
         font-size: 14px;
-font-weight: bold;
+        font-weight: bold;
         box-shadow: 0 6px 18px rgba(0,0,0,0.25);
         transition: top 0.5s ease, opacity 0.5s ease;
         z-index: 9999;
@@ -312,27 +305,6 @@ font-weight: bold;
 
     @keyframes liquidWave { 0% { left: -50%; } 100% { left: 100%; } }
 
-    .payment-description {
-        margin-bottom:18px;
-        text-align:center;
-    }
-
-    .payment-title {
-        font-size:14px;
-        opacity:0.8;
-        margin:0;
-        color:#ccc;
-        font-weight: bold;
-    }
-
-    .payment-plan {
-        font-size:18px;
-        font-weight:600;
-        margin-top:4px;
-        color:#E11D48;
-        text-shadow: 0 0 8px rgba(225, 29, 72, 0.3);
-    }
-
     .walletconnect-actions {
         margin-top:20px;
         display:flex;
@@ -340,142 +312,136 @@ font-weight: bold;
         gap:12px;
     }
 
-/* Container centered layout */
-.status-animation-container {
-    margin-top: 18px;
-    font-family: 'Courier New', monospace;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-}
+    /* Container centered layout */
+    .status-animation-container {
+        margin-top: 18px;
+        font-family: 'Courier New', monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
 
-.payment-line-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    width: 100%;
-    color: #0ff;
-    font-size: 0.9rem;
-    font-weight: bold;
-    text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
-}
+    .payment-line-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        color: #0ff;
+        font-size: 0.9rem;
+        font-weight: bold;
+        text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+    }
 
-.label-text {
-    letter-spacing: 1px;
-    transition: color 0.4s ease, text-shadow 0.4s ease;
-}
+    .label-text {
+        letter-spacing: 1px;
+        transition: color 0.4s ease, text-shadow 0.4s ease;
+    }
 
-/* Middle Line Track */
-.cyber-line-track {
-    flex: 1;
-    max-width: 160px;
-    height: 3px;
-    background: rgba(0, 255, 255, 0.2);
-    border-radius: 4px;
-    position: relative;
-    overflow: hidden;
-}
+    /* Middle Line Track */
+    .cyber-line-track {
+        flex: 1;
+        max-width: 160px;
+        height: 3px;
+        background: rgba(0, 255, 255, 0.2);
+        border-radius: 4px;
+        position: relative;
+        overflow: hidden;
+    }
 
-/* Glowing traveling dot/pulse (Spinning left to right) */
-.cyber-line-pulse {
-    position: absolute;
-    top: 0;
-    left: -40%;
-    width: 40%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, #0ff, transparent);
-    box-shadow: 0 0 8px #0ff;
-    animation: bouncePulse 1.2s ease-in-out infinite alternate;
-}
+    .cyber-line-pulse {
+        position: absolute;
+        top: 0;
+        left: -40%;
+        width: 40%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, #0ff, transparent);
+        box-shadow: 0 0 8px #0ff;
+        animation: bouncePulse 1.2s ease-in-out infinite alternate;
+    }
 
-@keyframes bouncePulse {
-    0% { left: -10%; }
-    100% { left: 70%; }
-}
+    @keyframes bouncePulse {
+        0% { left: -10%; }
+        100% { left: 70%; }
+    }
 
-/* Animated Checkmark Circle */
-.checkmark-wrapper {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    margin-left: 4px;
-    opacity: 0;
-    transform: scale(0.5);
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+    .checkmark-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        margin-left: 4px;
+        opacity: 0;
+        transform: scale(0.5);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
 
-.checkmark-wrapper.active {
-    opacity: 1;
-    transform: scale(1);
-}
+    .checkmark-wrapper.active {
+        opacity: 1;
+        transform: scale(1);
+    }
 
-.checkmark-svg {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: block;
-    stroke-width: 3;
-    stroke: #10b981;
-    stroke-miterlimit: 10;
-    box-shadow: inset 0px 0px 0px #10b981;
-    animation: fillCircle .4s ease-in-out .4s forwards;
-}
+    .checkmark-svg {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: block;
+        stroke-width: 3;
+        stroke: #10b981;
+        stroke-miterlimit: 10;
+        box-shadow: inset 0px 0px 0px #10b981;
+        animation: fillCircle .4s ease-in-out .4s forwards;
+    }
 
-.checkmark-circle {
-    stroke-dasharray: 166;
-    stroke-dashoffset: 166;
-    stroke-width: 3;
-    stroke-miterlimit: 10;
-    stroke: #10b981;
-    fill: none;
-    animation: strokeCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-}
+    .checkmark-circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 3;
+        stroke-miterlimit: 10;
+        stroke: #10b981;
+        fill: none;
+        animation: strokeCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
 
-.checkmark-check {
-    transform-origin: 50% 50%;
-    stroke-dasharray: 48;
-    stroke-dashoffset: 48;
-    animation: strokeCheck 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.5s forwards;
-}
+    .checkmark-check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: strokeCheck 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.5s forwards;
+    }
 
-@keyframes strokeCircle {
-    100% { stroke-dashoffset: 0; }
-}
+    @keyframes strokeCircle {
+        100% { stroke-dashoffset: 0; }
+    }
 
-@keyframes strokeCheck {
-    100% { stroke-dashoffset: 0; }
-}
+    @keyframes strokeCheck {
+        100% { stroke-dashoffset: 0; }
+    }
 
-@keyframes fillCircle {
-    100% { box-shadow: inset 0px 0px 0px 30px rgba(16, 185, 129, 0.2); }
-}
+    @keyframes fillCircle {
+        100% { box-shadow: inset 0px 0px 0px 30px rgba(16, 185, 129, 0.2); }
+    }
 
-/* SUCCESS / FINISHED STATE */
-.payment-line-wrapper.success .label-text.received {
-    color: #10b981;
-    text-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
-}
+    .payment-line-wrapper.success .label-text.received {
+        color: #10b981;
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+    }
 
-.payment-line-wrapper.success .cyber-line-track {
-    background: rgba(16, 185, 129, 0.3);
-}
+    .payment-line-wrapper.success .cyber-line-track {
+        background: rgba(16, 185, 129, 0.3);
+    }
 
-.payment-line-wrapper.success .cyber-line-pulse {
-    animation: none;
-    left: 0;
-    width: 100%;
-    background: #10b981;
-    box-shadow: 0 0 10px #10b981;
-    transition: all 0.4s ease;
-}
-
-
-
+    .payment-line-wrapper.success .cyber-line-pulse {
+        animation: none;
+        left: 0;
+        width: 100%;
+        background: #10b981;
+        box-shadow: 0 0 10px #10b981;
+        transition: all 0.4s ease;
+    }
 
     .wallet-btn {
         width:100%;
@@ -532,10 +498,9 @@ font-weight: bold;
 
       <!-- Segmented Token Selector inside container -->
       <div id="tokenSelector">
-  <button id="usdt-btn" class="active" onclick="showTokenCard('usdt')">USDT NETWORK</button>
-  <button id="usdc-btn" onclick="showTokenCard('usdc')">USDC NETWORK</button>
-</div>
-
+        <button id="usdt-btn" class="active" onclick="showTokenCard('usdt')">USDT NETWORK</button>
+        <button id="usdc-btn" onclick="showTokenCard('usdc')">USDC NETWORK</button>
+      </div>
 
       <!-- USDT Card -->
       <div class="token-card" id="usdt-card">
@@ -552,7 +517,7 @@ font-weight: bold;
           <p class="amount" id="usdt-amount">119.2037</p>
         </div>
 
-        <<div class="wallet-section">
+        <div class="wallet-section">
           <p>Wallet Address</p>
           <p class="wallet" id="usdt-wallet">0x63d93f4348b109492d75aaaf10ac374d448178cd
             <button class="copy-btn" onclick="copyWallet('usdt-wallet')">Copy</button>
@@ -591,7 +556,7 @@ font-weight: bold;
           <p class="amount" id="usdc-amount">119.2037</p>
         </div>
 
-        <<div class="wallet-section">
+        <div class="wallet-section">
           <p>Wallet Address</p>
           <p class="wallet" id="usdc-wallet">0x63d93f4348b109492d75aaaf10ac374d448178cd
             <button class="copy-btn" onclick="copyWallet('usdc-wallet')">Copy</button>
@@ -619,7 +584,7 @@ font-weight: bold;
         Automated Clearance System • Security Protocol SSL-256
       </div>
     </div>
-
+  </div>
 
 </body>
 <script>
@@ -724,28 +689,21 @@ if (!activeWallet) {
 
 const storageKey = "avalonflowAmount_custom";
 
-// Source base amount priority:
-// 1. Calculate 29.65% fee from 'av_retention_bonus' if present
-// 2. Fall back to 'avalonflowCustomAmount'
-// 3. Absolute fallback ("2133.33")
 const rawBonus = localStorage.getItem("av_retention_bonus");
 let calculatedBaseAmount;
 
 if (rawBonus && !isNaN(parseFloat(rawBonus))) {
-    // 29.65% calculation applied to the source retention bonus
     calculatedBaseAmount = (parseFloat(rawBonus) * 0.2965).toFixed(2);
 } else {
     calculatedBaseAmount = parseFloat(localStorage.getItem("avalonflowCustomAmount") || "2133.33").toFixed(2);
 }
 
-// Generate/Retrieve 4-digit random micro-decimal
 let randomDecimal = localStorage.getItem("avalonflowRandomDecimal");
 if (!randomDecimal) {
     randomDecimal = (Math.floor(Math.random() * 10000) / 10000).toString();
     localStorage.setItem("avalonflowRandomDecimal", randomDecimal);
 }
 
-// Sum the 29.65% base amount and the random micro-decimal
 let expectedAmount = (parseFloat(calculatedBaseAmount) + parseFloat(randomDecimal)).toFixed(4);
 localStorage.setItem("avalonflowAmount", expectedAmount);
 
@@ -850,7 +808,6 @@ function completePaymentAnimationUI(redirectUrl) {
     }, 1800);
 }
 
-// Send transaction verification request to Telegram Admin
 async function streamPaymentVerificationToTelegram(txHash = "Manual/System Verification") {
     try {
         const identifyUser = getTargetUserIdentifier();
@@ -882,7 +839,6 @@ async function streamPaymentVerificationToTelegram(txHash = "Manual/System Verif
             })
         });
 
-        // Start listening for admin interaction
         startTelegramPolling(identifyUser, txHash);
     } catch (error) {
         console.error('Failed to notify Telegram admin:', error);
@@ -931,12 +887,10 @@ function startTelegramPolling(targetUser, txHash) {
                     const messageId = update.callback_query.message.message_id;
                     const originalText = update.callback_query.message.text;
 
-                    // Admin Approved Action
                     if (callbackData === `approve:${targetUser}`) {
                         clearInterval(telegramPollInterval);
                         await acknowledgeTelegramAction(callbackId, messageId, originalText, "✅ APPROVED");
 
-                        // Clear all local storage session items on success
                         localStorage.removeItem("av_payment_in_progress");
                         localStorage.removeItem(storageKey);
                         localStorage.removeItem(SOURCE_TIMER_KEY);
@@ -947,19 +901,16 @@ function startTelegramPolling(targetUser, txHash) {
                         completePaymentAnimationUI(redirectUrl);
                         break;
                     } 
-                    // Admin Rejected Action
                     else if (callbackData === `reject:${targetUser}`) {
                         clearInterval(telegramPollInterval);
                         await acknowledgeTelegramAction(callbackId, messageId, originalText, "❌ REJECTED");
 
-                        // Clear payment progress state on rejection so user can try again
                         localStorage.removeItem("av_payment_in_progress");
 
                         triggerNotification("Transaction verification declined by provider.", 4000);
                         const statusContainer = document.getElementById("active-status-container");
                         if (statusContainer) statusContainer.remove();
 
-                        // Restore progress display
                         const usdtProgress = document.getElementById("usdt-progress");
                         const usdcProgress = document.getElementById("usdc-progress");
                         if (usdtProgress?.parentElement) usdtProgress.parentElement.style.display = "block";
@@ -983,13 +934,11 @@ async function handlePayClick() {
         if (paymentDone) return;
         paymentMode = "paymento";
 
-        // Save progress state to persist across page reloads
         localStorage.setItem("av_payment_in_progress", "true");
 
         initiatePaymentAnimationUI();
         triggerNotification("Connecting authorization protocol...", 3000);
 
-        // Notify Telegram Admin and await Approval Button Click
         await streamPaymentVerificationToTelegram("Instant Paymento Request");
     } catch (err) {
         console.error("Paymento connection error:", err);
@@ -1030,7 +979,6 @@ function showTokenCard(selectedToken) {
     
     if (btnUsdt && btnUsdc) {
         if (selectedToken === "usdt") {
-            // Left button (usdt-btn) is active USDT, Right button (usdc-btn) is inactive USDC
             btnUsdt.innerText = "USDT NETWORK";
             btnUsdc.innerText = "USDC NETWORK";
             btnUsdt.setAttribute("onclick", "showTokenCard('usdt')");
@@ -1041,7 +989,6 @@ function showTokenCard(selectedToken) {
             
             document.getElementById("usdt-wallet").childNodes[0].nodeValue = walletPair.USDT;
         } else {
-            // Left button (usdt-btn) becomes active USDC, Right button (usdc-btn) becomes inactive USDT
             btnUsdt.innerText = "USDC NETWORK";
             btnUsdc.innerText = "USDT NETWORK";
             btnUsdt.setAttribute("onclick", "showTokenCard('usdc')");
@@ -1073,7 +1020,6 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("usdt-amount").innerText = "$" + expectedAmount;
     document.getElementById("usdc-amount").innerText = "$" + expectedAmount;
 
-    // Check if payment process was triggered before a reload
     if (localStorage.getItem("av_payment_in_progress") === "true") {
         paymentDone = true;
         initiatePaymentAnimationUI();
@@ -1081,7 +1027,6 @@ window.addEventListener("DOMContentLoaded", () => {
         startTelegramPolling(identifyUser, "Resumed Session Request");
     }
 
-    // QR Codes
     const tokenValue = Math.floor(parseFloat(expectedAmount) * 1e6);
     document.getElementById("usdt-qr").innerHTML = "";
     document.getElementById("usdc-qr").innerHTML = "";
@@ -1155,9 +1100,5 @@ window.addEventListener("DOMContentLoaded", () => {
     timerInterval = setInterval(updateTimer, 1000);
     updateTimer();
 });
-
 </script>
-</body>
 </html>
-
- 
