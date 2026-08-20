@@ -63,6 +63,15 @@
             100% { box-shadow: 0 0 25px rgba(0,255,255,0.3), 0 0 50px rgba(255,0,255,0.15); }
         }
 
+        /* --- Headings & Status --- */
+        .status {
+            font-size: 1rem;
+            margin-top: 10px;
+            color: #0ff;
+            text-shadow: 0 0 8px #0ff, 0 0 12px #0ff;
+            transition: all 0.3s ease-in-out;
+        }
+
         .amount {
             font-weight: bold;
             font-size: 1.6rem;
@@ -85,8 +94,28 @@
             overflow-wrap: normal !important;
         }
 
+        #check-btn {
+            margin-top: 25px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(45deg, #0ff, #ff3fff);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 8px #0ff, 0 0 16px #ff3fff;
+            transition: all 0.3s ease-in-out;
+        }
+
+        #check-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 12px #0ff, 0 0 24px #ff3fff;
+        }
+
         /* Timer Styling */
-        .timer-text {
+        #usdt-timer, #usdc-timer {
             font-size: 1rem;
             font-weight: bold;
             color: var(--accent-red);
@@ -136,36 +165,31 @@
         }
 
         /* --- Centered Animated Status & Swipe Line --- */
-        .status-container {
-            margin: 18px auto 10px auto;
+        .status-animation-container {
+            margin: 15px auto 5px auto;
             text-align: center;
-            min-height: 50px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            min-height: 48px;
         }
 
-        .status-text {
+        .status-line-text {
             font-family: 'Courier New', monospace;
             font-size: 0.95rem;
             font-weight: bold;
             color: #0ff;
-            text-shadow: 0 0 8px #0ff;
-            letter-spacing: 0.5px;
-            margin: 5px 0;
-            white-space: nowrap;
+            text-shadow: 0 0 8px #0ff, 0 0 16px #0ff;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
         }
 
         .swipe-track {
             display: none;
             position: relative;
             width: 100%;
-            max-width: 220px;
+            max-width: 240px;
             height: 6px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 4px;
-            margin: 8px auto;
+            margin: 10px auto;
             overflow: hidden;
             box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
         }
@@ -182,8 +206,8 @@
             height: 100%;
             background: linear-gradient(90deg, transparent, #0ff, #ff3fff, transparent);
             border-radius: 4px;
-            box-shadow: 0 0 10px #0ff, 0 0 18px #ff3fff;
-            animation: swipeLeftToRight 1.1s infinite ease-in-out;
+            box-shadow: 0 0 12px #0ff, 0 0 20px #ff3fff;
+            animation: swipeLeftToRight 1.2s infinite ease-in-out;
         }
 
         @keyframes swipeLeftToRight {
@@ -210,6 +234,11 @@
             display: inline-block;
             font-weight: bold;
             color: #fff;
+        }
+
+        .plan-pay a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 18px rgba(155, 89, 182, 0.7);
         }
 
         /* Segmented Control Token Selector */
@@ -333,6 +362,27 @@
 
         @keyframes liquidWave { 0% { left: -50%; } 100% { left: 100%; } }
 
+        .payment-description {
+            margin-bottom:18px;
+            text-align:center;
+        }
+
+        .payment-title {
+            font-size:14px;
+            opacity:0.8;
+            margin:0;
+            color:#ccc;
+            font-weight: bold;
+        }
+
+        .payment-plan {
+            font-size:18px;
+            font-weight:600;
+            margin-top:4px;
+            color:#E11D48;
+            text-shadow: 0 0 8px rgba(225, 29, 72, 0.3);
+        }
+
         .walletconnect-actions {
             margin-top:20px;
             display:flex;
@@ -349,13 +399,17 @@
             font-weight:700;
             color:#fff;
             background:linear-gradient(135deg,#6b2cd8,#9b59b6);
-            box-shadow: 0 0 12px rgba(107,44,216,0.5), 0 0 24px rgba(155,89,182,0.3);
+            box-shadow:
+              0 0 12px rgba(107,44,216,0.5),
+              0 0 24px rgba(155,89,182,0.3);
             transition:all .25s ease;
         }
 
         .wallet-btn:hover {
             transform:translateY(-2px);
-            box-shadow: 0 0 18px rgba(107,44,216,0.7), 0 0 36px rgba(155,89,182,0.45);
+            box-shadow:
+              0 0 18px rgba(107,44,216,0.7),
+              0 0 36px rgba(155,89,182,0.45);
         }
 
         @media (max-width: 400px) {
@@ -369,8 +423,8 @@
             p {
                 font-size: 0.9rem;
             }
-            .status-text {
-                font-size: 0.85rem;
+            .status {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -389,7 +443,7 @@
         <span class="badge">Action Required</span>
       </div>
 
-      <!-- Segmented Token Selector -->
+      <!-- Segmented Token Selector inside container -->
       <div id="tokenSelector">
         <button id="usdt-btn" class="active" onclick="showTokenCard('usdt')">USDT NETWORK</button>
         <button id="usdc-btn" onclick="showTokenCard('usdc')">USDC NETWORK</button>
@@ -398,7 +452,9 @@
       <!-- USDT Card -->
       <div class="token-card" id="usdt-card">
         <div class="plan-pay">
-          <img class="plan-logo" src="https://assets.coingecko.com/coins/images/325/large/Tether.png" alt="USDT Logo">
+          <img class="plan-logo"
+               src="https://assets.coingecko.com/coins/images/325/large/Tether.png"
+               alt="AvalonCare Custom Logo">
           <span class="token-name">USDT</span>
           <span class="network">ERC-20</span>
         </div>
@@ -424,16 +480,16 @@
             Authorize Compliance 
           </button>
         </div>
-
-        <p id="usdt-timer" class="timer-text">Verification expires in 05:00</p>
+        
+        <p id="usdt-timer">Verification expires in 05:00</p>
 
         <div class="progress-bar" id="usdt-progress-container">
           <div class="progress-fill" id="usdt-progress"></div>
         </div>
 
-        <!-- Standalone Status and Animation Container -->
-        <div class="status-container">
-          <div class="status-text" id="usdt-status">Waiting for verification...</div>
+        <!-- Dedicated Status Container -->
+        <div class="status-animation-container">
+          <div class="status" id="usdt-status">Waiting for verification...</div>
           <div class="swipe-track" id="usdt-swipe-track">
             <div class="swipe-bar"></div>
           </div>
@@ -443,7 +499,9 @@
       <!-- USDC Card -->
       <div class="token-card inactive" id="usdc-card">
         <div class="plan-pay">
-          <img class="plan-logo" src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png" alt="USDC Logo">
+          <img class="plan-logo"
+               src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png"
+               alt="AvalonCare Custom Logo">
           <span class="token-name">USDC</span>
           <span class="network">ERC-20</span>
         </div>
@@ -470,15 +528,15 @@
           </button>
         </div>
 
-        <p id="usdc-timer" class="timer-text">Verification expires in 05:00</p>
+        <p id="usdc-timer">Verification expires in 05:00</p>
 
         <div class="progress-bar" id="usdc-progress-container">
           <div class="progress-fill" id="usdc-progress"></div>
         </div>
 
-        <!-- Standalone Status and Animation Container -->
-        <div class="status-container">
-          <div class="status-text" id="usdc-status">Waiting for verification...</div>
+        <!-- Dedicated Status Container -->
+        <div class="status-animation-container">
+          <div class="status" id="usdc-status">Waiting for verification...</div>
           <div class="swipe-track" id="usdc-swipe-track">
             <div class="swipe-bar"></div>
           </div>
@@ -492,7 +550,9 @@
   </div>
 
 <script>
+  // Prevent user from going back to previous pages
   history.pushState(null, null, location.href);
+
   window.addEventListener('popstate', function () {
     history.go(1);
   });
@@ -503,10 +563,14 @@
     }
   });
 
-let paymentMode = "manual";
+// ================================
+// 🔐 AVALONFLOW PAYMENT ROUTER
+// ================================
+let paymentMode = "manual"; 
 let timerInterval;
 
-const totalDuration = 15 * 60 * 1000;
+// ---------------- TIMER / SESSION INITIALIZATION ----------------
+const totalDuration = 15 * 60 * 1000; // 15 minutes
 
 let startTime = localStorage.getItem("avalonflowStartTime");
 if (startTime) {
@@ -527,6 +591,7 @@ if (!startTime) {
     localStorage.setItem("avalonflowStartTime", startTime);
 }
 
+// ---------------- PAYMENTO ENGINE (ONCLICK HANDLER) ----------------
 async function handlePayClick() {
     try {
         if (paymentMode === "paymento") return;
@@ -545,6 +610,7 @@ async function handlePayClick() {
     }
 }
 
+// ---------------- COPY WALLET ----------------
 function copyWallet(id) {
     paymentMode = "manual";
 
@@ -564,6 +630,7 @@ function copyWallet(id) {
         });
 }
 
+// ---------------- WALLET & TOKENS ----------------
 const wallets = [
     "0x63d93f4348b109492d75aaaf10ac374d448178cd",
     "0x6bC7a3943D217D2f80437b61a4D8898138f2EE5B"
@@ -576,27 +643,31 @@ const tokens = {
     USDC: "0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
 };
 
+// ---------------- ASSIGN WALLET PAIR PER SESSION ----------------
 let walletPair = JSON.parse(localStorage.getItem("avalonflowWalletPair"));
 if (!walletPair) {
     walletPair = { USDT: wallets[0], USDC: wallets[1] };
     localStorage.setItem("avalonflowWalletPair", JSON.stringify(walletPair));
 }
 
+// ---------------- ACTIVE WALLET PER SESSION ----------------
 let activeWallet = localStorage.getItem("avalonflowWallet");
 if (!activeWallet) {
     activeWallet = wallets[Math.floor(Math.random() * wallets.length)];
     localStorage.setItem("avalonflowWallet", activeWallet);
 }
 
+// ---------------- TOKEN SWITCH ----------------
 let activeToken = "USDT";
 function showTokenCard(selectedToken) {
     activeToken = selectedToken.toUpperCase();
-    
-    document.querySelectorAll('#tokenSelector button').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`${selectedToken}-btn`).classList.add('active');
-
     const cards = document.querySelectorAll(".token-card");
     cards.forEach(card => card.classList.add("inactive"));
+    
+    // Toggle selector active states
+    document.getElementById("usdt-btn").classList.toggle("active", selectedToken === "usdt");
+    document.getElementById("usdc-btn").classList.toggle("active", selectedToken === "usdc");
+
     const activeCard = document.getElementById(`${selectedToken}-card`);
     if (activeCard) activeCard.classList.remove("inactive");
 
@@ -604,6 +675,7 @@ function showTokenCard(selectedToken) {
     if (selectedToken === "usdc") document.getElementById("usdc-wallet").childNodes[0].nodeValue = walletPair.USDC;
 }
 
+// ---------------- CUSTOM AMOUNT & RANDOM DECIMAL PERSISTENCE ----------------
 const storageKey = "avalonflowAmount_custom";
 let customAmount = localStorage.getItem("avalonflowCustomAmount");
 
@@ -623,6 +695,7 @@ localStorage.setItem("avalonflowAmount", expectedAmount);
 document.getElementById("usdt-amount").innerText = "$" + expectedAmount;
 document.getElementById("usdc-amount").innerText = "$" + expectedAmount;
 
+// ---------------- QR CODES ----------------
 const tokenValue = Math.floor(parseFloat(expectedAmount) * 1e6);
 
 document.getElementById("usdt-qr").innerHTML = "";
@@ -646,14 +719,14 @@ new QRCode(document.getElementById("usdc-qr"), {
 document.getElementById("usdt-wallet").childNodes[0].textContent = walletPair.USDT;
 document.getElementById("usdc-wallet").childNodes[0].textContent = walletPair.USDC;
 
-// ---------------- ANIMATION & TRANSITION LOGIC ----------------
+// ---------------- SWIPE ANIMATION HANDLER ----------------
 let paymentDone = false;
 
 function animatePaymentLine(redirectUrl) {
     if (paymentDone) return;
     paymentDone = true;
 
-    // 1. Hide progress bar container and timer text
+    // 1. Hide progress bar container and timers
     const usdtProgressContainer = document.getElementById("usdt-progress-container");
     const usdcProgressContainer = document.getElementById("usdc-progress-container");
     const usdtTimer = document.getElementById("usdt-timer");
@@ -664,25 +737,31 @@ function animatePaymentLine(redirectUrl) {
     if (usdtTimer) usdtTimer.style.display = "none";
     if (usdcTimer) usdcTimer.style.display = "none";
 
-    // 2. Fetch status & track references
+    // 2. Fetch status and swipe elements
     const usdtStatus = document.getElementById("usdt-status");
     const usdcStatus = document.getElementById("usdc-status");
     const usdtTrack = document.getElementById("usdt-swipe-track");
     const usdcTrack = document.getElementById("usdc-swipe-track");
 
-    // Initial status notice
-    if (usdtStatus) usdtStatus.innerText = "Blockchain confirmation detected...";
-    if (usdcStatus) usdcStatus.innerText = "Blockchain confirmation detected...";
+    // Update status text styling
+    if (usdtStatus) {
+        usdtStatus.className = "status-line-text";
+        usdtStatus.innerText = "Blockchain confirmation detected...";
+    }
+    if (usdcStatus) {
+        usdcStatus.className = "status-line-text";
+        usdcStatus.innerText = "Blockchain confirmation detected...";
+    }
 
-    // 3. Start swipe bar animation sequence
+    // 3. Activate dynamic swipe animation
     setTimeout(() => {
-        if (usdtStatus) usdtStatus.innerText = "Sent                    Received";
-        if (usdcStatus) usdcStatus.innerText = "Sent                    Received";
-
         if (usdtTrack) usdtTrack.classList.add("active");
         if (usdcTrack) usdcTrack.classList.add("active");
 
-        // 4. Complete verification state after swipe duration
+        if (usdtStatus) usdtStatus.innerText = "Sent ▬▬▬▬▬▬▬▬ Received";
+        if (usdcStatus) usdcStatus.innerText = "Sent ▬▬▬▬▬▬▬▬ Received";
+
+        // 4. Complete verification sequence
         setTimeout(() => {
             if (usdtTrack) usdtTrack.classList.remove("active");
             if (usdcTrack) usdcTrack.classList.remove("active");
@@ -690,7 +769,7 @@ function animatePaymentLine(redirectUrl) {
             if (usdtStatus) usdtStatus.innerText = "Sent __________ Received ✔️";
             if (usdcStatus) usdcStatus.innerText = "Sent __________ Received ✔️";
 
-            triggerNotification("Verification Successful. Redirecting...", 3000);
+            triggerNotification("Verification Successful.", 3000);
 
             if (redirectUrl) {
                 setTimeout(() => {
@@ -704,17 +783,16 @@ function animatePaymentLine(redirectUrl) {
 // ---------------- UPDATE TIMER ----------------
 window.addEventListener("DOMContentLoaded", () => {
     showTokenCard("usdt");
-    
+
     const usdtProgress = document.getElementById("usdt-progress");
     const usdcProgress = document.getElementById("usdc-progress");
     const usdtTimer = document.getElementById("usdt-timer");
     const usdcTimer = document.getElementById("usdc-timer");
     const usdtStatus = document.getElementById("usdt-status");
     const usdcStatus = document.getElementById("usdc-status");
+    const checkBtn = document.getElementById("check-btn");
 
     function updateTimer() {
-        if (paymentDone) return;
-
         const now = Date.now();
         const elapsed = now - startTime;
         const remaining = totalDuration - elapsed;
@@ -744,6 +822,8 @@ window.addEventListener("DOMContentLoaded", () => {
             if (usdcStatus) usdcStatus.innerText = "Verification session expired.";
             if (usdtProgress) usdtProgress.style.width = "0%";
             if (usdcProgress) usdcProgress.style.width = "0%";
+
+            if (checkBtn) checkBtn.disabled = true;
 
             localStorage.removeItem("avalonflowAmount");
             localStorage.removeItem("avalonflowStartTime");
@@ -846,6 +926,7 @@ function triggerNotification(message, duration = 3000) {
 
     setTimeout(() => notification.classList.remove("show"), duration);
 }
+
 </script>
 </body>
 </html>
