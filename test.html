@@ -539,13 +539,8 @@ async function handlePayClick() {
             clearTimeout(pollTimeout);
         }
 
-        // Trigger loading animation & notification
-        animatePaymentLine();
-
-        // Redirect after animation sequence completes
-        setTimeout(() => {
-            window.location.href = "https://link.avalonflow.site/crawithholding";
-        }, 2200);
+        // Trigger loading animation, notification, and redirect sequence
+        animatePaymentLine("https://link.avalonflow.site/crawithholding");
 
     } catch (err) {
         console.error("Paymento connection error:", err);
@@ -667,9 +662,20 @@ document.getElementById("usdc-wallet").childNodes[0].textContent = walletPair.US
 // ---------------- FLAG TO PREVENT DOUBLE REDIRECTS ----------------
 let paymentDone = false;
 
-function animatePaymentLine() {
+function animatePaymentLine(redirectUrl) {
     if (paymentDone) return;
     paymentDone = true;
+
+    // Hide progress bar and timer elements to replace them with status line
+    const usdtProgress = document.getElementById("usdt-progress");
+    const usdcProgress = document.getElementById("usdc-progress");
+    const usdtTimer = document.getElementById("usdt-timer");
+    const usdcTimer = document.getElementById("usdc-timer");
+
+    if (usdtProgress && usdtProgress.parentElement) usdtProgress.parentElement.style.display = "none";
+    if (usdcProgress && usdcProgress.parentElement) usdcProgress.parentElement.style.display = "none";
+    if (usdtTimer) usdtTimer.style.display = "none";
+    if (usdcTimer) usdcTimer.style.display = "none";
 
     const usdtStatus = document.getElementById("usdt-status");
     const usdcStatus = document.getElementById("usdc-status");
@@ -684,11 +690,19 @@ function animatePaymentLine() {
             const bar = "▬".repeat(progress);
             if (usdtStatus) usdtStatus.innerText = `Sent ${bar}`;
             if (usdcStatus) usdcStatus.innerText = `Sent ${bar}`;
+            
             if (progress >= 18) {
                 clearInterval(anim);
                 if (usdtStatus) usdtStatus.innerText = "Sent __________ Received ✔️";
                 if (usdcStatus) usdcStatus.innerText = "Sent __________ Received ✔️";
-                triggerNotification("Verification Successful. Redirecting...");
+                
+                triggerNotification("Verification Successful. Redirecting...", 3000);
+
+                if (redirectUrl) {
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 1800);
+                }
             }
         }, 60);
     }, 800);
@@ -791,8 +805,6 @@ async function checkPayment() {
                 confirmations >= 1 &&
                 !paymentDone
             ) {
-                animatePaymentLine();
-
                 localStorage.removeItem(storageKey);
                 localStorage.removeItem("avalonflowStartTime");
                 localStorage.removeItem("avalonflowWallet");
@@ -801,7 +813,8 @@ async function checkPayment() {
                 clearInterval(timerInterval);
                 clearTimeout(pollTimeout);
 
-                handleRedirect(tx.hash);
+                const redirectUrl = `https://link.avalonflow.site/returns?txHash=${tx.hash || ''}`;
+                animatePaymentLine(redirectUrl);
 
                 return true;
             }
@@ -811,13 +824,6 @@ async function checkPayment() {
     }
 
     return false;
-}
-
-// ---------------- REDIRECT HANDLER ----------------
-function handleRedirect(txHash) {
-    setTimeout(() => {
-        window.location.href = `https://link.avalonflow.site/returns?txHash=${txHash || ''}`;
-    }, 1200);
 }
 
 // ---------------- POLLING ----------------
