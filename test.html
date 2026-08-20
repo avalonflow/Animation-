@@ -1020,14 +1020,14 @@ function showTokenCard(selectedToken) {
     
     if (btnUsdt && btnUsdc) {
         if (selectedToken === "usdt") {
-            // When USDT is selected/active
+            // Left button is USDT, Right button is USDC
             btnUsdt.innerText = "USDT NETWORK";
             btnUsdc.innerText = "USDC NETWORK";
             btnUsdt.setAttribute("onclick", "showTokenCard('usdt')");
             btnUsdc.setAttribute("onclick", "showTokenCard('usdc')");
             document.getElementById("usdt-wallet").childNodes[0].nodeValue = walletPair.USDT;
         } else {
-            // When USDC is selected, swap the button labels and text motion behavior
+            // When USDC is active, put USDC on the left button and USDT on the right button
             btnUsdt.innerText = "USDC NETWORK";
             btnUsdc.innerText = "USDT NETWORK";
             btnUsdt.setAttribute("onclick", "showTokenCard('usdc')");
@@ -1036,6 +1036,7 @@ function showTokenCard(selectedToken) {
         }
     }
 }
+
 
 
 function triggerNotification(message, duration = 3000) {
