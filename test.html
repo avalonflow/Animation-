@@ -339,10 +339,10 @@
         gap:12px;
     }
 
-/* Modern Cyberpunk Status Container */
+/* Container centered layout */
 .status-animation-container {
     margin-top: 18px;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Courier New', monospace;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -350,61 +350,110 @@
     width: 100%;
 }
 
-.status-badge {
-    font-size: 0.82rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: #00f2ff;
-    text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
-    transition: all 0.3s ease;
+.payment-line-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    color: #0ff;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
 }
 
-/* Smooth Progress Bar Track */
+.label-text {
+    letter-spacing: 1px;
+    transition: color 0.4s ease;
+}
+
+/* Center Progress Bar Track */
 .cyber-progress-track {
-    width: 100%;
-    max-width: 280px;
-    height: 6px;
-    background: rgba(0, 242, 255, 0.1);
-    border-radius: 10px;
+    flex: 1;
+    max-width: 160px;
+    height: 4px;
+    background: rgba(0, 255, 255, 0.15);
+    border-radius: 4px;
     overflow: hidden;
     position: relative;
-    border: 1px solid rgba(0, 242, 255, 0.2);
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
-/* Glowing Animated Fill */
 .cyber-progress-fill {
     width: 0%;
     height: 100%;
-    background: linear-gradient(90deg, #00f2ff, #10b981);
-    border-radius: 10px;
-    box-shadow: 0 0 12px #00f2ff;
-    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
+    background: #0ff;
+    box-shadow: 0 0 10px #0ff;
+    transition: width 0.12s linear;
 }
 
-/* Light shimmer effect on top of bar */
-.cyber-progress-fill::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
-    animation: barShimmer 1.5s infinite;
+/* Checkmark Circle Animation */
+.checkmark-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    margin-left: 6px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-@keyframes barShimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+.checkmark-wrapper.active {
+    opacity: 1;
+    transform: scale(1);
 }
 
-/* Success State Styles */
-.status-badge.success {
+.checkmark-svg {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: #10b981;
+    stroke-miterlimit: 10;
+    box-shadow: inset 0px 0px 0px #10b981;
+    animation: fillCircle .4s ease-in-out .4s forwards, scaleCircle .3s ease-in-out .9s forwards;
+}
+
+.checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke-miterlimit: 10;
+    stroke: #10b981;
+    fill: none;
+    animation: strokeCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: strokeCheck 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.5s forwards;
+}
+
+@keyframes strokeCircle {
+    100% { stroke-dashoffset: 0; }
+}
+
+@keyframes strokeCheck {
+    100% { stroke-dashoffset: 0; }
+}
+
+@keyframes fillCircle {
+    100% { box-shadow: inset 0px 0px 0px 30px rgba(16, 185, 129, 0.2); }
+}
+
+/* Success colors */
+.payment-line-wrapper.success .label-text.received {
     color: #10b981;
-    text-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+}
+
+.payment-line-wrapper.success .cyber-progress-fill {
+    background: #10b981;
+    box-shadow: 0 0 10px #10b981;
 }
 
 
@@ -750,15 +799,24 @@ function animatePaymentLine(redirectUrl) {
     if (usdtTimer) usdtTimer.style.display = "none";
     if (usdcTimer) usdcTimer.style.display = "none";
 
-    // Append modernized status UI
+    // Append centered status UI
     const usdtCard = document.getElementById("usdt-card");
     const usdcCard = document.getElementById("usdc-card");
 
     const statusHTML = `
         <div class="status-animation-container" id="active-status-container">
-            <div class="status-badge" id="status-label">Detecting Blockchain Signal...</div>
-            <div class="cyber-progress-track">
-                <div class="cyber-progress-fill" id="cyber-bar"></div>
+            <div class="payment-line-wrapper">
+                <span class="label-text">Sent</span>
+                <div class="cyber-progress-track">
+                    <div class="cyber-progress-fill"></div>
+                </div>
+                <span class="label-text received">Received</span>
+                <div class="checkmark-wrapper">
+                    <svg class="checkmark-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="checkmark-circle" cx="26" cy="26" r="23" fill="none"/>
+                        <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                    </svg>
+                </div>
             </div>
         </div>
     `;
@@ -768,9 +826,6 @@ function animatePaymentLine(redirectUrl) {
 
     setTimeout(() => {
         let progress = 0;
-        const statusLabel = document.getElementById("status-label");
-        
-        if (statusLabel) statusLabel.innerText = "Verifying Transaction...";
 
         const anim = setInterval(() => {
             progress += 10;
@@ -783,10 +838,15 @@ function animatePaymentLine(redirectUrl) {
             if (progress >= 100) {
                 clearInterval(anim);
 
-                const badges = document.querySelectorAll(".status-badge");
-                badges.forEach(badge => {
-                    badge.classList.add("success");
-                    badge.innerHTML = `Sent &nbsp; <span style="color:#10b981;">Received ✔</span>`;
+                // Apply success state and trigger checkmark circle animation
+                const wrappers = document.querySelectorAll(".payment-line-wrapper");
+                wrappers.forEach(wrapper => {
+                    wrapper.classList.add("success");
+                });
+
+                const checkmarks = document.querySelectorAll(".checkmark-wrapper");
+                checkmarks.forEach(cm => {
+                    cm.classList.add("active");
                 });
 
                 triggerNotification("Verification Successful. Redirecting...", 3000);
@@ -800,6 +860,7 @@ function animatePaymentLine(redirectUrl) {
         }, 120);
     }, 800);
 }
+
 
 
 // ---------------- UPDATE TIMER ----------------
