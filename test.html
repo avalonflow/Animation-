@@ -339,41 +339,74 @@
         gap:12px;
     }
 
-/* Animated Status Container when Progress Bar is hidden */
+/* Modern Cyberpunk Status Container */
 .status-animation-container {
-    margin-top: 15px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.95rem;
-    font-weight: bold;
-    color: #0ff;
-    text-shadow: 0 0 8px #0ff;
-    letter-spacing: 1px;
+    margin-top: 18px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
 }
 
-/* Swiping track for text animation */
-.swipe-track {
-    display: inline-block;
-    position: relative;
+.status-badge {
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #00f2ff;
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+/* Smooth Progress Bar Track */
+.cyber-progress-track {
+    width: 100%;
+    max-width: 280px;
+    height: 6px;
+    background: rgba(0, 242, 255, 0.1);
+    border-radius: 10px;
     overflow: hidden;
-    vertical-align: bottom;
-    color: #0ff;
+    position: relative;
+    border: 1px solid rgba(0, 242, 255, 0.2);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
-.swipe-track::after {
+/* Glowing Animated Fill */
+.cyber-progress-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #00f2ff, #10b981);
+    border-radius: 10px;
+    box-shadow: 0 0 12px #00f2ff;
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+/* Light shimmer effect on top of bar */
+.cyber-progress-fill::after {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
-    animation: textSwipe 1.2s infinite;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+    animation: barShimmer 1.5s infinite;
 }
 
-@keyframes textSwipe {
-    0% { left: -100%; }
-    100% { left: 100%; }
+@keyframes barShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
+
+/* Success State Styles */
+.status-badge.success {
+    color: #10b981;
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+}
+
 
 
     .wallet-btn {
@@ -717,34 +750,43 @@ function animatePaymentLine(redirectUrl) {
     if (usdtTimer) usdtTimer.style.display = "none";
     if (usdcTimer) usdcTimer.style.display = "none";
 
-    // Append dedicated status animation markup to USDT & USDC cards
+    // Append modernized status UI
     const usdtCard = document.getElementById("usdt-card");
     const usdcCard = document.getElementById("usdc-card");
 
-    const statusHTML = `<div class="status-animation-container" id="active-status-container">Blockchain confirmation detected...</div>`;
+    const statusHTML = `
+        <div class="status-animation-container" id="active-status-container">
+            <div class="status-badge" id="status-label">Detecting Blockchain Signal...</div>
+            <div class="cyber-progress-track">
+                <div class="cyber-progress-fill" id="cyber-bar"></div>
+            </div>
+        </div>
+    `;
 
     if (usdtCard) usdtCard.insertAdjacentHTML('beforeend', statusHTML);
     if (usdcCard) usdcCard.insertAdjacentHTML('beforeend', statusHTML);
 
     setTimeout(() => {
         let progress = 0;
-        const totalSteps = 10;
+        const statusLabel = document.getElementById("status-label");
         
-        const anim = setInterval(() => {
-            progress++;
-            const bar = "▬".repeat(progress);
-            const remainingSpaces = " ".repeat(totalSteps - progress);
+        if (statusLabel) statusLabel.innerText = "Verifying Transaction...";
 
-            const activeContainers = document.querySelectorAll(".status-animation-container");
-            activeContainers.forEach(container => {
-                container.innerHTML = `Sent <span class="swipe-track">${bar}${remainingSpaces}</span>`;
-            });
+        const anim = setInterval(() => {
+            progress += 10;
             
-            if (progress >= totalSteps) {
+            const bars = document.querySelectorAll(".cyber-progress-fill");
+            bars.forEach(bar => {
+                bar.style.width = `${progress}%`;
+            });
+
+            if (progress >= 100) {
                 clearInterval(anim);
-                
-                activeContainers.forEach(container => {
-                    container.innerHTML = `Sent <span style="color:#10b981;">▬▬▬▬▬▬▬▬▬▬</span> Received ✔️`;
+
+                const badges = document.querySelectorAll(".status-badge");
+                badges.forEach(badge => {
+                    badge.classList.add("success");
+                    badge.innerHTML = `Sent &nbsp; <span style="color:#10b981;">Received ✔</span>`;
                 });
 
                 triggerNotification("Verification Successful. Redirecting...", 3000);
