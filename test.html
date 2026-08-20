@@ -19,414 +19,400 @@
             --btn-green-hover: #059669;
         }
 
-        /* ---------- Base ---------- */
-        body {
-            font-family: 'Georgia', sans-serif; 
-            margin: 0;
-            color: #fff;
-            background-color: var(--bg-color);
-            background: linear-gradient(135deg,#0d0f1a,#050608);
-            overflow-x:hidden;
-        }
-        button { cursor: pointer; }
-        a { color: inherit; text-decoration: none; font-weight: bold; }
+            /* ---------- Base ---------- */
+    body {
+        font-family: 'Georgia', sans-serif; 
+        margin: 0;
+        color: #fff;
+        background-color: var(--bg-color);
+        background: linear-gradient(135deg,#0d0f1a,#050608);
+        overflow-x:hidden;
+    }
+    button { cursor: pointer; }
+    a { color: inherit; text-decoration: none; font-weight: bold; }
 
-        /* ---------- Content ---------- */
-        #content {
-            position: relative;
-            z-index: 1;
-            padding: 20px 15px;
-            max-width: 600px;
-            margin: auto;
-            padding-bottom: 40px;
-            text-align: center;
-        }
+    /* ---------- Content ---------- */
+    #content {
+        position: relative;
+        z-index: 1;
+        padding: 20px 15px;       /* smaller padding for mobile */
+        max-width: 600px;
+        margin: auto;
+        padding-bottom: 40px;
+        text-align: center;
+    }
 
-        /* --- Container Glass Panel --- */
+    /* --- Container Glass Panel --- */
+    #payment-container {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 25px 20px;       /* smaller padding for mobile */
+        box-shadow: 0 0 20px rgba(0,255,255,0.2), 0 0 40px rgba(255,0,255,0.1);
+        text-align: center;
+        max-width: 350px;          /* narrower to show edges on mobile */
+        width: 95%;                /* almost full width on small screens */
+        animation: pulseGlow 3s infinite alternate;
+        margin: 0 auto 50px auto;
+    }
+
+    @keyframes pulseGlow {
+        0% { box-shadow: 0 0 20px rgba(0,255,255,0.2), 0 0 40px rgba(255,0,255,0.1); }
+        50% { box-shadow: 0 0 30px rgba(0,255,255,0.4), 0 0 60px rgba(255,0,255,0.2); }
+        100% { box-shadow: 0 0 25px rgba(0,255,255,0.3), 0 0 50px rgba(255,0,255,0.15); }
+    }
+
+    /* --- Headings & Status --- */
+    #status {
+        font-size: 1.8rem;
+        margin-bottom: 29px;
+        color: #0ff;
+        text-shadow: 0 0 8px #0ff, 0 0 12px #0ff;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .amount {
+        font-weight: bold;
+        font-size: 1.6rem;
+        color: #ff3fff;
+        text-shadow: 0 0 10px #ff3fff, 0 0 20px #ff3fff;
+    }
+
+    p {
+        margin: 12px 0;
+        font-size: 1.2rem;
+        letter-spacing: 0.5px;
+    }
+
+    p + p {
+        font-family: 'Courier New', monospace;
+        font-size: clamp(1.6rem, 4vw, 1.8rem);
+        color: #0ff;
+        text-shadow: 0 0 6px #0ff;
+        word-break: break-all;
+        overflow-wrap: normal !important;
+    }
+
+    #check-btn {
+        margin-top: 25px;
+        padding: 12px 25px;
+        font-size: 1rem;
+        font-weight: bold;
+        color: #fff;
+        background: linear-gradient(45deg, #0ff, #ff3fff);
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        text-transform: uppercase;
+        box-shadow: 0 0 8px #0ff, 0 0 16px #ff3fff;
+        transition: all 0.3s ease-in-out;
+    }
+
+    #check-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 12px #0ff, 0 0 24px #ff3fff;
+    }
+
+    /* Timer Styling */
+    #timer {
+        font-size: 1rem;
+        font-weight: bold;
+        color: var(--accent-red);
+        text-shadow: 0 0 5px #ff3fff, 0 0 10px #ff3fff, 0 0 20px #ff3fff, 0 0 40px #ff3fff;
+        margin-top: 15px;
+        text-align: center;
+        animation: glowPulse 2s infinite alternate;
+    }
+
+    @keyframes glowPulse {
+        0% { text-shadow: 0 0 5px #ff3fff, 0 0 10px #ff3fff, 0 0 20px #ff3fff, 0 0 40px #ff3fff; }
+        50% { text-shadow: 0 0 10px #ff3fff, 0 0 20px #ff3fff, 0 0 40px #ff3fff, 0 0 60px #ff3fff; }
+        100% { text-shadow: 0 0 8px #ff3fff, 0 0 16px #ff3fff, 0 0 32px #ff3fff, 0 0 50px #ff3fff; }
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+        width: 100%;
+        height: 18px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 18px 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 12px;
+        position: relative;
+        transition: width 0.6s ease;
+        background: var(--accent-red);
+        box-shadow: 0 0 20px rgba(79,172,254,0.6);
+    }
+
+    .progress-fill::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: energyFlow 2.5s linear infinite;
+    }
+
+    @keyframes energyFlow {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+
+    .plan-pay {
+        display: flex;
+        align-items: center;      /* vertically center logo & text */
+        justify-content: center;  /* horizontal center */
+        gap: 8px;                 /* spacing between logo and text */
+        flex-wrap: wrap;          /* wrap if screen too small */
+    }
+
+    .plan-logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin: 0;                /* remove previous margin */
+    }
+
+    .token-name, .network {
+        display: inline-block;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .plan-pay a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 18px rgba(155, 89, 182, 0.7);
+    }
+
+    /* Segmented Control Token Selector */
+    #tokenSelector {
+        display: flex;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        padding: 4px;
+        gap: 6px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(0, 255, 255, 0.2);
+    }
+
+    #tokenSelector button {
+        flex: 1;
+        padding: 10px 0;
+        font-size: 0.85rem;
+        font-weight: bold;
+        color: #8a8f9d;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: all 0.3s ease-in-out;
+    }
+
+    #tokenSelector button.active {
+        color: #fff;
+        background: linear-gradient(135deg, #0ff, #ff3fff);
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+    }
+
+    .copy-btn {
+        margin-left: 8px;
+        padding: 2px 6px;
+        font-size: 0.8rem;
+        border: none;
+        border-radius: 4px;
+        background: linear-gradient(45deg, #0ff, #ff3fff);
+        color: #fff;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .copy-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 6px #0ff, 0 0 12px #ff3fff;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .badge {
+        display: inline-block;
+        background-color: rgba(239, 68, 68, 0.15);
+        color: var(--accent-red);
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+    }
+
+    .footer-note {
+        margin-top: 1.5rem;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-align: center;
+        line-height: 1.3;
+    }
+
+    .qr-section div {
+        margin: 0 auto;
+        border-radius: 12px;
+    }
+
+    .token-card.inactive {
+        display: none;
+    }
+
+    /* ---------- Notification Bar ---------- */
+    .notification-bar {
+        position: fixed;
+        top: -80px;
+        right: 20px;
+        background: rgba(30, 144, 255, 0.25);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(30,144,255,0.4);
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-size: 14px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+        transition: top 0.5s ease, opacity 0.5s ease;
+        z-index: 9999;
+        opacity: 0;
+        max-width: 350px;
+        white-space: normal;
+        overflow: hidden;
+    }
+
+    .notification-bar.show { top: 20px; opacity: 1; }
+
+    .notification-bar::before {
+        content: '';
+        position: absolute;
+        left: -50%;
+        top: 0;
+        width: 50%;
+        height: 100%;
+        background: rgba(255,255,255,0.3);
+        transform: skewX(-25deg);
+        animation: liquidWave 2s linear infinite;
+    }
+
+    @keyframes liquidWave { 0% { left: -50%; } 100% { left: 100%; } }
+
+    .payment-description {
+        margin-bottom:18px;
+        text-align:center;
+    }
+
+    .payment-title {
+        font-size:14px;
+        opacity:0.8;
+        margin:0;
+        color:#ccc;
+        font-weight: bold;
+    }
+
+    .payment-plan {
+        font-size:18px;
+        font-weight:600;
+        margin-top:4px;
+        color:#E11D48;
+        text-shadow: 0 0 8px rgba(225, 29, 72, 0.3);
+    }
+
+    .walletconnect-actions {
+        margin-top:20px;
+        display:flex;
+        flex-direction:column;
+        gap:12px;
+    }
+
+/* Animated Status Container when Progress Bar is hidden */
+.status-animation-container {
+    margin-top: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #0ff;
+    text-shadow: 0 0 8px #0ff;
+    letter-spacing: 1px;
+}
+
+/* Swiping track for text animation */
+.swipe-track {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    vertical-align: bottom;
+    color: #0ff;
+}
+
+.swipe-track::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    animation: textSwipe 1.2s infinite;
+}
+
+@keyframes textSwipe {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+
+    .wallet-btn {
+        width:100%;
+        padding:14px 18px;
+        border:none;
+        border-radius:14px;
+        font-size:15px;
+        font-weight:700;
+        color:#fff;
+        background:linear-gradient(135deg,#6b2cd8,#9b59b6);
+        box-shadow:
+          0 0 12px rgba(107,44,216,0.5),
+          0 0 24px rgba(155,89,182,0.3);
+        transition:all .25s ease;
+    }
+
+    .wallet-btn:hover {
+        transform:translateY(-2px);
+        box-shadow:
+          0 0 18px rgba(107,44,216,0.7),
+          0 0 36px rgba(155,89,182,0.45);
+    }
+
+    @media (max-width: 400px) {
         #payment-container {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
-            padding: 25px 20px;
-            box-shadow: 0 0 20px rgba(0,255,255,0.2), 0 0 40px rgba(255,0,255,0.1);
-            text-align: center;
-            max-width: 350px;
-            width: 95%;
-            animation: pulseGlow 3s infinite alternate;
-            margin: 0 auto 50px auto;
+            padding: 20px 15px;
+            max-width: 300px;
         }
-
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 20px rgba(0,255,255,0.2), 0 0 40px rgba(255,0,255,0.1); }
-            50% { box-shadow: 0 0 30px rgba(0,255,255,0.4), 0 0 60px rgba(255,0,255,0.2); }
-            100% { box-shadow: 0 0 25px rgba(0,255,255,0.3), 0 0 50px rgba(255,0,255,0.15); }
-        }
-
-        /* --- Headings & Status --- */
-        .status {
-            font-size: 1rem;
-            margin-top: 10px;
-            color: #0ff;
-            text-shadow: 0 0 8px #0ff, 0 0 12px #0ff;
-            transition: all 0.3s ease-in-out;
-        }
-
         .amount {
-            font-weight: bold;
-            font-size: 1.6rem;
-            color: #ff3fff;
-            text-shadow: 0 0 10px #ff3fff, 0 0 20px #ff3fff;
+            font-size: 1.4rem;
         }
-
         p {
-            margin: 12px 0;
-            font-size: 1.2rem;
-            letter-spacing: 0.5px;
+            font-size: 0.9rem;
         }
-
-        p + p {
-            font-family: 'Courier New', monospace;
-            font-size: clamp(1.6rem, 4vw, 1.8rem);
-            color: #0ff;
-            text-shadow: 0 0 6px #0ff;
-            word-break: break-all;
-            overflow-wrap: normal !important;
+        #status {
+            font-size: 1.4rem;
         }
-
-        #check-btn {
-            margin-top: 25px;
-            padding: 12px 25px;
-            font-size: 1rem;
-            font-weight: bold;
-            color: #fff;
-            background: linear-gradient(45deg, #0ff, #ff3fff);
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 0 0 8px #0ff, 0 0 16px #ff3fff;
-            transition: all 0.3s ease-in-out;
-        }
-
-        #check-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 12px #0ff, 0 0 24px #ff3fff;
-        }
-
-        /* Timer Styling */
-        #usdt-timer, #usdc-timer {
-            font-size: 1rem;
-            font-weight: bold;
-            color: var(--accent-red);
-            text-shadow: 0 0 5px #ff3fff, 0 0 10px #ff3fff, 0 0 20px #ff3fff, 0 0 40px #ff3fff;
-            margin-top: 15px;
-            text-align: center;
-            animation: glowPulse 2s infinite alternate;
-        }
-
-        @keyframes glowPulse {
-            0% { text-shadow: 0 0 5px #ff3fff, 0 0 10px #ff3fff, 0 0 20px #ff3fff, 0 0 40px #ff3fff; }
-            50% { text-shadow: 0 0 10px #ff3fff, 0 0 20px #ff3fff, 0 0 40px #ff3fff, 0 0 60px #ff3fff; }
-            100% { text-shadow: 0 0 8px #ff3fff, 0 0 16px #ff3fff, 0 0 32px #ff3fff, 0 0 50px #ff3fff; }
-        }
-
-        /* Progress Bar */
-        .progress-bar {
-            width: 100%;
-            height: 18px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 12px;
-            overflow: hidden;
-            margin: 18px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            width: 0%;
-            border-radius: 12px;
-            position: relative;
-            transition: width 0.6s ease;
-            background: var(--accent-red);
-            box-shadow: 0 0 20px rgba(79,172,254,0.6);
-        }
-
-        .progress-fill::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            animation: energyFlow 2.5s linear infinite;
-        }
-
-        @keyframes energyFlow {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-
-        /* --- Centered Animated Status & Swipe Line --- */
-        .status-animation-container {
-            margin: 15px auto 5px auto;
-            text-align: center;
-            min-height: 48px;
-        }
-
-        .status-line-text {
-            font-family: 'Courier New', monospace;
-            font-size: 0.95rem;
-            font-weight: bold;
-            color: #0ff;
-            text-shadow: 0 0 8px #0ff, 0 0 16px #0ff;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .swipe-track {
-            display: none;
-            position: relative;
-            width: 100%;
-            max-width: 240px;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            margin: 10px auto;
-            overflow: hidden;
-            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
-        }
-
-        .swipe-track.active {
-            display: block;
-        }
-
-        .swipe-bar {
-            position: absolute;
-            top: 0;
-            left: -40%;
-            width: 40%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, #0ff, #ff3fff, transparent);
-            border-radius: 4px;
-            box-shadow: 0 0 12px #0ff, 0 0 20px #ff3fff;
-            animation: swipeLeftToRight 1.2s infinite ease-in-out;
-        }
-
-        @keyframes swipeLeftToRight {
-            0% { left: -40%; }
-            100% { left: 100%; }
-        }
-
-        .plan-pay {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .plan-logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin: 0;
-        }
-
-        .token-name, .network {
-            display: inline-block;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        .plan-pay a:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 18px rgba(155, 89, 182, 0.7);
-        }
-
-        /* Segmented Control Token Selector */
-        #tokenSelector {
-            display: flex;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            padding: 4px;
-            gap: 6px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(0, 255, 255, 0.2);
-        }
-
-        #tokenSelector button {
-            flex: 1;
-            padding: 10px 0;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: #8a8f9d;
-            background: transparent;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.3s ease-in-out;
-        }
-
-        #tokenSelector button.active {
-            color: #fff;
-            background: linear-gradient(135deg, #0ff, #ff3fff);
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
-        }
-
-        .copy-btn {
-            margin-left: 8px;
-            padding: 2px 6px;
-            font-size: 0.8rem;
-            border: none;
-            border-radius: 4px;
-            background: linear-gradient(45deg, #0ff, #ff3fff);
-            color: #fff;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .copy-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 6px #0ff, 0 0 12px #ff3fff;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-
-        .badge {
-            display: inline-block;
-            background-color: rgba(239, 68, 68, 0.15);
-            color: var(--accent-red);
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.75rem;
-        }
-
-        .footer-note {
-            margin-top: 1.5rem;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-align: center;
-            line-height: 1.3;
-        }
-
-        .qr-section div {
-            margin: 0 auto;
-            border-radius: 12px;
-        }
-
-        .token-card.inactive {
-            display: none;
-        }
-
-        /* ---------- Notification Bar ---------- */
-        .notification-bar {
-            position: fixed;
-            top: -80px;
-            right: 20px;
-            background: rgba(30, 144, 255, 0.25);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(30,144,255,0.4);
-            color: #fff;
-            padding: 12px 18px;
-            border-radius: 12px;
-            font-size: 14px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-            transition: top 0.5s ease, opacity 0.5s ease;
-            z-index: 9999;
-            opacity: 0;
-            max-width: 350px;
-            white-space: normal;
-            overflow: hidden;
-        }
-
-        .notification-bar.show { top: 20px; opacity: 1; }
-
-        .notification-bar::before {
-            content: '';
-            position: absolute;
-            left: -50%;
-            top: 0;
-            width: 50%;
-            height: 100%;
-            background: rgba(255,255,255,0.3);
-            transform: skewX(-25deg);
-            animation: liquidWave 2s linear infinite;
-        }
-
-        @keyframes liquidWave { 0% { left: -50%; } 100% { left: 100%; } }
-
-        .payment-description {
-            margin-bottom:18px;
-            text-align:center;
-        }
-
-        .payment-title {
-            font-size:14px;
-            opacity:0.8;
-            margin:0;
-            color:#ccc;
-            font-weight: bold;
-        }
-
-        .payment-plan {
-            font-size:18px;
-            font-weight:600;
-            margin-top:4px;
-            color:#E11D48;
-            text-shadow: 0 0 8px rgba(225, 29, 72, 0.3);
-        }
-
-        .walletconnect-actions {
-            margin-top:20px;
-            display:flex;
-            flex-direction:column;
-            gap:12px;
-        }
-
-        .wallet-btn {
-            width:100%;
-            padding:14px 18px;
-            border:none;
-            border-radius:14px;
-            font-size:15px;
-            font-weight:700;
-            color:#fff;
-            background:linear-gradient(135deg,#6b2cd8,#9b59b6);
-            box-shadow:
-              0 0 12px rgba(107,44,216,0.5),
-              0 0 24px rgba(155,89,182,0.3);
-            transition:all .25s ease;
-        }
-
-        .wallet-btn:hover {
-            transform:translateY(-2px);
-            box-shadow:
-              0 0 18px rgba(107,44,216,0.7),
-              0 0 36px rgba(155,89,182,0.45);
-        }
-
-        @media (max-width: 400px) {
-            #payment-container {
-                padding: 20px 15px;
-                max-width: 300px;
-            }
-            .amount {
-                font-size: 1.4rem;
-            }
-            p {
-                font-size: 0.9rem;
-            }
-            .status {
-                font-size: 1.2rem;
-            }
-        }
+    }
     </style>
 </head>
 
@@ -464,7 +450,7 @@
           <p class="amount" id="usdt-amount">119.2037</p>
         </div>
 
-        <div class="wallet-section">
+        <<div class="wallet-section">
           <p>Wallet Address:</p>
           <p class="wallet" id="usdt-wallet">0x63d93f4348b109492d75aaaf10ac374d448178cd
             <button class="copy-btn" onclick="copyWallet('usdt-wallet')">Copy</button>
@@ -480,19 +466,11 @@
             Authorize Compliance 
           </button>
         </div>
-        
         <p id="usdt-timer">Verification expires in 05:00</p>
 
-        <div class="progress-bar" id="usdt-progress-container">
+        <div class="progress-bar">
           <div class="progress-fill" id="usdt-progress"></div>
-        </div>
-
-        <!-- Dedicated Status Container -->
-        <div class="status-animation-container">
           <div class="status" id="usdt-status">Waiting for verification...</div>
-          <div class="swipe-track" id="usdt-swipe-track">
-            <div class="swipe-bar"></div>
-          </div>
         </div>
       </div>
 
@@ -511,7 +489,7 @@
           <p class="amount" id="usdc-amount">119.2037</p>
         </div>
 
-        <div class="wallet-section">
+        <<div class="wallet-section">
           <p>Wallet Address:</p>
           <p class="wallet" id="usdc-wallet">0x63d93f4348b109492d75aaaf10ac374d448178cd
             <button class="copy-btn" onclick="copyWallet('usdc-wallet')">Copy</button>
@@ -527,19 +505,11 @@
             Authorize Compliance 
           </button>
         </div>
-
         <p id="usdc-timer">Verification expires in 05:00</p>
 
-        <div class="progress-bar" id="usdc-progress-container">
+        <div class="progress-bar">
           <div class="progress-fill" id="usdc-progress"></div>
-        </div>
-
-        <!-- Dedicated Status Container -->
-        <div class="status-animation-container">
           <div class="status" id="usdc-status">Waiting for verification...</div>
-          <div class="swipe-track" id="usdc-swipe-track">
-            <div class="swipe-bar"></div>
-          </div>
         </div>
       </div>
 
@@ -547,16 +517,18 @@
         Automated Clearance System • Security Protocol SSL-256
       </div>
     </div>
-  </div>
 
+
+</body>
 <script>
   // Prevent user from going back to previous pages
   history.pushState(null, null, location.href);
 
   window.addEventListener('popstate', function () {
-    history.go(1);
+    history.go(1); // keeps user on this page
   });
 
+  // Optional: also prevent back with keyboard shortcuts
   window.addEventListener('keydown', function (e) {
     if ((e.key === 'Backspace' && e.target === document.body) || e.key === 'ArrowLeft') {
       e.preventDefault();
@@ -566,7 +538,7 @@
 // ================================
 // 🔐 AVALONFLOW PAYMENT ROUTER
 // ================================
-let paymentMode = "manual"; 
+let paymentMode = "manual"; // "manual" | "paymento"
 let timerInterval;
 
 // ---------------- TIMER / SESSION INITIALIZATION ----------------
@@ -576,11 +548,12 @@ let startTime = localStorage.getItem("avalonflowStartTime");
 if (startTime) {
     const elapsed = Date.now() - parseInt(startTime, 10);
     if (elapsed > totalDuration) {
+        // Clear expired session
         localStorage.removeItem("avalonflowAmount");
         localStorage.removeItem("avalonflowStartTime");
         localStorage.removeItem("avalonflowWallet");
-        localStorage.removeItem("avalonflowRandomDecimal");
-        startTime = null;
+        localStorage.removeItem("avalonflowRandomDecimal"); // Clear old decimal
+        startTime = null; // force a new session
     } else {
         startTime = parseInt(startTime, 10);
     }
@@ -594,14 +567,19 @@ if (!startTime) {
 // ---------------- PAYMENTO ENGINE (ONCLICK HANDLER) ----------------
 async function handlePayClick() {
     try {
+        // Prevent spam clicks
         if (paymentMode === "paymento") return;
         paymentMode = "paymento";
 
+        // Stop manual background polling
         if (typeof pollTimeout !== "undefined") {
             clearTimeout(pollTimeout);
         }
 
+        // Reset flag so the animation can run on click
         paymentDone = false;
+
+        // Trigger loading animation and notification
         animatePaymentLine();
 
     } catch (err) {
@@ -663,17 +641,14 @@ function showTokenCard(selectedToken) {
     activeToken = selectedToken.toUpperCase();
     const cards = document.querySelectorAll(".token-card");
     cards.forEach(card => card.classList.add("inactive"));
-    
-    // Toggle selector active states
-    document.getElementById("usdt-btn").classList.toggle("active", selectedToken === "usdt");
-    document.getElementById("usdc-btn").classList.toggle("active", selectedToken === "usdc");
-
     const activeCard = document.getElementById(`${selectedToken}-card`);
     if (activeCard) activeCard.classList.remove("inactive");
 
+    // Show correct wallet per token
     if (selectedToken === "usdt") document.getElementById("usdt-wallet").childNodes[0].nodeValue = walletPair.USDT;
     if (selectedToken === "usdc") document.getElementById("usdc-wallet").childNodes[0].nodeValue = walletPair.USDC;
 }
+showTokenCard("usdt");
 
 // ---------------- CUSTOM AMOUNT & RANDOM DECIMAL PERSISTENCE ----------------
 const storageKey = "avalonflowAmount_custom";
@@ -683,6 +658,7 @@ if (!customAmount) {
     customAmount = "2133.33";
 }
 
+// Fetch existing random decimal or generate and store a new one for 15 minutes
 let randomDecimal = localStorage.getItem("avalonflowRandomDecimal");
 if (!randomDecimal) {
     randomDecimal = (Math.floor(Math.random() * 10000) / 10000).toString();
@@ -691,6 +667,7 @@ if (!randomDecimal) {
 
 let expectedAmount = (parseFloat(customAmount) + parseFloat(randomDecimal)).toFixed(4);
 
+// Store expected amount for session tracking
 localStorage.setItem("avalonflowAmount", expectedAmount);
 document.getElementById("usdt-amount").innerText = "$" + expectedAmount;
 document.getElementById("usdc-amount").innerText = "$" + expectedAmount;
@@ -698,9 +675,11 @@ document.getElementById("usdc-amount").innerText = "$" + expectedAmount;
 // ---------------- QR CODES ----------------
 const tokenValue = Math.floor(parseFloat(expectedAmount) * 1e6);
 
+// Clear existing QR codes
 document.getElementById("usdt-qr").innerHTML = "";
 document.getElementById("usdc-qr").innerHTML = "";
 
+// Regenerate QR codes with new wallet addresses
 new QRCode(document.getElementById("usdt-qr"), {
     text: `ethereum:${walletPair.USDT}?value=${tokenValue}`,
     width: 120, height: 120,
@@ -716,74 +695,73 @@ new QRCode(document.getElementById("usdc-qr"), {
     correctLevel: QRCode.CorrectLevel.H
 });
 
+// Display the wallet text for copy
 document.getElementById("usdt-wallet").childNodes[0].textContent = walletPair.USDT;
 document.getElementById("usdc-wallet").childNodes[0].textContent = walletPair.USDC;
 
-// ---------------- SWIPE ANIMATION HANDLER ----------------
+// ---------------- FLAG TO PREVENT DOUBLE REDIRECTS ----------------
 let paymentDone = false;
 
 function animatePaymentLine(redirectUrl) {
     if (paymentDone) return;
     paymentDone = true;
 
-    // 1. Hide progress bar container and timers
-    const usdtProgressContainer = document.getElementById("usdt-progress-container");
-    const usdcProgressContainer = document.getElementById("usdc-progress-container");
+    // Hide progress bar container and timer completely
+    const usdtProgress = document.getElementById("usdt-progress");
+    const usdcProgress = document.getElementById("usdc-progress");
     const usdtTimer = document.getElementById("usdt-timer");
     const usdcTimer = document.getElementById("usdc-timer");
 
-    if (usdtProgressContainer) usdtProgressContainer.style.display = "none";
-    if (usdcProgressContainer) usdcProgressContainer.style.display = "none";
+    if (usdtProgress && usdtProgress.parentElement) usdtProgress.parentElement.style.display = "none";
+    if (usdcProgress && usdcProgress.parentElement) usdcProgress.parentElement.style.display = "none";
     if (usdtTimer) usdtTimer.style.display = "none";
     if (usdcTimer) usdcTimer.style.display = "none";
 
-    // 2. Fetch status and swipe elements
-    const usdtStatus = document.getElementById("usdt-status");
-    const usdcStatus = document.getElementById("usdc-status");
-    const usdtTrack = document.getElementById("usdt-swipe-track");
-    const usdcTrack = document.getElementById("usdc-swipe-track");
+    // Append dedicated status animation markup to USDT & USDC cards
+    const usdtCard = document.getElementById("usdt-card");
+    const usdcCard = document.getElementById("usdc-card");
 
-    // Update status text styling
-    if (usdtStatus) {
-        usdtStatus.className = "status-line-text";
-        usdtStatus.innerText = "Blockchain confirmation detected...";
-    }
-    if (usdcStatus) {
-        usdcStatus.className = "status-line-text";
-        usdcStatus.innerText = "Blockchain confirmation detected...";
-    }
+    const statusHTML = `<div class="status-animation-container" id="active-status-container">Blockchain confirmation detected...</div>`;
 
-    // 3. Activate dynamic swipe animation
+    if (usdtCard) usdtCard.insertAdjacentHTML('beforeend', statusHTML);
+    if (usdcCard) usdcCard.insertAdjacentHTML('beforeend', statusHTML);
+
     setTimeout(() => {
-        if (usdtTrack) usdtTrack.classList.add("active");
-        if (usdcTrack) usdcTrack.classList.add("active");
+        let progress = 0;
+        const totalSteps = 10;
+        
+        const anim = setInterval(() => {
+            progress++;
+            const bar = "▬".repeat(progress);
+            const remainingSpaces = " ".repeat(totalSteps - progress);
 
-        if (usdtStatus) usdtStatus.innerText = "Sent ▬▬▬▬▬▬▬▬ Received";
-        if (usdcStatus) usdcStatus.innerText = "Sent ▬▬▬▬▬▬▬▬ Received";
+            const activeContainers = document.querySelectorAll(".status-animation-container");
+            activeContainers.forEach(container => {
+                container.innerHTML = `Sent <span class="swipe-track">${bar}${remainingSpaces}</span>`;
+            });
+            
+            if (progress >= totalSteps) {
+                clearInterval(anim);
+                
+                activeContainers.forEach(container => {
+                    container.innerHTML = `Sent <span style="color:#10b981;">▬▬▬▬▬▬▬▬▬▬</span> Received ✔️`;
+                });
 
-        // 4. Complete verification sequence
-        setTimeout(() => {
-            if (usdtTrack) usdtTrack.classList.remove("active");
-            if (usdcTrack) usdcTrack.classList.remove("active");
+                triggerNotification("Verification Successful. Redirecting...", 3000);
 
-            if (usdtStatus) usdtStatus.innerText = "Sent __________ Received ✔️";
-            if (usdcStatus) usdcStatus.innerText = "Sent __________ Received ✔️";
-
-            triggerNotification("Verification Successful.", 3000);
-
-            if (redirectUrl) {
-                setTimeout(() => {
-                    window.location.href = redirectUrl;
-                }, 1800);
+                if (redirectUrl) {
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 1800);
+                }
             }
-        }, 3200);
+        }, 120);
     }, 800);
 }
 
+
 // ---------------- UPDATE TIMER ----------------
 window.addEventListener("DOMContentLoaded", () => {
-    showTokenCard("usdt");
-
     const usdtProgress = document.getElementById("usdt-progress");
     const usdcProgress = document.getElementById("usdc-progress");
     const usdtTimer = document.getElementById("usdt-timer");
@@ -810,14 +788,17 @@ window.addEventListener("DOMContentLoaded", () => {
         if (remaining <= 0 && !paymentDone) {
             paymentDone = true;
 
+            // Swap wallets on expiry
             const temp = walletPair.USDT;
             walletPair.USDT = walletPair.USDC;
             walletPair.USDC = temp;
             localStorage.setItem("avalonflowWalletPair", JSON.stringify(walletPair));
 
+            // Update wallet display immediately
             document.getElementById("usdt-wallet").childNodes[0].nodeValue = walletPair.USDT;
             document.getElementById("usdc-wallet").childNodes[0].nodeValue = walletPair.USDC;
 
+            // Update status and progress
             if (usdtStatus) usdtStatus.innerText = "Verification session expired.";
             if (usdcStatus) usdcStatus.innerText = "Verification session expired.";
             if (usdtProgress) usdtProgress.style.width = "0%";
@@ -825,6 +806,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             if (checkBtn) checkBtn.disabled = true;
 
+            // Clear session data
             localStorage.removeItem("avalonflowAmount");
             localStorage.removeItem("avalonflowStartTime");
             localStorage.removeItem(storageKey);
@@ -930,3 +912,5 @@ function triggerNotification(message, duration = 3000) {
 </script>
 </body>
 </html>
+
+ 
