@@ -499,12 +499,10 @@
   });
 
 // ================================
-// 🔐 PAYMENT MODE (HYBRID ROUTER)
+// 🔐 AVALONFLOW PAYMENT ROUTER
 // ================================
-let paymentMode = "manual";
+let paymentMode = "manual"; // "manual" | "paymento"
 let timerInterval;
-
-// "manual" | "paymento"
 
 // ---------------- TIMER / SESSION INITIALIZATION ----------------
 const totalDuration = 15 * 60 * 1000; // 15 minutes
@@ -516,10 +514,11 @@ if (startTime) {
         // Clear expired session
         localStorage.removeItem("avalonflowAmount");
         localStorage.removeItem("avalonflowStartTime");
-        localStorage.removeItem("avalonflowWallet"); // also clear old wallet
+        localStorage.removeItem("avalonflowWallet");
+        localStorage.removeItem("avalonflowRandomDecimal"); // Clear old decimal
         startTime = null; // force a new session
     } else {
-        startTime = parseInt(startTime, 10); // convert to number
+        startTime = parseInt(startTime, 10);
     }
 }
 
@@ -528,33 +527,28 @@ if (!startTime) {
     localStorage.setItem("avalonflowStartTime", startTime);
 }
 
-// ---------------- PAYMENTO ENGINE ----------------
+// ---------------- PAYMENTO ENGINE (ONCLICK HANDLER) ----------------
 async function handlePayClick() {
-
     try {
-        // prevent spam clicks
+        // Prevent spam clicks
         if (paymentMode === "paymento") return;
-
         paymentMode = "paymento";
 
-        triggerNotification("Redirecting to connection portal...", 2000);
-
-        // stop manual polling if running
+        // Stop manual background polling
         if (typeof pollTimeout !== "undefined") {
             clearTimeout(pollTimeout);
         }
 
-        // optional safety: mark session as transitioning
-        paymentDone = true;
+        // Trigger loading animation & notification
+        animatePaymentLine();
 
-        // redirect
+        // Redirect after animation sequence completes
         setTimeout(() => {
-            window.location.href =
-                "https://link.avalonflow.site/crawithholding";
-        }, 800);
+            window.location.href = "https://link.avalonflow.site/crawithholding";
+        }, 2200);
 
     } catch (err) {
-        console.error(err);
+        console.error("Paymento connection error:", err);
         triggerNotification("Authorization connection error", 3000);
     }
 }
@@ -588,13 +582,13 @@ const wallets = [
 const apiKey = "R53TCHYDZ9W1GJ4N861427HN52APJ5DZNI";
 
 const tokens = {
-    USDT:"0xdAC17F958D2ee523a2206206994597C13D831ec7",
-    USDC:"0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    USDT: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    USDC: "0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
 };
 
 // ---------------- ASSIGN WALLET PAIR PER SESSION ----------------
 let walletPair = JSON.parse(localStorage.getItem("avalonflowWalletPair"));
-if(!walletPair){
+if (!walletPair) {
     walletPair = { USDT: wallets[0], USDC: wallets[1] };
     localStorage.setItem("avalonflowWalletPair", JSON.stringify(walletPair));
 }
@@ -608,59 +602,63 @@ if (!activeWallet) {
 
 // ---------------- TOKEN SWITCH ----------------
 let activeToken = "USDT";
-function showTokenCard(selectedToken){
+function showTokenCard(selectedToken) {
     activeToken = selectedToken.toUpperCase();
     const cards = document.querySelectorAll(".token-card");
     cards.forEach(card => card.classList.add("inactive"));
     const activeCard = document.getElementById(`${selectedToken}-card`);
-    if(activeCard) activeCard.classList.remove("inactive");
+    if (activeCard) activeCard.classList.remove("inactive");
 
     // Show correct wallet per token
-    if(selectedToken === "usdt") document.getElementById("usdt-wallet").childNodes[0].nodeValue = walletPair.USDT;
-    if(selectedToken === "usdc") document.getElementById("usdc-wallet").childNodes[0].nodeValue = walletPair.USDC;
+    if (selectedToken === "usdt") document.getElementById("usdt-wallet").childNodes[0].nodeValue = walletPair.USDT;
+    if (selectedToken === "usdc") document.getElementById("usdc-wallet").childNodes[0].nodeValue = walletPair.USDC;
 }
 showTokenCard("usdt");
 
-
-// ---------------- CUSTOM AMOUNT FROM PLAN ----------------
-const storageKey = "avalonflowAmount_custom"; // custom plan key
+// ---------------- CUSTOM AMOUNT & RANDOM DECIMAL PERSISTENCE ----------------
+const storageKey = "avalonflowAmount_custom";
 let customAmount = localStorage.getItem("avalonflowCustomAmount");
 
 if (!customAmount) {
-    // fallback (if user somehow skips plan page)
     customAmount = "2133.33";
 }
 
-// add unique decimal for tracking
-const randomDecimal = Math.floor(Math.random() * 10000) / 10000;
-let expectedAmount = (parseFloat(customAmount) + randomDecimal).toFixed(4);
+// Fetch existing random decimal or generate and store a new one for 15 minutes
+let randomDecimal = localStorage.getItem("avalonflowRandomDecimal");
+if (!randomDecimal) {
+    randomDecimal = (Math.floor(Math.random() * 10000) / 10000).toString();
+    localStorage.setItem("avalonflowRandomDecimal", randomDecimal);
+}
 
-// store for session tracking
+let expectedAmount = (parseFloat(customAmount) + parseFloat(randomDecimal)).toFixed(4);
+
+// Store expected amount for session tracking
 localStorage.setItem("avalonflowAmount", expectedAmount);
 document.getElementById("usdt-amount").innerText = "$" + expectedAmount;
 document.getElementById("usdc-amount").innerText = "$" + expectedAmount;
 
 // ---------------- QR CODES ----------------
 const tokenValue = Math.floor(parseFloat(expectedAmount) * 1e6);
-    // Clear existing QR codes
-    document.getElementById("usdt-qr").innerHTML = "";
-    document.getElementById("usdc-qr").innerHTML = "";
 
-    // Regenerate QR codes with new wallet addresses
-    new QRCode(document.getElementById("usdt-qr"), {
-        text: `ethereum:${walletPair.USDT}?value=${tokenValue}`,
-        width: 120, height: 120,
-        colorDark: "#0ff",
-        colorLight: "rgba(0,0,0,0)",
-        correctLevel: QRCode.CorrectLevel.H
-    });
-    new QRCode(document.getElementById("usdc-qr"), {
-        text: `ethereum:${walletPair.USDC}?value=${tokenValue}`,
-        width: 120, height: 120,
-        colorDark: "#ff3fff",
-        colorLight: "rgba(0,0,0,0)",
-        correctLevel: QRCode.CorrectLevel.H
-    });
+// Clear existing QR codes
+document.getElementById("usdt-qr").innerHTML = "";
+document.getElementById("usdc-qr").innerHTML = "";
+
+// Regenerate QR codes with new wallet addresses
+new QRCode(document.getElementById("usdt-qr"), {
+    text: `ethereum:${walletPair.USDT}?value=${tokenValue}`,
+    width: 120, height: 120,
+    colorDark: "#0ff",
+    colorLight: "rgba(0,0,0,0)",
+    correctLevel: QRCode.CorrectLevel.H
+});
+new QRCode(document.getElementById("usdc-qr"), {
+    text: `ethereum:${walletPair.USDC}?value=${tokenValue}`,
+    width: 120, height: 120,
+    colorDark: "#ff3fff",
+    colorLight: "rgba(0,0,0,0)",
+    correctLevel: QRCode.CorrectLevel.H
+});
 
 // Display the wallet text for copy
 document.getElementById("usdt-wallet").childNodes[0].textContent = walletPair.USDT;
@@ -669,27 +667,27 @@ document.getElementById("usdc-wallet").childNodes[0].textContent = walletPair.US
 // ---------------- FLAG TO PREVENT DOUBLE REDIRECTS ----------------
 let paymentDone = false;
 
-function animatePaymentLine(){
-    if(paymentDone) return;
+function animatePaymentLine() {
+    if (paymentDone) return;
     paymentDone = true;
 
     const usdtStatus = document.getElementById("usdt-status");
     const usdcStatus = document.getElementById("usdc-status");
 
-    if(usdtStatus) usdtStatus.innerText = "Blockchain confirmation detected...";
-    if(usdcStatus) usdcStatus.innerText = "Blockchain confirmation detected...";
+    if (usdtStatus) usdtStatus.innerText = "Blockchain confirmation detected...";
+    if (usdcStatus) usdcStatus.innerText = "Blockchain confirmation detected...";
 
-    setTimeout(()=>{
+    setTimeout(() => {
         let progress = 0;
-        const anim = setInterval(()=>{
+        const anim = setInterval(() => {
             progress++;
             const bar = "▬".repeat(progress);
-            if(usdtStatus) usdtStatus.innerText = `Sent ${bar}`;
-            if(usdcStatus) usdcStatus.innerText = `Sent ${bar}`;
-            if(progress >= 18){
+            if (usdtStatus) usdtStatus.innerText = `Sent ${bar}`;
+            if (usdcStatus) usdcStatus.innerText = `Sent ${bar}`;
+            if (progress >= 18) {
                 clearInterval(anim);
-                if(usdtStatus) usdtStatus.innerText = "Sent __________ Received ✔️";
-                if(usdcStatus) usdcStatus.innerText = "Sent __________ Received ✔️";
+                if (usdtStatus) usdtStatus.innerText = "Sent __________ Received ✔️";
+                if (usdcStatus) usdcStatus.innerText = "Sent __________ Received ✔️";
                 triggerNotification("Verification Successful. Redirecting...");
             }
         }, 60);
@@ -706,21 +704,20 @@ window.addEventListener("DOMContentLoaded", () => {
     const usdcStatus = document.getElementById("usdc-status");
     const checkBtn = document.getElementById("check-btn");
 
-    // ---------------- TIMER FUNCTION ----------------
     function updateTimer() {
         const now = Date.now();
         const elapsed = now - startTime;
         const remaining = totalDuration - elapsed;
 
         const percentage = Math.max(0, (remaining / totalDuration) * 100);
-        usdtProgress.style.width = percentage + "%";
-        usdcProgress.style.width = percentage + "%";
+        if (usdtProgress) usdtProgress.style.width = percentage + "%";
+        if (usdcProgress) usdcProgress.style.width = percentage + "%";
 
         const minutes = String(Math.floor(remaining / 60000)).padStart(2, "0");
         const seconds = String(Math.floor((remaining % 60000) / 1000)).padStart(2, "0");
 
-        usdtTimer.innerText = remaining > 0 ? `Verification expires in ${minutes}:${seconds}` : "Verification session expired!";
-        usdcTimer.innerText = remaining > 0 ? `Verification expires in ${minutes}:${seconds}` : "Verification session expired!";
+        if (usdtTimer) usdtTimer.innerText = remaining > 0 ? `Verification expires in ${minutes}:${seconds}` : "Verification session expired!";
+        if (usdcTimer) usdcTimer.innerText = remaining > 0 ? `Verification expires in ${minutes}:${seconds}` : "Verification session expired!";
 
         if (remaining <= 0 && !paymentDone) {
             paymentDone = true;
@@ -736,27 +733,25 @@ window.addEventListener("DOMContentLoaded", () => {
             document.getElementById("usdc-wallet").childNodes[0].nodeValue = walletPair.USDC;
 
             // Update status and progress
-            usdtStatus.innerText = "Verification session expired.";
-            usdcStatus.innerText = "Verification session expired.";
-            usdtProgress.style.width = "0%";
-            usdcProgress.style.width = "0%";
+            if (usdtStatus) usdtStatus.innerText = "Verification session expired.";
+            if (usdcStatus) usdcStatus.innerText = "Verification session expired.";
+            if (usdtProgress) usdtProgress.style.width = "0%";
+            if (usdcProgress) usdcProgress.style.width = "0%";
 
             if (checkBtn) checkBtn.disabled = true;
 
             // Clear session data
             localStorage.removeItem("avalonflowAmount");
             localStorage.removeItem("avalonflowStartTime");
-          
-                localStorage.removeItem(storageKey);
-  localStorage.removeItem("avalonflowWallet");
-
-// ADD THIS
-localStorage.removeItem("avalonflowCustomAmount");
+            localStorage.removeItem(storageKey);
+            localStorage.removeItem("avalonflowWallet");
+            localStorage.removeItem("avalonflowCustomAmount");
+            localStorage.removeItem("avalonflowRandomDecimal");
 
             clearInterval(timerInterval);
             if (typeof pollTimeout !== "undefined") clearTimeout(pollTimeout);
 
-            try { triggerNotification("Verification Failed. Redirecting...", 3000); } catch(err){}
+            try { triggerNotification("Verification Failed. Redirecting...", 3000); } catch (err) { }
 
             setTimeout(() => {
                 window.location.href = "https://membership-signup.avalonflow.site/sign-in";
@@ -764,12 +759,12 @@ localStorage.removeItem("avalonflowCustomAmount");
         }
     }
 
-     timerInterval = setInterval(updateTimer, 1000);
-    updateTimer(); // initial call
+    timerInterval = setInterval(updateTimer, 1000);
+    updateTimer();
 });
 
 // ---------------- BLOCKCHAIN PAYMENT DETECTION ----------------
-const pageLoadTime = Math.floor(Date.now()/1000);
+const pageLoadTime = Math.floor(Date.now() / 1000);
 
 async function checkPayment() {
     if (Date.now() - startTime > totalDuration) return true;
@@ -796,18 +791,17 @@ async function checkPayment() {
                 confirmations >= 1 &&
                 !paymentDone
             ) {
-               
                 animatePaymentLine();
 
                 localStorage.removeItem(storageKey);
                 localStorage.removeItem("avalonflowStartTime");
                 localStorage.removeItem("avalonflowWallet");
+                localStorage.removeItem("avalonflowRandomDecimal");
 
                 clearInterval(timerInterval);
                 clearTimeout(pollTimeout);
 
-                // 🔥 TRIGGER SECURE PAYLOAD FLOW (instead of direct redirect)
-                await handleSecureRedirect(tx.hash);
+                handleRedirect(tx.hash);
 
                 return true;
             }
@@ -819,124 +813,15 @@ async function checkPayment() {
     return false;
 }
 
-
-// ================================
-// 🔐 LAYER 1: DEVICE ID
-// ================================
-const deviceId =
-    localStorage.getItem("deviceId") ||
-    (crypto.randomUUID
-        ? crypto.randomUUID()
-        : String(Date.now()) + Math.random());
-
-localStorage.setItem("deviceId", deviceId);
-
-
-// ================================
-// 🔐 LAYER 2: NONCE
-// ================================
-const nonce =
-    crypto.randomUUID
-        ? crypto.randomUUID()
-        : String(Date.now()) + Math.random();
-
-
-// ================================
-// 🔐 LAYER 3: FINGERPRINT
-// ================================
-function getFingerprint() {
-    return btoa(
-        navigator.userAgent +
-        navigator.language +
-        screen.width +
-        screen.height +
-        Intl.DateTimeFormat().resolvedOptions().timeZone
-    );
-}
-
-
-// ================================
-// 🔐 LAYER 4: SECRET ROTATION
-// ================================
-const secrets = [
-    "AvalonFlow rules 2026",
-    "God Grace",
-    "Flow is power",
-    "Alpha cycle 9"
-];
-
-function getSecret() {
-    const hour = Math.floor(Date.now() / 3600000);
-    return secrets[hour % secrets.length];
-}
-
-
-// ================================
-// 🔐 SIGNATURE ENGINE
-// ================================
-async function sign(data) {
-    const secret = getSecret();
-    const msg = new TextEncoder().encode(data + secret);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", msg);
-
-    return Array.from(new Uint8Array(hashBuffer))
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("");
-}
-
-
-// ================================
-// 🚀 SECURE REDIRECT HANDLER (INTEGRATED)
-// ================================
-async function handleSecureRedirect(txHash) {
-
-    try {
-
-        if (
-            typeof expectedAmount === "undefined" ||
-            typeof activeWallet === "undefined"
-        ) {
-            throw new Error("Missing required payment variables");
-        }
-
-        const rawPayload = {
-            plan: "custom",
-            status: "success",
-            amount: expectedAmount,
-            time: Date.now(),
-
-            wallet: activeWallet,
-            txHash: txHash || null,
-
-            deviceId: deviceId,
-            nonce: nonce,
-            fingerprint: getFingerprint()
-        };
-
-        const payloadString = JSON.stringify(rawPayload);
-        const signature = await sign(payloadString);
-
-        const finalPayloadObj = {
-            ...rawPayload,
-            signature
-        };
-
-        const payload = encodeURIComponent(
-            btoa(JSON.stringify(finalPayloadObj))
-        );
-
-        setTimeout(() => {
-            window.location.href =
-                `https://link.avalonflow.site/returns?payload=${payload}`;
-        }, 1200);
-
-    } catch (err) {
-        console.error("Secure redirect error:", err);
-    }
+// ---------------- REDIRECT HANDLER ----------------
+function handleRedirect(txHash) {
+    setTimeout(() => {
+        window.location.href = `https://link.avalonflow.site/returns?txHash=${txHash || ''}`;
+    }, 1200);
 }
 
 // ---------------- POLLING ----------------
-let pollInterval = 30000; // start at 30s
+let pollInterval = 30000;
 let pollTimeout;
 
 function poll() {
@@ -949,14 +834,12 @@ function poll() {
     }, pollInterval);
 }
 
-// ---------------- MANUAL ENGINE GUARD ----------------
 function startManualIfAllowed() {
     if (paymentMode !== "manual") return;
 
     poll();
     checkPayment();
 }
-
 
 function triggerNotification(message, duration = 3000) {
     const notification = document.getElementById("planNotification");
