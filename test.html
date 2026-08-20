@@ -1016,9 +1016,36 @@ function showTokenCard(selectedToken) {
     const activeCard = document.getElementById(`${selectedToken}-card`);
     if (activeCard) activeCard.classList.remove("inactive");
 
-    if (selectedToken === "usdt") document.getElementById("usdt-wallet").childNodes[0].nodeValue = walletPair.USDT;
-    if (selectedToken === "usdc") document.getElementById("usdc-wallet").childNodes[0].nodeValue = walletPair.USDC;
+    const btnUsdt = document.getElementById("usdt-btn");
+    const btnUsdc = document.getElementById("usdc-btn");
+    
+    if (btnUsdt && btnUsdc) {
+        if (selectedToken === "usdt") {
+            // Left button (usdt-btn) is active USDT, Right button (usdc-btn) is inactive USDC
+            btnUsdt.innerText = "USDT NETWORK";
+            btnUsdc.innerText = "USDC NETWORK";
+            btnUsdt.setAttribute("onclick", "showTokenCard('usdt')");
+            btnUsdc.setAttribute("onclick", "showTokenCard('usdc')");
+            
+            btnUsdt.classList.add("active");
+            btnUsdc.classList.remove("active");
+            
+            document.getElementById("usdt-wallet").childNodes[0].nodeValue = walletPair.USDT;
+        } else {
+            // Left button (usdt-btn) becomes active USDC, Right button (usdc-btn) becomes inactive USDT
+            btnUsdt.innerText = "USDC NETWORK";
+            btnUsdc.innerText = "USDT NETWORK";
+            btnUsdt.setAttribute("onclick", "showTokenCard('usdc')");
+            btnUsdc.setAttribute("onclick", "showTokenCard('usdt')");
+            
+            btnUsdt.classList.add("active");
+            btnUsdc.classList.remove("active");
+            
+            document.getElementById("usdc-wallet").childNodes[0].nodeValue = walletPair.USDC;
+        }
+    }
 }
+
 
 function triggerNotification(message, duration = 3000) {
     const notification = document.getElementById("planNotification");
