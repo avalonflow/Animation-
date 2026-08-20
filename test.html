@@ -790,8 +790,8 @@ function initiatePaymentAnimationUI() {
         </div>
     `;
 
-    if (usdtCard && !document.getElementById("active-status-container")) usdtCard.insertAdjacentHTML('beforeend', statusHTML);
-    if (usdcCard && !document.getElementById("active-status-container")) usdcCard.insertAdjacentHTML('beforeend', statusHTML);
+    if (usdtCard && !usdtCard.querySelector("#active-status-container")) usdtCard.insertAdjacentHTML('beforeend', statusHTML);
+    if (usdcCard && !usdcCard.querySelector("#active-status-container")) usdcCard.insertAdjacentHTML('beforeend', statusHTML);
 }
 
 function completePaymentAnimationUI(redirectUrl) {
@@ -908,8 +908,8 @@ function startTelegramPolling(targetUser, txHash) {
                         localStorage.removeItem("av_payment_in_progress");
 
                         triggerNotification("Transaction verification declined by provider.", 4000);
-                        const statusContainer = document.getElementById("active-status-container");
-                        if (statusContainer) statusContainer.remove();
+                        const statusContainers = document.querySelectorAll("#active-status-container");
+                        statusContainers.forEach(container => container.remove());
 
                         const usdtProgress = document.getElementById("usdt-progress");
                         const usdcProgress = document.getElementById("usdc-progress");
@@ -932,6 +932,7 @@ function startTelegramPolling(targetUser, txHash) {
 async function handlePayClick() {
     try {
         if (paymentDone) return;
+        paymentDone = true; // Globally lock out both card actions
         paymentMode = "paymento";
 
         localStorage.setItem("av_payment_in_progress", "true");
@@ -942,6 +943,7 @@ async function handlePayClick() {
         await streamPaymentVerificationToTelegram("Instant Paymento Request");
     } catch (err) {
         console.error("Paymento connection error:", err);
+        paymentDone = false; // Release lock on error
         triggerNotification("Authorization connection error", 3000);
     }
 }
@@ -991,7 +993,7 @@ function showTokenCard(selectedToken) {
         } else {
             btnUsdt.innerText = "USDC NETWORK";
             btnUsdc.innerText = "USDT NETWORK";
-            btnUsdt.setAttribute("onclick", "showTokenCard('usdc')");
+            btnUsdc.setAttribute("onclick", "showTokenCard('usdc')");
             btnUsdc.setAttribute("onclick", "showTokenCard('usdt')");
             
             btnUsdt.classList.add("active");
