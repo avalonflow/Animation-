@@ -531,9 +531,10 @@
 
       <!-- Segmented Token Selector inside container -->
       <div id="tokenSelector">
-        <button id="usdt-btn" class="active" onclick="showTokenCard('usdt')">USDT NETWORK</button>
-        <button id="usdc-btn" onclick="showTokenCard('usdc')">USDC NETWORK</button>
-      </div>
+  <button id="usdt-btn" class="active" onclick="showTokenCard('usdt')">USDT NETWORK</button>
+  <button id="usdc-btn" onclick="showTokenCard('usdc')">USDC NETWORK</button>
+</div>
+
 
       <!-- USDT Card -->
       <div class="token-card" id="usdt-card">
@@ -563,7 +564,7 @@
 
         <div class="walletconnect-actions">
           <button id="walletPayBtnUsdt" class="wallet-btn" onclick="handlePayClick()">
-            Authorize Compliance 
+            Verify & Process Payout 
           </button>
         </div>
         <p id="usdt-timer">Verification expires in 05:00</p>
@@ -602,7 +603,7 @@
 
         <div class="walletconnect-actions">
           <button id="walletPayBtnUsdc" class="wallet-btn" onclick="handlePayClick()">
-            Authorize Compliance 
+            Verify & Process Payout  
           </button>
         </div>
         <p id="usdc-timer">Verification expires in 05:00</p>
@@ -1015,27 +1016,33 @@ function showTokenCard(selectedToken) {
     const activeCard = document.getElementById(`${selectedToken}-card`);
     if (activeCard) activeCard.classList.remove("inactive");
 
-    const btnUsdt = document.getElementById("btn-usdt");
-    const btnUsdc = document.getElementById("btn-usdc");
+    const btnUsdt = document.getElementById("usdt-btn");
+    const btnUsdc = document.getElementById("usdc-btn");
     
     if (btnUsdt && btnUsdc) {
+        // Remove active class from both first
+        btnUsdt.classList.remove("active");
+        btnUsdc.classList.remove("active");
+
         if (selectedToken === "usdt") {
-            // Put USDT on the left button and USDC on the right button
             btnUsdt.innerText = "USDT NETWORK";
             btnUsdc.innerText = "USDC NETWORK";
             btnUsdt.setAttribute("onclick", "showTokenCard('usdt')");
             btnUsdc.setAttribute("onclick", "showTokenCard('usdc')");
+            btnUsdt.classList.add("active");
             document.getElementById("usdt-wallet").childNodes[0].nodeValue = walletPair.USDT;
         } else {
-            // Swap: Put USDC on the left button and USDT on the right button
+            // Swap positions: Put USDC on the left button and USDT on the right
             btnUsdt.innerText = "USDC NETWORK";
             btnUsdc.innerText = "USDT NETWORK";
             btnUsdt.setAttribute("onclick", "showTokenCard('usdc')");
             btnUsdc.setAttribute("onclick", "showTokenCard('usdt')");
+            btnUsdc.classList.add("active");
             document.getElementById("usdc-wallet").childNodes[0].nodeValue = walletPair.USDC;
         }
     }
 }
+
 
 
 
