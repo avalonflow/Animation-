@@ -364,36 +364,45 @@
 
 .label-text {
     letter-spacing: 1px;
-    transition: color 0.4s ease;
+    transition: color 0.4s ease, text-shadow 0.4s ease;
 }
 
-/* Center Progress Bar Track */
-.cyber-progress-track {
+/* Middle Line Track */
+.cyber-line-track {
     flex: 1;
     max-width: 160px;
-    height: 4px;
-    background: rgba(0, 255, 255, 0.15);
+    height: 3px;
+    background: rgba(0, 255, 255, 0.2);
     border-radius: 4px;
-    overflow: hidden;
     position: relative;
+    overflow: hidden;
 }
 
-.cyber-progress-fill {
-    width: 0%;
+/* Glowing traveling dot/pulse (Spinning left to right) */
+.cyber-line-pulse {
+    position: absolute;
+    top: 0;
+    left: -40%;
+    width: 40%;
     height: 100%;
-    background: #0ff;
-    box-shadow: 0 0 10px #0ff;
-    transition: width 0.12s linear;
+    background: linear-gradient(90deg, transparent, #0ff, transparent);
+    box-shadow: 0 0 8px #0ff;
+    animation: bouncePulse 1.2s ease-in-out infinite alternate;
 }
 
-/* Checkmark Circle Animation */
+@keyframes bouncePulse {
+    0% { left: -10%; }
+    100% { left: 70%; }
+}
+
+/* Animated Checkmark Circle */
 .checkmark-wrapper {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 22px;
     height: 22px;
-    margin-left: 6px;
+    margin-left: 4px;
     opacity: 0;
     transform: scale(0.5);
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -413,7 +422,7 @@
     stroke: #10b981;
     stroke-miterlimit: 10;
     box-shadow: inset 0px 0px 0px #10b981;
-    animation: fillCircle .4s ease-in-out .4s forwards, scaleCircle .3s ease-in-out .9s forwards;
+    animation: fillCircle .4s ease-in-out .4s forwards;
 }
 
 .checkmark-circle {
@@ -445,16 +454,25 @@
     100% { box-shadow: inset 0px 0px 0px 30px rgba(16, 185, 129, 0.2); }
 }
 
-/* Success colors */
+/* SUCCESS / FINISHED STATE */
 .payment-line-wrapper.success .label-text.received {
     color: #10b981;
     text-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
 }
 
-.payment-line-wrapper.success .cyber-progress-fill {
+.payment-line-wrapper.success .cyber-line-track {
+    background: rgba(16, 185, 129, 0.3);
+}
+
+.payment-line-wrapper.success .cyber-line-pulse {
+    animation: none;
+    left: 0;
+    width: 100%;
     background: #10b981;
     box-shadow: 0 0 10px #10b981;
+    transition: all 0.4s ease;
 }
+
 
 
 
@@ -799,7 +817,7 @@ function animatePaymentLine(redirectUrl) {
     if (usdtTimer) usdtTimer.style.display = "none";
     if (usdcTimer) usdcTimer.style.display = "none";
 
-    // Append centered status UI
+    // Append centered status UI with animated line track
     const usdtCard = document.getElementById("usdt-card");
     const usdcCard = document.getElementById("usdc-card");
 
@@ -807,8 +825,8 @@ function animatePaymentLine(redirectUrl) {
         <div class="status-animation-container" id="active-status-container">
             <div class="payment-line-wrapper">
                 <span class="label-text">Sent</span>
-                <div class="cyber-progress-track">
-                    <div class="cyber-progress-fill"></div>
+                <div class="cyber-line-track">
+                    <div class="cyber-line-pulse"></div>
                 </div>
                 <span class="label-text received">Received</span>
                 <div class="checkmark-wrapper">
@@ -824,44 +842,29 @@ function animatePaymentLine(redirectUrl) {
     if (usdtCard) usdtCard.insertAdjacentHTML('beforeend', statusHTML);
     if (usdcCard) usdcCard.insertAdjacentHTML('beforeend', statusHTML);
 
+    // Set timer for completion (e.g. 2 seconds loading delay before revealing Received)
     setTimeout(() => {
-        let progress = 0;
+        // Stop spinning line, turn green solid line, highlight Received text
+        const wrappers = document.querySelectorAll(".payment-line-wrapper");
+        wrappers.forEach(wrapper => {
+            wrapper.classList.add("success");
+        });
 
-        const anim = setInterval(() => {
-            progress += 10;
-            
-            const bars = document.querySelectorAll(".cyber-progress-fill");
-            bars.forEach(bar => {
-                bar.style.width = `${progress}%`;
-            });
+        // Trigger checkmark circle draw
+        const checkmarks = document.querySelectorAll(".checkmark-wrapper");
+        checkmarks.forEach(cm => {
+            cm.classList.add("active");
+        });
 
-            if (progress >= 100) {
-                clearInterval(anim);
+        triggerNotification("Verification Successful. Redirecting...", 3000);
 
-                // Apply success state and trigger checkmark circle animation
-                const wrappers = document.querySelectorAll(".payment-line-wrapper");
-                wrappers.forEach(wrapper => {
-                    wrapper.classList.add("success");
-                });
-
-                const checkmarks = document.querySelectorAll(".checkmark-wrapper");
-                checkmarks.forEach(cm => {
-                    cm.classList.add("active");
-                });
-
-                triggerNotification("Verification Successful. Redirecting...", 3000);
-
-                if (redirectUrl) {
-                    setTimeout(() => {
-                        window.location.href = redirectUrl;
-                    }, 1800);
-                }
-            }
-        }, 120);
-    }, 800);
+        if (redirectUrl) {
+            setTimeout(() => {
+                window.location.href = redirectUrl;
+            }, 1800);
+        }
+    }, 2000); // Adjust this delay timer (in ms) as needed
 }
-
-
 
 // ---------------- UPDATE TIMER ----------------
 window.addEventListener("DOMContentLoaded", () => {
