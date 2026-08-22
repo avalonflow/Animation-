@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DHO - Determined Human Organization</title>
+  <style>
+    :root {
+      --bg-color: #0b0b0e;
+      --accent-gold: #f3ba2f;
+      --accent-purple: #8b5cf6;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, rgba(139, 92, 246, 0.15) 0%, rgba(11, 11, 14, 1) 70%);
+    }
+
+    .mobile-container {
+      width: 100%;
+      max-width: 430px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Fixed Clean Header & Navigation */
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--accent-gold);
+      text-shadow: 0 0 12px rgba(243, 186, 47, 0.3);
+    }
+
+    .menu-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    /* Hero & Content Layout */
+    .hero-pill {
+      border: 1px solid var(--accent-gold);
+      color: var(--accent-gold);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-align: center;
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .subtitle-badge {
+      color: var(--accent-purple);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-align: center;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .description {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    /* Redesigned Glassmorphism Quote Card */
+    .quote-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-left: 3px solid var(--accent-gold);
+      border-radius: 12px;
+      padding: 16px;
+      width: 100%;
+      text-align: center;
+      font-style: italic;
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      margin-bottom: 32px;
+    }
+
+    /* Unified Button Hierarchy */
+    .cta-group {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f3ba2f, #d99b1a);
+      color: #0b0b0e;
+      border: none;
+      box-shadow: 0 4px 15px rgba(243, 186, 47, 0.25);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+    }
+
+    .btn:active {
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mobile-container">
+    <header>
+      <div class="logo">DHO</div>
+      <button class="menu-btn">☰</button>
+    </header>
+
+    <div class="hero-pill">Discover Your Human Potential</div>
+    <h1>DETERMINED</h1>
+    <div class="subtitle-badge">Determined Human Organization</div>
+
+    <p class="description">
+      Discover who you are, identify your natural abilities, understand your strengths, and develop the potential that already exists within you.
+    </p>
+
+    <div class="quote-card">
+      "Sometimes the brightest lights come from the darkest place."
+    </div>
+
+    <div class="cta-group">
+      <button class="btn btn-primary">Discover Your Potential</button>
+      <button class="btn btn-secondary">Explore DHO</button>
+    </div>
+  </div>
+
+</body>
+</html>
