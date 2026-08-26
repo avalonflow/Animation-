@@ -369,6 +369,14 @@
 <script>
     const CONTRA_REDIRECT_URL = 'https://contra.com';
 
+    // Helper: Formats Date.now() as "Month DD, YYYY" (e.g., "August 28, 2026")
+    function getFormattedDate(timestamp = Date.now()) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(timestamp).toLocaleDateString('en-US', options);
+    }
+
+    const currentDateFormatted = getFormattedDate();
+
     // 1. DYNAMICALLY READ THE FULL NAME FROM URL QUERY OR LOCALSTORAGE
     function getContractorName() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -378,7 +386,6 @@
             return decodeURIComponent(urlName.trim());
         }
 
-        // Fallback to section2Data saved by registration step
         const localDataString = localStorage.getItem('section2Data');
         if (localDataString) {
             try {
@@ -391,7 +398,6 @@
             }
         }
 
-        // Default fallback if no name is detected
         return "Anna Grzybowska";
     }
 
@@ -402,38 +408,55 @@
         window.location.replace(CONTRA_REDIRECT_URL);
     }
 
-    // 3. UPDATE ALL DOM ELEMENTS WITH DETECTED NAME
+    // 3. UPDATE DOM ELEMENTS WITH DETECTED NAME & DYNAMIC DATES
     document.addEventListener("DOMContentLoaded", function() {
-        // Update header metadata explicitly by ID
+        // Update header metadata (Contractor & Effective Date)
         const metaContractor = document.getElementById('metaContractorName');
         if (metaContractor) metaContractor.innerText = contractorName;
 
-        // Update signature placeholders
+        // Replace all static "August 28, 2026" text across the entire HTML body with today's date
+        const documentBody = document.querySelector('.document-card');
+        if (documentBody) {
+            documentBody.innerHTML = documentBody.innerHTML.replace(/August 28, 2026/g, currentDateFormatted);
+        }
+
+        // Re-bind updated element references after text replacement
         const sigNameEl = document.getElementById('contractorSignature');
         if (sigNameEl) sigNameEl.innerText = contractorName;
 
         const sigTitleEl = document.getElementById('contractorSigTitle');
         if (sigTitleEl) sigTitleEl.innerText = contractorName;
 
-        // Update all body text occurrences (Section 5, Section 6, etc.)
         const bodyNameSpans = document.querySelectorAll('.dynamic-contractor-name');
         bodyNameSpans.forEach(span => {
             span.innerText = contractorName;
         });
+
+        // Re-attach click handler for sign button after innerHTML replacement
+        const agreeBtn = document.getElementById('agreeBtn');
+        if (agreeBtn) {
+            agreeBtn.addEventListener('click', handleSignAgreement);
+        }
     });
 
-    // 4. HANDLE SIGNING & REDIRECT
-    document.getElementById('agreeBtn').addEventListener('click', function() {
+    // 4. HANDLE SIGNING, SAVE TIMESTAMP TO LOCALSTORAGE & REDIRECT
+    function handleSignAgreement() {
+        const timestampNow = Date.now();
+        const executionDateStr = getFormattedDate(timestampNow);
+
+        // Save sign status AND execution date into localStorage
         localStorage.setItem('avalonflow_contract_signed', 'true');
+        localStorage.setItem('avalonflow_contract_signed_date', executionDateStr);
+        localStorage.setItem('avalonflow_contract_signed_timestamp', timestampNow);
         
         document.getElementById('contractorSignature').style.display = 'block';
-        document.getElementById('sigDate').innerText = new Date().toLocaleDateString();
+        document.getElementById('sigDate').innerText = executionDateStr;
         document.getElementById('actionArea').innerHTML = '<p style="color: #27ae60; font-weight: 700;">Agreement executed! Redirecting to Contra...</p>';
 
         setTimeout(function() {
             window.location.replace(CONTRA_REDIRECT_URL);
         }, 800);
-    });
+    }
 </script>
 </body>
 </html>
