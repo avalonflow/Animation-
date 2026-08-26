@@ -222,6 +222,30 @@
         .sign-btn:hover {
             background-color: #be5934;
         }
+@media screen and max-width: 768px {
+    .meta-grid {
+        width: 100%; /* Spans full screen width on mobile */
+        box-sizing: border-box; /* Ensures padding stays within the container */
+    }
+
+    /* Optional: Improves readability on small screens by stacking cells */
+    .meta-row {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 8px;
+    }
+
+    .meta-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .meta-cell {
+        display: block;
+        width: 100%;
+        padding: 2px 0;
+    }
+}
+
     </style>
 </head>
 <body>
