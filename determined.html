@@ -386,6 +386,14 @@
     </footer>
 
 <script>
+// Check URL parameters to reset contract state without wiping section2Data
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('reset') === 'true' || urlParams.get('clear') === 'true') {
+    localStorage.removeItem('avalonflow_contract_signed');
+    localStorage.removeItem('avalonflow_contract_signed_date');
+    localStorage.removeItem('avalonflow_contract_signed_timestamp');
+}
+
     const CONTRA_REDIRECT_URL = 'https://contra.com';
 
     // Formats Date.now() into "Month DD, YYYY"
