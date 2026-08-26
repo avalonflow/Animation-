@@ -375,27 +375,74 @@ footer {
     </footer>
 
 <script>
-        const CONTRA_REDIRECT_URL = 'https://contra.com';
+    const CONTRA_REDIRECT_URL = 'https://contra.com';
 
-        // Check if agreement was already signed on page load
-        if (localStorage.getItem('avalonflow_contract_signed') === 'true') {
-            window.location.replace(CONTRA_REDIRECT_URL);
+    // 1. DYNAMICALLY READ THE FULL NAME FROM URL QUERY OR LOCALSTORAGE
+    function getContractorName() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlName = urlParams.get('user');
+        
+        if (urlName && urlName.trim() !== '') {
+            return decodeURIComponent(urlName.trim());
         }
 
-        document.getElementById('agreeBtn').addEventListener('click', function() {
-            // Store signed status
-            localStorage.setItem('avalonflow_contract_signed', 'true');
-            
-            // Render signed state briefly before redirect
-            document.getElementById('contractorSignature').style.display = 'block';
-            document.getElementById('sigDate').innerText = new Date().toLocaleDateString();
-            document.getElementById('actionArea').innerHTML = '<p style="color: #27ae60; font-weight: 700;">Agreement executed! Redirecting to Contra...</p>';
+        // Fallback to section2Data saved by registration step
+        const localDataString = localStorage.getItem('section2Data');
+        if (localDataString) {
+            try {
+                const localData = JSON.parse(localDataString);
+                if (localData.fullName && localData.fullName.trim() !== '') {
+                    return localData.fullName.trim();
+                }
+            } catch (e) {
+                console.error("Could not parse section2Data", e);
+            }
+        }
 
-            // Immediately redirect back to Contra replacing history entry
-            setTimeout(function() {
-                window.location.replace(CONTRA_REDIRECT_URL);
-            }, 800);
-        });
-    </script>
+        // Default fallback if no name is detected
+        return "Anna Grzybowska";
+    }
+
+    // Execute immediately on script parse
+    const contractorName = getContractorName();
+
+    // 2. CHECK SIGNED STATUS BEFORE RENDER
+    if (localStorage.getItem('avalonflow_contract_signed') === 'true') {
+        window.location.replace(CONTRA_REDIRECT_URL);
+    }
+
+    // 3. UPDATE DOM ELEMENTS WITH DETECTED NAME
+    document.addEventListener("DOMContentLoaded", function() {
+        // Update header metadata cell
+        const metaValues = document.querySelectorAll('.meta-value');
+        if (metaValues.length >= 2) {
+            metaValues[1].innerText = contractorName;
+        }
+
+        // Update signature line placeholder & scope text reference
+        const sigNameEl = document.getElementById('contractorSignature');
+        if (sigNameEl) {
+            sigNameEl.innerText = contractorName;
+        }
+
+        const sigTitles = document.querySelectorAll('.sig-title');
+        if (sigTitles.length >= 2) {
+            sigTitles[1].innerText = contractorName;
+        }
+    });
+
+    // 4. HANDLE SIGNING & REDIRECT
+    document.getElementById('agreeBtn').addEventListener('click', function() {
+        localStorage.setItem('avalonflow_contract_signed', 'true');
+        
+        document.getElementById('contractorSignature').style.display = 'block';
+        document.getElementById('sigDate').innerText = new Date().toLocaleDateString();
+        document.getElementById('actionArea').innerHTML = '<p style="color: #27ae60; font-weight: 700;">Agreement executed! Redirecting to Contra...</p>';
+
+        setTimeout(function() {
+            window.location.replace(CONTRA_REDIRECT_URL);
+        }, 800);
+    });
+</script>
 </body>
 </html>
