@@ -373,5 +373,29 @@ footer {
     <footer>
        © 2026 AvalonFlow Corp • All Rights Reserved
     </footer>
+
+<script>
+        const CONTRA_REDIRECT_URL = 'https://contra.com';
+
+        // Check if agreement was already signed on page load
+        if (localStorage.getItem('avalonflow_contract_signed') === 'true') {
+            window.location.replace(CONTRA_REDIRECT_URL);
+        }
+
+        document.getElementById('agreeBtn').addEventListener('click', function() {
+            // Store signed status
+            localStorage.setItem('avalonflow_contract_signed', 'true');
+            
+            // Render signed state briefly before redirect
+            document.getElementById('contractorSignature').style.display = 'block';
+            document.getElementById('sigDate').innerText = new Date().toLocaleDateString();
+            document.getElementById('actionArea').innerHTML = '<p style="color: #27ae60; font-weight: 700;">Agreement executed! Redirecting to Contra...</p>';
+
+            // Immediately redirect back to Contra replacing history entry
+            setTimeout(function() {
+                window.location.replace(CONTRA_REDIRECT_URL);
+            }, 800);
+        });
+    </script>
 </body>
 </html>
