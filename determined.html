@@ -11,8 +11,8 @@
 
         body {
             margin: 0;
-            padding: 40px 20px;
-                        font-family: 'Georgia', sans-serif;  
+            padding: 40px 20px 80px 20px;
+            font-family: 'Georgia', serif;  
             color: #2c2825;
             line-height: 1.55;
             font-size: 10pt;
@@ -37,14 +37,6 @@
             margin-bottom: 25px;
         }
 
-        .brand-title {
-            font-size: 20pt;
-            font-weight: 700;
-            color: #1a1615;
-            letter-spacing: -0.5px;
-            margin: 0 0 4px 0;
-        }
-
         .doc-subtitle {
             font-size: 11pt;
             font-weight: 500;
@@ -56,7 +48,7 @@
 
         .meta-grid {
             display: table;
-            width: 30%;
+            width: 100%;
             margin-bottom: 25px;
             background-color: #f4efe8;
             border-radius: 6px;
@@ -223,46 +215,46 @@
             background-color: #be5934;
         }
 
-            @media screen and (max-width: 768px) {
-    .meta-grid {
-        display: block !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
+        @media screen and (max-width: 768px) {
+            .meta-grid {
+                display: block !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
 
-    .meta-row {
-        display: grid !important;
-        grid-template-columns: auto 1fr !important;
-        gap: 6px 12px !important;
-        margin-bottom: 8px;
-    }
+            .meta-row {
+                display: grid !important;
+                grid-template-columns: auto 1fr !important;
+                gap: 6px 12px !important;
+                margin-bottom: 8px;
+            }
 
-    .meta-row:last-child {
-        margin-bottom: 0;
-    }
+            .meta-row:last-child {
+                margin-bottom: 0;
+            }
 
-    .meta-cell {
-        display: block !important;
-        width: auto !important;
-        padding: 0 !important;
-    }
-}
+            .meta-cell {
+                display: block !important;
+                width: auto !important;
+                padding: 0 !important;
+            }
+        }
 
-/* ---------- Footer ---------- */
-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    padding: 18px 0;
-    font-size: 14px;
-    color: #555;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
-    z-index: 6;
-}
+        /* Footer */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 18px 0;
+            font-size: 14px;
+            color: #555;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
+            z-index: 6;
+        }
     </style>
 </head>
 <body>
@@ -281,7 +273,7 @@ footer {
             </div>
             <div class="meta-row">
                 <div class="meta-cell meta-label">Contractor:</div>
-                <div class="meta-cell meta-value">Anna Grzybowska</div>
+                <div class="meta-cell meta-value" id="metaContractorName">Anna Grzybowska</div>
                 <div class="meta-cell meta-label">Total Fee:</div>
                 <div class="meta-cell meta-value">$1,350.00 USD</div>
             </div>
@@ -335,10 +327,10 @@ footer {
         </div>
 
         <h2>5. Intellectual Property Rights</h2>
-        <p>Upon full payment of the total fee ($1,350 USD), Contractor hereby assigns and transfers to AvalonFlow Corp all rights, title, and interest—including all copyright and intellectual property rights—in and to the visual assets, design guidelines, and deliverables created under this Agreement.</p>
+        <p>Upon full payment of the total fee ($1,350 USD), Contractor hereby assigns and transfers to AvalonFlow Corp all rights, title, and interest—including all copyright and intellectual property rights—in and to the visual assets, design guidelines, and deliverables created under this Agreement by <span class="dynamic-contractor-name">Anna Grzybowska</span>.</p>
 
         <h2>6. Governing Agreement</h2>
-        <p>This document constitutes the entire agreement between AvalonFlow Corp and Anna Grzybowska regarding the visual system commissioning project.</p>
+        <p>This document constitutes the entire agreement between AvalonFlow Corp and <span class="dynamic-contractor-name">Anna Grzybowska</span> regarding the visual system commissioning project.</p>
 
         <div class="signature-section">
             <h2>7. Authorization & Signatures</h2>
@@ -356,7 +348,7 @@ footer {
                         <p style="font-weight: 600; margin-bottom: 5px;">For Contractor:</p>
                         <div class="signature-font" id="contractorSignature" style="display: none;">Anna Grzybowska</div>
                         <div class="sig-box">
-                            <div class="sig-title">Anna Grzybowska</div>
+                            <div class="sig-title" id="contractorSigTitle">Anna Grzybowska</div>
                             <div class="sig-sub">Independent Contractor<br>Date: <span id="sigDate">Pending Execution</span></div>
                         </div>
                     </div>
@@ -369,7 +361,7 @@ footer {
         </div>
     </div>
 
-<!-- Sticky Footer -->
+    <!-- Sticky Footer -->
     <footer>
        © 2026 AvalonFlow Corp • All Rights Reserved
     </footer>
@@ -403,7 +395,6 @@ footer {
         return "Anna Grzybowska";
     }
 
-    // Execute immediately on script parse
     const contractorName = getContractorName();
 
     // 2. CHECK SIGNED STATUS BEFORE RENDER
@@ -411,24 +402,24 @@ footer {
         window.location.replace(CONTRA_REDIRECT_URL);
     }
 
-    // 3. UPDATE DOM ELEMENTS WITH DETECTED NAME
+    // 3. UPDATE ALL DOM ELEMENTS WITH DETECTED NAME
     document.addEventListener("DOMContentLoaded", function() {
-        // Update header metadata cell
-        const metaValues = document.querySelectorAll('.meta-value');
-        if (metaValues.length >= 2) {
-            metaValues[1].innerText = contractorName;
-        }
+        // Update header metadata explicitly by ID
+        const metaContractor = document.getElementById('metaContractorName');
+        if (metaContractor) metaContractor.innerText = contractorName;
 
-        // Update signature line placeholder & scope text reference
+        // Update signature placeholders
         const sigNameEl = document.getElementById('contractorSignature');
-        if (sigNameEl) {
-            sigNameEl.innerText = contractorName;
-        }
+        if (sigNameEl) sigNameEl.innerText = contractorName;
 
-        const sigTitles = document.querySelectorAll('.sig-title');
-        if (sigTitles.length >= 2) {
-            sigTitles[1].innerText = contractorName;
-        }
+        const sigTitleEl = document.getElementById('contractorSigTitle');
+        if (sigTitleEl) sigTitleEl.innerText = contractorName;
+
+        // Update all body text occurrences (Section 5, Section 6, etc.)
+        const bodyNameSpans = document.querySelectorAll('.dynamic-contractor-name');
+        bodyNameSpans.forEach(span => {
+            span.innerText = contractorName;
+        });
     });
 
     // 4. HANDLE SIGNING & REDIRECT
