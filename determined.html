@@ -223,16 +223,17 @@
             background-color: #be5934;
         }
 
-            @media screen and max-width: 768px {
+            @media screen and (max-width: 768px) {
     .meta-grid {
-        
+        display: block !important;
+        width: 100% !important;
         box-sizing: border-box !important;
     }
 
-    /* Optional: Improves readability on small screens by stacking cells */
     .meta-row {
-        display: flex;
-        flex-direction: column;
+        display: grid !important;
+        grid-template-columns: auto 1fr !important;
+        gap: 6px 12px !important;
         margin-bottom: 8px;
     }
 
@@ -241,9 +242,9 @@
     }
 
     .meta-cell {
-        display: block;
-        width: 100%;
-        padding: 2px 0;
+        display: block !important;
+        width: auto !important;
+        padding: 0 !important;
     }
 }
     </style>
