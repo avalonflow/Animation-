@@ -355,10 +355,7 @@
     <script>
         const CONTRA_REDIRECT_URL = 'https://contra.com';
 
-        // Check if agreement was already signed on page load
-        if (localStorage.getItem('avalonflow_contract_signed') === 'true') {
-            window.location.replace(CONTRA_REDIRECT_URL);
-        }
+        
 
         document.getElementById('agreeBtn').addEventListener('click', function() {
             // Store signed status
