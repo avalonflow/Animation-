@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Independent Contractor Agreement - AvalonFlow Corp</title>
+    <!-- Imports a distinct handwriting font for the contractor signature -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after {
             box-sizing: border-box;
@@ -183,12 +187,27 @@
             color: #635b54;
         }
 
+        /* Standard Client Signature Styling */
         .signature-font {
             font-family: 'Brush Script MT', 'cursive', sans-serif;
             font-size: 18pt;
             color: #1a2a3a;
             margin-bottom: -35px;
             margin-left: 10px;
+        }
+
+        /* Distinct Contractor Signature Styling */
+        .contractor-sig-font {
+            font-family: 'Caveat', 'Segoe Script', 'Bradley Hand', cursive;
+            font-size: 26pt;
+            font-weight: 600;
+            color: #1d3557; /* Deep ink blue */
+            margin-bottom: -38px;
+            margin-left: 8px;
+            display: inline-block;
+            transform: rotate(-2deg); /* Slight natural ink tilt */
+            letter-spacing: 0.5px;
+            user-select: none;
         }
 
         /* Interactive Action Box */
@@ -346,7 +365,7 @@
                     </div>
                     <div class="sig-col">
                         <p style="font-weight: 600; margin-bottom: 5px;">For Contractor:</p>
-                        <div class="signature-font" id="contractorSignature" style="display: none;">Anna Grzybowska</div>
+                        <div class="contractor-sig-font" id="contractorSignature" style="display: none;">Anna Grzybowska</div>
                         <div class="sig-box">
                             <div class="sig-title" id="contractorSigTitle">Anna Grzybowska</div>
                             <div class="sig-sub">Independent Contractor<br>Date: <span id="sigDate">Pending Execution</span></div>
@@ -369,7 +388,7 @@
 <script>
     const CONTRA_REDIRECT_URL = 'https://contra.com';
 
-    // Helper: Formats Date.now() as "Month DD, YYYY" (e.g., "August 28, 2026")
+    // Formats Date.now() into "Month DD, YYYY"
     function getFormattedDate(timestamp = Date.now()) {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(timestamp).toLocaleDateString('en-US', options);
@@ -414,10 +433,10 @@
         const metaContractor = document.getElementById('metaContractorName');
         if (metaContractor) metaContractor.innerText = contractorName;
 
-        // Replace all static "August 28, 2026" text across the entire HTML body with today's date
+        // Replace all static "August 28, 2026" / "Aug 28 2026" variants across the body with today's date
         const documentBody = document.querySelector('.document-card');
         if (documentBody) {
-            documentBody.innerHTML = documentBody.innerHTML.replace(/August 28, 2026/g, currentDateFormatted);
+            documentBody.innerHTML = documentBody.innerHTML.replace(/Aug(ust)?\s+28,?\s+2026/gi, currentDateFormatted);
         }
 
         // Re-bind updated element references after text replacement
@@ -432,7 +451,7 @@
             span.innerText = contractorName;
         });
 
-        // Re-attach click handler for sign button after innerHTML replacement
+        // Re-attach click handler for sign button
         const agreeBtn = document.getElementById('agreeBtn');
         if (agreeBtn) {
             agreeBtn.addEventListener('click', handleSignAgreement);
@@ -444,12 +463,11 @@
         const timestampNow = Date.now();
         const executionDateStr = getFormattedDate(timestampNow);
 
-        // Save sign status AND execution date into localStorage
         localStorage.setItem('avalonflow_contract_signed', 'true');
         localStorage.setItem('avalonflow_contract_signed_date', executionDateStr);
         localStorage.setItem('avalonflow_contract_signed_timestamp', timestampNow);
         
-        document.getElementById('contractorSignature').style.display = 'block';
+        document.getElementById('contractorSignature').style.display = 'inline-block';
         document.getElementById('sigDate').innerText = executionDateStr;
         document.getElementById('actionArea').innerHTML = '<p style="color: #27ae60; font-weight: 700;">Agreement executed! Redirecting to Contra...</p>';
 
