@@ -402,8 +402,19 @@
         return new Date(timestamp).toLocaleDateString('en-US', options);
     }
 
-    function getShortFormattedDate(dateObj) {
-        return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    // Custom short month formatter handling 4-letter overrides for all months
+    function getCustomShortMonth(dateObj) {
+        const monthIndex = dateObj.getMonth();
+        const customMonths = [
+            "Jan", "Feb", "March", "April", "May", "June", 
+            "July", "Aug", "Sept", "Oct", "Nov", "Dec"
+        ];
+
+        const monthName = customMonths[monthIndex];
+        const day = dateObj.getDate();
+        const year = dateObj.getFullYear();
+
+        return `${monthName} ${day}, ${year}`;
     }
 
     // Dynamic resolution of contractor name
@@ -468,10 +479,10 @@
             scheduleData = {
                 effectiveDate: getFormattedDate(baseDate.getTime()),
                 m0: getFormattedDate(baseDate.getTime()),
-                m1: `${getShortFormattedDate(m1Start)} – ${getShortFormattedDate(m1End)}`,
+                m1: `${getCustomShortMonth(m1Start)} – ${getCustomShortMonth(m1End)}`,
                 m2: getFormattedDate(m2Date.getTime()),
-                m3: `${getShortFormattedDate(m2Date)} – ${getShortFormattedDate(m3End)}`,
-                m4: `${getShortFormattedDate(m4Start)} – ${getShortFormattedDate(m4End)}`,
+                m3: `${getCustomShortMonth(m2Date)} – ${getCustomShortMonth(m3End)}`,
+                m4: `${getCustomShortMonth(m4Start)} – ${getCustomShortMonth(m4End)}`,
                 timestamp: baseDate.getTime()
             };
 
