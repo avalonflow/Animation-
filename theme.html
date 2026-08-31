@@ -895,8 +895,7 @@ button[onclick*="biometricLogin"]:hover {
     <div id="loginForm">
         <h2 class="gradient-animation">Sign-in</h2>
 
-        <input type="text" id="AvalonFlowID" placeholder="AvalonFlow ID or Email Address">
-        <input type="password" id="password" placeholder="Password">
+        <input type="text" id="AvalonFlowID" placeholder="AvalonFlow ID or Email Address">
 
         <button type="button" onclick="login()">Login</button>
 <button type="button" onclick="biometricLogin()">Login with Device Security</button>
@@ -956,19 +955,30 @@ setInterval(particle, 800);
 
 
 
-    let identity = JSON.parse(localStorage.getItem("avalonflow_identity"));
-
-if (!identity) {
-    identity = {
-        id: generateID(),
-        sessionRef: generateSession()
-    };
-
-    localStorage.setItem(
-        "avalonflow_identity",
-        JSON.stringify(identity)
-    );
+    /* ---------- DETERMINISTIC / PARAMETER-BASED IDENTITY ---------- */
+function getIDFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get("id") || urlParams.get("ID") || null;
 }
+
+function generateSession() {
+    return "AF-SESSION-" + Date.now().toString().slice(-6) + "-" +
+        Math.random().toString(36).substring(2, 6).toUpperCase();
+}
+
+let urlID = getIDFromURL();
+let identity = JSON.parse(localStorage.getItem("avalonflow_identity")) || {};
+
+if (urlID) {
+    // Save/update identity from URL parameter
+    identity.id = urlID;
+    if (!identity.sessionRef) {
+        identity.sessionRef = generateSession();
+    }
+    localStorage.setItem("avalonflow_identity", JSON.stringify(identity));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
 
     const idEl = document.getElementById("credentialsDisplay");
     const guideEl = document.getElementById("guidanceMessage");
@@ -984,37 +994,43 @@ if (!identity) {
     let msgIndex = 0;
 
     function rotateMessages() {
-        guideEl.style.opacity = 1;
-        guideEl.textContent = messages[msgIndex];
-        msgIndex = (msgIndex + 1) % messages.length;
+        if (guideEl) {
+            guideEl.style.opacity = 1;
+            guideEl.textContent = messages[msgIndex];
+            msgIndex = (msgIndex + 1) % messages.length;
+        }
     }
 
     rotateMessages();
     setInterval(rotateMessages, 4000);
 
-    /* ---------- SAFE ID REVEAL (NO BREAK UI) ---------- */
-    const idText = identity.id;
+    /* ---------- ID REVEAL (URL-BASED ONLY) ---------- */
+    const activeID = identity.id || urlID;
 
-    idEl.classList.add("glitch");
-    idEl.setAttribute("data-text", "🆔: " + idText);
+    if (idEl) {
+        if (activeID) {
+            idEl.classList.add("glitch");
+            idEl.setAttribute("data-text", "🆔: " + activeID);
+            idEl.textContent = "🆔: ";
 
-    idEl.textContent = "🆔: ";
-
-    let i = 0;
-
-    function revealID() {
-        if (i <= idText.length) {
-            idEl.textContent = "🆔: " + idText.substring(0, i);
-            i++;
-            setTimeout(revealID, 70);
+            let i = 0;
+            function revealID() {
+                if (i <= activeID.length) {
+                    idEl.textContent = "🆔: " + activeID.substring(0, i);
+                    i++;
+                    setTimeout(revealID, 70);
+                } else {
+                    setTimeout(() => {
+                        idEl.classList.remove("glitch");
+                    }, 500);
+                }
+            }
+            revealID();
         } else {
-            setTimeout(() => {
-                idEl.classList.remove("glitch");
-            }, 500);
+            // Parameter absent: fallback to standard icon display
+            idEl.textContent = "🆔: ";
         }
     }
-
-    revealID();
 
     /* ---------- SAFE SCAN SOUND (NO DRIFT SYNC) ---------- */
     let scanSound;
@@ -1049,63 +1065,47 @@ if (!identity) {
     const SCAN_INTERVAL = 3800;
 
     document.addEventListener("click", () => {
-
         function loopScan() {
             if (scanSound) scanSound();
             setTimeout(loopScan, SCAN_INTERVAL);
         }
-
         setTimeout(loopScan, SCAN_INTERVAL);
-
     }, { once: true });
 
 });
-        /* ---------- Identity Generator ---------- */
-        function generateID() {
-            return "AF-" + Math.random().toString(36).substring(2, 6).toUpperCase()
-                + "-" + Math.random().toString(36).substring(2, 6).toUpperCase();
-        }
 
-        function generateSession() {
-            return "AF-SESSION-" + Date.now().toString().slice(-6) + "-" +
-                Math.random().toString(36).substring(2, 6).toUpperCase();
-        }
-
+/* ---------- LOGIN FUNCTION (PASSWORDLESS) ---------- */
 function login() {
 
-    const idInput = document.getElementById("AvalonFlowID").value.trim();
-    const passInput = document.getElementById("password").value.trim();
+    const idInput = document.getElementById("AvalonFlowID") ? document.getElementById("AvalonFlowID").value.trim() : "";
+    const storedIdentity = JSON.parse(localStorage.getItem("avalonflow_identity"));
+    const activeID = (storedIdentity && storedIdentity.id) || getIDFromURL();
 
-    const identity = JSON.parse(localStorage.getItem("avalonflow_identity"));
-    const section2Data = JSON.parse(localStorage.getItem("section2Data"));
-
-    if (!identity || !identity.id || !identity.sessionRef) {
+    if (!activeID) {
         document.getElementById("loginError").innerText =
-            "System error. Identity missing.";
+            "Please use your personalized access link or contact support to retrieve your AvalonFlow ID";
         return;
     }
 
-    if (!section2Data || !section2Data.email || !section2Data.password) {
-        document.getElementById("loginError").innerText =
-            "No account found. Please sign up first.";
-        return;
-    }
+    // Verify input matches stored/URL ID (or auto-authenticates if ID is present)
+    if (idInput === activeID || !idInput) {
 
-    const isIDMatch = idInput === identity.id;
-    const isEmailMatch = idInput === section2Data.email;
-    const isPasswordMatch = passInput === section2Data.password;
+        let sessionRef = storedIdentity ? storedIdentity.sessionRef : generateSession();
 
-    if ((isIDMatch || isEmailMatch) && isPasswordMatch) {
-        // Set login flag for the dashboard auth guard
+        // Ensure session state is saved for dashboard guard
         localStorage.setItem("avalon_logged_in", "true");
+        localStorage.setItem("avalonflow_identity", JSON.stringify({
+            id: activeID,
+            sessionRef: sessionRef
+        }));
 
-        window.location.replace(`https://membership.avalonflow.site/dashboard?ticket=${identity.sessionRef}`);
+        window.location.replace(`https://membership.avalonflow.site/dashboard?ticket=${sessionRef}`);
     } else {
         document.getElementById("loginError").innerText =
             "Access details not recognized.";
     }
 }
-    
+
 /* ---------- Device Detection (UX tuning only) ---------- */    
 const DEVICE = (() => {    
   const ua = navigator.userAgent || "";    
@@ -1228,6 +1228,7 @@ window.addEventListener("DOMContentLoaded", () => {
     btn.innerText = DEVICE.isiOS ? "Login with Face/Touch ID" : "Login with Fingerprint";  
   }  
 });
+
 
 // Remove the listener that fires immediately
 window.addEventListener("load", () => {
