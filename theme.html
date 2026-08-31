@@ -1083,7 +1083,7 @@ function login() {
     const storedIdentity = JSON.parse(localStorage.getItem("avalonflow_identity"));
     const activeID = (storedIdentity && storedIdentity.id) || getIDFromURL();
 
-    if (!activeID) {
+    if (!idInput) {
         const errorEl = document.getElementById("loginError");
         if (errorEl) {
             errorEl.innerText = "Please use your personalized access link or contact support to retrieve your AvalonFlow ID";
@@ -1091,7 +1091,7 @@ function login() {
         return;
     }
 
-    if (idInput === activeID || !idInput) {
+    if (idInput === activeID) {
         const freshSessionRef = generateSession();
 
         localStorage.setItem("avalon_logged_in", "true");
