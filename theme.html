@@ -895,7 +895,7 @@ button[onclick*="biometricLogin"]:hover {
     <div id="loginForm">
         <h2 class="gradient-animation">Sign-in</h2>
 
-        <input type="text" id="AvalonFlowID" placeholder="AvalonFlow ID or Email Address">
+        <input type="text" id="AvalonFlowID" placeholder="AvalonFlow ID">
 
         <button type="button" onclick="login()">Login</button>
 <button type="button" onclick="biometricLogin()">Login with Device Security</button>
@@ -961,6 +961,10 @@ function getIDFromURL() {
     return urlParams.get("id") || urlParams.get("ID") || null;
 }
 
+function generateID() {
+    return getIDFromURL() || "";
+}
+
 function generateSession() {
     return "AF-SESSION-" + Date.now().toString().slice(-6) + "-" +
         Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -970,7 +974,6 @@ let urlID = getIDFromURL();
 let identity = JSON.parse(localStorage.getItem("avalonflow_identity")) || {};
 
 if (urlID) {
-    // Save/update identity from URL parameter
     identity.id = urlID;
     if (!identity.sessionRef) {
         identity.sessionRef = generateSession();
@@ -1004,8 +1007,8 @@ document.addEventListener("DOMContentLoaded", () => {
     rotateMessages();
     setInterval(rotateMessages, 4000);
 
-    /* ---------- ID REVEAL (URL-BASED ONLY) ---------- */
-    const activeID = identity.id || urlID;
+    /* ---------- SAFE ID REVEAL (NO BREAK UI) ---------- */
+    const activeID = identity.id || urlID || "";
 
     if (idEl) {
         if (activeID) {
@@ -1027,7 +1030,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             revealID();
         } else {
-            // Parameter absent: fallback to standard icon display
             idEl.textContent = "🆔: ";
         }
     }
@@ -1082,27 +1084,28 @@ function login() {
     const activeID = (storedIdentity && storedIdentity.id) || getIDFromURL();
 
     if (!activeID) {
-        document.getElementById("loginError").innerText =
-            "Please use your personalized access link or contact support to retrieve your AvalonFlow ID";
+        const errorEl = document.getElementById("loginError");
+        if (errorEl) {
+            errorEl.innerText = "Please use your personalized access link or contact support to retrieve your AvalonFlow ID";
+        }
         return;
     }
 
-    // Verify input matches stored/URL ID (or auto-authenticates if ID is present)
     if (idInput === activeID || !idInput) {
-
-        let sessionRef = storedIdentity ? storedIdentity.sessionRef : generateSession();
-
-        // Ensure session state is saved for dashboard guard
+        const freshSessionRef = generateSession();
+        
         localStorage.setItem("avalon_logged_in", "true");
         localStorage.setItem("avalonflow_identity", JSON.stringify({
             id: activeID,
-            sessionRef: sessionRef
+            sessionRef: freshSessionRef
         }));
 
-        window.location.replace(`https://membership.avalonflow.site/dashboard?ticket=${sessionRef}`);
+        window.location.replace(`https://membership.avalonflow.site/dashboard?ticket=${freshSessionRef}`);
     } else {
-        document.getElementById("loginError").innerText =
-            "Access details not recognized.";
+        const errorEl = document.getElementById("loginError");
+        if (errorEl) {
+            errorEl.innerText = "Access details not recognized.";
+        }
     }
 }
 
@@ -1228,7 +1231,6 @@ window.addEventListener("DOMContentLoaded", () => {
     btn.innerText = DEVICE.isiOS ? "Login with Face/Touch ID" : "Login with Fingerprint";  
   }  
 });
-
 
 // Remove the listener that fires immediately
 window.addEventListener("load", () => {
