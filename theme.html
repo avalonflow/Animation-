@@ -895,11 +895,10 @@ button[onclick*="biometricLogin"]:hover {
     <div id="loginForm">
         <h2 class="gradient-animation">Sign-in</h2>
 
-        <input type="text" id="AvalonFlowID" placeholder="AvalonFlow ID">
+        <input type="text" id="AvalonFlowID" placeholder="AvalonFlow ID">
 
         <button type="button" onclick="login()">Login</button>
-<button type="button" onclick="biometricLogin()">Login with Device Security</button>
-
+        <button type="button" onclick="biometricLogin()">Login with Device Security</button>
 
         <p id="loginError" style="color:red;"></p>
 
@@ -931,31 +930,7 @@ button[onclick*="biometricLogin"]:hover {
     }
   });
 
-window.addEventListener("DOMContentLoaded", () => {
-    /* Floating particles */
-const bg = document.getElementById('floating-bg');
-
-function particle() {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    
-    const s = Math.random() * 20 + 10;
-    p.style.width = s + 'px';
-    p.style.height = s + 'px';
-    p.style.left = Math.random() * 100 + 'vw';
-    p.style.animationDuration = (Math.random() * 20 + 10) + 's';
-    
-    bg.appendChild(p);
-    
-    setTimeout(() => p.remove(), 30000);
-}
-
-setInterval(particle, 800);
-
-
-
-
-    /* ---------- DETERMINISTIC / PARAMETER-BASED IDENTITY ---------- */
+/* ---------- DETERMINISTIC / PARAMETER-BASED IDENTITY ---------- */
 function getIDFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get("id") || urlParams.get("ID") || null;
@@ -981,7 +956,27 @@ if (urlID) {
     localStorage.setItem("avalonflow_identity", JSON.stringify(identity));
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", () => {
+    /* Floating particles */
+    const bg = document.getElementById('floating-bg');
+
+    function particle() {
+        if (!bg) return;
+        const p = document.createElement('div');
+        p.className = 'particle';
+
+        const s = Math.random() * 20 + 10;
+        p.style.width = s + 'px';
+        p.style.height = s + 'px';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.animationDuration = (Math.random() * 20 + 10) + 's';
+
+        bg.appendChild(p);
+
+        setTimeout(() => p.remove(), 30000);
+    }
+
+    setInterval(particle, 800);
 
     const idEl = document.getElementById("credentialsDisplay");
     const guideEl = document.getElementById("guidanceMessage");
@@ -1074,6 +1069,11 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(loopScan, SCAN_INTERVAL);
     }, { once: true });
 
+    /* ---------- Set Button Text Dynamically ---------- */  
+    const btn = document.querySelector('[onclick="biometricLogin()"]');  
+    if (btn) {  
+        btn.innerText = DEVICE.isiOS ? "Login with Face/Touch ID" : "Login with Fingerprint";  
+    }  
 });
 
 /* ---------- LOGIN FUNCTION (PASSWORDLESS) ---------- */
@@ -1093,7 +1093,7 @@ function login() {
 
     if (idInput === activeID || !idInput) {
         const freshSessionRef = generateSession();
-        
+
         localStorage.setItem("avalon_logged_in", "true");
         localStorage.setItem("avalonflow_identity", JSON.stringify({
             id: activeID,
@@ -1223,14 +1223,6 @@ function fallbackLogin(message) {
   if (message) alert(message);  
   document.body.classList.add("show-fallback");  
 }  
-
-/* ---------- Set Button Text Dynamically ---------- */  
-window.addEventListener("DOMContentLoaded", () => {  
-  const btn = document.querySelector('[onclick="biometricLogin()"]');  
-  if (btn) {  
-    btn.innerText = DEVICE.isiOS ? "Login with Face/Touch ID" : "Login with Fingerprint";  
-  }  
-});
 
 // Remove the listener that fires immediately
 window.addEventListener("load", () => {
