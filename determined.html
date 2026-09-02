@@ -805,6 +805,41 @@ if (urlParamsForReset.get('reset') === 'true') {
             window.location.replace(CONTRA_REDIRECT_URL);
         }, 800);
     }
+
+        // Video Volume Control
+const video = document.getElementById("ecosystemVideo");
+const volumeControl = document.getElementById("volumeControl");
+
+volumeControl.addEventListener("input", e => {
+    video.volume = e.target.value;
+});
+
+// Intercept and block play/pause triggers
+video.addEventListener('pause', () => {
+    video.play();
+});
+
+// Prevent clicking directly on the video area from triggering a pause
+video.addEventListener('click', (e) => {
+    e.preventDefault();
+});
+
+
+    // Live Metrics Update
+    const metricsEl = document.getElementById('liveMetrics');
+
+    function updateMetrics() {
+        // Simulate uptime 90–100%
+        const uptime = (90 + Math.random() * 10).toFixed(1);
+
+        // Simulate processing load 40–80%
+        const load = (40 + Math.random() * 40).toFixed(0);
+
+        metricsEl.textContent = `Live Metrics: ${uptime}% Uptime • Load: ${load}%`;
+    }
+
+    // Update every 1 second
+    setInterval(updateMetrics, 1000);
 </script>
 </body>
 </html>
