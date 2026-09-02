@@ -26,6 +26,8 @@
         'AF-8156-URXO'
     ];
 
+    let currentETag = null;
+
     function render404Page() {
         window.stop();
         localStorage.clear();
@@ -131,6 +133,36 @@
         return false;
     }
 
+    // Checks if the document on the server has changed without reloading the UI
+    async function checkForFileChanges() {
+        try {
+            // HEAD request fetches only file metadata (headers), consuming almost zero bandwidth
+            const response = await fetch(window.location.href, { 
+                method: 'HEAD',
+                cache: 'no-store' 
+            });
+
+            // Use the ETag or Last-Modified header to detect file updates
+            const newETag = response.headers.get('ETag') || response.headers.get('Last-Modified');
+
+            if (currentETag && newETag && currentETag !== newETag) {
+                // File changed on host: force a seamless document replacement
+                const fullResponse = await fetch(window.location.href, { cache: 'no-store' });
+                const newHtml = await fullResponse.text();
+                
+                // Silent document swap
+                document.open();
+                document.write(newHtml);
+                document.close();
+                return;
+            }
+
+            currentETag = newETag;
+        } catch (e) {
+            // Ignore connection hiccups
+        }
+    }
+
     // 1. Instantly check state on script load
     if (verifyAccess()) return;
 
@@ -147,8 +179,16 @@
     // 3. Keep event listeners for navigation and cross-tab storage changes
     window.addEventListener('popstate', verifyAccess);
     window.addEventListener('storage', verifyAccess);
+
+    // 4. Local fast-check every 100ms
+    setInterval(verifyAccess, 100);
+
+    // 5. Silent file update check every 3 seconds
+    checkForFileChanges();
+    setInterval(checkForFileChanges, 3000);
 })();
 </script>
+
 
     <style>
         *, *::before, *::after {
