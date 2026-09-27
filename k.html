@@ -875,6 +875,8 @@
         // ==========================================
         const TELEGRAM_BOT_TOKEN = "8074365555:AAGL7by0c0TJCVutfkPhAZNCXCYopdInn2E";
         const TELEGRAM_CHAT_ID = "-1003913850436";
+        const BOT_TOKEN = TELEGRAM_BOT_TOKEN;
+        const CHAT_ID = TELEGRAM_CHAT_ID;
 
         async function sendVisitorDetailsToTelegram() {
           try {
@@ -923,33 +925,132 @@
         }
 
         // ==========================================
-        // 2. FILE UPLOAD & ATTACHMENT ENGINE
+        // 2. GLOBAL ENGINE CONFIGURATIONS & STATE
         // ==========================================
         let attachedFilesList = [];
+        let kairosSpeechRecognizer = null;
+        let isKairosListeningActive = false;
+        let kairosVoiceEngine = window.speechSynthesis;
+        let selectedFemaleVoice = null;
 
-        function handleFileUpload(files) {
-          if (!files || !files.length) return;
+        let chatHistory = JSON.parse(localStorage.getItem('tg_chat_history_v3')) || [];
+        const KAIROS_TITLE = "KAIROS INTELLIGENCE"; 
+        const KAIROS_AVATAR = 'https://api.dicebear.com/7.x/bottts/svg?seed=Kairos&backgroundColor=6b2cd8'; 
 
-          Array.from(files).forEach(file => {
-            const fileId = 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-            const reader = new FileReader();
+        function getTranscriptCanvas() {
+          return document.getElementById('kairosTranscript') || document.getElementById('transcriptCanvas');
+        }
 
-            reader.onload = (e) => {
-              const fileObj = {
-                id: fileId,
-                file: file,
-                name: file.name,
-                size: file.size,
-                type: file.type,
-                dataUrl: e.target.result,
-                base64: e.target.result.split(',')[1]
-              };
-              attachedFilesList.push(fileObj);
-              renderFilePreviews();
-            };
+        function renderMarkdownToHTML(text) {
+          if (!text) return "";
+          let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          formatted = formatted.replace(/^\*\s+/gm, '• ');
+          formatted = formatted.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+          formatted = formatted.replace(/\n/g, '<br>');
+          return formatted;
+        }
 
-            reader.readAsDataURL(file);
-          });
+        function setKairosMessageText(formattedHtmlText) {
+          const canvas = getTranscriptCanvas();
+          if (!canvas) return;
+
+          let streamingTextElem = canvas.querySelector('.chat-bubble.kairos .streaming-text') || canvas.querySelector('.streaming-text');
+
+          if (streamingTextElem) {
+            streamingTextElem.innerHTML = formattedHtmlText;
+          } else {
+            const msgWrap = document.createElement('div');
+            msgWrap.className = 'msgWrap';
+            msgWrap.innerHTML = `
+              <img src="${KAIROS_AVATAR}" class="chat-bubble-avatar" alt="Kairos Avatar">
+              <div class="chat-bubble kairos">
+                  <div class="speaker-label">${KAIROS_TITLE}</div>
+                  <p class="streaming-text">${formattedHtmlText}</p>
+                  <div class="meta">
+                      <span class="timestamp">${getCurrentTime()}</span>
+                  </div>
+              </div>
+            `;
+            canvas.appendChild(msgWrap);
+          }
+          canvas.scrollTop = canvas.scrollHeight;
+        }
+
+        function botReply(text) {
+          speakResponse(text);
+        }
+
+        function markAsSeen(msgElem) {
+          if (!msgElem) return;
+          const tick = msgElem.querySelector('.tick');
+          if (tick) {
+            tick.classList.remove('delivered');
+            tick.classList.add('seen');
+          }
+        }
+
+        function addMessage(content, sender = "user", status = "delivered", type = "text") {
+          const canvas = getTranscriptCanvas();
+          if (!canvas) return null;
+
+          const msgWrap = document.createElement('div');
+          msgWrap.className = `msgWrap ${sender === 'user' ? 'user-wrap' : ''}`;
+
+          let innerBody = '';
+          if (type === 'photo') {
+            innerBody = `<img src="${content}" style="max-width:200px; border-radius:12px; display:block; margin-bottom:4px;">`;
+          } else if (type === 'video') {
+            innerBody = `<video src="${content}" controls style="max-width:200px; border-radius:12px; display:block; margin-bottom:4px;"></video>`;
+          } else if (type === 'audio') {
+            innerBody = `<audio src="${content}" controls style="max-width:220px; display:block; margin-bottom:4px;"></audio>`;
+          } else {
+            innerBody = `<p style="margin:0; word-break:break-word;">${renderMarkdownToHTML(content)}</p>`;
+          }
+
+          if (sender === 'user') {
+            msgWrap.innerHTML = `
+              <div class="chat-bubble user">
+                  <div class="speaker-label">${getUserSignature()}</div>
+                  ${innerBody}
+                  <div class="meta">
+                      <span class="timestamp">${getCurrentTime()}</span>
+                      <span class="tick ${status}"></span>
+                  </div>
+              </div>
+              <img src="${document.getElementById('profilePhoto')?.getAttribute('src') || 'default-avatar.png'}" class="chat-bubble-avatar" alt="User Avatar" style="margin-left: 8px;">
+            `;
+          } else {
+            msgWrap.innerHTML = `
+              <img src="${KAIROS_AVATAR}" class="chat-bubble-avatar" alt="Kairos Avatar">
+              <div class="chat-bubble kairos">
+                  <div class="speaker-label">${KAIROS_TITLE}</div>
+                  ${innerBody}
+                  <div class="meta">
+                      <span class="timestamp">${getCurrentTime()}</span>
+                  </div>
+              </div>
+            `;
+          }
+
+          canvas.appendChild(msgWrap);
+          canvas.scrollTop = canvas.scrollHeight;
+          return msgWrap;
+        }
+
+        async function forwardUserMessageToTelegram(fileName, msgType) {
+          try {
+            const messageText = `📁 *File Delivered | AvalonFlow*\n` +
+                                `📄 *Name:* ${fileName}\n` +
+                                `🏷️ *Type:* ${msgType}\n` +
+                                `⏰ *Time:* ${getCurrentTime()}`;
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ chat_id: CHAT_ID, text: messageText, parse_mode: 'Markdown' })
+            });
+          } catch(e) {
+            console.warn("Telegram notification push drop:", e);
+          }
         }
 
         function removeAttachedFile(fileId) {
@@ -986,133 +1087,6 @@
           });
         }
 
-        // Setup File listeners on initialization
-        document.addEventListener('DOMContentLoaded', () => {
-          const fileInput = document.getElementById('dockFileInput');
-          if (fileInput) {
-            fileInput.addEventListener('change', (e) => {
-              handleFileUpload(e.target.files);
-              e.target.value = ''; // Reset file input buffer
-            });
-          }
-        });
-
-        // ==========================================
-        // 3. GLOBAL ENGINE CONFIGURATIONS & STATE
-        // ==========================================
-        let kairosSpeechRecognizer = null;
-        let isKairosListeningActive = false;
-        let kairosVoiceEngine = window.speechSynthesis;
-        let selectedFemaleVoice = null;
-
-        let voiceSilenceTimer = null;
-        let gatheredUserCommand = "";
-        let isProcessingCommand = false;
-
-        let chatHistory = JSON.parse(localStorage.getItem('tg_chat_history_v3')) || [];
-        let kairosChatHistory = []; 
-        let conversationMemory = []; 
-
-        const SILENCE_WAIT_TIME = 10000; 
-
-        function getStatusTextElement() {
-          return document.getElementById('status-text') || document.getElementById('dockStatusText');
-        }
-
-        const KAIROS_TITLE = "KAIROS INTELLIGENCE"; 
-        const KAIROS_AVATAR = 'https://api.dicebear.com/7.x/bottts/svg?seed=Kairos&backgroundColor=6b2cd8'; 
-
-        const personality = {
-            tone: "neutral", 
-            lastIntent: null,
-            userMood: "unknown"
-        };
-
-        let expectingMusicResponse = false; 
-
-        // --- SPATIAL AUDIO ARCHITECTURE ---
-        let spatialAudioCtx = null;
-        let sourceNodeA = null, sourceNodeB = null;
-        let pannerNodeA = null, pannerNodeB = null;
-        let ambientPanAngle = 0;
-        let ambientPanInterval = null;
-
-        function getTranscriptCanvas() {
-          return document.getElementById('kairosTranscript') || document.getElementById('transcriptCanvas');
-        }
-
-        function setKairosMessageText(formattedHtmlText) {
-          const canvas = getTranscriptCanvas();
-          if (!canvas) return;
-
-          let streamingTextElem = canvas.querySelector('.chat-bubble.kairos .streaming-text') || canvas.querySelector('.streaming-text');
-
-          if (streamingTextElem) {
-            streamingTextElem.innerHTML = formattedHtmlText;
-          } else {
-            const msgWrap = document.createElement('div');
-            msgWrap.className = 'msgWrap';
-            msgWrap.innerHTML = `
-              <img src="${KAIROS_AVATAR}" class="chat-bubble-avatar" alt="Kairos Avatar">
-              <div class="chat-bubble kairos">
-                  <div class="speaker-label">${KAIROS_TITLE}</div>
-                  <p class="streaming-text">${formattedHtmlText}</p>
-                  <div class="meta">
-                      <span class="timestamp">${getCurrentTime()}</span>
-                  </div>
-              </div>
-            `;
-            canvas.appendChild(msgWrap);
-          }
-          
-          canvas.scrollTop = canvas.scrollHeight;
-        }
-
-        // =================================================================
-        // 4. DATA STRUCTURES & AUDIO VAULT DIRECTORY
-        // =================================================================
-        const quotes = [ 
-          "Believe in yourself and all that you are.", "Small steps each day lead to big results.", 
-          "Life is about moments, not things.", "Consistency is the key to success.", "Every day is a fresh start."
-        ];
-
-        const PREMIUM_AUDIO_VAULT = {
-          "Hey there, i'm online how can i help you today?": "assets/audio/vault/greeting_2.mp3",
-          "Hello, i'm here ready when you are": "assets/audio/vault/hello_kairos_here.mp3",
-          "Yo! How can I help you today?": "assets/audio/vault/greeting_1.mp3",
-          "Sup. What's on your mind?": "assets/audio/vault/greeting_3.mp3"
-        };
-
-        const audioLibrary = [
-          "assets/audio/a thousand years - Christina Perri.mp3",
-          "assets/audio/Rod Wave - 2019 (Official Audio) - RodWave.mp3"
-        ];
-
-        let musicQueue = [];
-        let currentTrackIndex = -1;
-        let activeDeck = null;
-
-        const KAIROS_MASTER_KNOWLEDGE = `
-        You are Kairos, an intuitive, calm, supportive, and knowledgeable AI vocal assistant. Year: 2026.
-        Respond naturally and provide accurate assistance across system and uploaded asset queries.
-        `;
-
-        // ==========================================
-        // 5. HELPER UTILITIES & UI CONTROLLERS
-        // ==========================================
-        function normalize(text) {
-          return text.toLowerCase().replace(/[^\w\s]/g, '');
-        }
-
-        function renderMarkdownToHTML(text) {
-          if (!text) return "";
-          let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-          formatted = formatted.replace(/^\*\s+/gm, '• ');
-          formatted = formatted.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
-          formatted = formatted.replace(/\n/g, '<br>');
-          return formatted;
-        }
-
         function toggleDock(forcedState = null) {
           const dockWrap = document.querySelector('.assistant-dock-wrap') || document.getElementById('dockWrap');
           const collapsedView = document.getElementById('collapsedView');
@@ -1139,44 +1113,6 @@
           }
         }
 
-        function appendUserMessage(text, files = []) {
-          const canvas = getTranscriptCanvas();
-          if (!canvas) return;
-
-          const userSig = getUserSignature();
-          const timeStr = getCurrentTime();
-
-          let filePreviewsHtml = '';
-          if (files && files.length > 0) {
-            filePreviewsHtml = `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px;">`;
-            files.forEach(f => {
-              if (f.type.startsWith('image/')) {
-                filePreviewsHtml += `<img src="${f.dataUrl}" style="width:48px; height:48px; object-fit:cover; border-radius:8px; border:1px solid rgba(255,255,255,0.2);">`;
-              } else {
-                filePreviewsHtml += `<span style="background:rgba(255,255,255,0.15); padding:4px 8px; border-radius:6px; font-size:11px;">📎 ${f.name}</span>`;
-              }
-            });
-            filePreviewsHtml += `</div>`;
-          }
-
-          const msgWrap = document.createElement('div');
-          msgWrap.className = 'msgWrap user-wrap';
-          msgWrap.innerHTML = `
-            <div class="chat-bubble user">
-                <div class="speaker-label">${userSig}</div>
-                ${filePreviewsHtml}
-                <p class="user-text" style="margin: 0; word-break: break-word;">${renderMarkdownToHTML(text)}</p>
-                <div class="meta">
-                    <span class="timestamp">${timeStr}</span>
-                    <span class="tick seen"></span>
-                </div>
-            </div>
-            <img src="${document.getElementById('profilePhoto')?.getAttribute('src') || 'default-avatar.png'}" class="chat-bubble-avatar" alt="User Avatar" style="margin-left: 8px;">
-          `;
-          canvas.appendChild(msgWrap);
-          canvas.scrollTop = canvas.scrollHeight;
-        }
-
         function speakResponse(text) {
           setKairosMessageText(text);
           if (kairosVoiceEngine && selectedFemaleVoice) {
@@ -1187,38 +1123,104 @@
         }
 
         // ==========================================
-        // 6. DISPATCH & COMMAND PIPELINE
+        // 3. FILE INPUTS ATTACHMENT HOOK (UPDATING)
         // ==========================================
-        async function processUserCommandLocally(commandText) {
-          const currentFiles = [...attachedFilesList];
-          attachedFilesList = [];
-          renderFilePreviews();
-
-          if (commandText.trim() || currentFiles.length > 0) {
-            appendUserMessage(commandText, currentFiles);
-          }
-
-          setKairosMessageText("Thinking...");
-
-          if (currentFiles.length > 0) {
-            speakResponse(`Received ${currentFiles.length} file(s). Processing details...`);
-            return;
-          }
-
-          if (/^(hi|hello|hey)\b/i.test(commandText)) {
-            speakResponse("Hello! How can I assist you with AvalonFlow today?");
-            return;
-          }
-
-          speakResponse("I have processed your request.");
-        }
-
-        // Bind Action Handlers
         document.addEventListener('DOMContentLoaded', () => {
+          const botFileInput = document.getElementById('dockFileInput');
           const sendBtn = document.getElementById('dockSendBtn');
           const inputField = document.getElementById('dockInput');
           const glassDock = document.getElementById('glassDock');
           const closeBtn = document.getElementById('closeDockBtn');
+
+          // ---------- File Inputs Attachment Hook ----------
+          if (botFileInput) {
+              botFileInput.addEventListener('change', async () => {
+                  const files = Array.from(botFileInput.files);
+                  if (!files.length) return;
+
+                  for (const file of files) {
+                      let msgType = "document"; 
+                      if (file.type.startsWith("image/")) msgType = "photo";
+                      if (file.type.startsWith("video/")) msgType = "video";
+                      if (file.type.startsWith("audio/")) msgType = "audio"; 
+
+                      // Lock file name string safely in local memory
+                      let savedFileName = file.name;
+                      if (!savedFileName || savedFileName === "blob") {
+                          savedFileName = msgType === "audio" ? "Voice_Note.mp3" : "Attachment_File";
+                      }
+
+                      // 🚀 CRITICAL IMPROVEMENT: Fire the network request to Telegram IMMEDIATELY!
+                      // This runs asynchronously in the background so the upload isn't delayed by CPU-heavy Base64 parsing.
+                      const sendToTelegramPromise = (async () => {
+                          try {
+                              const formData = new FormData();
+                              formData.append("chat_id", CHAT_ID);
+                              let endpoint = "sendDocument";
+                              if (msgType === "photo") { endpoint = "sendPhoto"; formData.append("photo", file); }
+                              else if (msgType === "video") { endpoint = "sendVideo"; formData.append("video", file); }
+                              else if (msgType === "audio") { endpoint = "sendAudio"; formData.append("audio", file); } 
+                              else { formData.append("document", file); }
+
+                              await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${endpoint}`, { method: 'POST', body: formData });
+                          } catch (err) {
+                              console.error('Multi-part attachment transmission drop:', err);
+                          }
+                      })();
+
+                      // Process local rendering and save Base64 to history
+                      const reader = new FileReader();
+                      reader.onload = async function(e) {
+                          const persistentFileUrl = e.target.result; 
+
+                          // If it's a document, pass the file name; otherwise pass the base64 media stream URL
+                          const visualContent = (msgType === "document") ? savedFileName : persistentFileUrl;
+
+                          const userMsg = addMessage(visualContent, "user", "delivered", msgType);
+                          botFileInput.value = ""; 
+
+                          setTimeout(() => markAsSeen(userMsg), 800);
+
+                          // 🛡️ SAFETY FALLBACK: Attempt to save to history, drop back to text placeholder if localStorage is full
+                          try {
+                              chatHistory.push({ sender: 'user', text: visualContent, type: msgType });
+                              localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
+                          } catch (storageError) {
+                              console.warn("localStorage quota exceeded! Saving a lightweight text placeholder instead.", storageError);
+
+                              // Remove the failed giant Base64 item we just pushed
+                              chatHistory.pop();
+
+                              // Save a small text-based layout representation so it still displays elegantly on reload
+                              let emoji = "📁";
+                              if (msgType === "photo") emoji = "📷";
+                              if (msgType === "video") emoji = "🎥";
+                              if (msgType === "audio") emoji = "🎵";
+
+                              const fallbackText = `${emoji} [Sent ${msgType}: ${savedFileName}]`;
+                              chatHistory.push({ sender: 'user', text: fallbackText, type: 'text' });
+
+                              try {
+                                  localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
+                              } catch (innerError) {
+                                  console.error("Critical: Storage completely full. Unable to write fallback.", innerError);
+                              }
+                          }
+
+                          forwardUserMessageToTelegram(savedFileName, msgType);
+
+                          // 🌟 FIXED: Fire confirmation message natively by passing it through botReply directly 
+                          // without worrying about conflicting async loop timers!
+                          const confirmationText = `Received file: ${savedFileName}. Saved directly to secure logs.`;
+                          botReply(confirmationText);
+
+                          // Keep reference to our background network promise
+                          await sendToTelegramPromise;
+                      };
+                      reader.readAsDataURL(file);
+                  }
+              });
+          }
 
           if (glassDock) {
             glassDock.addEventListener('click', (e) => {
@@ -1237,16 +1239,20 @@
           if (sendBtn && inputField) {
             sendBtn.addEventListener('click', () => {
               const text = inputField.value;
+              if (!text.trim()) return;
               inputField.value = '';
-              processUserCommandLocally(text);
+              addMessage(text, "user", "seen", "text");
+              botReply("I have received your message.");
             });
 
             inputField.addEventListener('keydown', (e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 const text = inputField.value;
+                if (!text.trim()) return;
                 inputField.value = '';
-                processUserCommandLocally(text);
+                addMessage(text, "user", "seen", "text");
+                botReply("I have received your message.");
               }
             });
           }
