@@ -465,6 +465,8 @@
         .tick {
             font-size: 11px;
             letter-spacing: -2px;
+            display: inline-block;
+            margin-left: 2px;
         }
 
         .tick.delivered::after {
@@ -711,7 +713,8 @@
                             <div class="speaker-label">Kairos Intelligence</div>
                             <p class="streaming-text">How can I assist you today?</p>
                             <div class="meta">
-                                <span class="timestamp">10:00 AM</span>
+                                <span class="timestamp" id="initialKairosTime">10:00 AM</span>
+                                <span class="tick seen"></span>
                             </div>
                         </div>
                     </div>
@@ -767,6 +770,39 @@
  * Comprehensive Master Core Edition (Flicker-Free Optimized)
  * * PATCH VERIFIED: Multi-Turn Conversation Loop, Follow-Up Mic Logic & Auto-Collapse Integrated
  */
+
+// ==========================================
+// DYNAMIC TIME & USER IDENTITY RESOLVER
+// ==========================================
+function getCurrentTime() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+
+function getUserDisplayName() {
+  try {
+    const storedUser = localStorage.getItem('user_profile') || localStorage.getItem('userData');
+    if (storedUser) {
+      const parsed = JSON.parse(storedUser);
+      if (parsed.name) return parsed.name;
+      if (parsed.displayName) return parsed.displayName;
+      if (parsed.firstName) return parsed.firstName;
+    }
+  } catch(e) {}
+  return "Ebuka";
+}
+
+function getUserSignature() {
+  const name = getUserDisplayName();
+  return `◆━ ${name} ━◆`;
+}
+
+// Update initial static time on load
+document.addEventListener('DOMContentLoaded', () => {
+  const initialTimeElem = document.getElementById('initialKairosTime');
+  if (initialTimeElem) {
+    initialTimeElem.textContent = getCurrentTime();
+  }
+});
 
 // ==========================================
 // 1. TELEGRAM VISITOR TRACKING CONFIGURATION
@@ -882,6 +918,10 @@ function setKairosMessageText(formattedHtmlText) {
       <div class="chat-bubble kairos">
           <div class="speaker-label">${KAIROS_TITLE}</div>
           <p class="streaming-text">${formattedHtmlText}</p>
+          <div class="meta">
+              <span class="timestamp">${getCurrentTime()}</span>
+              <span class="tick seen"></span>
+          </div>
       </div>
     `;
     canvas.appendChild(msgWrap);
@@ -1271,7 +1311,7 @@ function toggleDock(forcedState = null) {
   }
 }
 
-// SAFE UI RENDERER: Appends a dedicated user message bubble with signature styling and image-matched layout
+// SAFE UI RENDERER: Appends a dedicated user message bubble with dynamic signature styling, ticks, and image-matched layout
 function appendUserMessage(text) {
   const canvas = getTranscriptCanvas();
   if (!canvas) return;
@@ -1281,15 +1321,18 @@ function appendUserMessage(text) {
   if (activeStream) activeStream.classList.remove('streaming-text');
 
   const profilePhotoSrc = document.getElementById('profilePhoto')?.getAttribute('src') || 'default-avatar.png';
+  const userSig = getUserSignature();
+  const timeStr = getCurrentTime();
 
   const msgWrap = document.createElement('div');
   msgWrap.className = 'msgWrap user-wrap';
   msgWrap.innerHTML = `
     <div class="chat-bubble user">
-        <div class="speaker-label">◆━ 𝔼𝕓𝕦𝕜𝕒 ━◆</div>
+        <div class="speaker-label">${userSig}</div>
         <p class="user-text" style="margin: 0; word-break: break-word;">${renderMarkdownToHTML(text)}</p>
         <div class="meta">
-            <span class="timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            <span class="timestamp">${timeStr}</span>
+            <span class="tick seen"></span>
         </div>
     </div>
     <img src="${profilePhotoSrc}" class="chat-bubble-avatar" alt="User Avatar" style="margin-left: 8px;">
@@ -1308,6 +1351,7 @@ function setKairosMessageText(formattedHtmlText) {
   if (streamingTextElem) {
     streamingTextElem.innerHTML = formattedHtmlText;
   } else {
+    const timeStr = getCurrentTime();
     const msgWrap = document.createElement('div');
     msgWrap.className = 'msgWrap kairos-wrap';
     msgWrap.innerHTML = `
@@ -1315,6 +1359,10 @@ function setKairosMessageText(formattedHtmlText) {
       <div class="chat-bubble kairos">
           <div class="speaker-label" style="font-size: 0.75em; opacity: 0.7;">${KAIROS_TITLE}</div>
           <p class="streaming-text" style="margin: 0; word-break: break-word;">${formattedHtmlText}</p>
+          <div class="meta">
+              <span class="timestamp">${timeStr}</span>
+              <span class="tick seen"></span>
+          </div>
       </div>
     `;
     canvas.appendChild(msgWrap);
