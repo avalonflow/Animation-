@@ -1262,6 +1262,53 @@ function toggleDock(forcedState = null) {
   }
 }
 
+// SAFE UI RENDERER: Appends a dedicated user message bubble
+function appendUserMessage(text) {
+  const canvas = getTranscriptCanvas();
+  if (!canvas) return;
+
+  // Clear existing active streaming markers
+  const activeStream = canvas.querySelector('.streaming-text');
+  if (activeStream) activeStream.classList.remove('streaming-text');
+
+  const msgWrap = document.createElement('div');
+  msgWrap.className = 'msgWrap user-wrap';
+  msgWrap.innerHTML = `
+    <div class="chat-bubble user" style="margin-left: auto; text-align: right;">
+        <div class="speaker-label" style="font-size: 0.75em; opacity: 0.7;">YOU</div>
+        <p class="user-text" style="margin: 0; word-break: break-word;">${renderMarkdownToHTML(text)}</p>
+    </div>
+  `;
+  canvas.appendChild(msgWrap);
+  canvas.scrollTop = canvas.scrollHeight;
+}
+
+// SAFE UI RENDERER: Updates or appends Kairos responses safely without overlapping user bubbles
+function setKairosMessageText(formattedHtmlText) {
+  const canvas = getTranscriptCanvas();
+  if (!canvas) return;
+
+  let streamingTextElem = canvas.querySelector('.chat-bubble.kairos .streaming-text');
+
+  if (streamingTextElem) {
+    streamingTextElem.innerHTML = formattedHtmlText;
+  } else {
+    const msgWrap = document.createElement('div');
+    msgWrap.className = 'msgWrap kairos-wrap';
+    msgWrap.innerHTML = `
+      <img src="${KAIROS_AVATAR}" class="chat-bubble-avatar" alt="Kairos Avatar" style="width: 28px; height: 28px; border-radius: 50%; margin-right: 8px;">
+      <div class="chat-bubble kairos">
+          <div class="speaker-label" style="font-size: 0.75em; opacity: 0.7;">${KAIROS_TITLE}</div>
+          <p class="streaming-text" style="margin: 0; word-break: break-word;">${formattedHtmlText}</p>
+      </div>
+    `;
+    canvas.appendChild(msgWrap);
+  }
+  
+  canvas.scrollTop = canvas.scrollHeight;
+}
+
+
 // ==========================================
 // 5a. CONTINUOUS TURN FOLLOW-UP LOOPER
 // ==========================================
@@ -2110,10 +2157,10 @@ function activateKairosVoiceOnDemand() {
       }
     }
 
-    if (isFinalChunkDetected && finalTranscript.trim().length > 0) {
-      setKairosMessageText(finalTranscript.trim() + "...");
-    } else if (interimTranscript.trim().length > 0) {
-      setKairosMessageText(interimTranscript.trim() + "...");
+    let currentLiveText = finalTranscript || interimTranscript;
+    if (currentLiveText.trim().length > 0) {
+      // Show live live-transcribing text in status indicator or temporary placeholder
+      if (statusTxt) statusTxt.innerText = `"${currentLiveText.trim()}"`;
     }
 
     let processedText = finalTranscript.trim();
@@ -2151,7 +2198,8 @@ function activateKairosVoiceOnDemand() {
       isProcessingCommand = true; 
       killSpeechEngineCompletely();
 
-      setKairosMessageText("Thinking...");
+      // Render the final user speech in its own dedicated user bubble right before processing
+      appendUserMessage(gatheredUserCommand);
 
       conversationMemory.push({ role: "user", content: gatheredUserCommand, time: Date.now() });
 
@@ -2173,6 +2221,7 @@ function activateKairosVoiceOnDemand() {
     console.error(e);
   }
 }
+
 
 function stopActiveKairosVoice() {
   if (kairosVoiceEngine) kairosVoiceEngine.cancel();
