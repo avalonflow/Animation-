@@ -119,11 +119,12 @@
             max-width: 380px; /* Kept identical to base mobile card width */
         }
 
-        /* Explicit viewport clearance in Full-Height mode */
+        /* Full-Height State (Restored top height to 20px) */
         .assistant-dock-wrap.full-height {
-            bottom: 70px; /* Preserves same bottom clearance above footer */
-            height: calc(100vh - 90px);
-            max-height: 650px;
+            top: 20px;
+            bottom: 70px;
+            height: auto;
+            max-height: calc(100vh - 90px);
             max-width: 380px;
         }
 
@@ -150,7 +151,7 @@
 
         .assistant-dock-wrap.full-height .glass-dock {
             border-radius: 28px;
-            padding: 20px; /* Ensures inner bottom padding around dock-input-bar stays locked */
+            padding: 20px;
         }
 
         .glass-dock::before {
@@ -498,7 +499,7 @@
             padding: 4px 8px;
             flex-shrink: 0;
             position: relative;
-            margin-top: auto; /* Guarantees space above input bar in full height layout */
+            margin-top: auto;
         }
 
         .typing-cursor {
@@ -645,9 +646,10 @@
             }
 
             .assistant-dock-wrap.full-height {
+                top: 20px;
                 bottom: 70px;
-                height: calc(100vh - 100px);
-                max-height: 750px;
+                height: auto;
+                max-height: calc(100vh - 40px);
                 max-width: 650px;
             }
 
