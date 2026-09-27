@@ -2148,6 +2148,7 @@ function killSpeechEngineCompletely() {
     } catch (e) {}
     kairosSpeechRecognizer = null;
   }
+  updateSpeakingIndicator(false);
   console.log("🔒 Microphone hardware turned completely OFF.");
 }
 
@@ -2196,6 +2197,7 @@ function activateKairosVoiceOnDemand() {
       dockInput.value = currentSpokenText.trim();
       dockInput.style.height = 'auto';
       dockInput.style.height = dockInput.scrollHeight + 'px';
+      updateSpeakingIndicator(true);
     }
 
     if (finalTranscript.trim().length > 0) {
@@ -2211,6 +2213,7 @@ function activateKairosVoiceOnDemand() {
       if (statusTxt) statusTxt.innerText = "Mic access closed.";
       if (micBtn) micBtn.classList.remove('recording');
       isProcessingCommand = false;
+      updateSpeakingIndicator(false);
       
       const deckA = document.getElementById('audioDeckA');
       const deckB = document.getElementById('audioDeckB');
@@ -2223,6 +2226,7 @@ function activateKairosVoiceOnDemand() {
 
   kairosSpeechRecognizer.onend = () => {
     if (micBtn) micBtn.classList.remove('recording');
+    updateSpeakingIndicator(false);
   };
 
   function resetSilenceTimer(customWaitTime = 10000) {
@@ -2230,6 +2234,7 @@ function activateKairosVoiceOnDemand() {
     voiceSilenceTimer = setTimeout(() => {
       if (micBtn) micBtn.classList.remove('recording');
       killSpeechEngineCompletely();
+      updateSpeakingIndicator(false);
       console.log("Speech captured and populated in input box. Waiting for manual send.");
     }, customWaitTime);
   }
@@ -2242,6 +2247,7 @@ function activateKairosVoiceOnDemand() {
   } catch (e) {
     console.error(e);
     if (micBtn) micBtn.classList.remove('recording');
+    updateSpeakingIndicator(false);
   }
 }
 
@@ -2309,7 +2315,9 @@ function sendMessage() {
   dockInput.style.overflowY = 'hidden';
 }
 
-// Typing Indicator & Auto-Suggest Component
+// ==========================================
+// DYNAMIC USER TYPING & SPEAKING INDICATORS
+// ==========================================
 let typingTimeout;
 let typingIndicatorEl = null;
 
@@ -2317,29 +2325,54 @@ const botInput = document.getElementById("dockInput");
 const botMessagesContainer = document.getElementById("transcriptCanvas");
 
 if (botInput) {
-    botInput.addEventListener("input", ()=>{
-        if(!typingIndicatorEl){
+    botInput.addEventListener("input", () => {
+        const currentUserName = getUserDisplayName(); // Pulls name dynamically
+        if (!typingIndicatorEl) {
             typingIndicatorEl = document.createElement("div");
             typingIndicatorEl.className = "ambient";
-            typingIndicatorEl.textContent = "User is typing...";
+            typingIndicatorEl.textContent = `${currentUserName} is typing...`;
             if (botMessagesContainer) botMessagesContainer.appendChild(typingIndicatorEl);
         }
         clearTimeout(typingTimeout);
-        typingTimeout = setTimeout(()=>{
+        typingTimeout = setTimeout(() => {
             if(typingIndicatorEl) { typingIndicatorEl.remove(); typingIndicatorEl = null; }
         }, 1200);
     });
 
-    botInput.addEventListener('input', e=>{
-        const msg=e.target.value.toLowerCase();
-        const autoSuggest=[
+    botInput.addEventListener('input', e => {
+        const msg = e.target.value.toLowerCase();
+        const autoSuggest = [
             {keywords:['ticket','issue'], suggestion:"You can say 'generate ticket'."},
             {keywords:['faq','question'], suggestion:"Ask your question directly to check database."},
             {keywords:['quote','motivation'], suggestion:"Type 'quote' for motivation."}
         ];
-        const found=autoSuggest.find(s=>s.keywords.some(k=>msg.includes(k)));
+        const found = autoSuggest.find(s => s.keywords.some(k => msg.includes(k)));
         if(found && typeof notify === "function") notify(`💡 ${found.suggestion}`);
     });
+}
+
+// Update inside activateKairosVoiceOnDemand() to handle "User is speaking..."
+let speakingIndicatorEl = null;
+
+function updateSpeakingIndicator(isSpeaking) {
+    const currentUserName = getUserDisplayName();
+    const container = getTranscriptCanvas();
+    if (!container) return;
+
+    if (isSpeaking) {
+        if (!speakingIndicatorEl) {
+            speakingIndicatorEl = document.createElement("div");
+            speakingIndicatorEl.className = "ambient";
+            speakingIndicatorEl.style.color = "var(--gemini-cyan)";
+            speakingIndicatorEl.textContent = `${currentUserName} is speaking...`;
+            container.appendChild(speakingIndicatorEl);
+        }
+    } else {
+        if (speakingIndicatorEl) {
+            speakingIndicatorEl.remove();
+            speakingIndicatorEl = null;
+        }
+    }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
