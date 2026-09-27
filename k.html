@@ -768,7 +768,7 @@
         /**
  * AvalonFlow: Kairos Intelligent Voice & UI Controller
  * Comprehensive Master Core Edition (Flicker-Free Optimized)
- * * PATCH VERIFIED: Multi-Turn Conversation Loop, Follow-Up Mic Logic & Auto-Collapse Integrated
+ * * PATCH VERIFIED: Multi-Turn Conversation Loop Removed, Music-Aware Auto-Collapse Integrated
  */
 
 // ==========================================
@@ -865,7 +865,6 @@ let gatheredUserCommand = "";
 let isProcessingCommand = false;
 let activeTypingInterval = null;
 
-// --- CRITICAL MIC CONTROL FIX ---
 let blockNextMicActivation = false; 
 
 let chatHistory = JSON.parse(localStorage.getItem('tg_chat_history_v3')) || [];
@@ -1182,10 +1181,6 @@ function formatTrackTitle(filePath) {
     return toTitleCase(name);
 }
 
-function getTypingDelay(text) {
-  return Math.min(100 + text.length * 5, 300);
-}
-
 function loadFemaleVoice() {
   if (!kairosVoiceEngine) return;
   const voices = kairosVoiceEngine.getVoices();
@@ -1316,7 +1311,6 @@ function appendUserMessage(text) {
   const canvas = getTranscriptCanvas();
   if (!canvas) return;
 
-  // Clear existing active streaming markers
   const activeStream = canvas.querySelector('.streaming-text');
   if (activeStream) activeStream.classList.remove('streaming-text');
 
@@ -1369,25 +1363,6 @@ function setKairosMessageText(formattedHtmlText) {
   }
   
   canvas.scrollTop = canvas.scrollHeight;
-}
-
-
-// ==========================================
-// 5a. CONTINUOUS TURN FOLLOW-UP LOOPER
-// ==========================================
-function listenForFollowUp() {
-  isProcessingCommand = false;
-  gatheredUserCommand = "";
-
-  const dockStatusText = document.getElementById('dockStatusText');
-  const statusTxt = getStatusTextElement();
-
-  if (dockStatusText) dockStatusText.innerText = "Listening for follow-up...";
-  if (statusTxt) statusTxt.innerText = "Listening for follow-up...";
-
-  setKairosMessageText("<span style='opacity:0.5; font-size:0.85em;'>🎧 Listening for follow-up...</span>");
-
-  activateKairosVoiceOnDemand();
 }
 
 // ==========================================
@@ -1882,7 +1857,6 @@ async function speakResponse(rawResponseText) {
 
   if (!spokenText) {
     isProcessingCommand = false;
-    toggleDock(false); 
     return;
   }
 
@@ -1903,12 +1877,14 @@ async function speakResponse(rawResponseText) {
 
       setKairosMessageText(renderMarkdownToHTML(typedChatText));
 
-      if (blockNextMicActivation) {
+      const deckA = document.getElementById('audioDeckA');
+      const deckB = document.getElementById('audioDeckB');
+      const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
+
+      if (blockNextMicActivation || isMusicPlaying) {
         blockNextMicActivation = false;
-        toggleDock(false); 
-        return;
+        return; // Music is active, keep pill open
       }
-      setTimeout(() => { listenForFollowUp(); }, 400);
     };
 
     nativeVaultAudio.onerror = () => {
@@ -1955,19 +1931,19 @@ function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas)
 
     setKairosMessageText(renderMarkdownToHTML(typedChatText));
 
-    if (blockNextMicActivation) {
-      blockNextMicActivation = false;
-      toggleDock(false); 
-      return;
-    }
+    const deckA = document.getElementById('audioDeckA');
+    const deckB = document.getElementById('audioDeckB');
+    const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
 
-    setTimeout(() => { listenForFollowUp(); }, 500);
+    if (blockNextMicActivation || isMusicPlaying) {
+      blockNextMicActivation = false;
+      return; // Music active, keep pill open
+    }
   };
 
   utterance.onerror = () => {
     setWaveAnimationSpeed(false);
     if (activeTypingInterval) clearInterval(activeTypingInterval);
-    toggleDock(false);
   };
 
   kairosVoiceEngine.speak(utterance);
@@ -2113,6 +2089,7 @@ function setupTrackEndMonitor(audioDeck) {
             } else {
                 audioDeck.onended = () => {
                     setWaveAnimationSpeed(false);
+                    blockNextMicActivation = false; // Reset music lock status
                     const dockStatusText = document.getElementById('dockStatusText');
                     const statusTxt = getStatusTextElement();
                     if (dockStatusText) dockStatusText.innerText = KAIROS_TITLE + "...";
@@ -2188,12 +2165,8 @@ function activateKairosVoiceOnDemand() {
   const dockStatusText = document.getElementById('dockStatusText');
   const statusTxt = getStatusTextElement();
 
-  if (dockStatusText && !dockStatusText.innerText.includes("follow-up")) {
-    dockStatusText.innerText = "Kairos is listening...";
-  }
-  if (statusTxt && !statusTxt.innerText.includes("follow-up")) {
-    statusTxt.innerText = "Kairos is listening...";
-  }
+  if (dockStatusText) dockStatusText.innerText = "Kairos is listening...";
+  if (statusTxt) statusTxt.innerText = "Kairos is listening...";
 
   toggleDock(true);
 
@@ -2222,7 +2195,6 @@ function activateKairosVoiceOnDemand() {
 
     let currentLiveText = finalTranscript || interimTranscript;
     if (currentLiveText.trim().length > 0) {
-      // Show live live-transcribing text in status indicator or temporary placeholder
       if (statusTxt) statusTxt.innerText = `"${currentLiveText.trim()}"`;
     }
 
@@ -2243,7 +2215,13 @@ function activateKairosVoiceOnDemand() {
       if (dockStatusText) dockStatusText.innerText = "Mic access closed.";
       if (statusTxt) statusTxt.innerText = "Mic access closed.";
       isProcessingCommand = false;
-      toggleDock(false); 
+      
+      const deckA = document.getElementById('audioDeckA');
+      const deckB = document.getElementById('audioDeckB');
+      const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
+      if (!isMusicPlaying) {
+        toggleDock(false); 
+      }
     }
   };
 
@@ -2251,17 +2229,22 @@ function activateKairosVoiceOnDemand() {
     if (voiceSilenceTimer) clearTimeout(voiceSilenceTimer);
     voiceSilenceTimer = setTimeout(() => {
       if (!gatheredUserCommand || gatheredUserCommand.trim().length === 0) {
-        console.log("No dictation detected from user within time frame. Auto-collapsing dock window.");
+        console.log("No dictation detected from user within time frame. Auto-collapsing dock window if music inactive.");
         killSpeechEngineCompletely();
         isProcessingCommand = false;
-        toggleDock(false);
+
+        const deckA = document.getElementById('audioDeckA');
+        const deckB = document.getElementById('audioDeckB');
+        const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
+        if (!isMusicPlaying) {
+          toggleDock(false);
+        }
         return;
       }
 
       isProcessingCommand = true; 
       killSpeechEngineCompletely();
 
-      // Render the final user speech in its own dedicated user bubble right before processing
       appendUserMessage(gatheredUserCommand);
 
       conversationMemory.push({ role: "user", content: gatheredUserCommand, time: Date.now() });
@@ -2284,7 +2267,6 @@ function activateKairosVoiceOnDemand() {
     console.error(e);
   }
 }
-
 
 function stopActiveKairosVoice() {
   if (kairosVoiceEngine) kairosVoiceEngine.cancel();
@@ -2336,7 +2318,6 @@ function sendMessage() {
 
   console.log('Sending message:', text);
 
-  // Render the user message in a dedicated user bubble immediately upon sending
   appendUserMessage(text);
 
   conversationMemory.push({ role: "user", content: text, time: Date.now() });
@@ -2349,6 +2330,39 @@ function sendMessage() {
   dockInput.value = '';
   dockInput.style.height = 'auto';
   dockInput.style.overflowY = 'hidden';
+}
+
+// Typing Indicator & Auto-Suggest Component
+let typingTimeout;
+let typingIndicatorEl = null;
+
+const botInput = document.getElementById("dockInput");
+const botMessagesContainer = document.getElementById("transcriptCanvas");
+
+if (botInput) {
+    botInput.addEventListener("input", ()=>{
+        if(!typingIndicatorEl){
+            typingIndicatorEl = document.createElement("div");
+            typingIndicatorEl.className = "ambient";
+            typingIndicatorEl.textContent = "User is typing...";
+            if (botMessagesContainer) botMessagesContainer.appendChild(typingIndicatorEl);
+        }
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(()=>{
+            if(typingIndicatorEl) { typingIndicatorEl.remove(); typingIndicatorEl = null; }
+        }, 1200);
+    });
+
+    botInput.addEventListener('input', e=>{
+        const msg=e.target.value.toLowerCase();
+        const autoSuggest=[
+            {keywords:['ticket','issue'], suggestion:"You can say 'generate ticket'."},
+            {keywords:['faq','question'], suggestion:"Ask your question directly to check database."},
+            {keywords:['quote','motivation'], suggestion:"Type 'quote' for motivation."}
+        ];
+        const found=autoSuggest.find(s=>s.keywords.some(k=>msg.includes(k)));
+        if(found && typeof notify === "function") notify(`💡 ${found.suggestion}`);
+    });
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -2407,23 +2421,21 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    const isDesktop = window.matchMedia('(pointer: fine)').matches;
-
-    dockInput.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        if (isDesktop && e.shiftKey) {
-          e.preventDefault(); 
-          sendMessage();      
-        }
+    dockInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
       }
     });
   }
 
   if (dockSendBtn) {
-    dockSendBtn.addEventListener('click', sendMessage);
+    dockSendBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sendMessage();
+    });
   }
 });
-
     </script>
 </body>
 </html>
