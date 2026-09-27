@@ -937,10 +937,8 @@ const quotes = [
   "Life is about moments, not things.", "Consistency is the key to success.", "Every day is a fresh start.", 
   "Faith is the compass that guides you through life’s storms.", "Pray not just for what you want, but for the strength to receive it.", 
   "Trust God’s timing; He never runs late.", "Your faith can move mountains, but your actions must build the path.", 
-  "Don’t chase money; build systems that make money chase you.", "Financial freedom begins when you learn to control your money, not your lifestyle.", 
-  "Save like a pessimist, invest like an optimist.", "Wealth grows when patience waters it daily.", 
-  "Your income is limited only by your imagination and action.", "Make your money work harder than you do.", 
-  "Dream big, start small, move consistently." 
+  "God doesn’t call the equipped; He equips the called.", "Gratitude turns what we have into enough.", 
+  "Serve with love, and blessings will follow silently.", "When you focus on God, life focuses for you"
 ];
 
 const PREMIUM_AUDIO_VAULT = {
@@ -2164,6 +2162,7 @@ function activateKairosVoiceOnDemand() {
 
   const dockStatusText = document.getElementById('dockStatusText');
   const statusTxt = getStatusTextElement();
+  const dockInput = document.getElementById('dockInput');
 
   if (dockStatusText) dockStatusText.innerText = "Kairos is listening...";
   if (statusTxt) statusTxt.innerText = "Kairos is listening...";
@@ -2172,48 +2171,45 @@ function activateKairosVoiceOnDemand() {
 
   if (navigator.vibrate) navigator.vibrate(40);
 
+  const micBtn = document.getElementById('dockMicBtn');
+  if (micBtn) micBtn.classList.add('recording');
+
   kairosSpeechRecognizer = new SpeechRecognition();
   kairosSpeechRecognizer.continuous = true;
   kairosSpeechRecognizer.interimResults = true; 
   kairosSpeechRecognizer.lang = 'en-US';
 
   kairosSpeechRecognizer.onresult = (event) => {
-    if (isProcessingCommand) return; 
-
-    let finalTranscript = '';
     let interimTranscript = '';
-    let isFinalChunkDetected = false;
+    let finalTranscript = '';
 
     for (let i = event.resultIndex; i < event.results.length; ++i) {
       if (event.results[i].isFinal) {
         finalTranscript += event.results[i][0].transcript;
-        isFinalChunkDetected = true; 
       } else {
         interimTranscript += event.results[i][0].transcript;
       }
     }
 
-    let currentLiveText = finalTranscript || interimTranscript;
-    if (currentLiveText.trim().length > 0) {
-      if (statusTxt) statusTxt.innerText = `"${currentLiveText.trim()}"`;
+    const currentSpokenText = finalTranscript || interimTranscript;
+    if (dockInput && currentSpokenText.trim().length > 0) {
+      dockInput.value = currentSpokenText.trim();
+      dockInput.style.height = 'auto';
+      dockInput.style.height = dockInput.scrollHeight + 'px';
     }
 
-    let processedText = finalTranscript.trim();
-    if (processedText.length > 0) {
-      gatheredUserCommand = processedText;
+    if (finalTranscript.trim().length > 0) {
+      gatheredUserCommand = finalTranscript.trim();
     }
 
-    if (isFinalChunkDetected) {
-      resetSilenceTimer(3000); 
-    } else {
-      if (voiceSilenceTimer) clearTimeout(voiceSilenceTimer);
-    }
+    resetSilenceTimer(SILENCE_WAIT_TIME);
   };
 
   kairosSpeechRecognizer.onerror = (err) => {
     if (err.error === 'not-allowed' || err.error === 'no-speech') {
       if (dockStatusText) dockStatusText.innerText = "Mic access closed.";
       if (statusTxt) statusTxt.innerText = "Mic access closed.";
+      if (micBtn) micBtn.classList.remove('recording');
       isProcessingCommand = false;
       
       const deckA = document.getElementById('audioDeckA');
@@ -2225,36 +2221,16 @@ function activateKairosVoiceOnDemand() {
     }
   };
 
-  function resetSilenceTimer(customWaitTime = 2500) {
+  kairosSpeechRecognizer.onend = () => {
+    if (micBtn) micBtn.classList.remove('recording');
+  };
+
+  function resetSilenceTimer(customWaitTime = 10000) {
     if (voiceSilenceTimer) clearTimeout(voiceSilenceTimer);
     voiceSilenceTimer = setTimeout(() => {
-      if (!gatheredUserCommand || gatheredUserCommand.trim().length === 0) {
-        console.log("No dictation detected from user within time frame. Auto-collapsing dock window if music inactive.");
-        killSpeechEngineCompletely();
-        isProcessingCommand = false;
-
-        const deckA = document.getElementById('audioDeckA');
-        const deckB = document.getElementById('audioDeckB');
-        const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
-        if (!isMusicPlaying) {
-          toggleDock(false);
-        }
-        return;
-      }
-
-      isProcessingCommand = true; 
+      if (micBtn) micBtn.classList.remove('recording');
       killSpeechEngineCompletely();
-
-      appendUserMessage(gatheredUserCommand);
-
-      conversationMemory.push({ role: "user", content: gatheredUserCommand, time: Date.now() });
-
-      chatHistory = chatHistory || [];
-      chatHistory.push({ sender: 'user', text: gatheredUserCommand, type: "text" });
-      localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
-
-      processUserCommandLocally(gatheredUserCommand);
-      gatheredUserCommand = ""; 
+      console.log("Speech captured and populated in input box. Waiting for manual send.");
     }, customWaitTime);
   }
 
@@ -2265,6 +2241,7 @@ function activateKairosVoiceOnDemand() {
     kairosSpeechRecognizer.start();
   } catch (e) {
     console.error(e);
+    if (micBtn) micBtn.classList.remove('recording');
   }
 }
 
