@@ -720,8 +720,8 @@
                     <!-- Typing Pipe Cursor -->
                     <span id="idleCursor" class="typing-cursor" style="display: none;">|</span>
 
-                    <!-- Auto-Expanding Textarea -->
-                    <textarea id="dockInput" rows="1" placeholder="Message..." autocomplete="off"></textarea>
+                    <!-- Auto-Expanding Textarea with Mobile Return Key Hint -->
+                    <textarea id="dockInput" rows="1" placeholder="Message..." enterkeyhint="enter" autocomplete="off"></textarea>
 
                     <!-- Microphone Button with Pulse Animation Ring -->
                     <button class="action-icon-btn" id="dockMicBtn" aria-label="Voice Input">
@@ -756,6 +756,7 @@
         const closeDockBtn = document.getElementById('closeDockBtn');
         const expandToggleBtn = document.getElementById('expandToggleBtn');
         const dockInput = document.getElementById('dockInput');
+        const dockSendBtn = document.getElementById('dockSendBtn');
 
         // Toggle Dock Views
         collapsedView.addEventListener('click', (e) => {
@@ -789,14 +790,34 @@
             }
         });
 
-        // Handle Enter for multi-line vs Shift+Enter for newline
+        // Main Send Function
+        function sendMessage() {
+            const text = dockInput.value.trim();
+            if (!text) return;
+
+            // Perform your send operations here
+            console.log('Sending message:', text);
+
+            // Reset textarea height and value
+            dockInput.value = '';
+            dockInput.style.height = 'auto';
+            dockInput.style.overflowY = 'hidden';
+        }
+
+        // Send Button Click Handler
+        dockSendBtn.addEventListener('click', sendMessage);
+
+        // Detect if device is Desktop (Primary pointer is mouse/fine pointer)
+        const isDesktop = window.matchMedia('(pointer: fine)').matches;
+
+        // Keydown handler: Desktop requires Shift + Enter to send; Mobile ignores Enter
         dockInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                // Call your message send routine here
-                this.value = '';
-                this.style.height = 'auto';
-                this.style.overflowY = 'hidden';
+            if (e.key === 'Enter') {
+                if (isDesktop && e.shiftKey) {
+                    e.preventDefault(); // Prevents default newline on Shift+Enter
+                    sendMessage();
+                }
+                // On mobile, or desktop without Shift, let default Enter behavior insert a newline
             }
         });
     </script>
