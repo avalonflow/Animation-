@@ -828,7 +828,10 @@ let kairosChatHistory = [];
 let conversationMemory = []; 
 
 const SILENCE_WAIT_TIME = 10000; 
-const statusText = document.getElementById('status-text'); 
+
+function getStatusTextElement() {
+  return document.getElementById('status-text') || document.getElementById('dockStatusText');
+}
 
 const KAIROS_TITLE = "KAIROS INTELLIGENCE"; 
 const KAIROS_AVATAR = 'https://api.dicebear.com/7.x/bottts/svg?seed=Kairos&backgroundColor=6b2cd8'; 
@@ -847,6 +850,11 @@ let sourceNodeA = null, sourceNodeB = null;
 let pannerNodeA = null, pannerNodeB = null;
 let ambientPanAngle = 0;
 let ambientPanInterval = null;
+
+// Helper to reliably locate transcript element
+function getTranscriptCanvas() {
+  return document.getElementById('kairosTranscript') || document.getElementById('transcriptCanvas');
+}
 
 // =================================================================
 // 3. DATA STRUCTURES & PREMIUM AUDIO VAULT DIRECTORY
@@ -1021,8 +1029,6 @@ Your knowledge base includes the following official operational parameters and F
 
 3. Message to Yusra:
 - ‎Because we operate on an enterprise infrastructure, our project allocations, milestones, and release triggers are managed directly through our internal system so we can automate releases the moment the final delivery is approved, rather than accept proposals through third-party marketplace escrows.
-‎
-‎
 
 CONVERSATIONAL RULES:
 - Respond naturally, with genuine empathy, matching a present-knowledge conversational tone.
@@ -1152,13 +1158,9 @@ if (window.speechSynthesis) {
 
 function renderMarkdownToHTML(text) {
   if (!text) return "";
-  // 1. Convert bold markdown (**text**) to HTML strong tags
   let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  // 2. Convert bullet points (* item) into clean bullet characters
   formatted = formatted.replace(/^\*\s+/gm, '• ');
-  // 3. Convert single asterisks (*text*) to HTML strong tags
   formatted = formatted.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
-  // 4. Preserve line breaks smoothly
   formatted = formatted.replace(/\n/g, '<br>');
   return formatted;
 }
@@ -1170,12 +1172,10 @@ async function loadLocalKeys() {
     const response = await fetch('keys.txt');
     const text = await response.text();
 
-    // Snag the new parts out of the quotes
     const partAMatch = text.match(/PART_A:\s*"(.*?)"/);
     const partBMatch = text.match(/PART_B:\s*"(.*?)"/);
 
     if (partAMatch && partBMatch) {
-      // Reassemble the full new key string seamlessly
       KAIROS_KEYS.gemini = partAMatch[1].trim() + partBMatch[1].trim();
       console.log("🔒 Configuration matrix assembled successfully.");
     }
@@ -1194,6 +1194,7 @@ function toggleDock(forcedState = null) {
   const collapsedView = document.getElementById('collapsedView');
   const expandedView = document.getElementById('expandedView');
   const dockStatusText = document.getElementById('dockStatusText');
+  const statusTxt = getStatusTextElement();
 
   if (!dockWrap || !collapsedView || !expandedView) return;
 
@@ -1227,11 +1228,11 @@ function toggleDock(forcedState = null) {
 
     if (isMusicPlaying) {
       if (dockStatusText) dockStatusText.innerText = "Playing Audio Stream...";
-      if (statusText) statusText.innerText = "Playing Audio Stream...";
+      if (statusTxt) statusTxt.innerText = "Playing Audio Stream...";
       setTimeout(() => setWaveAnimationSpeed(true), 200); 
     } else {
       if (dockStatusText) dockStatusText.innerText = KAIROS_TITLE + "...";
-      if (statusText) statusText.innerText = KAIROS_TITLE + "...";
+      if (statusTxt) statusTxt.innerText = KAIROS_TITLE + "...";
     }
   }
 }
@@ -1244,18 +1245,17 @@ function listenForFollowUp() {
   gatheredUserCommand = "";
 
   const dockStatusText = document.getElementById('dockStatusText');
-  const transcriptCanvas = document.getElementById('kairosTranscript');
+  const statusTxt = getStatusTextElement();
+  const transcriptCanvas = getTranscriptCanvas();
 
   if (dockStatusText) dockStatusText.innerText = "Listening for follow-up...";
-  if (statusText) statusText.innerText = "Listening for follow-up...";
+  if (statusTxt) statusTxt.innerText = "Listening for follow-up...";
 
   if (transcriptCanvas) {
-    // Keep the canvas visual state smooth, just add a dimmed status indicator beneath
     const currentText = transcriptCanvas.innerText || "";
     transcriptCanvas.innerHTML = `${currentText}<br><br><span style='opacity:0.5; font-size:0.85em;'>🎧 Listening for follow-up...</span>`;
   }
 
-  // Safely spin the hardware back up to expect input
   activateKairosVoiceOnDemand();
 }
 
@@ -1362,7 +1362,7 @@ function humanize(text) {
 }
 
 function initializeSpatialEngine() {
-  if (spatialAudioCtx) return; // Prevent dual instantiation pipelines
+  if (spatialAudioCtx) return; 
 
   try {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -1371,15 +1371,17 @@ function initializeSpatialEngine() {
     const deckA = document.getElementById('audioDeckA');
     const deckB = document.getElementById('audioDeckB');
 
-    // Route Deck A through Stereo Panner
-    sourceNodeA = spatialAudioCtx.createMediaElementSource(deckA);
-    pannerNodeA = spatialAudioCtx.createStereoPanner();
-    sourceNodeA.connect(pannerNodeA).connect(spatialAudioCtx.destination);
+    if (deckA) {
+      sourceNodeA = spatialAudioCtx.createMediaElementSource(deckA);
+      pannerNodeA = spatialAudioCtx.createStereoPanner();
+      sourceNodeA.connect(pannerNodeA).connect(spatialAudioCtx.destination);
+    }
 
-    // Route Deck B through Stereo Panner
-    sourceNodeB = spatialAudioCtx.createMediaElementSource(deckB);
-    pannerNodeB = spatialAudioCtx.createStereoPanner();
-    sourceNodeB.connect(pannerNodeB).connect(spatialAudioCtx.destination);
+    if (deckB) {
+      sourceNodeB = spatialAudioCtx.createMediaElementSource(deckB);
+      pannerNodeB = spatialAudioCtx.createStereoPanner();
+      sourceNodeB.connect(pannerNodeB).connect(spatialAudioCtx.destination);
+    }
 
     console.log("🔊 Web Audio spatial routing matrices locked and active.");
     startAmbientAutoPanning();
@@ -1388,7 +1390,6 @@ function initializeSpatialEngine() {
   }
 }
 
-// Subtle, organic back-and-forth movement during standard single-track play
 function startAmbientAutoPanning() {
   if (ambientPanInterval) clearInterval(ambientPanInterval);
 
@@ -1399,10 +1400,9 @@ function startAmbientAutoPanning() {
     const deckB = document.getElementById('audioDeckB');
     const isPlaying = (deckA && !deckA.paused) || (deckB && !deckB.paused);
 
-    // Only swing the pan space if music is actually active
     if (isPlaying && !isProcessingCrossfade) {
       ambientPanAngle += 0.02;
-      const panValue = Math.sin(ambientPanAngle) * 0.15; // Smoothly sweeps between -0.15 (Left) and +0.15 (Right)
+      const panValue = Math.sin(ambientPanAngle) * 0.15; 
 
       if (activeDeck === deckA && pannerNodeA) pannerNodeA.pan.value = panValue;
       if (activeDeck === deckB && pannerNodeB) pannerNodeB.pan.value = panValue;
@@ -1414,7 +1414,7 @@ function startAmbientAutoPanning() {
  * MASTER ROUTING FRAMEWORK: Handles local logic routing for voice processing strings
  */
 async function processUserCommandLocally(commandText) {
-  const transcriptCanvas = document.getElementById('kairosTranscript');
+  const transcriptCanvas = getTranscriptCanvas();
   const lowerCommand = commandText.trim().toLowerCase();
 
   if (transcriptCanvas) transcriptCanvas.innerText = "Thinking...";
@@ -1523,10 +1523,8 @@ async function processUserCommandLocally(commandText) {
         const randomFile = musicQueue[currentTrackIndex];
         botMusicReply(`Playing random selection.`, randomFile);
     } else if (lowerCommand.includes("youtube") || lowerCommand.includes("yt") || lowerCommand.includes("stream") || lowerCommand.includes("cloud")) {
-        // Intercept cloud requests and hand off seamlessly to the Section 8b API pipeline
         handleYouTubeMusicSearch(lowerCommand, false);
     } else {
-        // Maintained fallback safely intact for non-cloud, unrecognized items
         expectingMusicResponse = true;
         speakResponse("I couldn't find that track inside the vault directory. Want me to play a random one from the library instead?");
     }
@@ -1606,7 +1604,6 @@ async function processUserCommandLocally(commandText) {
       const caps = await window.ai.languageModel.capabilities();
       if (caps.available !== 'no') {
         const session = await window.ai.languageModel.create({
-          // UPDATED: Injected full master knowledge and system instructions
           systemPrompt: KAIROS_MASTER_KNOWLEDGE + "\nRespond concisely, accurately, and helpful based on the knowledge guidelines."
         });
         const aiReply = await session.prompt(commandText);
@@ -1635,7 +1632,6 @@ async function processUserCommandLocally(commandText) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: requestContents,
-        // UPDATED: System instruction now passes the complete localized framework
         systemInstruction: {
           parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
         },
@@ -1652,7 +1648,6 @@ async function processUserCommandLocally(commandText) {
 
     speakResponse(replyText);
   } catch (err) {
-    // TIER 2: Cascade seamlessly into the high-volume engine if primary hits a limit
     try {
       const GEMINI_API_KEY = KAIROS_KEYS.gemini || "";
       const FALLBACK_MODEL = "gemini-3.5-flash"; 
@@ -1664,7 +1659,6 @@ async function processUserCommandLocally(commandText) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: requestContents,
-          // UPDATED: Fallback endpoint also reinforced with master guidelines
           systemInstruction: {
             parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
           },
@@ -1681,7 +1675,6 @@ async function processUserCommandLocally(commandText) {
 
       speakResponse(replyText);
     } catch (fallbackErr) {
-      // TIER 3: Absolute Local Safeguard
       speakResponse(coreReplyText || "What would you like help with—support, rewards, or dashboard settings?");
     }
   }
@@ -1704,9 +1697,6 @@ function setWaveAnimationSpeed(isSpeaking) {
   });
 }
 
-/**
- * Dynamically animates text onto the canvas synchronized with a word-interval pacing
- */
 function startSyncedTextAnimation(transcriptCanvas, words, msPerWord) {
   if (activeTypingInterval) clearInterval(activeTypingInterval);
 
@@ -1715,7 +1705,6 @@ function startSyncedTextAnimation(transcriptCanvas, words, msPerWord) {
 
   activeTypingInterval = setInterval(() => {
     if (wordIndex < words.length) {
-      // Build up the running string and parse it dynamically
       const currentSegment = words.slice(0, wordIndex + 1).join(" ");
       transcriptCanvas.innerHTML = renderMarkdownToHTML(currentSegment);
       wordIndex++;
@@ -1738,9 +1727,6 @@ async function speakResponse(rawResponseText) {
   const vaultAssetPath = PREMIUM_AUDIO_VAULT[rawResponseText];
   let typedChatText = vaultAssetPath ? rawResponseText : humanize(rawResponseText);
 
-  // ==========================================
-  // PATCH VERIFIED: Strip markdown dividers (---) and formatting elements
-  // ==========================================
   let spokenText = rawResponseText
     .replace(/-{3,}/g, '')        
     .replace(/[#*`_~]/g, '')       
@@ -1761,7 +1747,7 @@ async function speakResponse(rawResponseText) {
   chatHistory.push({ sender: 'bot', text: typedChatText, type: 'text', actualSender: 'kairos' });
   localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
 
-  const transcriptCanvas = document.getElementById('kairosTranscript');
+  const transcriptCanvas = getTranscriptCanvas();
   if (!transcriptCanvas) return;
 
   const words = typedChatText.split(" ");
@@ -1780,7 +1766,6 @@ async function speakResponse(rawResponseText) {
 
     nativeVaultAudio.onplay = () => {
       setWaveAnimationSpeed(true);
-      // Premium vault items typically speak faster, ~280ms per word pacing
       startSyncedTextAnimation(transcriptCanvas, words, 280);
     };
 
@@ -1825,15 +1810,10 @@ function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas)
   const utterance = new SpeechSynthesisUtterance(spokenText);
   if (selectedFemaleVoice) utterance.voice = selectedFemaleVoice;
 
-  // Rate modifier balance
   const speechRate = 1.05; 
   utterance.rate = speechRate; 
 
   const words = typedChatText.split(" ");
-
-  // Calculate a reliable word delivery interval based on standard conversational speed.
-  // At rate 1.0, typical speech is ~150 WPM (~400ms per word). 
-  // We divide by speechRate to cleanly match the speed increases dynamically.
   const msPerWord = (60000 / 195) / speechRate; 
 
   utterance.onstart = () => {
@@ -1895,10 +1875,10 @@ function botMusicReply(statusNotification, file) {
     }
 }
 
-let isProcessingCrossfade = false; // Prevents ambient oscillation override
+let isProcessingCrossfade = false; 
 
 function executeCrossfade(currentDeck, nextDeck, nextFile) {
-    initializeSpatialEngine(); // Safe fall-through initialization
+    initializeSpatialEngine(); 
     if (spatialAudioCtx && spatialAudioCtx.state === 'suspended') {
       spatialAudioCtx.resume();
     }
@@ -1914,14 +1894,12 @@ function executeCrossfade(currentDeck, nextDeck, nextFile) {
     nextDeck.volume = 0;
     nextDeck.load();
 
-    // Assign specific spatial node tracking identifiers
     const deckA = document.getElementById('audioDeckA');
     const outPanner = (currentDeck === deckA) ? pannerNodeA : pannerNodeB;
     const inPanner = (nextDeck === deckA) ? pannerNodeA : pannerNodeB;
 
-    // Reset spatial entry horizons
-    if (outPanner) outPanner.pan.value = 0;   // Start from absolute center
-    if (inPanner) inPanner.pan.value = 1.0;   // Incoming track spawns deep right channel
+    if (outPanner) outPanner.pan.value = 0;   
+    if (inPanner) inPanner.pan.value = 1.0;   
 
     nextDeck.play().then(() => {
         setupTrackEndMonitor(nextDeck);
@@ -1939,24 +1917,21 @@ function executeCrossfade(currentDeck, nextDeck, nextFile) {
         let currentVol = 1 - progress;
         let nextVol = progress;
 
-        // Perform programmatic log amplitude gain fades
         currentDeck.volume = Math.max(0, Math.min(1, currentVol));
         nextDeck.volume = Math.max(0, Math.min(1, nextVol));
 
-        // Programmatic Linear Spatial Sweeps
-        if (outPanner) outPanner.pan.value = -progress; // Drifts from Center (0) cleanly out to Deep Left (-1)
-        if (inPanner) inPanner.pan.value = 1.0 - progress; // Drifts from Deep Right (1) cleanly back into Center (0)
+        if (outPanner) outPanner.pan.value = -progress; 
+        if (inPanner) inPanner.pan.value = 1.0 - progress; 
 
         if (currentStep >= fadeSteps) {
             clearInterval(fadeInterval);
             currentDeck.pause();
             currentDeck.src = ""; 
 
-            // Re-zero the pan values for clean slate re-entry loops
             if (outPanner) outPanner.pan.value = 0;
             if (inPanner) inPanner.pan.value = 0;
 
-            isProcessingCrossfade = false; // Hands control back to ambient auto-panner
+            isProcessingCrossfade = false; 
             console.log("Crossfade complete. Expired deck wiped cleanly.");
         }
     }, intervalTime);
@@ -2011,8 +1986,9 @@ function setupTrackEndMonitor(audioDeck) {
                 audioDeck.onended = () => {
                     setWaveAnimationSpeed(false);
                     const dockStatusText = document.getElementById('dockStatusText');
+                    const statusTxt = getStatusTextElement();
                     if (dockStatusText) dockStatusText.innerText = KAIROS_TITLE + "...";
-                    if (statusText) statusText.innerText = KAIROS_TITLE + "...";
+                    if (statusTxt) statusTxt.innerText = KAIROS_TITLE + "...";
                 };
             }
         }
@@ -2025,7 +2001,6 @@ function setupTrackEndMonitor(audioDeck) {
 async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
   const cleanCommand = commandText.toLowerCase().trim();
 
-  // 1. Sanitize the command string by stripping out verbal trigger filler words
   let searchQuery = cleanCommand
     .replace(/\b(play me|play|search for|lookup|find|put on|open)\b/gi, "")
     .replace(/\b(on youtube music|on yt music|in youtube music|in yt music)\b/gi, "")
@@ -2033,7 +2008,6 @@ async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
 
   if (!searchQuery) return;
 
-  // 2. Smart optimization: Ensure query extracts an infinite stream mix type if not stated
   let optimizerTag = "";
   if (!searchQuery.includes("radio") && !searchQuery.includes("mix") && !searchQuery.includes("album") && !searchQuery.includes("playlist")) {
     optimizerTag = " mix";
@@ -2043,17 +2017,13 @@ async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
   const displayTitle = searchQuery.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
   try {
-    // 3. Encode the clean query and structure the public streaming proxy URL
     const targetQuery = encodeURIComponent(finalQuery);
     const streamUrl = `https://api.vexd.net/api/mp3?url=https://www.youtube.com/watch?v=${targetQuery}`;
 
-    // 4. Route playback safely depending on whether this is an automatic queue handoff or manual call
     if (isDelayedHandoff) {
-      // Seamlessly cache the stream link right behind the active track list
       musicQueue.push(streamUrl);
       console.log(`[API Stream] Background queued cloud track: ${displayTitle}`);
     } else {
-      // Direct, instant crossfade execution if local database completely missed
       botMusicReply(`Streaming "${displayTitle}"...`, streamUrl);
     }
   } catch (error) {
@@ -2088,14 +2058,14 @@ function activateKairosVoiceOnDemand() {
   if (!SpeechRecognition) return;
 
   const dockStatusText = document.getElementById('dockStatusText');
-  const transcriptCanvas = document.getElementById('kairosTranscript');
+  const statusTxt = getStatusTextElement();
+  const transcriptCanvas = getTranscriptCanvas();
 
-  // Prevent overriding the tracking label if we are in an ongoing follow-up sequence
   if (dockStatusText && !dockStatusText.innerText.includes("follow-up")) {
     dockStatusText.innerText = "Kairos is listening...";
   }
-  if (statusText && !statusText.innerText.includes("follow-up")) {
-    statusText.innerText = "Kairos is listening...";
+  if (statusTxt && !statusTxt.innerText.includes("follow-up")) {
+    statusTxt.innerText = "Kairos is listening...";
   }
 
   toggleDock(true);
@@ -2146,7 +2116,7 @@ function activateKairosVoiceOnDemand() {
   kairosSpeechRecognizer.onerror = (err) => {
     if (err.error === 'not-allowed' || err.error === 'no-speech') {
       if (dockStatusText) dockStatusText.innerText = "Mic access closed.";
-      if (statusText) statusText.innerText = "Mic access closed.";
+      if (statusTxt) statusTxt.innerText = "Mic access closed.";
       isProcessingCommand = false;
       toggleDock(false); 
     }
@@ -2228,7 +2198,7 @@ function wakeUpKairosWithGreeting() {
   stopActiveKairosVoice();
   killSpeechEngineCompletely();
 
-  const transcriptCanvas = document.getElementById('kairosTranscript');
+  const transcriptCanvas = getTranscriptCanvas();
   if (transcriptCanvas) transcriptCanvas.innerText = "";
 
   speakResponse(greetingText);
@@ -2242,19 +2212,15 @@ function sendMessage() {
   const text = dockInput.value.trim();
   if (!text) return;
 
-  // Execute message submission logic
   console.log('Sending message:', text);
 
-  // Append user message to history
   conversationMemory.push({ role: "user", content: text, time: Date.now() });
   chatHistory = chatHistory || [];
   chatHistory.push({ sender: 'user', text: text, type: "text" });
   localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
 
-  // Process command through Kairos brain
   processUserCommandLocally(text);
 
-  // Reset textarea state
   dockInput.value = '';
   dockInput.style.height = 'auto';
   dockInput.style.overflowY = 'hidden';
@@ -2265,16 +2231,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const dockWrap = document.getElementById('dockWrap') || document.querySelector('.assistant-dock-wrap');
   const collapsedView = document.getElementById('collapsedView');
-  const expandedView = document.getElementById('expandedView');
   const closeDockBtn = document.getElementById('closeDockBtn');
   const expandToggleBtn = document.getElementById('expandToggleBtn');
   const dockInput = document.getElementById('dockInput');
   const dockSendBtn = document.getElementById('dockSendBtn');
+  const dockMicBtn = document.getElementById('dockMicBtn');
 
   if (collapsedView) {
     collapsedView.addEventListener('click', (e) => {
       e.stopPropagation();
-      // Initializes spatial nodes seamlessly inside user interaction event tree loop
       initializeSpatialEngine(); 
       wakeUpKairosWithGreeting();
     });
@@ -2294,6 +2259,15 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Bind Microphone Action Button
+  if (dockMicBtn) {
+    dockMicBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      initializeSpatialEngine();
+      activateKairosVoiceOnDemand();
+    });
+  }
+
   // Dynamic Auto-Expand Textarea Logic
   if (dockInput) {
     dockInput.addEventListener('input', function () {
@@ -2308,22 +2282,18 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Input Device Detection: Primary pointer is fine (mouse/trackpad) vs coarse (touchscreen)
     const isDesktop = window.matchMedia('(pointer: fine)').matches;
 
-    // Keyboard Event Listener
     dockInput.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') {
         if (isDesktop && e.shiftKey) {
-          e.preventDefault(); // Prevent default newline insertion
-          sendMessage();      // Trigger send on Desktop Shift + Enter
+          e.preventDefault(); 
+          sendMessage();      
         }
-        // Plain Enter on Desktop, or any Enter on Mobile -> Default behavior inserts newline
       }
     });
   }
 
-  // Send Button Handler (Primary Send Action for Mobile & Click)
   if (dockSendBtn) {
     dockSendBtn.addEventListener('click', sendMessage);
   }
