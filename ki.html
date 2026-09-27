@@ -22,39 +22,30 @@
 <style>
 /* -------- Floating Background -------- */
 #floating-bg {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background: radial-gradient(circle at bottom, #cfe8ff, #ffffff);
-    overflow: hidden;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at bottom, #cfe8ff, #ffffff);
+  overflow: hidden;
 }
 
 .particle {
-    position: absolute;
-    border-radius: 50%;
-    opacity: 0.6;
-    animation: floatParticles linear infinite;
-    background: rgba(120, 180, 255, 0.7);
-    box-shadow: 0 0 10px #8ec5ff, 0 0 20px #b7dcff;
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: floatParticles linear infinite;
+  background: rgba(120, 180, 255, 0.7);
+  box-shadow: 0 0 10px #8ec5ff, 0 0 20px #b7dcff;
 }
 
 @keyframes floatParticles {
-    0% {
-        transform: translateY(100vh) scale(0.3);
-        opacity: 0;
-    }
-    50% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(-10vh) scale(1);
-        opacity: 0;
-    }
+  0% { transform: translateY(100vh) scale(0.3); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-10vh) scale(1); opacity: 0; }
 }
 
 /* ================ Header Logo Card Neon ============== */
-
 .minimal-logo-header {
   display: flex;
   justify-content: center;
@@ -93,64 +84,73 @@
 }
 
 :root {
-  --glass-bg: rgba(15, 23, 42, 0.35);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(15, 23, 42, 0.75); 
+  --glass-border: rgba(255, 255, 255, 0.12);
   --gemini-blue: #3b82f6;
   --gemini-purple: #a855f7;
   --gemini-cyan: #06b6d4;
   --neon-glow: rgba(59, 130, 246, 0.35); 
+  --user-bubble-bg: linear-gradient(135deg, #3b82f6, #6366f1);
+  --kairos-bubble-bg: rgba(255, 255, 255, 0.08);
 }
 
-/* 1. Master Container & Sizing Controllers */
+/* Master Container & Sizing Controllers */
 .assistant-dock-wrap {
   position: fixed;
-  bottom: 70px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
   width: 100%;
-  max-width: 380px;
+  max-width: 380px; 
   padding: 0 16px;
   box-sizing: border-box;
-  transition: max-width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .assistant-dock-wrap.expanded {
-  max-width: 500px;
+  max-width: 480px;
 }
 
-/* 2. Glass Morphic Shield */
+/* Fullscreen/Tall Mode Class */
+.assistant-dock-wrap.full-height {
+  bottom: 10px;
+  max-width: 520px;
+  height: calc(100vh - 20px);
+}
+
+/* Glass Morphic Shield */
 .glass-dock {
   position: relative;
   background: var(--glass-bg);
-  backdrop-filter: blur(20px) saturate(210%);
-  -webkit-backdrop-filter: blur(20px) saturate(210%);
+  backdrop-filter: blur(25px) saturate(210%);
+  -webkit-backdrop-filter: blur(25px) saturate(210%);
   border: 1px solid var(--glass-border);
-  border-radius: 40px;
-  padding: 12px 24px;
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5),
-              0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  border-radius: 40px; 
+  padding: 12px 20px;
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+}
+
+.assistant-dock-wrap.full-height .glass-dock {
+  height: 100%;
+  border-radius: 28px;
 }
 
 .glass-dock::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   border-radius: inherit;
-  background: linear-gradient(
-    135deg,
-    rgba(6, 182, 212, 0.2),
-    rgba(59, 130, 246, 0.15),
-    rgba(168, 85, 247, 0.2),
-    rgba(6, 182, 212, 0.2)
-  );
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(59, 130, 246, 0.12), rgba(168, 85, 247, 0.15), rgba(6, 182, 212, 0.15));
   background-size: 400% 400%; 
   z-index: 0;
   animation: fluidCloud 12s ease infinite;
@@ -165,13 +165,12 @@
 
 .glass-dock:hover {
   border-color: rgba(6, 182, 212, 0.35);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6),
-              0 0 20px var(--neon-glow);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6), 0 0 20px var(--neon-glow);
 }
 
 .assistant-dock-wrap.expanded .glass-dock {
   border-radius: 24px;
-  padding: 20px;
+  padding: 16px 18px;
   cursor: default;
 }
 
@@ -180,7 +179,12 @@
   z-index: 1;
 }
 
-/* 3. Collapsed View Inner Elements Alignment */
+.dock-expanded-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .dock-collapsed-view {
   display: flex;
   align-items: center;
@@ -208,77 +212,183 @@
   text-overflow: ellipsis;
 }
 
-/* 4. Voice Transcript Panel Design */
+/* Header & Control Icons */
 .dock-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
 .dock-header h4 {
   margin: 0;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 1px;
+  font-weight: 700;
 }
 
-.close-btn {
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 20px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 16px;
   cursor: pointer;
-  padding: 0;
+  padding: 4px;
   line-height: 1;
-  transition: color 0.2s ease;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.close-btn:hover {
+.icon-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.icon-btn.close-btn:hover {
   color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
 }
 
+/* Scrollable Chat Canvas */
 .voice-transcript-canvas {
   width: 100%;
-  min-height: 80px;
-  max-height: 180px;
+  flex: 1;
+  min-height: 160px;
+  max-height: 280px;
   overflow-y: auto;
   padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+  scroll-behavior: smooth;
 }
 
-.streaming-text {
+.assistant-dock-wrap.full-height .voice-transcript-canvas {
+  max-height: none;
+}
+
+.voice-transcript-canvas::-webkit-scrollbar {
+  width: 4px;
+}
+.voice-transcript-canvas::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+/* Chat Bubbles Layout */
+.chat-bubble {
+  max-width: 82%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.45;
+  word-wrap: break-word;
+  animation: bubblePop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes bubblePop {
+  0% { opacity: 0; transform: translateY(6px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.chat-bubble.user {
+  align-self: flex-end;
+  background: var(--user-bubble-bg);
   color: #ffffff;
-  font-size: 16px;
-  line-height: 1.5;
-  font-weight: 400;
-  margin: 0;
-  letter-spacing: -0.1px;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-.dock-expanded-view {
-  animation: contentReveal 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+.chat-bubble.kairos {
+  align-self: flex-start;
+  background: var(--kairos-bubble-bg);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom-left-radius: 4px;
+  backdrop-filter: blur(10px);
 }
 
-@keyframes contentReveal {
-  0% {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.chat-bubble .speaker-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  opacity: 0.6;
 }
 
-/* 5. Kinetic Audio Wave Engine */
+/* Input Bar Component */
+.dock-input-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 4px 6px 4px 14px;
+  flex-shrink: 0;
+}
+
+.dock-input-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.dock-input-bar input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.action-icon-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.action-icon-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.action-icon-btn.active-mic {
+  color: var(--gemini-cyan);
+  background: rgba(6, 182, 212, 0.2);
+  box-shadow: 0 0 10px var(--gemini-cyan);
+}
+
+/* Kinetic Audio Wave Engine */
 .audio-wave-pill {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 3px;
   height: 20px;
-  margin-left: auto;
+  margin-left: auto; 
   flex-shrink: 0;
 }
 
@@ -299,33 +409,25 @@
 .audio-wave-pill .stroke:nth-child(5) { --max-h: 0.4; animation-delay: 0.15s; animation-duration: 0.65s; }
 
 @keyframes dynamicPulse {
-  0%, 100% { 
-    transform: scaleY(0.2); 
-    opacity: 0.6;
-  }
-  50% { 
-    transform: scaleY(var(--max-h)); 
-    opacity: 1;
-  }
+  0%, 100% { transform: scaleY(0.2); opacity: 0.6; }
+  50% { transform: scaleY(var(--max-h)); opacity: 1; }
 }
 
-.d-none {
-  display: none !important;
-}
+.d-none { display: none !important; }
 
 footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    padding: 18px 0;
-    font-size: 14px;
-    color: #555;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
-    z-index: 6;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  padding: 18px 0;
+  font-size: 14px;
+  color: #555;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
+  z-index: 6;
 }
 </style>
 </head>
@@ -339,12 +441,12 @@ footer {
   </div>
 </header>
 
-    <div style="display:none;">
-        <img id="profilePhoto" src="default-avatar.png">
-        <input type="file" id="photoInput" accept="image/*">
-        <audio id="audioDeckA"></audio>
-        <audio id="audioDeckB"></audio>
-    </div>
+<div style="display:none;">
+    <img id="profilePhoto" src="default-avatar.png">
+    <input type="file" id="photoInput" accept="image/*">
+    <audio id="audioDeckA"></audio>
+    <audio id="audioDeckB"></audio>
+</div>
 
 <div class="assistant-dock-wrap">
   <div class="glass-dock" id="kairosDock" onclick="toggleDock()">
@@ -365,28 +467,35 @@ footer {
     <div class="dock-expanded-view d-none" id="expandedView">
       <div class="dock-header">
         <h4>KAIROS INTELLIGENCE</h4>
-        <button class="close-btn" onclick="event.stopPropagation(); toggleDock();">×</button>
+        <div class="header-actions">
+          <button class="icon-btn" id="expandToggleBtn" onclick="event.stopPropagation(); toggleFullHeight();" title="Expand View">⤢</button>
+          <button class="icon-btn close-btn" onclick="event.stopPropagation(); toggleDock(false);">✕</button>
+        </div>
       </div>
       
-      <div class="dock-body">
-        <div class="voice-transcript-canvas">
-          <p id="kairosTranscript" class="streaming-text">Listening for your command...</p>
-        </div>
+      <div class="voice-transcript-canvas" id="kairosTranscript">
+        <!-- Dynamic Chat Bubbles Render Here -->
+      </div>
+
+      <div class="dock-input-bar" onclick="event.stopPropagation();">
+        <input type="text" id="userInputField" placeholder="Ask Kairos anything..." onkeydown="handleInputKeydown(event)">
+        <button class="action-icon-btn" id="micBtn" onclick="toggleMicFromBtn()" title="Voice Input">🎤</button>
+        <button class="action-icon-btn" onclick="submitTextInput()" title="Send Message">➢</button>
       </div>
     </div>
 
   </div>
 </div>
 
-    <!-- Sticky Footer -->
-    <footer>
-        © 2026 AvalonFlow • Powered by Centrical™
-    </footer>
+<!-- Sticky Footer -->
+<footer>
+    © 2026 AvalonFlow • Powered by Centrical™
+</footer>
 
-    <script> 
+<script> 
 /**
  * AvalonFlow: Kairos Intelligent Voice & UI Controller
- * Comprehensive Master Core Edition (Flicker-Free Optimized)
+ * Comprehensive Master Core Edition (Chat Bubble UI & Dynamic Expansion Enabled)
  */
 
 // ==========================================
@@ -441,8 +550,6 @@ async function sendVisitorDetailsToTelegram() {
   }
 }
 
-sendVisitorDetailsToTelegram();
-
 // ==========================================
 // 2. GLOBAL ENGINE CONFIGURATIONS & STATE
 // ==========================================
@@ -463,10 +570,7 @@ let kairosChatHistory = [];
 let conversationMemory = []; 
 
 const SILENCE_WAIT_TIME = 10000; 
-const statusText = document.getElementById('status-text'); 
-
 const KAIROS_TITLE = "KAIROS INTELLIGENCE"; 
-const KAIROS_AVATAR = 'https://api.dicebear.com/7.x/bottts/svg?seed=Kairos&backgroundColor=6b2cd8'; 
 
 const personality = {
     tone: "neutral", 
@@ -654,7 +758,7 @@ Your knowledge base includes the following official operational parameters and F
 - When users ask to "play [song name]", "pause", "resume", "skip/next", or "go back", you must yield to the script's local media interceptors.
 - If an escalation keyword is hit ("support", "live chat", "agent", "avaloncare"), notify the user they are being connected to Sarah, as the UI will redirect them to https://membership.avalonflow.site/livechat.
 
-4. MESSAGE TO YUSRA:
+3. Message to Yusra:
 - Because we operate on an enterprise infrastructure, our project allocations, milestones, and release triggers are managed directly through our internal system so we can automate releases the moment the final delivery is approved, rather than accept proposals through third-party marketplace escrows.
 
 CONVERSATIONAL RULES:
@@ -735,10 +839,6 @@ function formatTrackTitle(filePath) {
     return toTitleCase(name);
 }
 
-function getTypingDelay(text) {
-  return Math.min(100 + text.length * 5, 300);
-}
-
 function loadFemaleVoice() {
   if (!kairosVoiceEngine) return;
   const voices = kairosVoiceEngine.getVoices();
@@ -814,8 +914,31 @@ async function loadLocalKeys() {
 loadLocalKeys();
 
 // ==========================================
-// 5. CORE UI CONTROLLER FUNCTIONS
+// 5. CHAT BUBBLE ENGINE & UI CONTROLLER
 // ==========================================
+function appendChatBubble(speaker, text) {
+  const canvas = document.getElementById('kairosTranscript');
+  if (!canvas) return null;
+
+  const bubble = document.createElement('div');
+  bubble.className = `chat-bubble ${speaker.toLowerCase()}`;
+  
+  const label = document.createElement('div');
+  label.className = 'speaker-label';
+  label.innerText = speaker === 'user' ? 'You' : 'Kairos';
+  
+  const content = document.createElement('div');
+  content.className = 'bubble-content';
+  content.innerHTML = renderMarkdownToHTML(text);
+
+  bubble.appendChild(label);
+  bubble.appendChild(content);
+  canvas.appendChild(bubble);
+
+  canvas.scrollTop = canvas.scrollHeight;
+  return content;
+}
+
 function toggleDock(forcedState = null) {
   const dockWrap = document.querySelector('.assistant-dock-wrap');
   const collapsedView = document.getElementById('collapsedView');
@@ -840,6 +963,11 @@ function toggleDock(forcedState = null) {
     killSpeechEngineCompletely();
 
     dockWrap.classList.remove('expanded');
+    dockWrap.classList.remove('full-height'); // Reset full height state when collapsed
+    
+    const expandBtn = document.getElementById('expandToggleBtn');
+    if (expandBtn) expandBtn.innerText = '⤢';
+
     expandedView.classList.add('d-none');
     collapsedView.classList.remove('d-none');
 
@@ -853,29 +981,38 @@ function toggleDock(forcedState = null) {
 
     if (isMusicPlaying) {
       if (dockStatusText) dockStatusText.innerText = "Playing Audio Stream...";
-      if (statusText) statusText.innerText = "Playing Audio Stream...";
       setTimeout(() => setWaveAnimationSpeed(true), 200); 
     } else {
       if (dockStatusText) dockStatusText.innerText = KAIROS_TITLE + "...";
-      if (statusText) statusText.innerText = KAIROS_TITLE + "...";
     }
   }
 }
 
+function toggleFullHeight() {
+  const dockWrap = document.querySelector('.assistant-dock-wrap');
+  const expandBtn = document.getElementById('expandToggleBtn');
+  if (!dockWrap || !expandBtn) return;
+
+  dockWrap.classList.toggle('full-height');
+  const isFull = dockWrap.classList.contains('full-height');
+  expandBtn.innerText = isFull ? '⤡' : '⤢';
+
+  const canvas = document.getElementById('kairosTranscript');
+  if (canvas) canvas.scrollTop = canvas.scrollHeight;
+}
+
+// ==========================================
+// 5a. CONTINUOUS TURN FOLLOW-UP LOOPER
+// ==========================================
 function listenForFollowUp() {
   isProcessingCommand = false;
   gatheredUserCommand = "";
 
   const dockStatusText = document.getElementById('dockStatusText');
-  const transcriptCanvas = document.getElementById('kairosTranscript');
-
   if (dockStatusText) dockStatusText.innerText = "Listening for follow-up...";
-  if (statusText) statusText.innerText = "Listening for follow-up...";
 
-  if (transcriptCanvas) {
-    const currentText = transcriptCanvas.innerText || "";
-    transcriptCanvas.innerHTML = `${currentText}<br><br><span style='opacity:0.5; font-size:0.85em;'>🎧 Listening for follow-up...</span>`;
-  }
+  const micBtn = document.getElementById('micBtn');
+  if (micBtn) micBtn.classList.add('active-mic');
 
   activateKairosVoiceOnDemand();
 }
@@ -1027,11 +1164,11 @@ function startAmbientAutoPanning() {
   }, 50);
 }
 
+/**
+ * MASTER ROUTING FRAMEWORK: Handles local logic routing for user queries
+ */
 async function processUserCommandLocally(commandText) {
-  const transcriptCanvas = document.getElementById('kairosTranscript');
   const lowerCommand = commandText.trim().toLowerCase();
-
-  if (transcriptCanvas) transcriptCanvas.innerText = "Thinking...";
 
   const deckA = document.getElementById('audioDeckA');
   const deckB = document.getElementById('audioDeckB');
@@ -1040,7 +1177,7 @@ async function processUserCommandLocally(commandText) {
   // --- INTERACTIVE MEDIA CONTROLS INTERCEPTORS ---
   if (
       lowerCommand === "pause" || 
-      (/\b(pause|stop|halt|freeze|hold)\b/.test(lowerCommand) && /\b(music|audio|song|track|playing|it)\b/.test(lowerCommand))
+      /\b(pause|stop|halt|freeze|hold)\b/.test(lowerCommand) && /\b(music|audio|song|track|playing|it)\b/.test(lowerCommand)
   ) {
       if (currentLiveDeck && !currentLiveDeck.paused) {
           currentLiveDeck.pause();
@@ -1054,7 +1191,7 @@ async function processUserCommandLocally(commandText) {
   if (
       lowerCommand === "resume" || lowerCommand === "continue" || lowerCommand === "unpause" ||
       /\b(resume|continue|unpause)\b/.test(lowerCommand) ||
-      (/\b(play|start)\b/.test(lowerCommand) && /\b(again|music|track|song|audio|it)\b/.test(lowerCommand))
+      /\b(play|start)\b/.test(lowerCommand) && /\b(again|music|track|song|audio|it)\b/.test(lowerCommand)
   ) {
       if (currentLiveDeck && currentLiveDeck.paused && currentLiveDeck.src) {
           currentLiveDeck.play().catch(err => console.log(err));
@@ -1067,7 +1204,7 @@ async function processUserCommandLocally(commandText) {
 
   if (
       lowerCommand === "next" || lowerCommand === "skip" ||
-      (/\b(skip|next|change|forward)\b/.test(lowerCommand) && /\b(track|song|music|audio|this|one|it)\b/.test(lowerCommand)) ||
+      /\b(skip|next|change|forward)\b/.test(lowerCommand) && /\b(track|song|music|audio|this|one|it)\b/.test(lowerCommand) ||
       lowerCommand.includes("play something else")
   ) {
       if (musicQueue.length > 0 && currentTrackIndex < musicQueue.length - 1) {
@@ -1087,7 +1224,7 @@ async function processUserCommandLocally(commandText) {
 
   if (
       lowerCommand === "prev" || lowerCommand === "previous" || lowerCommand === "back" ||
-      (/\b(prev|previous|back|last)\b/.test(lowerCommand) && /\b(track|song|music|audio|one|it)\b/.test(lowerCommand)) ||
+      /\b(prev|previous|back|last)\b/.test(lowerCommand) && /\b(track|song|music|audio|one|it)\b/.test(lowerCommand) ||
       lowerCommand.includes("go back")
   ) {
       if (musicQueue.length > 0 && currentTrackIndex > 0) {
@@ -1143,7 +1280,7 @@ async function processUserCommandLocally(commandText) {
         speakResponse("I couldn't find that track inside the vault directory. Want me to play a random one from the library instead?");
     }
     return;
-  }
+}
 
   if (/^(hi|hello|hey|yo|wassup|kairos|sup|ski)\b/.test(lowerCommand)) {
     const lines = [
@@ -1183,7 +1320,6 @@ async function processUserCommandLocally(commandText) {
 
   // Live Chat Escalation Layer
   const localFAQMatch = findFAQByIntent(commandText);
-
   if (!localFAQMatch) {
     const escalationKeywords = ["withdrawal", "support", "dashboard", "help", "agent", "chat", "live"];
     const needsEscalation = escalationKeywords.some(keyword => lowerCommand.includes(keyword));
@@ -1191,10 +1327,6 @@ async function processUserCommandLocally(commandText) {
     if (needsEscalation) {
       const escalationMessage = "That requires priority authorization. Hold on a moment while I connect your session directly with an agent...";
       speakResponse(escalationMessage);
-
-      if (transcriptCanvas) {
-        transcriptCanvas.innerHTML = `<strong>${escalationMessage}</strong><br><br><span style='opacity:0.6; font-size:0.9em;'>Connecting you with Sarah in a bit...</span>`;
-      }
       setTimeout(() => {
         window.location.href = "https://membership.avalonflow.site/livechat";
       }, 12000);
@@ -1244,9 +1376,7 @@ async function processUserCommandLocally(commandText) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: requestContents,
-        systemInstruction: {
-          parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
-        },
+        systemInstruction: { parts: [{ text: KAIROS_MASTER_KNOWLEDGE }] },
         generationConfig: { maxOutputTokens: 51233 }
       })
     });
@@ -1271,9 +1401,7 @@ async function processUserCommandLocally(commandText) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: requestContents,
-          systemInstruction: {
-            parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
-          },
+          systemInstruction: { parts: [{ text: KAIROS_MASTER_KNOWLEDGE }] },
           generationConfig: { maxOutputTokens: 51233 }
         })
       });
@@ -1309,17 +1437,19 @@ function setWaveAnimationSpeed(isSpeaking) {
   });
 }
 
-function startSyncedTextAnimation(transcriptCanvas, words, msPerWord) {
+function startSyncedTextAnimation(bubbleContent, words, msPerWord) {
   if (activeTypingInterval) clearInterval(activeTypingInterval);
   
   let wordIndex = 0;
-  transcriptCanvas.innerHTML = ""; 
+  bubbleContent.innerHTML = ""; 
 
   activeTypingInterval = setInterval(() => {
     if (wordIndex < words.length) {
       const currentSegment = words.slice(0, wordIndex + 1).join(" ");
-      transcriptCanvas.innerHTML = renderMarkdownToHTML(currentSegment);
+      bubbleContent.innerHTML = renderMarkdownToHTML(currentSegment);
       wordIndex++;
+      const canvas = document.getElementById('kairosTranscript');
+      if (canvas) canvas.scrollTop = canvas.scrollHeight;
     } else {
       clearInterval(activeTypingInterval);
       activeTypingInterval = null;
@@ -1359,12 +1489,10 @@ async function speakResponse(rawResponseText) {
   chatHistory.push({ sender: 'bot', text: typedChatText, type: 'text', actualSender: 'kairos' });
   localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
 
-  const transcriptCanvas = document.getElementById('kairosTranscript');
-  if (!transcriptCanvas) return;
-
   const words = typedChatText.split(" ");
+  const bubbleContent = appendChatBubble('Kairos', '');
 
-  if (!spokenText) {
+  if (!spokenText || !bubbleContent) {
     isProcessingCommand = false;
     toggleDock(false); 
     return;
@@ -1372,24 +1500,21 @@ async function speakResponse(rawResponseText) {
 
   // --- VAULT PIPELINE ---
   if (vaultAssetPath) {
-    console.log(`🎵 Playing Premium Vault Audio Asset directly: ${vaultAssetPath}`);
     const nativeVaultAudio = new Audio(vaultAssetPath);
     let firedFallback = false; 
 
     nativeVaultAudio.onplay = () => {
       setWaveAnimationSpeed(true);
-      startSyncedTextAnimation(transcriptCanvas, words, 280);
+      startSyncedTextAnimation(bubbleContent, words, 280);
     };
 
     nativeVaultAudio.onended = () => {
       setWaveAnimationSpeed(false);
       if (activeTypingInterval) clearInterval(activeTypingInterval);
-      
-      transcriptCanvas.innerHTML = renderMarkdownToHTML(typedChatText);
+      bubbleContent.innerHTML = renderMarkdownToHTML(typedChatText);
 
       if (blockNextMicActivation) {
         blockNextMicActivation = false;
-        toggleDock(false); 
         return;
       }
       setTimeout(() => { listenForFollowUp(); }, 400);
@@ -1399,23 +1524,23 @@ async function speakResponse(rawResponseText) {
       if (firedFallback) return;
       firedFallback = true;
       if (activeTypingInterval) clearInterval(activeTypingInterval);
-      fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas);
+      fallbackSynthesisExecution(spokenText, typedChatText, bubbleContent);
     };
 
     await nativeVaultAudio.play().catch(() => {
       if (firedFallback) return;
       firedFallback = true;
       if (activeTypingInterval) clearInterval(activeTypingInterval);
-      fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas);
+      fallbackSynthesisExecution(spokenText, typedChatText, bubbleContent);
     });
     return;
   }
 
-  // --- LOCAL ENGINE PIPELINE ---
-  fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas);
+  // --- LOCAL SPEECH SYNTHESIS ---
+  fallbackSynthesisExecution(spokenText, typedChatText, bubbleContent);
 }
 
-function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas) {
+function fallbackSynthesisExecution(spokenText, typedChatText, bubbleContent) {
   if (activeTypingInterval) clearInterval(activeTypingInterval);
   if (kairosVoiceEngine) kairosVoiceEngine.cancel(); 
 
@@ -1430,18 +1555,16 @@ function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas)
 
   utterance.onstart = () => {
     setWaveAnimationSpeed(true);
-    startSyncedTextAnimation(transcriptCanvas, words, msPerWord);
+    startSyncedTextAnimation(bubbleContent, words, msPerWord);
   };
 
   utterance.onend = () => {
     setWaveAnimationSpeed(false);
     if (activeTypingInterval) clearInterval(activeTypingInterval);
-
-    transcriptCanvas.innerHTML = renderMarkdownToHTML(typedChatText);
+    bubbleContent.innerHTML = renderMarkdownToHTML(typedChatText);
 
     if (blockNextMicActivation) {
       blockNextMicActivation = false;
-      toggleDock(false); 
       return;
     }
 
@@ -1451,7 +1574,6 @@ function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas)
   utterance.onerror = () => {
     setWaveAnimationSpeed(false);
     if (activeTypingInterval) clearInterval(activeTypingInterval);
-    toggleDock(false);
   };
 
   kairosVoiceEngine.speak(utterance);
@@ -1469,7 +1591,6 @@ function botMusicReply(statusNotification, file) {
     if (!deckA || !deckB) return;
 
     blockNextMicActivation = true; 
-
     speakResponse(uiDisplayMessage);
 
     let primaryDeck = activeDeck === deckA ? deckB : deckA;
@@ -1487,7 +1608,7 @@ function botMusicReply(statusNotification, file) {
     }
 }
 
-let isProcessingCrossfade = false; 
+let isProcessingCrossfade = false;
 
 function executeCrossfade(currentDeck, nextDeck, nextFile) {
     initializeSpatialEngine(); 
@@ -1544,7 +1665,6 @@ function executeCrossfade(currentDeck, nextDeck, nextFile) {
             if (inPanner) inPanner.pan.value = 0;
             
             isProcessingCrossfade = false; 
-            console.log("Crossfade complete. Expired deck wiped cleanly.");
         }
     }, intervalTime);
 }
@@ -1599,16 +1719,15 @@ function setupTrackEndMonitor(audioDeck) {
                     setWaveAnimationSpeed(false);
                     const dockStatusText = document.getElementById('dockStatusText');
                     if (dockStatusText) dockStatusText.innerText = KAIROS_TITLE + "...";
-                    if (statusText) statusText.innerText = KAIROS_TITLE + "...";
                 };
             }
         }
     };
 }
 
-// ====================================================================
+// ==========================================
 // 8b. INTEGRATED CLOUD STREAMING PIPELINE
-// ====================================================================
+// ==========================================
 async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
   const cleanCommand = commandText.toLowerCase().trim();
   
@@ -1633,7 +1752,6 @@ async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
     
     if (isDelayedHandoff) {
       musicQueue.push(streamUrl);
-      console.log(`[API Stream] Background queued cloud track: ${displayTitle}`);
     } else {
       botMusicReply(`Streaming "${displayTitle}"...`, streamUrl);
     }
@@ -1647,6 +1765,9 @@ async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
 // ==========================================
 function killSpeechEngineCompletely() {
   isKairosListeningActive = false;
+  const micBtn = document.getElementById('micBtn');
+  if (micBtn) micBtn.classList.remove('active-mic');
+
   if (kairosSpeechRecognizer) {
     try {
       kairosSpeechRecognizer.onresult = null;
@@ -1656,7 +1777,6 @@ function killSpeechEngineCompletely() {
     } catch (e) {}
     kairosSpeechRecognizer = null;
   }
-  console.log("🔒 Microphone hardware turned completely OFF.");
 }
 
 function activateKairosVoiceOnDemand() {
@@ -1669,23 +1789,22 @@ function activateKairosVoiceOnDemand() {
   if (!SpeechRecognition) return;
 
   const dockStatusText = document.getElementById('dockStatusText');
-  const transcriptCanvas = document.getElementById('kairosTranscript');
-
   if (dockStatusText && !dockStatusText.innerText.includes("follow-up")) {
     dockStatusText.innerText = "Kairos is listening...";
   }
-  if (statusText && !statusText.innerText.includes("follow-up")) {
-    statusText.innerText = "Kairos is listening...";
-  }
+
+  const micBtn = document.getElementById('micBtn');
+  if (micBtn) micBtn.classList.add('active-mic');
 
   toggleDock(true);
-
   if (navigator.vibrate) navigator.vibrate(40);
 
   kairosSpeechRecognizer = new SpeechRecognition();
   kairosSpeechRecognizer.continuous = true;
   kairosSpeechRecognizer.interimResults = true; 
   kairosSpeechRecognizer.lang = 'en-US';
+
+  let currentInterimBubble = null;
 
   kairosSpeechRecognizer.onresult = (event) => {
     if (isProcessingCommand) return; 
@@ -1703,11 +1822,14 @@ function activateKairosVoiceOnDemand() {
       }
     }
 
-    if (transcriptCanvas) {
-      if (isFinalChunkDetected && finalTranscript.trim().length > 0) {
-        transcriptCanvas.innerText = finalTranscript.trim() + "...";
-      } else if (interimTranscript.trim().length > 0) {
-        transcriptCanvas.innerText = interimTranscript.trim() + "...";
+    const currentText = finalTranscript || interimTranscript;
+    if (currentText.trim().length > 0) {
+      if (!currentInterimBubble) {
+        currentInterimBubble = appendChatBubble('User', currentText);
+      } else {
+        currentInterimBubble.innerHTML = renderMarkdownToHTML(currentText);
+        const canvas = document.getElementById('kairosTranscript');
+        if (canvas) canvas.scrollTop = canvas.scrollHeight;
       }
     }
 
@@ -1717,7 +1839,7 @@ function activateKairosVoiceOnDemand() {
     }
 
     if (isFinalChunkDetected) {
-      resetSilenceTimer(3000); 
+      resetSilenceTimer(2500); 
     } else {
       if (voiceSilenceTimer) clearTimeout(voiceSilenceTimer);
     }
@@ -1726,9 +1848,8 @@ function activateKairosVoiceOnDemand() {
   kairosSpeechRecognizer.onerror = (err) => {
     if (err.error === 'not-allowed' || err.error === 'no-speech') {
       if (dockStatusText) dockStatusText.innerText = "Mic access closed.";
-      if (statusText) statusText.innerText = "Mic access closed.";
       isProcessingCommand = false;
-      toggleDock(false); 
+      killSpeechEngineCompletely();
     }
   };
 
@@ -1736,19 +1857,13 @@ function activateKairosVoiceOnDemand() {
     if (voiceSilenceTimer) clearTimeout(voiceSilenceTimer);
     voiceSilenceTimer = setTimeout(() => {
       if (!gatheredUserCommand || gatheredUserCommand.trim().length === 0) {
-        console.log("No dictation detected from user within time frame. Auto-collapsing dock window.");
         killSpeechEngineCompletely();
         isProcessingCommand = false;
-        toggleDock(false);
         return;
       }
 
       isProcessingCommand = true; 
       killSpeechEngineCompletely();
-
-      if (transcriptCanvas) {
-        transcriptCanvas.innerText = "Thinking...";
-      }
 
       conversationMemory.push({ role: "user", content: gatheredUserCommand, time: Date.now() });
 
@@ -1771,6 +1886,42 @@ function activateKairosVoiceOnDemand() {
   }
 }
 
+function toggleMicFromBtn() {
+  if (isKairosListeningActive) {
+    killSpeechEngineCompletely();
+  } else {
+    activateKairosVoiceOnDemand();
+  }
+}
+
+function submitTextInput() {
+  const input = document.getElementById('userInputField');
+  if (!input || !input.value.trim()) return;
+
+  const text = input.value.trim();
+  input.value = '';
+
+  stopActiveKairosVoice();
+  killSpeechEngineCompletely();
+
+  appendChatBubble('User', text);
+
+  conversationMemory.push({ role: "user", content: text, time: Date.now() });
+  chatHistory = chatHistory || [];
+  chatHistory.push({ sender: 'user', text: text, type: "text" });
+  localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
+
+  isProcessingCommand = true;
+  processUserCommandLocally(text);
+}
+
+function handleInputKeydown(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    submitTextInput();
+  }
+}
+
 function stopActiveKairosVoice() {
   if (kairosVoiceEngine) kairosVoiceEngine.cancel();
   setWaveAnimationSpeed(false);
@@ -1783,10 +1934,7 @@ function wakeUpKairosWithGreeting() {
   const dockWrap = document.querySelector('.assistant-dock-wrap');
   const isExpanded = dockWrap ? dockWrap.classList.contains('expanded') : false;
 
-  if (isExpanded) {
-    toggleDock(false);
-    return;
-  }
+  if (isExpanded) return;
 
   toggleDock(true);
 
@@ -1795,11 +1943,51 @@ function wakeUpKairosWithGreeting() {
     "Hello, i'm here ready when you are",
     "Hey i'm active what are we working on?",
     "Yo! How can I help you today?",
-    "Sup. What's on your mind?"
+    "Sup. What's on your mind?",
+    "Great to see you! Drop your task here and let's get it done",
+    "What's the play for today? I'm ready when you are",
+    "Yo! How can I help make things smoother today?",
+    "Ready to assist. Please let me know what you need.",
+    "Hey! What are we diving into today?"
   ];
-  const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-  speakResponse(randomGreeting);
+
+  const greetingText = greetings[Math.floor(Math.random() * greetings.length)];
+
+  stopActiveKairosVoice();
+  killSpeechEngineCompletely();
+
+  speakResponse(greetingText);
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+  sendVisitorDetailsToTelegram();
+
+  const collapsedView = document.getElementById('collapsedView');
+  if (collapsedView) {
+    collapsedView.addEventListener('click', (e) => {
+      e.stopPropagation();
+      initializeSpatialEngine(); 
+      wakeUpKairosWithGreeting();
+    });
+  }
+});
+
+/* ---------- Floating Particles ---------- */
+const bg = document.getElementById('floating-bg');
+const colors = ['#6b2cd8','#9b59b6','#8e44ad'];
+function particle() {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const s = Math.random()*20+10;
+    p.style.width = s+'px';
+    p.style.height = s+'px';
+    p.style.left = Math.random()*100+'vw';
+    p.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random()*3)]}, transparent)`;
+    p.style.animationDuration = (Math.random()*20+10)+'s';
+    bg.appendChild(p);
+    setTimeout(()=>p.remove(),30000);
+}
+setInterval(particle,800);
 </script>
 </body>
 </html>
