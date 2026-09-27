@@ -120,10 +120,11 @@
         }
 
         .assistant-dock-wrap.full-height {
+            top: 20px;
             bottom: 20px;
+            height: auto;
             max-width: 380px;
-            height: 80vh;
-            max-height: 600px;
+            max-height: calc(100vh - 40px);
         }
 
         /* 2. Glass Morphic Shield */
@@ -142,13 +143,12 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: auto;
+            height: 100%;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
 
         .assistant-dock-wrap.full-height .glass-dock {
-            height: 100%;
             border-radius: 28px;
         }
 
@@ -289,8 +289,8 @@
         /* 5. Scrollable Chat Canvas */
         .voice-transcript-canvas {
             width: 100%;
-            flex: 1;
-            min-height: 120px;
+            flex: 1 1 auto;
+            min-height: 100px;
             max-height: 260px;
             overflow-y: auto;
             padding-right: 4px;
@@ -643,10 +643,11 @@
             }
 
             .assistant-dock-wrap.full-height {
+                top: 20px;
                 bottom: 20px;
-                max-width: 650px; /* Keeps consistent card layout across expanded states */
-                height: 85vh;
-                max-height: 750px;
+                height: auto;
+                max-width: 650px;
+                max-height: calc(100vh - 40px);
             }
 
             .glass-dock {
