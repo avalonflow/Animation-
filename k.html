@@ -856,6 +856,31 @@ function getTranscriptCanvas() {
   return document.getElementById('kairosTranscript') || document.getElementById('transcriptCanvas');
 }
 
+// SAFE UI RENDERER: Updates inner streaming text without destroying HTML/CSS structure
+function setKairosMessageText(formattedHtmlText) {
+  const canvas = getTranscriptCanvas();
+  if (!canvas) return;
+
+  let streamingTextElem = canvas.querySelector('.chat-bubble.kairos .streaming-text') || canvas.querySelector('.streaming-text');
+
+  if (streamingTextElem) {
+    streamingTextElem.innerHTML = formattedHtmlText;
+  } else {
+    const msgWrap = document.createElement('div');
+    msgWrap.className = 'msgWrap';
+    msgWrap.innerHTML = `
+      <img src="${KAIROS_AVATAR}" class="chat-bubble-avatar" alt="Kairos Avatar">
+      <div class="chat-bubble kairos">
+          <div class="speaker-label">${KAIROS_TITLE}</div>
+          <p class="streaming-text">${formattedHtmlText}</p>
+      </div>
+    `;
+    canvas.appendChild(msgWrap);
+  }
+  
+  canvas.scrollTop = canvas.scrollHeight;
+}
+
 // =================================================================
 // 3. DATA STRUCTURES & PREMIUM AUDIO VAULT DIRECTORY
 // =================================================================
@@ -1246,15 +1271,11 @@ function listenForFollowUp() {
 
   const dockStatusText = document.getElementById('dockStatusText');
   const statusTxt = getStatusTextElement();
-  const transcriptCanvas = getTranscriptCanvas();
 
   if (dockStatusText) dockStatusText.innerText = "Listening for follow-up...";
   if (statusTxt) statusTxt.innerText = "Listening for follow-up...";
 
-  if (transcriptCanvas) {
-    const currentText = transcriptCanvas.innerText || "";
-    transcriptCanvas.innerHTML = `${currentText}<br><br><span style='opacity:0.5; font-size:0.85em;'>🎧 Listening for follow-up...</span>`;
-  }
+  setKairosMessageText("<span style='opacity:0.5; font-size:0.85em;'>🎧 Listening for follow-up...</span>");
 
   activateKairosVoiceOnDemand();
 }
@@ -1414,10 +1435,9 @@ function startAmbientAutoPanning() {
  * MASTER ROUTING FRAMEWORK: Handles local logic routing for voice processing strings
  */
 async function processUserCommandLocally(commandText) {
-  const transcriptCanvas = getTranscriptCanvas();
   const lowerCommand = commandText.trim().toLowerCase();
 
-  if (transcriptCanvas) transcriptCanvas.innerText = "Thinking...";
+  setKairosMessageText("Thinking...");
 
   const deckA = document.getElementById('audioDeckA');
   const deckB = document.getElementById('audioDeckB');
@@ -1580,9 +1600,8 @@ async function processUserCommandLocally(commandText) {
       const escalationMessage = "That requires priority authorization. Hold on a moment while I connect your session directly with an agent...";
       speakResponse(escalationMessage);
 
-      if (transcriptCanvas) {
-        transcriptCanvas.innerHTML = `<strong>${escalationMessage}</strong><br><br><span style='opacity:0.6; font-size:0.9em;'>Connecting you with Sarah in a bit...</span>`;
-      }
+      setKairosMessageText(`<strong>${escalationMessage}</strong><br><br><span style='opacity:0.6; font-size:0.9em;'>Connecting you with Sarah in a bit...</span>`);
+
       setTimeout(() => {
         window.location.href = "https://membership.avalonflow.site/livechat";
       }, 12000);
@@ -1701,12 +1720,11 @@ function startSyncedTextAnimation(transcriptCanvas, words, msPerWord) {
   if (activeTypingInterval) clearInterval(activeTypingInterval);
 
   let wordIndex = 0;
-  transcriptCanvas.innerHTML = ""; 
 
   activeTypingInterval = setInterval(() => {
     if (wordIndex < words.length) {
       const currentSegment = words.slice(0, wordIndex + 1).join(" ");
-      transcriptCanvas.innerHTML = renderMarkdownToHTML(currentSegment);
+      setKairosMessageText(renderMarkdownToHTML(currentSegment));
       wordIndex++;
     } else {
       clearInterval(activeTypingInterval);
@@ -1773,7 +1791,7 @@ async function speakResponse(rawResponseText) {
       setWaveAnimationSpeed(false);
       if (activeTypingInterval) clearInterval(activeTypingInterval);
 
-      transcriptCanvas.innerHTML = renderMarkdownToHTML(typedChatText);
+      setKairosMessageText(renderMarkdownToHTML(typedChatText));
 
       if (blockNextMicActivation) {
         blockNextMicActivation = false;
@@ -1825,7 +1843,7 @@ function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas)
     setWaveAnimationSpeed(false);
     if (activeTypingInterval) clearInterval(activeTypingInterval);
 
-    transcriptCanvas.innerHTML = renderMarkdownToHTML(typedChatText);
+    setKairosMessageText(renderMarkdownToHTML(typedChatText));
 
     if (blockNextMicActivation) {
       blockNextMicActivation = false;
@@ -2059,7 +2077,6 @@ function activateKairosVoiceOnDemand() {
 
   const dockStatusText = document.getElementById('dockStatusText');
   const statusTxt = getStatusTextElement();
-  const transcriptCanvas = getTranscriptCanvas();
 
   if (dockStatusText && !dockStatusText.innerText.includes("follow-up")) {
     dockStatusText.innerText = "Kairos is listening...";
@@ -2093,12 +2110,10 @@ function activateKairosVoiceOnDemand() {
       }
     }
 
-    if (transcriptCanvas) {
-      if (isFinalChunkDetected && finalTranscript.trim().length > 0) {
-        transcriptCanvas.innerText = finalTranscript.trim() + "...";
-      } else if (interimTranscript.trim().length > 0) {
-        transcriptCanvas.innerText = interimTranscript.trim() + "...";
-      }
+    if (isFinalChunkDetected && finalTranscript.trim().length > 0) {
+      setKairosMessageText(finalTranscript.trim() + "...");
+    } else if (interimTranscript.trim().length > 0) {
+      setKairosMessageText(interimTranscript.trim() + "...");
     }
 
     let processedText = finalTranscript.trim();
@@ -2136,9 +2151,7 @@ function activateKairosVoiceOnDemand() {
       isProcessingCommand = true; 
       killSpeechEngineCompletely();
 
-      if (transcriptCanvas) {
-        transcriptCanvas.innerText = "Thinking...";
-      }
+      setKairosMessageText("Thinking...");
 
       conversationMemory.push({ role: "user", content: gatheredUserCommand, time: Date.now() });
 
@@ -2197,9 +2210,6 @@ function wakeUpKairosWithGreeting() {
 
   stopActiveKairosVoice();
   killSpeechEngineCompletely();
-
-  const transcriptCanvas = getTranscriptCanvas();
-  if (transcriptCanvas) transcriptCanvas.innerText = "";
 
   speakResponse(greetingText);
 }
