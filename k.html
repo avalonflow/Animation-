@@ -119,12 +119,12 @@
             max-width: 380px; /* Kept identical to base mobile card width */
         }
 
+        /* Explicit viewport clearance in Full-Height mode */
         .assistant-dock-wrap.full-height {
-            top: 20px;
-            bottom: 20px;
-            height: auto;
+            bottom: 70px; /* Preserves same bottom clearance above footer */
+            height: calc(100vh - 90px);
+            max-height: 650px;
             max-width: 380px;
-            max-height: calc(100vh - 40px);
         }
 
         /* 2. Glass Morphic Shield */
@@ -150,6 +150,7 @@
 
         .assistant-dock-wrap.full-height .glass-dock {
             border-radius: 28px;
+            padding: 20px; /* Ensures inner bottom padding around dock-input-bar stays locked */
         }
 
         .glass-dock::before {
@@ -497,6 +498,7 @@
             padding: 4px 8px;
             flex-shrink: 0;
             position: relative;
+            margin-top: auto; /* Guarantees space above input bar in full height layout */
         }
 
         .typing-cursor {
@@ -643,11 +645,10 @@
             }
 
             .assistant-dock-wrap.full-height {
-                top: 20px;
-                bottom: 20px;
-                height: auto;
+                bottom: 70px;
+                height: calc(100vh - 100px);
+                max-height: 750px;
                 max-width: 650px;
-                max-height: calc(100vh - 40px);
             }
 
             .glass-dock {
