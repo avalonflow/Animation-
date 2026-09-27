@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AvalonFlow / Kairos Assistant</title>
+    <title>AvalonFlow / Kairos Intelligence</title>
     <style>
         /* Base page layout */
         html, body {
@@ -119,7 +119,7 @@
             max-width: 380px; /* Kept identical to base mobile card width */
         }
 
-        /* Full-Height State (Restored top height to 20px) */
+        /* Full-Height State */
         .assistant-dock-wrap.full-height {
             top: 20px;
             bottom: 70px;
@@ -684,7 +684,7 @@
             <!-- Collapsed State View -->
             <div class="dock-collapsed-view" id="collapsedView">
                 <span class="status-indicator active"></span>
-                <span class="dock-text">Kairos Assistant</span>
+                <span class="dock-text">Kairos Intelligence</span>
                 <div class="audio-wave-pill">
                     <span class="stroke"></span>
                     <span class="stroke"></span>
@@ -697,7 +697,7 @@
             <!-- Expanded State View -->
             <div class="dock-expanded-view d-none" id="expandedView">
                 <div class="dock-header">
-                    <h4>Kairos Assistant</h4>
+                    <h4>Kairos Intelligence</h4>
                     <div class="header-actions">
                         <button class="icon-btn" id="expandToggleBtn" aria-label="Toggle Fullscreen">⤢</button>
                         <button class="icon-btn close-btn" id="closeDockBtn" aria-label="Close Assistant">✕</button>
@@ -711,7 +711,7 @@
                     <div class="msgWrap">
                         <img src="default-avatar.png" class="chat-bubble-avatar" alt="Kairos Avatar">
                         <div class="chat-bubble kairos">
-                            <div class="speaker-label">Kairos</div>
+                            <div class="speaker-label">Kairos Intelligence</div>
                             <p class="streaming-text">How can I assist you today?</p>
                             <div class="meta">
                                 <span class="timestamp">10:00 AM</span>
@@ -736,7 +736,7 @@
                     <!-- Typing Pipe Cursor -->
                     <span id="idleCursor" class="typing-cursor" style="display: none;">|</span>
 
-                    <input type="text" id="dockInput" placeholder="Message Kairos..." autocomplete="off">
+                    <input type="text" id="dockInput" placeholder="Message..." autocomplete="off">
 
                     <!-- Microphone Button with Pulse Animation Ring -->
                     <button class="action-icon-btn" id="dockMicBtn" aria-label="Voice Input">
