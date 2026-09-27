@@ -1457,6 +1457,12 @@ function startSyncedTextAnimation(bubbleContent, words, msPerWord) {
   }, msPerWord);
 }
 
+function stopActiveKairosVoice() {
+  if (kairosVoiceEngine && kairosVoiceEngine.speaking) {
+    kairosVoiceEngine.cancel();
+  }
+}
+
 async function speakResponse(rawResponseText) {
   stopActiveKairosVoice();
   killSpeechEngineCompletely(); 
@@ -1898,21 +1904,22 @@ function submitTextInput() {
   const input = document.getElementById('userInputField');
   if (!input || !input.value.trim()) return;
 
-  const text = input.value.trim();
-  input.value = '';
+  const userMessage = input.value.trim();
+  input.value = "";
 
   stopActiveKairosVoice();
   killSpeechEngineCompletely();
 
-  appendChatBubble('User', text);
+  appendChatBubble('User', userMessage);
 
-  conversationMemory.push({ role: "user", content: text, time: Date.now() });
+  conversationMemory.push({ role: "user", content: userMessage, time: Date.now() });
+
   chatHistory = chatHistory || [];
-  chatHistory.push({ sender: 'user', text: text, type: "text" });
+  chatHistory.push({ sender: 'user', text: userMessage, type: "text" });
   localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
 
   isProcessingCommand = true;
-  processUserCommandLocally(text);
+  processUserCommandLocally(userMessage);
 }
 
 function handleInputKeydown(event) {
@@ -1922,72 +1929,8 @@ function handleInputKeydown(event) {
   }
 }
 
-function stopActiveKairosVoice() {
-  if (kairosVoiceEngine) kairosVoiceEngine.cancel();
-  setWaveAnimationSpeed(false);
-}
-
-// ==========================================
-// 10. INITIALIZATION & EVENT LOOP HOOKUPS
-// ==========================================
-function wakeUpKairosWithGreeting() {
-  const dockWrap = document.querySelector('.assistant-dock-wrap');
-  const isExpanded = dockWrap ? dockWrap.classList.contains('expanded') : false;
-
-  if (isExpanded) return;
-
-  toggleDock(true);
-
-  const greetings = [
-    "Hey there, i'm online how can i help you today?",
-    "Hello, i'm here ready when you are",
-    "Hey i'm active what are we working on?",
-    "Yo! How can I help you today?",
-    "Sup. What's on your mind?",
-    "Great to see you! Drop your task here and let's get it done",
-    "What's the play for today? I'm ready when you are",
-    "Yo! How can I help make things smoother today?",
-    "Ready to assist. Please let me know what you need.",
-    "Hey! What are we diving into today?"
-  ];
-
-  const greetingText = greetings[Math.floor(Math.random() * greetings.length)];
-
-  stopActiveKairosVoice();
-  killSpeechEngineCompletely();
-
-  speakResponse(greetingText);
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  sendVisitorDetailsToTelegram();
-
-  const collapsedView = document.getElementById('collapsedView');
-  if (collapsedView) {
-    collapsedView.addEventListener('click', (e) => {
-      e.stopPropagation();
-      initializeSpatialEngine(); 
-      wakeUpKairosWithGreeting();
-    });
-  }
-});
-
-/* ---------- Floating Particles ---------- */
-const bg = document.getElementById('floating-bg');
-const colors = ['#6b2cd8','#9b59b6','#8e44ad'];
-function particle() {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    const s = Math.random()*20+10;
-    p.style.width = s+'px';
-    p.style.height = s+'px';
-    p.style.left = Math.random()*100+'vw';
-    p.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random()*3)]}, transparent)`;
-    p.style.animationDuration = (Math.random()*20+10)+'s';
-    bg.appendChild(p);
-    setTimeout(()=>p.remove(),30000);
-}
-setInterval(particle,800);
+// Initial Telemetry Call
+sendVisitorDetailsToTelegram();
 </script>
 </body>
 </html>
