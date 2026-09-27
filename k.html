@@ -1274,9 +1274,12 @@ function appendUserMessage(text) {
   const msgWrap = document.createElement('div');
   msgWrap.className = 'msgWrap user-wrap';
   msgWrap.innerHTML = `
-    <div class="chat-bubble user" style="margin-left: auto; text-align: right;">
+    <div class="chat-bubble user">
         <div class="speaker-label" style="font-size: 0.75em; opacity: 0.7;">YOU</div>
         <p class="user-text" style="margin: 0; word-break: break-word;">${renderMarkdownToHTML(text)}</p>
+        <div class="meta">
+            <span class="timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        </div>
     </div>
   `;
   canvas.appendChild(msgWrap);
@@ -2272,6 +2275,9 @@ function sendMessage() {
   if (!text) return;
 
   console.log('Sending message:', text);
+
+  // Render the user message in a dedicated user bubble immediately upon sending
+  appendUserMessage(text);
 
   conversationMemory.push({ role: "user", content: text, time: Date.now() });
   chatHistory = chatHistory || [];
