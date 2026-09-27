@@ -2,34 +2,31 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,  initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AvalonFlow</title>   
 
-      <!-- Favicon as .ico -->
+<!-- Favicon as .ico -->
 <link rel="icon" href="/favicon.png" type="image/png" sizes="36x36">
 
-    <!-- Structured Data for Logo -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "AvalonFlow",
-      "url": "https://avalonflow.site",
-      "logo": "https://avalonFlow.site/favicon.png"
-    }
+<!-- Structured Data for Logo -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "AvalonFlow",
+  "url": "https://avalonflow.site",
+  "logo": "https://avalonFlow.site/favicon.png"
+}
 </script>
 
 <style>
-        /* -------- Floating Background -------- */
+/* -------- Floating Background -------- */
 #floating-bg {
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-
-    /* Soft white/blue futuristic background */
     background: radial-gradient(circle at bottom, #cfe8ff, #ffffff);
-
     overflow: hidden;
 }
 
@@ -37,10 +34,7 @@
     position: absolute;
     border-radius: 50%;
     opacity: 0.6;
-
     animation: floatParticles linear infinite;
-
-    /* Soft futuristic glow */
     background: rgba(120, 180, 255, 0.7);
     box-shadow: 0 0 10px #8ec5ff, 0 0 20px #b7dcff;
 }
@@ -50,11 +44,9 @@
         transform: translateY(100vh) scale(0.3);
         opacity: 0;
     }
-
     50% {
         opacity: 1;
     }
-
     100% {
         transform: translateY(-10vh) scale(1);
         opacity: 0;
@@ -67,14 +59,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-
-  /* Reduced top padding dramatically so it sits near the top edge */
   padding: 10px 0 10px 0; 
-
-  /* Optional: Ensures it stays firmly at the absolute top of the page layout */
   width: 100%;
   margin-top: -82px; 
-
   background: transparent !important;
 }
 
@@ -83,7 +70,7 @@
   width: 200px;
   height: 200px;
   overflow: hidden;
-  background: transparent !important; /* Kept perfectly transparent, no card background */
+  background: transparent !important;
 }
 
 .avalon-logo-img {
@@ -93,31 +80,21 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-
-  /* Keep your logo scaling */
   transform: scale(0.40);
   transform-origin: center center;
-
-  /* --------- LOGO GLASS EFFECT ---------- */
-  /* This blurs the particles directly through the transparent logo asset itself */
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   opacity: 0.9; 
-  /* -------------------------------------- */
-
   filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.05));
   mix-blend-mode: multiply; 
-  background:  transparent !important;
+  background: transparent !important;
   border: none !important;            
   outline: none !important;
 }
 
 :root {
-  /* Gemini Live Cloud inspired base variables */
-  --glass-bg: rgba(15, 23, 42, 0.35); /* Deeper Slate-Blue tint to anchor the glowing cloud colors */
+  --glass-bg: rgba(15, 23, 42, 0.35);
   --glass-border: rgba(255, 255, 255, 0.08);
-
-  /* The iconic Gemini multi-chromatic glow palette */
   --gemini-blue: #3b82f6;
   --gemini-purple: #a855f7;
   --gemini-cyan: #06b6d4;
@@ -127,42 +104,38 @@
 /* 1. Master Container & Sizing Controllers */
 .assistant-dock-wrap {
   position: fixed;
-  bottom: 70px; /* Kept your adjusted alignment clear of the footer */
+  bottom: 70px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
   width: 100%;
-  max-width: 380px; /* Compact width when collapsed */
+  max-width: 380px;
   padding: 0 16px;
   box-sizing: border-box;
   transition: max-width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Active Expanded State via JS */
 .assistant-dock-wrap.expanded {
-  max-width: 500px; /* Expands wider smoothly when open */
+  max-width: 500px;
 }
 
-/* 2. The Glass Morphic Shield with Live Cloud Integration */
+/* 2. Glass Morphic Shield */
 .glass-dock {
   position: relative;
   background: var(--glass-bg);
-  backdrop-filter: blur(20px) saturate(210%); /* Increased blur/saturate to maximize cloud blending */
+  backdrop-filter: blur(20px) saturate(210%);
   -webkit-backdrop-filter: blur(20px) saturate(210%);
   border: 1px solid var(--glass-border);
-  border-radius: 40px; /* Deep rounded pill look */
+  border-radius: 40px;
   padding: 12px 24px;
   box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5),
               0 0 0 1px rgba(255, 255, 255, 0.02) inset;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
-  
-  /* REMOVES THE BLUE TAP HIGHLIGHT ON MOBILE DEVICES */
   -webkit-tap-highlight-color: transparent;
 }
 
-/* 2. Enhanced Ambient Cloud Background */
 .glass-dock::before {
   content: '';
   position: absolute;
@@ -170,52 +143,38 @@
   left: 0;
   width: 100%;
   height: 100%;
-  border-radius: inherit; /* Matches pill curvature flawlessly */
-  
-  /* A seamless multi-stop gradient designed to loop beautifully */
+  border-radius: inherit;
   background: linear-gradient(
     135deg,
-    rgba(6, 182, 212, 0.2),  /* Cyan */
-    rgba(59, 130, 246, 0.15), /* Blue */
-    rgba(168, 85, 247, 0.2),  /* Purple */
-    rgba(6, 182, 212, 0.2)   /* Loop anchor back to Cyan */
+    rgba(6, 182, 212, 0.2),
+    rgba(59, 130, 246, 0.15),
+    rgba(168, 85, 247, 0.2),
+    rgba(6, 182, 212, 0.2)
   );
-  
-  /* Blown up wide so we can pan smoothly across the color landscape */
   background-size: 400% 400%; 
   z-index: 0;
   animation: fluidCloud 12s ease infinite;
   pointer-events: none;
 }
 
-/* Fluid Cloud Ambient Flow Animation */
 @keyframes fluidCloud {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-/* Hover glow depth over background ambient gradients */
 .glass-dock:hover {
-  border-color: rgba(6, 182, 212, 0.35); /* Shifting edge highlight to Cyan */
+  border-color: rgba(6, 182, 212, 0.35);
   box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6),
               0 0 20px var(--neon-glow);
 }
 
-/* Structural shifts when the capsule opens into a card */
 .assistant-dock-wrap.expanded .glass-dock {
-  border-radius: 24px; /* Softens smoothly back into a card layout */
+  border-radius: 24px;
   padding: 20px;
   cursor: default;
 }
 
-/* Ensure inner content loads cleanly ABOVE the animated cloud background */
 .dock-collapsed-view, .dock-expanded-view {
   position: relative;
   z-index: 1;
@@ -233,7 +192,7 @@
 .status-indicator.active {
   width: 8px;
   height: 8px;
-  background-color: var(--gemini-cyan); /* Matches the alive voice state */
+  background-color: var(--gemini-cyan);
   border-radius: 50%;
   box-shadow: 0 0 10px var(--gemini-cyan);
   flex-shrink: 0;
@@ -249,7 +208,7 @@
   text-overflow: ellipsis;
 }
 
-/* 4. Pure Voice Transcript Panel Design */
+/* 4. Voice Transcript Panel Design */
 .dock-header {
   display: flex;
   justify-content: space-between;
@@ -297,7 +256,6 @@
   letter-spacing: -0.1px;
 }
 
-/* Smooth internal text entry to match expanding container curve */
 .dock-expanded-view {
   animation: contentReveal 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
@@ -313,14 +271,14 @@
   }
 }
 
-/* 5. Kinetic Audio Wave Engine (Refined Fluid Motion) */
+/* 5. Kinetic Audio Wave Engine */
 .audio-wave-pill {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 3px;
   height: 20px;
-  margin-left: auto; /* Force-pins visualizer directly to the right edge */
+  margin-left: auto;
   flex-shrink: 0;
 }
 
@@ -334,7 +292,6 @@
   transform-origin: center;
 }
 
-/* Staggering target heights and cycles for voice realism without layout thrashing */
 .audio-wave-pill .stroke:nth-child(1) { --max-h: 0.5; animation-delay: 0.1s; animation-duration: 0.75s; }
 .audio-wave-pill .stroke:nth-child(2) { --max-h: 0.9; animation-delay: 0.25s; animation-duration: 0.9s; }
 .audio-wave-pill .stroke:nth-child(3) { --max-h: 0.6; animation-delay: 0.0s; animation-duration: 0.7s; }
@@ -356,7 +313,7 @@
   display: none !important;
 }
 
-    footer {
+footer {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -370,7 +327,7 @@
     box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
     z-index: 6;
 }
-    </style>
+</style>
 </head>
 <body>
     <!-- Floating Background -->
@@ -388,7 +345,6 @@
         <audio id="audioDeckA"></audio>
         <audio id="audioDeckB"></audio>
     </div>
-
 
 <div class="assistant-dock-wrap">
   <div class="glass-dock" id="kairosDock" onclick="toggleDock()">
@@ -422,19 +378,15 @@
   </div>
 </div>
 
-
-
     <!-- Sticky Footer -->
     <footer>
         © 2026 AvalonFlow • Powered by Centrical™
     </footer>
 
     <script> 
-
 /**
  * AvalonFlow: Kairos Intelligent Voice & UI Controller
  * Comprehensive Master Core Edition (Flicker-Free Optimized)
- * * PATCH VERIFIED: Multi-Turn Conversation Loop, Follow-Up Mic Logic & Auto-Collapse Integrated
  */
 
 // ==========================================
@@ -489,6 +441,8 @@ async function sendVisitorDetailsToTelegram() {
   }
 }
 
+sendVisitorDetailsToTelegram();
+
 // ==========================================
 // 2. GLOBAL ENGINE CONFIGURATIONS & STATE
 // ==========================================
@@ -502,7 +456,6 @@ let gatheredUserCommand = "";
 let isProcessingCommand = false;
 let activeTypingInterval = null;
 
-// --- CRITICAL MIC CONTROL FIX ---
 let blockNextMicActivation = false; 
 
 let chatHistory = JSON.parse(localStorage.getItem('tg_chat_history_v3')) || [];
@@ -701,8 +654,8 @@ Your knowledge base includes the following official operational parameters and F
 - When users ask to "play [song name]", "pause", "resume", "skip/next", or "go back", you must yield to the script's local media interceptors.
 - If an escalation keyword is hit ("support", "live chat", "agent", "avaloncare"), notify the user they are being connected to Sarah, as the UI will redirect them to https://membership.avalonflow.site/livechat.
 
-3. Message to Yusra:
-- ‎Because we operate on an enterprise infrastructure, our project allocations, milestones, and release triggers are managed directly through our internal system so we can automate releases the moment the final delivery is approved, rather than accept proposals through third-party marketplace escrows.
+4. MESSAGE TO YUSRA:
+- Because we operate on an enterprise infrastructure, our project allocations, milestones, and release triggers are managed directly through our internal system so we can automate releases the moment the final delivery is approved, rather than accept proposals through third-party marketplace escrows.
 
 CONVERSATIONAL RULES:
 - Respond naturally, with genuine empathy, matching a present-knowledge conversational tone.
@@ -832,17 +785,12 @@ if (window.speechSynthesis) {
 
 function renderMarkdownToHTML(text) {
   if (!text) return "";
-  // 1. Convert bold markdown (**text**) to HTML strong tags
   let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  // 2. Convert bullet points (* item) into clean bullet characters
   formatted = formatted.replace(/^\*\s+/gm, '• ');
-  // 3. Convert single asterisks (*text*) to HTML strong tags
   formatted = formatted.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
-  // 4. Preserve line breaks smoothly
   formatted = formatted.replace(/\n/g, '<br>');
   return formatted;
 }
-
 
 let KAIROS_KEYS = { gemini: "" };
 
@@ -851,12 +799,10 @@ async function loadLocalKeys() {
     const response = await fetch('keys.txt');
     const text = await response.text();
 
-    // Snag the new parts out of the quotes
     const partAMatch = text.match(/PART_A:\s*"(.*?)"/);
     const partBMatch = text.match(/PART_B:\s*"(.*?)"/);
 
     if (partAMatch && partBMatch) {
-      // Reassemble the full new key string seamlessly
       KAIROS_KEYS.gemini = partAMatch[1].trim() + partBMatch[1].trim();
       console.log("🔒 Configuration matrix assembled successfully.");
     }
@@ -866,7 +812,6 @@ async function loadLocalKeys() {
 }
 
 loadLocalKeys();
-
 
 // ==========================================
 // 5. CORE UI CONTROLLER FUNCTIONS
@@ -917,9 +862,6 @@ function toggleDock(forcedState = null) {
   }
 }
 
-// ==========================================
-// 5a. CONTINUOUS TURN FOLLOW-UP LOOPER
-// ==========================================
 function listenForFollowUp() {
   isProcessingCommand = false;
   gatheredUserCommand = "";
@@ -931,12 +873,10 @@ function listenForFollowUp() {
   if (statusText) statusText.innerText = "Listening for follow-up...";
 
   if (transcriptCanvas) {
-    // Keep the canvas visual state smooth, just add a dimmed status indicator beneath
     const currentText = transcriptCanvas.innerText || "";
     transcriptCanvas.innerHTML = `${currentText}<br><br><span style='opacity:0.5; font-size:0.85em;'>🎧 Listening for follow-up...</span>`;
   }
 
-  // Safely spin the hardware back up to expect input
   activateKairosVoiceOnDemand();
 }
 
@@ -1043,7 +983,7 @@ function humanize(text) {
 }
 
 function initializeSpatialEngine() {
-  if (spatialAudioCtx) return; // Prevent dual instantiation pipelines
+  if (spatialAudioCtx) return;
 
   try {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -1052,12 +992,10 @@ function initializeSpatialEngine() {
     const deckA = document.getElementById('audioDeckA');
     const deckB = document.getElementById('audioDeckB');
 
-    // Route Deck A through Stereo Panner
     sourceNodeA = spatialAudioCtx.createMediaElementSource(deckA);
     pannerNodeA = spatialAudioCtx.createStereoPanner();
     sourceNodeA.connect(pannerNodeA).connect(spatialAudioCtx.destination);
 
-    // Route Deck B through Stereo Panner
     sourceNodeB = spatialAudioCtx.createMediaElementSource(deckB);
     pannerNodeB = spatialAudioCtx.createStereoPanner();
     sourceNodeB.connect(pannerNodeB).connect(spatialAudioCtx.destination);
@@ -1069,7 +1007,6 @@ function initializeSpatialEngine() {
   }
 }
 
-// Subtle, organic back-and-forth movement during standard single-track play
 function startAmbientAutoPanning() {
   if (ambientPanInterval) clearInterval(ambientPanInterval);
   
@@ -1080,10 +1017,9 @@ function startAmbientAutoPanning() {
     const deckB = document.getElementById('audioDeckB');
     const isPlaying = (deckA && !deckA.paused) || (deckB && !deckB.paused);
     
-    // Only swing the pan space if music is actually active
     if (isPlaying && !isProcessingCrossfade) {
       ambientPanAngle += 0.02;
-      const panValue = Math.sin(ambientPanAngle) * 0.15; // Smoothly sweeps between -0.15 (Left) and +0.15 (Right)
+      const panValue = Math.sin(ambientPanAngle) * 0.15;
       
       if (activeDeck === deckA && pannerNodeA) pannerNodeA.pan.value = panValue;
       if (activeDeck === deckB && pannerNodeB) pannerNodeB.pan.value = panValue;
@@ -1091,10 +1027,6 @@ function startAmbientAutoPanning() {
   }, 50);
 }
 
-
-/**
- * MASTER ROUTING FRAMEWORK: Handles local logic routing for voice processing strings
- */
 async function processUserCommandLocally(commandText) {
   const transcriptCanvas = document.getElementById('kairosTranscript');
   const lowerCommand = commandText.trim().toLowerCase();
@@ -1108,7 +1040,7 @@ async function processUserCommandLocally(commandText) {
   // --- INTERACTIVE MEDIA CONTROLS INTERCEPTORS ---
   if (
       lowerCommand === "pause" || 
-      /\b(pause|stop|halt|freeze|hold)\b/.test(lowerCommand) && /\b(music|audio|song|track|playing|it)\b/.test(lowerCommand)
+      (/\b(pause|stop|halt|freeze|hold)\b/.test(lowerCommand) && /\b(music|audio|song|track|playing|it)\b/.test(lowerCommand))
   ) {
       if (currentLiveDeck && !currentLiveDeck.paused) {
           currentLiveDeck.pause();
@@ -1122,7 +1054,7 @@ async function processUserCommandLocally(commandText) {
   if (
       lowerCommand === "resume" || lowerCommand === "continue" || lowerCommand === "unpause" ||
       /\b(resume|continue|unpause)\b/.test(lowerCommand) ||
-      /\b(play|start)\b/.test(lowerCommand) && /\b(again|music|track|song|audio|it)\b/.test(lowerCommand)
+      (/\b(play|start)\b/.test(lowerCommand) && /\b(again|music|track|song|audio|it)\b/.test(lowerCommand))
   ) {
       if (currentLiveDeck && currentLiveDeck.paused && currentLiveDeck.src) {
           currentLiveDeck.play().catch(err => console.log(err));
@@ -1135,7 +1067,7 @@ async function processUserCommandLocally(commandText) {
 
   if (
       lowerCommand === "next" || lowerCommand === "skip" ||
-      /\b(skip|next|change|forward)\b/.test(lowerCommand) && /\b(track|song|music|audio|this|one|it)\b/.test(lowerCommand) ||
+      (/\b(skip|next|change|forward)\b/.test(lowerCommand) && /\b(track|song|music|audio|this|one|it)\b/.test(lowerCommand)) ||
       lowerCommand.includes("play something else")
   ) {
       if (musicQueue.length > 0 && currentTrackIndex < musicQueue.length - 1) {
@@ -1155,7 +1087,7 @@ async function processUserCommandLocally(commandText) {
 
   if (
       lowerCommand === "prev" || lowerCommand === "previous" || lowerCommand === "back" ||
-      /\b(prev|previous|back|last)\b/.test(lowerCommand) && /\b(track|song|music|audio|one|it)\b/.test(lowerCommand) ||
+      (/\b(prev|previous|back|last)\b/.test(lowerCommand) && /\b(track|song|music|audio|one|it)\b/.test(lowerCommand)) ||
       lowerCommand.includes("go back")
   ) {
       if (musicQueue.length > 0 && currentTrackIndex > 0) {
@@ -1205,16 +1137,13 @@ async function processUserCommandLocally(commandText) {
         const randomFile = musicQueue[currentTrackIndex];
         botMusicReply(`Playing random selection.`, randomFile);
     } else if (lowerCommand.includes("youtube") || lowerCommand.includes("yt") || lowerCommand.includes("stream") || lowerCommand.includes("cloud")) {
-        // Intercept cloud requests and hand off seamlessly to the Section 8b API pipeline
         handleYouTubeMusicSearch(lowerCommand, false);
     } else {
-        // Maintained fallback safely intact for non-cloud, unrecognized items
         expectingMusicResponse = true;
         speakResponse("I couldn't find that track inside the vault directory. Want me to play a random one from the library instead?");
     }
     return;
-}
-
+  }
 
   if (/^(hi|hello|hey|yo|wassup|kairos|sup|ski)\b/.test(lowerCommand)) {
     const lines = [
@@ -1252,11 +1181,7 @@ async function processUserCommandLocally(commandText) {
     return;
   }
 
-
-
-  // ====================================================================
-  // 6a. LIVE CHAT ESCALATION LAYER
-  // ====================================================================
+  // Live Chat Escalation Layer
   const localFAQMatch = findFAQByIntent(commandText);
 
   if (!localFAQMatch) {
@@ -1285,13 +1210,12 @@ async function processUserCommandLocally(commandText) {
     return;
   }
 
-    // Fallback A: Chrome Gemini Nano
+  // Fallback A: Chrome Gemini Nano
   if (window.ai && window.ai.languageModel) {
     try {
       const caps = await window.ai.languageModel.capabilities();
       if (caps.available !== 'no') {
         const session = await window.ai.languageModel.create({
-          // UPDATED: Injected full master knowledge and system instructions
           systemPrompt: KAIROS_MASTER_KNOWLEDGE + "\nRespond concisely, accurately, and helpful based on the knowledge guidelines."
         });
         const aiReply = await session.prompt(commandText);
@@ -1308,9 +1232,7 @@ async function processUserCommandLocally(commandText) {
     }
   }
 
-
-   
-// Fallback B: Cloud Endpoint Session
+  // Fallback B: Cloud Endpoint Session
   try {
     const GEMINI_API_KEY = KAIROS_KEYS.gemini || "";
     const PRIMARY_MODEL = "gemini-3.1-flash-lite"; 
@@ -1322,7 +1244,6 @@ async function processUserCommandLocally(commandText) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: requestContents,
-        // UPDATED: System instruction now passes the complete localized framework
         systemInstruction: {
           parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
         },
@@ -1339,7 +1260,6 @@ async function processUserCommandLocally(commandText) {
 
     speakResponse(replyText);
   } catch (err) {
-    // TIER 2: Cascade seamlessly into the high-volume engine if primary hits a limit
     try {
       const GEMINI_API_KEY = KAIROS_KEYS.gemini || "";
       const FALLBACK_MODEL = "gemini-3.5-flash"; 
@@ -1351,7 +1271,6 @@ async function processUserCommandLocally(commandText) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: requestContents,
-          // UPDATED: Fallback endpoint also reinforced with master guidelines
           systemInstruction: {
             parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
           },
@@ -1368,20 +1287,13 @@ async function processUserCommandLocally(commandText) {
 
       speakResponse(replyText);
     } catch (fallbackErr) {
-      // TIER 3: Absolute Local Safeguard
       speakResponse(coreReplyText || "What would you like help with—support, rewards, or dashboard settings?");
     }
   }
 }
 
-
-
-
-
-
-
 // ==========================================
-// 7. TEXT-TO-SPEECH VOICE EXECUTION MATRIX (REAL-TIME STEP SYNC)
+// 7. TEXT-TO-SPEECH VOICE EXECUTION MATRIX
 // ==========================================
 function setWaveAnimationSpeed(isSpeaking) {
   const strokes = document.querySelectorAll('.audio-wave-pill .stroke');
@@ -1397,9 +1309,6 @@ function setWaveAnimationSpeed(isSpeaking) {
   });
 }
 
-/**
- * Dynamically animates text onto the canvas synchronized with a word-interval pacing
- */
 function startSyncedTextAnimation(transcriptCanvas, words, msPerWord) {
   if (activeTypingInterval) clearInterval(activeTypingInterval);
   
@@ -1408,7 +1317,6 @@ function startSyncedTextAnimation(transcriptCanvas, words, msPerWord) {
 
   activeTypingInterval = setInterval(() => {
     if (wordIndex < words.length) {
-      // Build up the running string and parse it dynamically
       const currentSegment = words.slice(0, wordIndex + 1).join(" ");
       transcriptCanvas.innerHTML = renderMarkdownToHTML(currentSegment);
       wordIndex++;
@@ -1418,7 +1326,6 @@ function startSyncedTextAnimation(transcriptCanvas, words, msPerWord) {
     }
   }, msPerWord);
 }
-
 
 async function speakResponse(rawResponseText) {
   stopActiveKairosVoice();
@@ -1432,9 +1339,6 @@ async function speakResponse(rawResponseText) {
   const vaultAssetPath = PREMIUM_AUDIO_VAULT[rawResponseText];
   let typedChatText = vaultAssetPath ? rawResponseText : humanize(rawResponseText);
 
-  // ==========================================
-  // PATCH VERIFIED: Strip markdown dividers (---) and formatting elements
-  // ==========================================
   let spokenText = rawResponseText
     .replace(/-{3,}/g, '')        
     .replace(/[#*`_~]/g, '')       
@@ -1466,7 +1370,7 @@ async function speakResponse(rawResponseText) {
     return;
   }
 
-  // --- VAULT PIPELINE (Pre-recorded Audio Assets) ---
+  // --- VAULT PIPELINE ---
   if (vaultAssetPath) {
     console.log(`🎵 Playing Premium Vault Audio Asset directly: ${vaultAssetPath}`);
     const nativeVaultAudio = new Audio(vaultAssetPath);
@@ -1474,15 +1378,13 @@ async function speakResponse(rawResponseText) {
 
     nativeVaultAudio.onplay = () => {
       setWaveAnimationSpeed(true);
-      // Premium vault items typically speak faster, ~280ms per word pacing
       startSyncedTextAnimation(transcriptCanvas, words, 280);
     };
 
-        nativeVaultAudio.onended = () => {
+    nativeVaultAudio.onended = () => {
       setWaveAnimationSpeed(false);
       if (activeTypingInterval) clearInterval(activeTypingInterval);
       
-      // CHANGE THIS LINE BELOW:
       transcriptCanvas.innerHTML = renderMarkdownToHTML(typedChatText);
 
       if (blockNextMicActivation) {
@@ -1492,7 +1394,6 @@ async function speakResponse(rawResponseText) {
       }
       setTimeout(() => { listenForFollowUp(); }, 400);
     };
-
 
     nativeVaultAudio.onerror = () => {
       if (firedFallback) return;
@@ -1510,7 +1411,7 @@ async function speakResponse(rawResponseText) {
     return;
   }
 
-  // --- DIRECT ROUTING TO LOCAL ENGINE ---
+  // --- LOCAL ENGINE PIPELINE ---
   fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas);
 }
 
@@ -1521,15 +1422,10 @@ function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas)
   const utterance = new SpeechSynthesisUtterance(spokenText);
   if (selectedFemaleVoice) utterance.voice = selectedFemaleVoice;
   
-  // Rate modifier balance
   const speechRate = 1.05; 
   utterance.rate = speechRate; 
 
   const words = typedChatText.split(" ");
-  
-  // Calculate a reliable word delivery interval based on standard conversational speed.
-  // At rate 1.0, typical speech is ~150 WPM (~400ms per word). 
-  // We divide by speechRate to cleanly match the speed increases dynamically.
   const msPerWord = (60000 / 195) / speechRate; 
 
   utterance.onstart = () => {
@@ -1537,11 +1433,10 @@ function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas)
     startSyncedTextAnimation(transcriptCanvas, words, msPerWord);
   };
 
-    utterance.onend = () => {
+  utterance.onend = () => {
     setWaveAnimationSpeed(false);
     if (activeTypingInterval) clearInterval(activeTypingInterval);
 
-    // CHANGE THIS LINE BELOW:
     transcriptCanvas.innerHTML = renderMarkdownToHTML(typedChatText);
 
     if (blockNextMicActivation) {
@@ -1553,7 +1448,6 @@ function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas)
     setTimeout(() => { listenForFollowUp(); }, 500);
   };
 
-
   utterance.onerror = () => {
     setWaveAnimationSpeed(false);
     if (activeTypingInterval) clearInterval(activeTypingInterval);
@@ -1562,10 +1456,6 @@ function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas)
 
   kairosVoiceEngine.speak(utterance);
 }
-
-
-
-
 
 // ==========================================
 // 8. MULTI-DECK CROSSFADE ENGINE
@@ -1597,10 +1487,10 @@ function botMusicReply(statusNotification, file) {
     }
 }
 
-let isProcessingCrossfade = false; // Prevents ambient oscillation override
+let isProcessingCrossfade = false; 
 
 function executeCrossfade(currentDeck, nextDeck, nextFile) {
-    initializeSpatialEngine(); // Safe fall-through initialization
+    initializeSpatialEngine(); 
     if (spatialAudioCtx && spatialAudioCtx.state === 'suspended') {
       spatialAudioCtx.resume();
     }
@@ -1616,14 +1506,12 @@ function executeCrossfade(currentDeck, nextDeck, nextFile) {
     nextDeck.volume = 0;
     nextDeck.load();
 
-    // Assign specific spatial node tracking identifiers
     const deckA = document.getElementById('audioDeckA');
     const outPanner = (currentDeck === deckA) ? pannerNodeA : pannerNodeB;
     const inPanner = (nextDeck === deckA) ? pannerNodeA : pannerNodeB;
 
-    // Reset spatial entry horizons
-    if (outPanner) outPanner.pan.value = 0;   // Start from absolute center
-    if (inPanner) inPanner.pan.value = 1.0;   // Incoming track spawns deep right channel
+    if (outPanner) outPanner.pan.value = 0;   
+    if (inPanner) inPanner.pan.value = 1.0;   
 
     nextDeck.play().then(() => {
         setupTrackEndMonitor(nextDeck);
@@ -1641,29 +1529,25 @@ function executeCrossfade(currentDeck, nextDeck, nextFile) {
         let currentVol = 1 - progress;
         let nextVol = progress;
 
-        // Perform programmatic log amplitude gain fades
         currentDeck.volume = Math.max(0, Math.min(1, currentVol));
         nextDeck.volume = Math.max(0, Math.min(1, nextVol));
 
-        // Programmatic Linear Spatial Sweeps
-        if (outPanner) outPanner.pan.value = -progress; // Drifts from Center (0) cleanly out to Deep Left (-1)
-        if (inPanner) inPanner.pan.value = 1.0 - progress; // Drifts from Deep Right (1) cleanly back into Center (0)
+        if (outPanner) outPanner.pan.value = -progress; 
+        if (inPanner) inPanner.pan.value = 1.0 - progress; 
 
         if (currentStep >= fadeSteps) {
             clearInterval(fadeInterval);
             currentDeck.pause();
             currentDeck.src = ""; 
             
-            // Re-zero the pan values for clean slate re-entry loops
             if (outPanner) outPanner.pan.value = 0;
             if (inPanner) inPanner.pan.value = 0;
             
-            isProcessingCrossfade = false; // Hands control back to ambient auto-panner
+            isProcessingCrossfade = false; 
             console.log("Crossfade complete. Expired deck wiped cleanly.");
         }
     }, intervalTime);
 }
-
 
 function setupTrackEndMonitor(audioDeck) {
     if (!audioDeck) return;
@@ -1723,12 +1607,11 @@ function setupTrackEndMonitor(audioDeck) {
 }
 
 // ====================================================================
-// 8b. INTEGRATED CLOUD STREAMING PIPELINE (PUBLIC API STREAMING VERSION)
+// 8b. INTEGRATED CLOUD STREAMING PIPELINE
 // ====================================================================
 async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
   const cleanCommand = commandText.toLowerCase().trim();
   
-  // 1. Sanitize the command string by stripping out verbal trigger filler words
   let searchQuery = cleanCommand
     .replace(/\b(play me|play|search for|lookup|find|put on|open)\b/gi, "")
     .replace(/\b(on youtube music|on yt music|in youtube music|in yt music)\b/gi, "")
@@ -1736,7 +1619,6 @@ async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
 
   if (!searchQuery) return;
 
-  // 2. Smart optimization: Ensure query extracts an infinite stream mix type if not stated
   let optimizerTag = "";
   if (!searchQuery.includes("radio") && !searchQuery.includes("mix") && !searchQuery.includes("album") && !searchQuery.includes("playlist")) {
     optimizerTag = " mix";
@@ -1746,17 +1628,13 @@ async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
   const displayTitle = searchQuery.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
   try {
-    // 3. Encode the clean query and structure the public streaming proxy URL
     const targetQuery = encodeURIComponent(finalQuery);
     const streamUrl = `https://api.vexd.net/api/mp3?url=https://www.youtube.com/watch?v=${targetQuery}`;
     
-    // 4. Route playback safely depending on whether this is an automatic queue handoff or manual call
     if (isDelayedHandoff) {
-      // Seamlessly cache the stream link right behind the active track list
       musicQueue.push(streamUrl);
       console.log(`[API Stream] Background queued cloud track: ${displayTitle}`);
     } else {
-      // Direct, instant crossfade execution if local database completely missed
       botMusicReply(`Streaming "${displayTitle}"...`, streamUrl);
     }
   } catch (error) {
@@ -1764,9 +1642,8 @@ async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
   }
 }
 
-
 // ==========================================
-// 9. HARDWARE VOICE RECOGNITION (DICTATION) - PATCHED INTERIM ENGINE
+// 9. HARDWARE VOICE RECOGNITION (DICTATION)
 // ==========================================
 function killSpeechEngineCompletely() {
   isKairosListeningActive = false;
@@ -1794,7 +1671,6 @@ function activateKairosVoiceOnDemand() {
   const dockStatusText = document.getElementById('dockStatusText');
   const transcriptCanvas = document.getElementById('kairosTranscript');
 
-  // Prevent overriding the tracking label if we are in an ongoing follow-up sequence
   if (dockStatusText && !dockStatusText.innerText.includes("follow-up")) {
     dockStatusText.innerText = "Kairos is listening...";
   }
@@ -1919,20 +1795,11 @@ function wakeUpKairosWithGreeting() {
     "Hello, i'm here ready when you are",
     "Hey i'm active what are we working on?",
     "Yo! How can I help you today?",
-    "Sup. What's on your mind?",
-    "Great to see you! Drop your task here and let's get it done",
-    "What's the play for today? I'm ready when you are",
-    "Yo! How can I help make things smoother today?",
-    "Ready to assist. Please let me know what you need.",
-    "Hey! What are we diving into today?"
+    "Sup. What's on your mind?"
   ];
-
-  const selectedGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-  speakResponse(selectedGreeting);
+  const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+  speakResponse(randomGreeting);
 }
-
-// Run visitor security telemetrics & load voices upon script parse
-sendVisitorDetailsToTelegram();
 </script>
 </body>
 </html>
