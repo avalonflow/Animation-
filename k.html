@@ -101,7 +101,7 @@
             --kairos-bubble-bg: rgba(255, 255, 255, 0.06);
         }
 
-        /* 1. Master Container & Sizing Controllers */
+        /* 1. Master Container & Unified Sizing Controllers */
         .assistant-dock-wrap {
             position: fixed;
             bottom: 70px;
@@ -109,19 +109,19 @@
             transform: translateX(-50%);
             z-index: 9999;
             width: 100%;
-            max-width: 380px; 
+            max-width: 380px; /* Base card width for mobile */
             padding: 0 16px;
             box-sizing: border-box;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .assistant-dock-wrap.expanded {
-            max-width: 500px;
+            max-width: 380px; /* Kept identical to base mobile card width */
         }
 
         .assistant-dock-wrap.full-height {
             bottom: 20px;
-            max-width: 520px;
+            max-width: 380px;
             height: calc(100vh - 40px);
         }
 
@@ -313,12 +313,62 @@
             border-radius: 4px;
         }
 
-        /* 6. Chat Bubbles */
+        /* 6. Ambient & Avatar Layout Rows */
+        .ambient {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+            font-weight: bold;
+            padding: 10px;
+            line-height: 1.4;
+            width: 100%;
+            box-sizing: border-box;
+            display: block;
+            margin: 4px auto;
+            animation: bubblePop 0.3s ease forwards;
+        }
+
+        .msgWrap {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            margin-bottom: 6px;
+            width: 100%;
+            flex-direction: row;
+        }
+
+        .user-wrap {
+            justify-content: flex-end;
+        }
+
+        .chat-bubble-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #profilePhoto:not([src]), 
+        #profilePhoto[src=""],
+        #profilePhoto[src="default-avatar.png"],
+        .chat-bubble-avatar:not([src]), 
+        .chat-bubble-avatar[src=""],
+        .chat-bubble-avatar[src="default-avatar.png"] {
+            content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c0a9ff'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/%3E%3C/svg%3E") !important;
+            background: #1a1625 !important;
+            box-sizing: border-box !important;
+            padding: 6px !important;
+        }
+
+        /* Chat Bubbles */
         .chat-bubble {
-            max-width: 82%;
+            max-width: 78%;
             padding: 10px 14px;
             border-radius: 16px;
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1.45;
             word-wrap: break-word;
             animation: bubblePop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
@@ -330,7 +380,6 @@
         }
 
         .chat-bubble.user {
-            align-self: flex-end;
             background: var(--user-bubble-bg);
             color: #ffffff;
             border-bottom-right-radius: 4px;
@@ -338,7 +387,6 @@
         }
 
         .chat-bubble.kairos {
-            align-self: flex-start;
             background: var(--kairos-bubble-bg);
             color: #f1f5f9;
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -357,30 +405,120 @@
 
         .streaming-text {
             color: #ffffff;
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1.5;
             margin: 0;
         }
 
-        /* 7. Input Bar Component */
+        /* Audio Player Styling inside Chat */
+        .chat-bubble:has(audio), .message:has(audio) {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 8px 12px !important;
+            border-radius: 16px !important;
+        }
+
+        .chat-bubble audio, .message audio {
+            display: block;
+            width: 100%;
+            min-width: 180px;
+            max-width: 240px;
+            height: 38px;
+            outline: none;
+            color-scheme: dark; 
+        }
+
+        /* Message Meta & Ticks */
+        .meta {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .timestamp {
+            font-size: 10px;
+            opacity: 0.5;
+            color: #aaa;
+        }
+
+        .tick {
+            font-size: 11px;
+            letter-spacing: -2px;
+        }
+
+        .tick.delivered::after {
+            content: "✓✓";
+            color: #bbb;
+        }
+
+        .tick.seen::after {
+            content: "✓✓";
+            color: #6c8cff;
+        }
+
+        /* Typing Dots Animation */
+        .typing {
+            display: inline-flex;
+            gap: 4px;
+            background: rgba(107,44,216,0.12);
+            padding: 6px 10px;
+            border-radius: 10px 10px 10px 4px;
+        }
+
+        .typing span {
+            width: 6px;
+            height: 6px;
+            background: #c7c7ff;
+            border-radius: 50%;
+            animation: blink 1.2s infinite;
+        }
+
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes blink {
+            0%, 80%, 100% { opacity: 0.2; }
+            40% { opacity: 1; }
+        }
+
+        /* 7. Input Bar Component & Typing Cursor */
         .dock-input-bar {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             background: rgba(0, 0, 0, 0.25);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 20px;
-            padding: 4px 6px 4px 14px;
+            padding: 4px 8px;
             flex-shrink: 0;
+            position: relative;
         }
 
-        .dock-input-bar input {
+        .typing-cursor {
+            display: inline-block;
+            color: var(--gemini-cyan);
+            font-weight: bold;
+            margin-right: 2px;
+            animation: blinkCursor 0.8s infinite;
+        }
+
+        @keyframes blinkCursor {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .dock-input-bar input[type="text"] {
             flex: 1;
             background: transparent;
             border: none;
             outline: none;
             color: #ffffff;
             font-size: 13px;
+            padding: 4px 0;
         }
 
         .dock-input-bar input::placeholder {
@@ -398,6 +536,8 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
+            flex-shrink: 0;
+            position: relative;
         }
 
         .action-icon-btn:hover {
@@ -405,10 +545,32 @@
             background: rgba(255, 255, 255, 0.15);
         }
 
-        .action-icon-btn.active-mic {
-            color: var(--gemini-cyan);
-            background: rgba(6, 182, 212, 0.2);
-            box-shadow: 0 0 10px var(--gemini-cyan);
+        /* Recording State & Pulse Ring */
+        .action-icon-btn.recording {
+            color: #db4437;
+            background: rgba(219, 68, 85, 0.2);
+        }
+
+        .recording-pulse {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid #db4437;
+            opacity: 0;
+            pointer-events: none;
+            box-sizing: border-box;
+        }
+
+        .action-icon-btn.recording .recording-pulse {
+            animation: micPulse 1.5s infinite linear;
+        }
+
+        @keyframes micPulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.5); opacity: 0; }
         }
 
         /* 8. Kinetic Audio Wave Engine */
@@ -460,6 +622,35 @@
             box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
             z-index: 6;
         }
+
+        /* ================= Desktop Responsiveness Overrides ================= */
+        @media (min-width: 1024px) {
+            body {
+                padding: 0;
+            }
+
+            .minimal-logo-header {
+                margin-top: -60px;
+            }
+
+            .assistant-dock-wrap {
+                max-width: 650px; /* Base card width for desktop */
+            }
+
+            .assistant-dock-wrap.expanded {
+                max-width: 650px; /* Kept identical to desktop card width */
+            }
+
+            .assistant-dock-wrap.full-height {
+                bottom: 10px;
+                max-width: 650px; /* Keeps consistent card layout across expanded states */
+                height: calc(100vh - 20px);
+            }
+
+            .glass-dock {
+                border-radius: 28px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -471,6 +662,14 @@
             <img src="assets/pictures/1780995787737.jpeg" alt="Avalon Logo" class="avalon-logo-img">
         </div>
     </header>
+
+    <!-- Hidden Storage Nodes for User Photos, Files & Audio Decks -->
+    <div style="display:none;">
+        <img id="profilePhoto" src="default-avatar.png" alt="Profile Node">
+        <input type="file" id="photoInput" accept="image/*">
+        <audio id="audioDeckA"></audio>
+        <audio id="audioDeckB"></audio>
+    </div>
 
     <!-- Floating Assistant Glass Dock Container -->
     <div class="assistant-dock-wrap" id="dockWrap">
@@ -499,23 +698,50 @@
                     </div>
                 </div>
 
-                <!-- Chat Canvas -->
+                <!-- Chat Canvas with Avatar Rows -->
                 <div class="voice-transcript-canvas" id="transcriptCanvas">
-                    <div class="chat-bubble kairos">
-                        <div class="speaker-label">Kairos</div>
-                        <p class="streaming-text">Synchronization online. How can I assist you today?</p>
+                    <div id="status-text" class="ambient">Synchronization online.</div>
+
+                    <div class="msgWrap">
+                        <img src="default-avatar.png" class="chat-bubble-avatar" alt="Kairos Avatar">
+                        <div class="chat-bubble kairos">
+                            <div class="speaker-label">Kairos</div>
+                            <p class="streaming-text">How can I assist you today?</p>
+                            <div class="meta">
+                                <span class="timestamp">10:00 AM</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Input Component Bar -->
                 <div class="dock-input-bar">
+                    <!-- Hidden File Input Trigger -->
+                    <input type="file" id="dockFileInput" style="display: none;">
+
+                    <!-- Upload Plus (+) Button -->
+                    <button class="action-icon-btn" id="dockAttachBtn" aria-label="Attach File" onclick="document.getElementById('dockFileInput').click()">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+
+                    <!-- Typing Pipe Cursor -->
+                    <span id="idleCursor" class="typing-cursor" style="display: none;">|</span>
+
                     <input type="text" id="dockInput" placeholder="Message Kairos..." autocomplete="off">
+
+                    <!-- Microphone Button with Pulse Animation Ring -->
                     <button class="action-icon-btn" id="dockMicBtn" aria-label="Voice Input">
+                        <span class="recording-pulse"></span>
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                             <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
                             <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
                         </svg>
                     </button>
+
+                    <!-- Send Button -->
                     <button class="action-icon-btn" id="dockSendBtn" aria-label="Send Message">
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
@@ -532,7 +758,6 @@
     </footer>
 
     <script>
-        // Interactive Dock Expansion Logic
         const dockWrap = document.getElementById('dockWrap');
         const glassDock = document.getElementById('glassDock');
         const collapsedView = document.getElementById('collapsedView');
@@ -540,14 +765,12 @@
         const closeDockBtn = document.getElementById('closeDockBtn');
         const expandToggleBtn = document.getElementById('expandToggleBtn');
 
-        // Expand dock on clicking the collapsed view
         collapsedView.addEventListener('click', (e) => {
             dockWrap.classList.add('expanded');
             collapsedView.classList.add('d-none');
             expandedView.classList.remove('d-none');
         });
 
-        // Close/Collapse dock
         closeDockBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             dockWrap.classList.remove('expanded', 'full-height');
@@ -555,7 +778,6 @@
             collapsedView.classList.remove('d-none');
         });
 
-        // Toggle full screen / maximum height
         expandToggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             dockWrap.classList.toggle('full-height');
