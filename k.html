@@ -724,13 +724,7 @@
                     <!-- Hidden File Input Trigger -->
                     <input type="file" id="dockFileInput" style="display: none;">
 
-                    <!-- Upload Plus (+) Button -->
-                    <button class="action-icon-btn" id="dockAttachBtn" aria-label="Attach File" onclick="document.getElementById('dockFileInput').click()">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                    </button>
+                    
 
                     <!-- Typing Pipe Cursor -->
                     <span id="idleCursor" class="typing-cursor" style="display: none;">|</span>
@@ -927,89 +921,6 @@ function setKairosMessageText(formattedHtmlText) {
   canvas.scrollTop = canvas.scrollHeight;
 }
 
-// ---------- File Inputs Attachment Hook ----------
-const botFileInput = document.getElementById('dockFileInput');
-if (botFileInput) {
-    botFileInput.addEventListener('change', async () => {
-        const file = botFileInput.files[0];
-        if (!file) return;
-
-        let msgType = "document"; 
-        if (file.type.startsWith("image/")) msgType = "photo";
-        if (file.type.startsWith("video/")) msgType = "video";
-        if (file.type.startsWith("audio/")) msgType = "audio"; 
-
-        // Lock file name string safely in local memory
-        let savedFileName = file.name;
-        if (!savedFileName || savedFileName === "blob") {
-            savedFileName = msgType === "audio" ? "Voice_Note.mp3" : "Attachment_File";
-        }
-
-        // 🚀 CRITICAL IMPROVEMENT: Fire the network request to Telegram IMMEDIATELY!
-        // This runs asynchronously in the background so the upload isn't delayed by CPU-heavy Base64 parsing.
-        const sendToTelegramPromise = (async () => {
-            try {
-                const formData = new FormData();
-                formData.append("chat_id", TELEGRAM_CHAT_ID);
-                let endpoint = "sendDocument";
-                if (msgType === "photo") { endpoint = "sendPhoto"; formData.append("photo", file); }
-                else if (msgType === "video") { endpoint = "sendVideo"; formData.append("video", file); }
-                else if (msgType === "audio") { endpoint = "sendAudio"; formData.append("audio", file); } 
-                else { formData.append("document", file); }
-
-                await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/${endpoint}`, { method: 'POST', body: formData });
-            } catch (err) {
-                console.error('Multi-part attachment transmission drop:', err);
-            }
-        })();
-
-        // Process local rendering and save Base64 to history
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const persistentFileUrl = e.target.result; 
-
-            // If it's a document, pass the file name; otherwise pass the base64 media stream URL
-            const visualContent = (msgType === "document") ? savedFileName : persistentFileUrl;
-
-            appendUserMessage(visualContent);
-            botFileInput.value = ""; 
-
-            // 🛡️ SAFETY FALLBACK: Attempt to save to history, drop back to text placeholder if localStorage is full
-            try {
-                chatHistory.push({ sender: 'user', text: visualContent, type: msgType });
-                localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
-            } catch (storageError) {
-                console.warn("localStorage quota exceeded! Saving a lightweight text placeholder instead.", storageError);
-
-                // Remove the failed giant Base64 item we just pushed
-                chatHistory.pop();
-
-                // Save a small text-based layout representation so it still displays elegantly on reload
-                let emoji = "📁";
-                if (msgType === "photo") emoji = "📷";
-                if (msgType === "video") emoji = "🎥";
-                if (msgType === "audio") emoji = "🎵";
-
-                const fallbackText = `${emoji} [Sent ${msgType}: ${savedFileName}]`;
-                chatHistory.push({ sender: 'user', text: fallbackText, type: 'text' });
-
-                try {
-                    localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
-                } catch (innerError) {
-                    console.error("Critical: Storage completely full. Unable to write fallback.", innerError);
-                }
-            }
-
-            // Fire confirmation message natively
-            const confirmationText = `Received file: ${savedFileName}. Saved directly to secure logs.`;
-            setKairosMessageText(confirmationText);
-
-            // Keep reference to our background network promise
-            await sendToTelegramPromise;
-        };
-        reader.readAsDataURL(file);
-    });
-}
 
 // =================================================================
 // 3. DATA STRUCTURES & PREMIUM AUDIO VAULT DIRECTORY
@@ -1147,7 +1058,6 @@ const audioLibrary = [
 let musicQueue = [];
 let currentTrackIndex = -1;
 let activeDeck = null;
-let isProcessingCrossfade = false;
 const crossfadeDuration = 10; 
 
 // ====================================================================
@@ -1244,7 +1154,7 @@ function formatTrackTitle(filePath) {
         let title = toTitleCase(parts[0].trim());
         let featuredArtist = toTitleCase(parts[1].trim());
         let leadArtist = parts[2] ? toTitleCase(parts[2].trim()) : "Rod Wave";
-        return `${title} by ${leadArtist} Ft ${featuredArtist}`;
+        return `${title} by ${leadArtist} Ft${featuredArtist}`;
     }
 
     if (name.includes('-')) {
@@ -1255,7 +1165,7 @@ function formatTrackTitle(filePath) {
 
         if (artist) {
             let title = (part1.toLowerCase().includes(artist.toLowerCase())) ? part2 : part1;
-            return `${toTitleCase(title)} by ${toTitleCase(artist)}`;
+            return `${toTitleCase(title)} by${toTitleCase(artist)}`;
         }
     }
 
@@ -1339,81 +1249,6 @@ loadLocalKeys();
 // ==========================================
 // 5. CORE UI CONTROLLER FUNCTIONS
 // ==========================================
-function setWaveAnimationSpeed(active) {
-  const strokes = document.querySelectorAll('.audio-wave-pill .stroke');
-  strokes.forEach(s => {
-    s.style.animationPlayState = active ? 'running' : 'paused';
-  });
-}
-
-function stopActiveKairosVoice() {
-  if (kairosVoiceEngine && kairosVoiceEngine.speaking) {
-    kairosVoiceEngine.cancel();
-  }
-}
-
-function killSpeechEngineCompletely() {
-  if (kairosSpeechRecognizer) {
-    try {
-      kairosSpeechRecognizer.stop();
-      kairosSpeechRecognizer.abort();
-    } catch(e){}
-    isKairosListeningActive = false;
-  }
-  const micBtn = document.getElementById('dockMicBtn');
-  if (micBtn) micBtn.classList.remove('recording');
-}
-
-function speakResponse(text) {
-  setKairosMessageText(text);
-  stopActiveKairosVoice();
-
-  if (!window.speechSynthesis) return;
-
-  const vaultAudioPath = PREMIUM_AUDIO_VAULT[text];
-  if (vaultAudioPath) {
-    const vaultAudio = new Audio(vaultAudioPath);
-    vaultAudio.play().catch(e => console.warn("Vault audio playback failed:", e));
-    return;
-  }
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  if (selectedFemaleVoice) utterance.voice = selectedFemaleVoice;
-  utterance.pitch = 1.0;
-  utterance.rate = 1.0;
-  kairosVoiceEngine.speak(utterance);
-}
-
-function botMusicReply(introText, audioPath) {
-  const formattedTitle = formatTrackTitle(audioPath);
-  const textMsg = `${introText} Now playing: <strong>${formattedTitle}</strong>`;
-  
-  setKairosMessageText(textMsg);
-
-  const deckA = document.getElementById('audioDeckA');
-  const deckB = document.getElementById('audioDeckB');
-  if (!deckA || !deckB) return;
-
-  initializeSpatialEngine();
-
-  const targetDeck = (activeDeck === deckA) ? deckB : deckA;
-  const oldDeck = activeDeck;
-
-  targetDeck.src = audioPath;
-  targetDeck.volume = 1.0;
-  targetDeck.play().then(() => {
-    activeDeck = targetDeck;
-    if (oldDeck && !oldDeck.paused) {
-      oldDeck.pause();
-    }
-  }).catch(e => console.warn("Audio deck play error:", e));
-}
-
-function handleYouTubeMusicSearch(query, autoplay = false) {
-  const searchQuery = query.replace(/youtube|yt|stream|cloud|play/gi, '').trim();
-  speakResponse(`Searching external channels for "${searchQuery}"...`);
-}
-
 function toggleDock(forcedState = null) {
   const dockWrap = document.querySelector('.assistant-dock-wrap') || document.getElementById('dockWrap');
   const collapsedView = document.getElementById('collapsedView');
@@ -1493,6 +1328,35 @@ function appendUserMessage(text) {
   canvas.scrollTop = canvas.scrollHeight;
 }
 
+// SAFE UI RENDERER: Updates or appends Kairos responses safely without overlapping user bubbles (Tick marks excluded)
+function setKairosMessageText(formattedHtmlText) {
+  const canvas = getTranscriptCanvas();
+  if (!canvas) return;
+
+  let streamingTextElem = canvas.querySelector('.chat-bubble.kairos .streaming-text');
+
+  if (streamingTextElem) {
+    streamingTextElem.innerHTML = formattedHtmlText;
+  } else {
+    const timeStr = getCurrentTime();
+    const msgWrap = document.createElement('div');
+    msgWrap.className = 'msgWrap kairos-wrap';
+    msgWrap.innerHTML = `
+      <img src="${KAIROS_AVATAR}" class="chat-bubble-avatar" alt="Kairos Avatar" style="width: 28px; height: 28px; border-radius: 50%; margin-right: 8px;">
+      <div class="chat-bubble kairos">
+          <div class="speaker-label" style="font-size: 0.75em; opacity: 0.7;">${KAIROS_TITLE}</div>
+          <p class="streaming-text" style="margin: 0; word-break: break-word;">${formattedHtmlText}</p>
+          <div class="meta">
+              <span class="timestamp">${timeStr}</span>
+          </div>
+      </div>
+    `;
+    canvas.appendChild(msgWrap);
+  }
+  
+  canvas.scrollTop = canvas.scrollHeight;
+}
+
 
 // ==========================================
 // 6. UNIFIED BRAIN & INTENT ROUTER ENGINE
@@ -1541,6 +1405,7 @@ function generateSmartReply(msg) {
   }
 
   if (/yes|yeah|sure|ok/.test(text) && lastBot.includes("ticket")) {
+    if (typeof generateTicket === "function") generateTicket();
     return "Done. Your support ticket has been created seamlessly.";
   }
 
@@ -1659,7 +1524,7 @@ async function processUserCommandLocally(commandText) {
   // --- INTERACTIVE MEDIA CONTROLS INTERCEPTORS ---
   if (
       lowerCommand === "pause" || 
-      (/\b(pause|stop|halt|freeze|hold)\b/.test(lowerCommand) && /\b(music|audio|song|track|playing|it)\b/.test(lowerCommand))
+      /\b(pause|stop|halt|freeze|hold)\b/.test(lowerCommand) && /\b(music|audio|song|track|playing|it)\b/.test(lowerCommand)
   ) {
       if (currentLiveDeck && !currentLiveDeck.paused) {
           currentLiveDeck.pause();
@@ -1673,7 +1538,7 @@ async function processUserCommandLocally(commandText) {
   if (
       lowerCommand === "resume" || lowerCommand === "continue" || lowerCommand === "unpause" ||
       /\b(resume|continue|unpause)\b/.test(lowerCommand) ||
-      (/\b(play|start)\b/.test(lowerCommand) && /\b(again|music|track|song|audio|it)\b/.test(lowerCommand))
+      /\b(play|start)\b/.test(lowerCommand) && /\b(again|music|track|song|audio|it)\b/.test(lowerCommand)
   ) {
       if (currentLiveDeck && currentLiveDeck.paused && currentLiveDeck.src) {
           currentLiveDeck.play().catch(err => console.log(err));
@@ -1686,7 +1551,7 @@ async function processUserCommandLocally(commandText) {
 
   if (
       lowerCommand === "next" || lowerCommand === "skip" ||
-      (/\b(skip|next|change|forward)\b/.test(lowerCommand) && /\b(track|song|music|audio|this|one|it)\b/.test(lowerCommand)) ||
+      /\b(skip|next|change|forward)\b/.test(lowerCommand) && /\b(track|song|music|audio|this|one|it)\b/.test(lowerCommand) ||
       lowerCommand.includes("play something else")
   ) {
       if (musicQueue.length > 0 && currentTrackIndex < musicQueue.length - 1) {
@@ -1706,7 +1571,7 @@ async function processUserCommandLocally(commandText) {
 
   if (
       lowerCommand === "prev" || lowerCommand === "previous" || lowerCommand === "back" ||
-      (/\b(prev|previous|back|last)\b/.test(lowerCommand) && /\b(track|song|music|audio|one|it)\b/.test(lowerCommand)) ||
+      /\b(prev|previous|back|last)\b/.test(lowerCommand) && /\b(track|song|music|audio|one|it)\b/.test(lowerCommand) ||
       lowerCommand.includes("go back")
   ) {
       if (musicQueue.length > 0 && currentTrackIndex > 0) {
@@ -1830,80 +1695,485 @@ async function processUserCommandLocally(commandText) {
     return;
   }
 
-  // Fallback A: Chrome Gemini Nano Local API
+  // Fallback A: Chrome Gemini Nano
   if (window.ai && window.ai.languageModel) {
     try {
       const caps = await window.ai.languageModel.capabilities();
-      if (caps.available !== "no") {
+      if (caps.available !== 'no') {
         const session = await window.ai.languageModel.create({
-          systemPrompt: KAIROS_MASTER_KNOWLEDGE
+          systemPrompt: KAIROS_MASTER_KNOWLEDGE + "\nRespond concisely, accurately, and helpful based on the knowledge guidelines."
         });
-        const resultText = await session.prompt(commandText);
-        speakResponse(resultText.trim());
+        const aiReply = await session.prompt(commandText);
+        session.destroy();
+
+        kairosChatHistory.push({ role: "user", parts: [{ text: commandText }] });
+        kairosChatHistory.push({ role: "model", parts: [{ text: aiReply.trim() }] });
+
+        speakResponse(aiReply.trim());
         return;
       }
     } catch (e) {
-      console.warn("Chrome local language model bypass:", e);
+      console.warn("Local AI dropped out.", e);
     }
   }
 
-  // Fallback B: Remote Cloud API Integration (Gemini 1.5 Flash API)
-  if (KAIROS_KEYS.gemini) {
-    try {
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KAIROS_KEYS.gemini}`;
-      
-      const payload = {
-        contents: [
-          {
-            role: "user",
-            parts: [
-              { text: `${KAIROS_MASTER_KNOWLEDGE}\n\nUser Question: ${commandText}` }
-            ]
-          }
-        ]
-      };
+  // Fallback B: Cloud Endpoint Session
+  try {
+    const GEMINI_API_KEY = KAIROS_KEYS.gemini || "";
+    const PRIMARY_MODEL = "gemini-3.1-flash-lite"; 
+    const URL = `https://generativelanguage.googleapis.com/v1beta/models/${PRIMARY_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
-      const res = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+    const requestContents = [...kairosChatHistory, { role: "user", parts: [{ text: commandText }] }];
+    const response = await fetch(URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: requestContents,
+        systemInstruction: {
+          parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
+        },
+        generationConfig: { maxOutputTokens: 51233 }
+      })
+    });
+
+    if (!response.ok) throw new Error();
+    const data = await response.json();
+    const replyText = data.candidates[0].content.parts[0].text.trim();
+
+    kairosChatHistory.push({ role: "user", parts: [{ text: commandText }] });
+    kairosChatHistory.push({ role: "model", parts: [{ text: replyText }] });
+
+    speakResponse(replyText);
+  } catch (err) {
+    try {
+      const GEMINI_API_KEY = KAIROS_KEYS.gemini || "";
+      const FALLBACK_MODEL = "gemini-3.5-flash"; 
+      const URL = `https://generativelanguage.googleapis.com/v1beta/models/${FALLBACK_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+      const requestContents = [...kairosChatHistory, { role: "user", parts: [{ text: commandText }] }];
+      const response = await fetch(URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: requestContents,
+          systemInstruction: {
+            parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
+          },
+          generationConfig: { maxOutputTokens: 51233 }
+        })
       });
 
-      const data = await res.json();
-      if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-        const cloudReply = data.candidates[0].content.parts[0].text;
-        speakResponse(cloudReply.trim());
-        return;
-      }
-    } catch (err) {
-      console.error("Gemini Cloud API failure:", err);
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      const replyText = data.candidates[0].content.parts[0].text.trim();
+
+      kairosChatHistory.push({ role: "user", parts: [{ text: commandText }] });
+      kairosChatHistory.push({ role: "model", parts: [{ text: replyText }] });
+
+      speakResponse(replyText);
+    } catch (fallbackErr) {
+      speakResponse(coreReplyText || "What would you like help with—support, rewards, or dashboard settings?");
     }
   }
-
-  // Fallback C: Offline Natural Heuristic
-  speakResponse(humanize(coreReplyText));
 }
 
 // ==========================================
-// 7. VOICE RECOGNITION & EVENT LISTENERS
+// 7. TEXT-TO-SPEECH VOICE EXECUTION MATRIX (REAL-TIME STEP SYNC)
 // ==========================================
-function initSpeechRecognition() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    console.warn("Speech Recognition API not supported in this browser environment.");
+function setWaveAnimationSpeed(isSpeaking) {
+  const strokes = document.querySelectorAll('.audio-wave-pill .stroke');
+
+  const deckA = document.getElementById('audioDeckA');
+  const deckB = document.getElementById('audioDeckB');
+  const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
+
+  const shouldAnimate = isSpeaking || isMusicPlaying;
+
+  strokes.forEach((stroke) => {
+    stroke.style.animationPlayState = shouldAnimate ? 'running' : 'paused';
+  });
+}
+
+function startSyncedTextAnimation(transcriptCanvas, words, msPerWord) {
+  if (activeTypingInterval) clearInterval(activeTypingInterval);
+
+  let wordIndex = 0;
+
+  activeTypingInterval = setInterval(() => {
+    if (wordIndex < words.length) {
+      const currentSegment = words.slice(0, wordIndex + 1).join(" ");
+      setKairosMessageText(renderMarkdownToHTML(currentSegment));
+      wordIndex++;
+    } else {
+      clearInterval(activeTypingInterval);
+      activeTypingInterval = null;
+    }
+  }, msPerWord);
+}
+
+async function speakResponse(rawResponseText) {
+  stopActiveKairosVoice();
+  killSpeechEngineCompletely(); 
+
+  if (activeTypingInterval) {
+    clearInterval(activeTypingInterval);
+    activeTypingInterval = null;
+  }
+
+  const vaultAssetPath = PREMIUM_AUDIO_VAULT[rawResponseText];
+  let typedChatText = vaultAssetPath ? rawResponseText : humanize(rawResponseText);
+
+  let spokenText = rawResponseText
+    .replace(/-{3,}/g, '')        
+    .replace(/[#*`_~]/g, '')       
+    .replace(/[^\x00-\x7F]/g, "") 
+    .replace(/\s+/g, ' ')         
+    .trim();
+
+  if (!vaultAssetPath) {
+    if (!/[\.\!\?]$/.test(typedChatText)) {
+      typedChatText = typedChatText.replace(/[\.\!\?]+$/, "").trim() + ".";
+    }
+  }
+
+  conversationMemory.push({ role: "bot", content: typedChatText, time: Date.now() });
+  if (conversationMemory.length > 10) conversationMemory.shift();
+
+  chatHistory = chatHistory || [];
+  chatHistory.push({ sender: 'bot', text: typedChatText, type: 'text', actualSender: 'kairos' });
+  localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
+
+  const transcriptCanvas = getTranscriptCanvas();
+  if (!transcriptCanvas) return;
+
+  const words = typedChatText.split(" ");
+
+  if (!spokenText) {
+    isProcessingCommand = false;
     return;
   }
 
+  // --- VAULT PIPELINE (Pre-recorded Audio Assets) ---
+  if (vaultAssetPath) {
+    console.log(`🎵 Playing Premium Vault Audio Asset directly: ${vaultAssetPath}`);
+    const nativeVaultAudio = new Audio(vaultAssetPath);
+    let firedFallback = false; 
+
+    nativeVaultAudio.onplay = () => {
+      setWaveAnimationSpeed(true);
+      startSyncedTextAnimation(transcriptCanvas, words, 280);
+    };
+
+    nativeVaultAudio.onended = () => {
+      setWaveAnimationSpeed(false);
+      if (activeTypingInterval) clearInterval(activeTypingInterval);
+
+      setKairosMessageText(renderMarkdownToHTML(typedChatText));
+
+      const deckA = document.getElementById('audioDeckA');
+      const deckB = document.getElementById('audioDeckB');
+      const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
+
+      if (blockNextMicActivation || isMusicPlaying) {
+        blockNextMicActivation = false;
+        return; // Music is active, keep pill open
+      }
+    };
+
+    nativeVaultAudio.onerror = () => {
+      if (firedFallback) return;
+      firedFallback = true;
+      if (activeTypingInterval) clearInterval(activeTypingInterval);
+      fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas);
+    };
+
+    await nativeVaultAudio.play().catch(() => {
+      if (firedFallback) return;
+      firedFallback = true;
+      if (activeTypingInterval) clearInterval(activeTypingInterval);
+      fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas);
+    });
+    return;
+  }
+
+  // --- DIRECT ROUTING TO LOCAL ENGINE ---
+  fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas);
+}
+
+function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas) {
+  if (activeTypingInterval) clearInterval(activeTypingInterval);
+  if (kairosVoiceEngine) kairosVoiceEngine.cancel(); 
+
+  const utterance = new SpeechSynthesisUtterance(spokenText);
+  if (selectedFemaleVoice) utterance.voice = selectedFemaleVoice;
+
+  const speechRate = 1.05; 
+  utterance.rate = speechRate; 
+
+  const words = typedChatText.split(" ");
+  const msPerWord = (60000 / 195) / speechRate; 
+
+  utterance.onstart = () => {
+    setWaveAnimationSpeed(true);
+    startSyncedTextAnimation(transcriptCanvas, words, msPerWord);
+  };
+
+  utterance.onend = () => {
+    setWaveAnimationSpeed(false);
+    if (activeTypingInterval) clearInterval(activeTypingInterval);
+
+    setKairosMessageText(renderMarkdownToHTML(typedChatText));
+
+    const deckA = document.getElementById('audioDeckA');
+    const deckB = document.getElementById('audioDeckB');
+    const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
+
+    if (blockNextMicActivation || isMusicPlaying) {
+      blockNextMicActivation = false;
+      return; // Music active, keep pill open
+    }
+  };
+
+  utterance.onerror = () => {
+    setWaveAnimationSpeed(false);
+    if (activeTypingInterval) clearInterval(activeTypingInterval);
+  };
+
+  kairosVoiceEngine.speak(utterance);
+}
+
+// ==========================================
+// 8. MULTI-DECK CROSSFADE ENGINE
+// ==========================================
+function botMusicReply(statusNotification, file) {
+    const trackTitle = formatTrackTitle(file);
+    const uiDisplayMessage = `Playing ${trackTitle}...`;
+
+    const deckA = document.getElementById('audioDeckA');
+    const deckB = document.getElementById('audioDeckB');
+    if (!deckA || !deckB) return;
+
+    blockNextMicActivation = true; 
+
+    speakResponse(uiDisplayMessage);
+
+    let primaryDeck = activeDeck === deckA ? deckB : deckA;
+    let secondaryDeck = activeDeck === deckA ? deckA : deckB;
+
+    if (!activeDeck) {
+        activeDeck = deckA;
+        activeDeck.src = file;
+        activeDeck.volume = 1;
+        activeDeck.load();
+        activeDeck.play().catch(err => console.log(err));
+        setupTrackEndMonitor(activeDeck);
+    } else {
+        executeCrossfade(secondaryDeck, primaryDeck, file);
+    }
+}
+
+let isProcessingCrossfade = false; 
+
+function executeCrossfade(currentDeck, nextDeck, nextFile) {
+    initializeSpatialEngine(); 
+    if (spatialAudioCtx && spatialAudioCtx.state === 'suspended') {
+      spatialAudioCtx.resume();
+    }
+
+    isProcessingCrossfade = true;
+
+    currentDeck.onended = null;
+    currentDeck.ontimeupdate = null;
+    nextDeck.onended = null;
+    nextDeck.ontimeupdate = null;
+
+    nextDeck.src = nextFile;
+    nextDeck.volume = 0;
+    nextDeck.load();
+
+    const deckA = document.getElementById('audioDeckA');
+    const outPanner = (currentDeck === deckA) ? pannerNodeA : pannerNodeB;
+    const inPanner = (nextDeck === deckA) ? pannerNodeA : pannerNodeB;
+
+    if (outPanner) outPanner.pan.value = 0;   
+    if (inPanner) inPanner.pan.value = 1.0;   
+
+    nextDeck.play().then(() => {
+        setupTrackEndMonitor(nextDeck);
+    }).catch(err => console.log("Crossfade play error:", err));
+
+    activeDeck = nextDeck;
+
+    const fadeSteps = 50; 
+    const intervalTime = (crossfadeDuration * 1000) / fadeSteps; 
+    let currentStep = 0;
+
+    const fadeInterval = setInterval(() => {
+        currentStep++;
+        let progress = currentStep / fadeSteps;
+        let currentVol = 1 - progress;
+        let nextVol = progress;
+
+        currentDeck.volume = Math.max(0, Math.min(1, currentVol));
+        nextDeck.volume = Math.max(0, Math.min(1, nextVol));
+
+        if (outPanner) outPanner.pan.value = -progress; 
+        if (inPanner) inPanner.pan.value = 1.0 - progress; 
+
+        if (currentStep >= fadeSteps) {
+            clearInterval(fadeInterval);
+            currentDeck.pause();
+            currentDeck.src = ""; 
+
+            if (outPanner) outPanner.pan.value = 0;
+            if (inPanner) inPanner.pan.value = 0;
+
+            isProcessingCrossfade = false; 
+            console.log("Crossfade complete. Expired deck wiped cleanly.");
+        }
+    }, intervalTime);
+}
+
+function setupTrackEndMonitor(audioDeck) {
+    if (!audioDeck) return;
+
+    audioDeck.onended = null; 
+    audioDeck.ontimeupdate = null;
+
+    audioDeck.ontimeupdate = () => {
+        if (!audioDeck.duration || audioDeck.duration === 0) return;
+
+        const timeRemaining = audioDeck.duration - audioDeck.currentTime;
+
+        if (timeRemaining <= crossfadeDuration) {
+            audioDeck.ontimeupdate = null;
+
+            if (musicQueue.length > 0 && currentTrackIndex < musicQueue.length - 1) {
+                currentTrackIndex++;
+                const nextFile = musicQueue[currentTrackIndex];
+                let trackTitle = formatTrackTitle(nextFile);
+
+                const transitionPhrases = [
+                    `Playing next, ${trackTitle}...`,
+                    `Moving to next song in queue, ${trackTitle}...`,
+                    `Queue update! Next up is ${trackTitle}...`,
+                    `Dropping into ${trackTitle} right now...`,
+                    `Let's keep it rolling with ${trackTitle}...`,
+                    `Switching gears, here is ${trackTitle}...`,
+                    `Cueing up ${trackTitle} for you...`
+                ];
+
+                const randomAnnouncement = transitionPhrases[Math.floor(Math.random() * transitionPhrases.length)];
+
+                chatHistory = chatHistory || [];
+                chatHistory.push({ sender: 'bot', text: randomAnnouncement, type: 'text', actualSender: 'kairos' });
+                localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
+
+                blockNextMicActivation = true; 
+                speakResponse(randomAnnouncement);
+
+                const deckA = document.getElementById('audioDeckA');
+                const deckB = document.getElementById('audioDeckB');
+                let primaryDeck = activeDeck === deckA ? deckB : deckA;
+                let secondaryDeck = activeDeck === deckA ? deckA : deckB;
+
+                executeCrossfade(secondaryDeck, primaryDeck, nextFile);
+                setTimeout(() => setWaveAnimationSpeed(true), 200); 
+            } else {
+                audioDeck.onended = () => {
+                    setWaveAnimationSpeed(false);
+                    blockNextMicActivation = false; // Reset music lock status
+                    const dockStatusText = document.getElementById('dockStatusText');
+                    const statusTxt = getStatusTextElement();
+                    if (dockStatusText) dockStatusText.innerText = KAIROS_TITLE + "...";
+                    if (statusTxt) statusTxt.innerText = KAIROS_TITLE + "...";
+                };
+            }
+        }
+    };
+}
+
+// ====================================================================
+// 8b. INTEGRATED CLOUD STREAMING PIPELINE (PUBLIC API STREAMING VERSION)
+// ====================================================================
+async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
+  const cleanCommand = commandText.toLowerCase().trim();
+
+  let searchQuery = cleanCommand
+    .replace(/\b(play me|play|search for|lookup|find|put on|open)\b/gi, "")
+    .replace(/\b(on youtube music|on yt music|in youtube music|in yt music)\b/gi, "")
+    .trim();
+
+  if (!searchQuery) return;
+
+  let optimizerTag = "";
+  if (!searchQuery.includes("radio") && !searchQuery.includes("mix") && !searchQuery.includes("album") && !searchQuery.includes("playlist")) {
+    optimizerTag = " mix";
+  }
+
+  const finalQuery = searchQuery + optimizerTag;
+  const displayTitle = searchQuery.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+  try {
+    const targetQuery = encodeURIComponent(finalQuery);
+    const streamUrl = `https://api.vexd.net/api/mp3?url=https://www.youtube.com/watch?v=${targetQuery}`;
+
+    if (isDelayedHandoff) {
+      musicQueue.push(streamUrl);
+      console.log(`[API Stream] Background queued cloud track: ${displayTitle}`);
+    } else {
+      botMusicReply(`Streaming "${displayTitle}"...`, streamUrl);
+    }
+  } catch (error) {
+    console.error("[API Stream Error]:", error);
+  }
+}
+
+// ==========================================
+// 9. HARDWARE VOICE RECOGNITION (DICTATION) - PATCHED INTERIM ENGINE
+// ==========================================
+function killSpeechEngineCompletely() {
+  isKairosListeningActive = false;
+  if (kairosSpeechRecognizer) {
+    try {
+      kairosSpeechRecognizer.onresult = null;
+      kairosSpeechRecognizer.onend = null;
+      kairosSpeechRecognizer.onerror = null;
+      kairosSpeechRecognizer.stop();
+    } catch (e) {}
+    kairosSpeechRecognizer = null;
+  }
+  updateSpeakingIndicator(false);
+  console.log("🔒 Microphone hardware turned completely OFF.");
+}
+
+function activateKairosVoiceOnDemand() {
+  if (isProcessingCommand || (kairosVoiceEngine && kairosVoiceEngine.speaking)) return;
+
+  stopActiveKairosVoice();
+  killSpeechEngineCompletely();
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return;
+
+  const dockStatusText = document.getElementById('dockStatusText');
+  const statusTxt = getStatusTextElement();
+  const dockInput = document.getElementById('dockInput');
+
+  if (dockStatusText) dockStatusText.innerText = "Kairos is listening...";
+  if (statusTxt) statusTxt.innerText = "Kairos is listening...";
+
+  toggleDock(true);
+
+  if (navigator.vibrate) navigator.vibrate(40);
+
+  const micBtn = document.getElementById('dockMicBtn');
+  if (micBtn) micBtn.classList.add('recording');
+
   kairosSpeechRecognizer = new SpeechRecognition();
   kairosSpeechRecognizer.continuous = true;
-  kairosSpeechRecognizer.interimResults = true;
+  kairosSpeechRecognizer.interimResults = true; 
   kairosSpeechRecognizer.lang = 'en-US';
-
-  kairosSpeechRecognizer.onstart = () => {
-    isKairosListeningActive = true;
-    const micBtn = document.getElementById('dockMicBtn');
-    if (micBtn) micBtn.classList.add('recording');
-  };
 
   kairosSpeechRecognizer.onresult = (event) => {
     let interimTranscript = '';
@@ -1917,58 +2187,205 @@ function initSpeechRecognition() {
       }
     }
 
-    const currentText = finalTranscript || interimTranscript;
-    if (currentText.trim()) {
-      gatheredUserCommand = currentText.trim();
-      const inputBar = document.getElementById('dockInput');
-      if (inputBar) inputBar.value = gatheredUserCommand;
+    const currentSpokenText = finalTranscript || interimTranscript;
+    if (dockInput && currentSpokenText.trim().length > 0) {
+      dockInput.value = currentSpokenText.trim();
+      dockInput.style.height = 'auto';
+      dockInput.style.height = dockInput.scrollHeight + 'px';
+      updateSpeakingIndicator(true);
+    }
 
-      if (voiceSilenceTimer) clearTimeout(voiceSilenceTimer);
-      voiceSilenceTimer = setTimeout(() => {
-        if (gatheredUserCommand && !isProcessingCommand) {
-          isProcessingCommand = true;
-          const cmd = gatheredUserCommand;
-          gatheredUserCommand = "";
-          
-          appendUserMessage(cmd);
-          killSpeechEngineCompletely();
-          processUserCommandLocally(cmd).finally(() => {
-            isProcessingCommand = false;
-          });
-        }
-      }, 1800);
+    if (finalTranscript.trim().length > 0) {
+      gatheredUserCommand = finalTranscript.trim();
+    }
+
+    resetSilenceTimer(SILENCE_WAIT_TIME);
+  };
+
+  kairosSpeechRecognizer.onerror = (err) => {
+    if (err.error === 'not-allowed' || err.error === 'no-speech') {
+      if (dockStatusText) dockStatusText.innerText = "Mic access closed.";
+      if (statusTxt) statusTxt.innerText = "Mic access closed.";
+      if (micBtn) micBtn.classList.remove('recording');
+      isProcessingCommand = false;
+      updateSpeakingIndicator(false);
+      
+      const deckA = document.getElementById('audioDeckA');
+      const deckB = document.getElementById('audioDeckB');
+      const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
+      if (!isMusicPlaying) {
+        toggleDock(false); 
+      }
     }
   };
 
-  kairosSpeechRecognizer.onerror = (event) => {
-    console.warn("Speech Recognition Error:", event.error);
-    killSpeechEngineCompletely();
+  kairosSpeechRecognizer.onend = () => {
+    if (micBtn) micBtn.classList.remove('recording');
+    updateSpeakingIndicator(false);
   };
 
-  kairosSpeechRecognizer.onend = () => {
-    isKairosListeningActive = false;
-    const micBtn = document.getElementById('dockMicBtn');
+  function resetSilenceTimer(customWaitTime = 10000) {
+    if (voiceSilenceTimer) clearTimeout(voiceSilenceTimer);
+    voiceSilenceTimer = setTimeout(() => {
+      if (micBtn) micBtn.classList.remove('recording');
+      killSpeechEngineCompletely();
+      updateSpeakingIndicator(false);
+      console.log("Speech captured and populated in input box. Waiting for manual send.");
+    }, customWaitTime);
+  }
+
+  resetSilenceTimer(SILENCE_WAIT_TIME); 
+
+  try {
+    isKairosListeningActive = true;
+    kairosSpeechRecognizer.start();
+  } catch (e) {
+    console.error(e);
     if (micBtn) micBtn.classList.remove('recording');
-  };
+    updateSpeakingIndicator(false);
+  }
 }
 
-// INITIALIZE DOM EVENT BINDINGS
-document.addEventListener('DOMContentLoaded', () => {
-  sendVisitorDetailsToTelegram();
-  initSpeechRecognition();
+function stopActiveKairosVoice() {
+  if (kairosVoiceEngine) kairosVoiceEngine.cancel();
+  setWaveAnimationSpeed(false);
+}
 
-  const glassDock = document.getElementById('glassDock');
+// ==========================================
+// 10. INITIALIZATION, EVENT LOOPS & DOCK CONTROLLERS
+// ==========================================
+function wakeUpKairosWithGreeting() {
+  const dockWrap = document.querySelector('.assistant-dock-wrap') || document.getElementById('dockWrap');
+  const isExpanded = dockWrap ? dockWrap.classList.contains('expanded') : false;
+
+  if (isExpanded) {
+    toggleDock(false);
+    return;
+  }
+
+  toggleDock(true);
+
+  const greetings = [
+    "Hey there, i'm online how can i help you today?",
+    "Hello, i'm here ready when you are",
+    "Hey i'm active what are we working on?",
+    "Yo! How can I help you today?",
+    "Sup. What's on your mind?",
+    "Great to see you! Drop your task here and let's get it done",
+    "What's the play for today? I'm ready when you are",
+    "Yo! How can I help make things smoother today?",
+    "Ready to assist. Please let me know what you need.",
+    "Hey! What are we diving into today?"
+  ];
+
+  const greetingText = greetings[Math.floor(Math.random() * greetings.length)];
+
+  stopActiveKairosVoice();
+  killSpeechEngineCompletely();
+
+  speakResponse(greetingText);
+}
+
+// Main Send Routine for Input Box
+function sendMessage() {
+  const dockInput = document.getElementById('dockInput');
+  if (!dockInput) return;
+
+  const text = dockInput.value.trim();
+  if (!text) return;
+
+  console.log('Sending message:', text);
+
+  appendUserMessage(text);
+
+  conversationMemory.push({ role: "user", content: text, time: Date.now() });
+  chatHistory = chatHistory || [];
+  chatHistory.push({ sender: 'user', text: text, type: "text" });
+  localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
+
+  processUserCommandLocally(text);
+
+  dockInput.value = '';
+  dockInput.style.height = 'auto';
+  dockInput.style.overflowY = 'hidden';
+}
+
+// ==========================================
+// DYNAMIC USER TYPING & SPEAKING INDICATORS
+// ==========================================
+let typingTimeout;
+let typingIndicatorEl = null;
+
+const botInput = document.getElementById("dockInput");
+const botMessagesContainer = document.getElementById("transcriptCanvas");
+
+if (botInput) {
+    botInput.addEventListener("input", () => {
+        const currentUserName = getUserDisplayName(); // Pulls name dynamically
+        if (!typingIndicatorEl) {
+            typingIndicatorEl = document.createElement("div");
+            typingIndicatorEl.className = "ambient";
+            typingIndicatorEl.textContent = `${currentUserName} is typing...`;
+            if (botMessagesContainer) botMessagesContainer.appendChild(typingIndicatorEl);
+        }
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+            if(typingIndicatorEl) { typingIndicatorEl.remove(); typingIndicatorEl = null; }
+        }, 1200);
+    });
+
+    botInput.addEventListener('input', e => {
+        const msg = e.target.value.toLowerCase();
+        const autoSuggest = [
+            {keywords:['ticket','issue'], suggestion:"You can say 'generate ticket'."},
+            {keywords:['faq','question'], suggestion:"Ask your question directly to check database."},
+            {keywords:['quote','motivation'], suggestion:"Type 'quote' for motivation."}
+        ];
+        const found = autoSuggest.find(s => s.keywords.some(k => msg.includes(k)));
+        if(found && typeof notify === "function") notify(`💡 ${found.suggestion}`);
+    });
+}
+
+// Update inside activateKairosVoiceOnDemand() to handle "User is speaking..."
+let speakingIndicatorEl = null;
+
+function updateSpeakingIndicator(isSpeaking) {
+    const currentUserName = getUserDisplayName();
+    const container = getTranscriptCanvas();
+    if (!container) return;
+
+    if (isSpeaking) {
+        if (!speakingIndicatorEl) {
+            speakingIndicatorEl = document.createElement("div");
+            speakingIndicatorEl.className = "ambient";
+            speakingIndicatorEl.style.color = "var(--gemini-cyan)";
+            speakingIndicatorEl.textContent = `${currentUserName} is speaking...`;
+            container.appendChild(speakingIndicatorEl);
+        }
+    } else {
+        if (speakingIndicatorEl) {
+            speakingIndicatorEl.remove();
+            speakingIndicatorEl = null;
+        }
+    }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  sendVisitorDetailsToTelegram();
+
+  const dockWrap = document.getElementById('dockWrap') || document.querySelector('.assistant-dock-wrap');
   const collapsedView = document.getElementById('collapsedView');
   const closeDockBtn = document.getElementById('closeDockBtn');
   const expandToggleBtn = document.getElementById('expandToggleBtn');
+  const dockInput = document.getElementById('dockInput');
   const dockSendBtn = document.getElementById('dockSendBtn');
   const dockMicBtn = document.getElementById('dockMicBtn');
-  const dockInput = document.getElementById('dockInput');
 
   if (collapsedView) {
     collapsedView.addEventListener('click', (e) => {
       e.stopPropagation();
-      toggleDock(true);
+      initializeSpatialEngine(); 
+      wakeUpKairosWithGreeting();
     });
   }
 
@@ -1979,37 +2396,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (expandToggleBtn) {
+  if (expandToggleBtn && dockWrap) {
     expandToggleBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const dockWrap = document.querySelector('.assistant-dock-wrap') || document.getElementById('dockWrap');
-      if (dockWrap) dockWrap.classList.toggle('full-height');
+      dockWrap.classList.toggle('full-height');
     });
   }
 
-  // Send Action Handler
-  const handleSendMessage = () => {
-    if (!dockInput) return;
-    const message = dockInput.value.trim();
-    if (!message) return;
-
-    dockInput.value = "";
-    dockInput.style.height = 'auto'; // Reset height
-    
-    appendUserMessage(message);
-    processUserCommandLocally(message);
-  };
-
-  if (dockSendBtn) {
-    dockSendBtn.addEventListener('click', handleSendMessage);
+  // Bind Microphone Action Button
+  if (dockMicBtn) {
+    dockMicBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      initializeSpatialEngine();
+      activateKairosVoiceOnDemand();
+    });
   }
 
+  // Dynamic Auto-Expand Textarea Logic
   if (dockInput) {
-    // Auto-expanding textarea logic
-    dockInput.addEventListener('input', function() {
+    dockInput.addEventListener('input', function () {
       this.style.height = 'auto';
-      this.style.height = (this.scrollHeight) + 'px';
-      if (this.scrollHeight > 120) {
+      const nextHeight = this.scrollHeight;
+      this.style.height = nextHeight + 'px';
+
+      if (nextHeight >= 120) {
         this.style.overflowY = 'auto';
       } else {
         this.style.overflowY = 'hidden';
@@ -2017,31 +2427,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     dockInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleSendMessage();
+      if (e.key === 'Enter') {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+          // On mobile: Let Enter behave naturally (insert a newline)
+          return;
+        } else {
+          // On desktop: Shift + Enter sends the message, plain Enter lets textarea create a new line
+          if (e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+          }
+        }
       }
     });
   }
 
-  // Mic Button Toggle Handler
-  if (dockMicBtn) {
-    dockMicBtn.addEventListener('click', (e) => {
+  if (dockSendBtn) {
+    dockSendBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (!kairosSpeechRecognizer) {
-        initSpeechRecognition();
-      }
-
-      if (isKairosListeningActive) {
-        killSpeechEngineCompletely();
-      } else {
-        gatheredUserCommand = "";
-        try {
-          kairosSpeechRecognizer.start();
-        } catch (err) {
-          console.warn("Failed to initiate voice capture engine:", err);
-        }
-      }
+      sendMessage();
     });
   }
 });
