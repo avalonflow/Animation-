@@ -714,7 +714,6 @@
                             <p class="streaming-text">How can I assist you today?</p>
                             <div class="meta">
                                 <span class="timestamp" id="initialKairosTime">10:00 AM</span>
-                                <span class="tick seen"></span>
                             </div>
                         </div>
                     </div>
@@ -919,7 +918,6 @@ function setKairosMessageText(formattedHtmlText) {
           <p class="streaming-text">${formattedHtmlText}</p>
           <div class="meta">
               <span class="timestamp">${getCurrentTime()}</span>
-              <span class="tick seen"></span>
           </div>
       </div>
     `;
@@ -1296,11 +1294,13 @@ function toggleDock(forcedState = null) {
     if (isMusicPlaying) {
       if (dockStatusText) dockStatusText.innerText = "Playing Audio Stream...";
       if (statusTxt) statusTxt.innerText = "Playing Audio Stream...";
-      setTimeout(() => setWaveAnimationSpeed(true), 200); 
     } else {
       if (dockStatusText) dockStatusText.innerText = KAIROS_TITLE + "...";
       if (statusTxt) statusTxt.innerText = KAIROS_TITLE + "...";
     }
+
+    // Always keep the wave animation bars active when the dock is collapsed
+    setTimeout(() => setWaveAnimationSpeed(true), 200); 
   }
 }
 
