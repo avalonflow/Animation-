@@ -2072,13 +2072,13 @@ function setupTrackEndMonitor(audioDeck) {
 }
 
 // ====================================================================
-// 8b. INTEGRATED CLOUD STREAMING & QUEUE PIPELINE (YOUTUBE MUSIC TARGETED)
+// 8b. INTEGRATED CLOUD STREAMING & QUEUE PIPELINE
 // ====================================================================
 
 /**
- * Searches and adds YouTube Music streams to the music engine.
+ * Searches and extracts YouTube/YT Music audio streams with instance failover.
  * @param {string} commandText - Raw command text
- * @param {boolean} queueOnly - If true, appends to the queue without interrupting current track
+ * @param {boolean} queueOnly - If true, appends to queue without interrupting playback
  */
 async function handleYouTubeMusicSearch(commandText, queueOnly = false) {
   let searchQuery = commandText.toLowerCase()
@@ -2093,115 +2093,98 @@ async function handleYouTubeMusicSearch(commandText, queueOnly = false) {
     .join(' ');
 
   if (queueOnly) {
-    updateStatusDisplay(`Searching & queuing (YT Music): ${displayTitle}...`);
+    updateStatusDisplay(`Searching & queuing: ${displayTitle}...`);
   } else {
-    speakResponse(`Searching YouTube Music for ${displayTitle}...`);
+    speakResponse(`Searching for ${displayTitle}...`);
   }
+
+  // Active public Invidious API instances
+  const invidiousInstances = [
+    "https://inv.tux.pizza",
+    "https://yewtu.be",
+    "https://invidious.privacydev.net",
+    "https://inv.nadeko.net"
+  ];
 
   let videoId = null;
   let directAudioUrl = null;
 
-  // ------------------------------------------------------------------
-  // STRATEGY 1: Query Piped API's Dedicated YT Music Songs Filter
-  // ------------------------------------------------------------------
-  const pipedInstances = [
-    "https://pipedapi.kavin.rocks",
-    "https://api.piped.privacydev.net",
-    "https://pipedapi.mha.fi"
-  ];
-
-  for (const pInstance of pipedInstances) {
+  // 1. Resolve Video ID
+  for (const instance of invidiousInstances) {
     try {
-      // 'filter=music_songs' forces YT Music track resolution
-      const searchRes = await fetch(`${pInstance}/search?q=${encodeURIComponent(searchQuery)}&filter=music_songs`);
+      // Try official audio query target first
+      let searchRes = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(searchQuery + " official audio")}&type=video`);
+      if (!searchRes.ok) {
+        searchRes = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(searchQuery)}&type=video`);
+      }
+      
       if (!searchRes.ok) continue;
 
-      const searchData = await searchRes.json();
-      const topSong = searchData.items?.find(item => item.type === 'stream');
+      const results = await searchRes.json();
+      if (results && results.length > 0 && results[0].videoId) {
+        videoId = results[0].videoId;
 
-      if (topSong && topSong.url) {
-        videoId = topSong.url.includes('v=') 
-          ? topSong.url.split('v=')[1].split('&')[0] 
-          : topSong.url.replace('/', '');
-
-        // Fetch Direct Stream Manifest
-        const streamRes = await fetch(`${pInstance}/streams/${videoId}`);
+        // 2. Fetch direct stream manifest from working instance
+        const streamRes = await fetch(`${instance}/api/v1/videos/${videoId}`);
         if (streamRes.ok) {
           const streamData = await streamRes.json();
-          const audioStream = streamData.audioStreams?.find(s => s.mimeType?.includes('audio'));
+          
+          // Select best standalone audio stream
+          const audioStream = streamData.adaptiveFormats?.find(f => f.type?.includes('audio/webm') || f.type?.includes('audio/mp4'))
+                           || streamData.formatStreams?.find(f => f.container === 'mp4' || f.quality === 'medium')
+                           || streamData.formatStreams?.[0];
 
           if (audioStream && audioStream.url) {
-            directAudioUrl = audioStream.url;
-            break;
+            directAudioUrl = audioStream.url.replace(/^http:\/\//i, 'https://');
+            break; // Successfully resolved!
           }
         }
       }
     } catch (err) {
-      console.warn(`Piped instance ${pInstance} failed:`, err);
+      console.warn(`Instance ${instance} failed:`, err);
     }
   }
 
-  // ------------------------------------------------------------------
-  // STRATEGY 2: Fallback to Invidious Targeting Topic/Audio Channels
-  // ------------------------------------------------------------------
-  if (!directAudioUrl) {
-    const invidiousInstances = [
-      "https://inv.nadeko.net",
-      "https://invidious.nerdvpn.de",
-      "https://inv.tux.pizza"
-    ];
-
-    // Append "audio" to query to hit YT Music auto-generated Topic releases
-    const ytMusicQuery = `${searchQuery} audio`;
-
-    for (const instance of invidiousInstances) {
+  // 3. Fallback: Piped API
+  if (!directAudioUrl && videoId) {
+    const pipedInstances = ["https://pipedapi.kavin.rocks", "https://pipedapi.mha.fi"];
+    for (const pInstance of pipedInstances) {
       try {
-        const searchRes = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(ytMusicQuery)}&type=video`);
-        if (!searchRes.ok) continue;
-
-        const results = await searchRes.json();
-        if (results && results.length > 0 && results[0].videoId) {
-          videoId = results[0].videoId;
-
-          const streamRes = await fetch(`${instance}/api/v1/videos/${videoId}`);
-          if (streamRes.ok) {
-            const streamData = await streamRes.json();
-            const audioStream = streamData.adaptiveFormats?.find(f => f.type?.includes('audio/webm') || f.type?.includes('audio/mp4'))
-                             || streamData.formatStreams?.[0];
-
-            if (audioStream && audioStream.url) {
-              directAudioUrl = audioStream.url.replace(/^http:\/\//i, 'https://');
-              break;
-            }
+        const pRes = await fetch(`${pInstance}/streams/${videoId}`);
+        if (pRes.ok) {
+          const pData = await pRes.json();
+          const audioObj = pData.audioStreams?.find(s => s.mimeType?.includes('audio'));
+          if (audioObj && audioObj.url) {
+            directAudioUrl = audioObj.url;
+            break;
           }
         }
       } catch (err) {
-        console.warn(`Invidious instance ${instance} failed:`, err);
+        console.warn(`Piped fallback ${pInstance} failed:`, err);
       }
     }
   }
 
-  // ------------------------------------------------------------------
-  // STRATEGY 3: Queue or Play Stream
-  // ------------------------------------------------------------------
+  // 4. Handle Execution Failure or Playback
   if (!directAudioUrl) {
-    speakResponse(`Couldn't extract a playable YouTube Music stream for ${displayTitle}.`);
-    updateStatusDisplay("YT Music extraction failed.");
+    speakResponse(`Couldn't extract a playable stream for ${displayTitle}.`);
+    updateStatusDisplay("Stream extraction failed.");
     return;
   }
 
   if (queueOnly || (typeof activeDeck !== 'undefined' && activeDeck && !activeDeck.paused)) {
     musicQueue.push(directAudioUrl);
     if (typeof saveMusicState === 'function') saveMusicState();
-    speakResponse(`Queued ${displayTitle} from YouTube Music.`);
+    speakResponse(`Queued ${displayTitle} to your playlist.`);
     updateStatusDisplay(`Queued: ${displayTitle}`);
   } else {
     musicQueue = [directAudioUrl];
     currentTrackIndex = 0;
     botMusicReply(directAudioUrl);
-    updateStatusDisplay(`Streaming YT Music: ${displayTitle}...`);
+    updateStatusDisplay(`Streaming: ${displayTitle}...`);
   }
 }
+
 
 // ==========================================
 // 9. HARDWARE VOICE RECOGNITION
