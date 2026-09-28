@@ -1371,7 +1371,54 @@ function appendUserMessage(text) {
   const activeStream = canvas.querySelector('.streaming-text');
   if (activeStream) activeStream.classList.remove('streaming-text');
 
-  const profilePhotoSrc = document.getElementById('profilePhoto')?.getAttribute('src') || 'default-avatar.png';
+  // ---------- Profile Picture Assets & Configuration ----------
+const photoInput = document.getElementById('photoInput');
+const profilePhoto = document.getElementById('profilePhoto');
+const DEFAULT_AVATAR = 'default-avatar.png';
+let isProcessing = false;
+
+if (profilePhoto) {
+    profilePhoto.addEventListener('click', () => {
+        if (isProcessing) return;
+        const hasPhoto = localStorage.getItem('profilePhoto');
+        if (hasPhoto) {
+            localStorage.removeItem('profilePhoto');
+            profilePhoto.src = DEFAULT_AVATAR;
+        } else {
+            if (photoInput) photoInput.click();
+        }
+    });
+}
+
+if (photoInput && profilePhoto) {
+    photoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file || isProcessing) return;
+        isProcessing = true;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const size = Math.min(img.width, img.height);
+                canvas.width = size;
+                canvas.height = size;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size);
+
+                const finalImage = canvas.toDataURL('image/png');
+                profilePhoto.src = finalImage;
+                localStorage.setItem('profilePhoto', finalImage);
+                photoInput.value = '';
+                setTimeout(() => { isProcessing = false; }, 300);
+            };
+        };
+        reader.readAsDataURL(file);
+    });
+}
   const userSig = getUserSignature();
   const timeStr = getCurrentTime();
 
