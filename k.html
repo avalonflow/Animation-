@@ -800,10 +800,13 @@
     </footer>
 
     <script>
-                /**
+                Update 
+
+
+/**
  * AvalonFlow: Kairos Intelligent Voice & UI Controller
- * Comprehensive Master Core Edition (Flicker-Free Optimized & Streaming Supported)
- * * PATCH VERIFIED: Persistent LLM, Real-Time Response Streaming & Interactive Music State Integration
+ * Comprehensive Master Core Edition (Flicker-Free Optimized)
+ * * PATCH VERIFIED: Persistent LLM & Interactive Music State Integration
  */
 
 // ==========================================
@@ -1171,7 +1174,7 @@ function restoreSavedTranscripts() {
 // KAIROS MASTER KNOWLEDGE REGISTRY (FAQ & SYSTEM ABILITIES)
 // ====================================================================
 const KAIROS_MASTER_KNOWLEDGE = `
-You are Kairos, an intuitive, calm, supportive, and knowledgeable AI vocal assistant. The current year is 2026. 
+You are Kairos, an intuitive, calm, supportive, and knowledgeable AI vocal assistant. The year is 2026. 
 
 Your knowledge base includes the following official operational parameters and FAQs:
 
@@ -1198,7 +1201,7 @@ Your knowledge base includes the following official operational parameters and F
 - When users ask to "play [song name]", "pause", "resume", "skip/next", or "go back", you must yield to the script's local media interceptors.
 
 4. Message to Yusra:
-- Because we operate on an enterprise infrastructure, our project allocations, milestones, and release triggers are managed directly through our internal system so we can automate releases the moment the final delivery is approved, rather than accept proposals through third-party marketplace escrows.
+- ‎Because we operate on an enterprise infrastructure, our project allocations, milestones, and release triggers are managed directly through our internal system so we can automate releases the moment the final delivery is approved, rather than accept proposals through third-party marketplace escrows.
 
 CONVERSATIONAL RULES:
 - Respond naturally, with genuine empathy, matching a present-knowledge conversational tone.
@@ -1532,86 +1535,6 @@ function startAmbientAutoPanning() {
   }, 50);
 }
 
-// =================================================================
-// 6. STREAMING LLM API PIPELINE WITH MULTI-MODEL FALLBACK
-// =================================================================
-async function streamGeminiResponse(commandText) {
-  const GEMINI_API_KEY = KAIROS_KEYS.gemini || "";
-  const requestContents = [...kairosChatHistory, { role: "user", parts: [{ text: commandText }] }];
-
-  const requestBody = {
-    contents: requestContents,
-    systemInstruction: {
-      parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
-    },
-    generationConfig: { maxOutputTokens: 8192 }
-  };
-
-  const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro"];
-
-  for (const model of modelsToTry) {
-    try {
-      const URL = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
-      const response = await fetch(URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody)
-      });
-
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let fullAccumulatedText = "";
-      let buffer = "";
-
-      setWaveAnimationSpeed(true);
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop(); // Keep incomplete line in the buffer
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const jsonStr = line.replace(/^data:\s*/, "").trim();
-            if (jsonStr === "[DONE]") continue;
-
-            try {
-              const parsed = JSON.parse(jsonStr);
-              const chunk = parsed?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-              if (chunk) {
-                fullAccumulatedText += chunk;
-                setKairosMessageText(renderMarkdownToHTML(fullAccumulatedText));
-              }
-            } catch (e) {
-              // Ignore invalid JSON chunk parses
-            }
-          }
-        }
-      }
-
-      setWaveAnimationSpeed(false);
-
-      if (fullAccumulatedText.trim().length > 0) {
-        kairosChatHistory.push({ role: "user", parts: [{ text: commandText }] });
-        kairosChatHistory.push({ role: "model", parts: [{ text: fullAccumulatedText.trim() }] });
-        saveLLMHistory();
-
-        speakResponse(fullAccumulatedText.trim());
-        return true; 
-      }
-    } catch (err) {
-      console.warn(`Streaming failed on model ${model}, trying fallback if available...`, err);
-    }
-  }
-
-  return false; 
-}
-
 /**
  * MASTER ROUTING FRAMEWORK: Handles local media interceptors & streams directly to LLM
  */
@@ -1755,10 +1678,10 @@ async function processUserCommandLocally(commandText) {
     return;
   }
 
-  // Set typing indicator in chat window while model streams content
+  // Set typing indicator in chat window while model produces content
   setKairosMessageText("Thinking...");
 
-  // Fallback A: Chrome Gemini Nano Local Engine
+  // Fallback A: Chrome Gemini Nano
   if (window.ai && window.ai.languageModel) {
     try {
       const caps = await window.ai.languageModel.capabilities();
@@ -1781,11 +1704,66 @@ async function processUserCommandLocally(commandText) {
     }
   }
 
-  // Fallback B & C: Streaming Cloud API Pipeline (Gemini Models via ReadableStream)
-  const streamSuccess = await streamGeminiResponse(commandText);
+  // Fallback B: Primary API Model
+  try {
+    const GEMINI_API_KEY = KAIROS_KEYS.gemini || "";
+    const PRIMARY_MODEL = "gemini-3.1-flash-lite"; 
+    const URL = `https://generativelanguage.googleapis.com/v1beta/models/${PRIMARY_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
-  if (!streamSuccess) {
-    speakResponse("What would you like help with—support, rewards, or dashboard settings?");
+    const requestContents = [...kairosChatHistory, { role: "user", parts: [{ text: commandText }] }];
+    const response = await fetch(URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: requestContents,
+        systemInstruction: {
+          parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
+        },
+        generationConfig: { maxOutputTokens: 51233 }
+      })
+    });
+
+    if (!response.ok) throw new Error();
+    const data = await response.json();
+    const replyText = data.candidates[0].content.parts[0].text.trim();
+
+    kairosChatHistory.push({ role: "user", parts: [{ text: commandText }] });
+    kairosChatHistory.push({ role: "model", parts: [{ text: replyText }] });
+    saveLLMHistory();
+
+    speakResponse(replyText);
+  } catch (err) {
+    // Fallback C: Secondary API Model
+    try {
+      const GEMINI_API_KEY = KAIROS_KEYS.gemini || "";
+      const FALLBACK_MODEL = "gemini-3.5-flash"; 
+      const URL = `https://generativelanguage.googleapis.com/v1beta/models/${FALLBACK_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+      const requestContents = [...kairosChatHistory, { role: "user", parts: [{ text: commandText }] }];
+      const response = await fetch(URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: requestContents,
+          systemInstruction: {
+            parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
+          },
+          generationConfig: { maxOutputTokens: 51233 }
+        })
+      });
+
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      const replyText = data.candidates[0].content.parts[0].text.trim();
+
+      kairosChatHistory.push({ role: "user", parts: [{ text: commandText }] });
+      kairosChatHistory.push({ role: "model", parts: [{ text: replyText }] });
+      saveLLMHistory();
+
+      speakResponse(replyText);
+    } catch (fallbackErr) {
+      speakResponse("What would you like help with—support, rewards, or dashboard settings?");
+    }
   }
 }
 
@@ -2090,41 +2068,93 @@ function setupTrackEndMonitor(audioDeck) {
 }
 
 // ====================================================================
-// 8b. INTEGRATED CLOUD STREAMING PIPELINE
+// 8b. INTEGRATED CLOUD STREAMING & QUEUE PIPELINE
 // ====================================================================
-async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
-  const cleanCommand = commandText.toLowerCase().trim();
 
-  let searchQuery = cleanCommand
-    .replace(/\b(play me|play|search for|lookup|find|put on|open)\b/gi, "")
-    .replace(/\b(on youtube music|on yt music|in youtube music|in yt music)\b/gi, "")
+/**
+ * Searches and adds YouTube streams to the music engine.
+ * @param {string} commandText - Raw command text
+ * @param {boolean} queueOnly - If true, appends to the queue without interrupting current track
+ */
+async function handleYouTubeMusicSearch(commandText, queueOnly = false) {
+  let searchQuery = commandText.toLowerCase()
+    .replace(/\b(play me|play|queue up|queue|add|search for|lookup|find|put on|open)\b/gi, "")
+    .replace(/\b(to queue|to the queue|next|on youtube music|on yt music|in youtube music|in yt music|on youtube|on yt|youtube|yt)\b/gi, "")
     .trim();
 
   if (!searchQuery) return;
 
-  let optimizerTag = "";
-  if (!searchQuery.includes("radio") && !searchQuery.includes("mix") && !searchQuery.includes("album") && !searchQuery.includes("playlist")) {
-    optimizerTag = " mix";
-  }
+  const displayTitle = searchQuery.split(' ')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
 
-  const finalQuery = searchQuery + optimizerTag;
-  const displayTitle = searchQuery.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  if (queueOnly) {
+    updateStatusDisplay(`Searching & queuing: ${displayTitle}...`);
+  } else {
+    speakResponse(`Searching YouTube for ${displayTitle}...`);
+  }
 
   try {
-    const targetQuery = encodeURIComponent(finalQuery);
-    const streamUrl = `https://api.vexd.net/api/mp3?url=https://www.youtube.com/watch?v=${targetQuery}`;
+    // 1. Resolve Video ID
+    const pipedSearchResponse = await fetch(`https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(searchQuery)}&filter=music_songs`);
+    if (!pipedSearchResponse.ok) throw new Error("Search query resolution failed.");
 
-    if (isDelayedHandoff) {
-      musicQueue.push(streamUrl);
-      saveMusicState();
-      console.log(`[API Stream] Background queued cloud track: ${displayTitle}`);
-    } else {
-      botMusicReply(streamUrl);
+    const searchData = await pipedSearchResponse.json();
+    const topResult = searchData.items?.find(item => item.type === 'stream');
+
+    if (!topResult || !topResult.url) {
+      speakResponse(`Couldn't find a playable audio stream for ${displayTitle}.`);
+      return;
     }
+
+    const videoId = topResult.url.split('v=')[1];
+
+    // 2. Fetch Direct Stream Manifest
+    const streamApiResponse = await fetch(`https://pipedapi.kavin.rocks/streams/${videoId}`);
+    if (!streamApiResponse.ok) throw new Error("Stream extraction failed.");
+
+    const streamData = await streamApiResponse.json();
+    const audioStream = streamData.audioStreams?.find(stream => stream.mimeType.includes('audio')) || streamData.audioStreams[0];
+
+    if (!audioStream || !audioStream.url) {
+      speakResponse(`Could not extract playable audio for ${displayTitle}.`);
+      return;
+    }
+
+    const directAudioUrl = audioStream.url;
+
+    // 3. Queue Logic
+    if (queueOnly || (activeDeck && !activeDeck.paused)) {
+      // Append to active queue without stopping current playback
+      musicQueue.push(directAudioUrl);
+      saveMusicState();
+      speakResponse(`Queued ${displayTitle} to your playlist.`);
+      updateStatusDisplay(`Queued: ${displayTitle}`);
+    } else {
+      // Start fresh playback if nothing is currently playing
+      musicQueue = [directAudioUrl];
+      currentTrackIndex = 0;
+      botMusicReply(directAudioUrl);
+      updateStatusDisplay(`Streaming: ${displayTitle}...`);
+    }
+
   } catch (error) {
-    console.error("[API Stream Error]:", error);
+    console.error("[API Stream Queue Error]:", error);
+    speakResponse("I couldn't queue that track. Please try again.");
   }
 }
+
+/**
+ * Batch queue multiple songs given array of search queries
+ * Example: queueMultipleYouTubeTracks(["rod wave street runner", "drake passionfruit", "post malone circles"])
+ */
+async function queueMultipleYouTubeTracks(trackQueries) {
+  speakResponse(`Queuing up ${trackQueries.length} tracks...`);
+  for (const query of trackQueries) {
+    await handleYouTubeMusicSearch(query, true);
+  }
+}
+
 
 // ==========================================
 // 9. HARDWARE VOICE RECOGNITION
@@ -2428,7 +2458,6 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
     </script>
 </body>
 </html>
