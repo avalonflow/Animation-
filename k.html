@@ -802,8 +802,8 @@
     <script>
                 /**
  * AvalonFlow: Kairos Intelligent Voice & UI Controller
- * Comprehensive Master Core Edition (Flicker-Free Optimized)
- * * PATCH VERIFIED: Multi-Turn Conversation Loop Removed, Music-Aware Auto-Collapse Integrated
+ * Comprehensive Master Core Edition (Flicker-Free Optimized & Streaming Supported)
+ * * PATCH VERIFIED: Persistent LLM, Real-Time Response Streaming & Interactive Music State Integration
  */
 
 // ==========================================
@@ -843,7 +843,6 @@ function copyText(btn) {
   const bubble = btn.closest('.chat-bubble');
   if (!bubble) return;
   
-  // Find streaming-text, user-text, or any paragraph inside the bubble
   const textElem = bubble.querySelector('.streaming-text, .user-text, p');
   if (textElem) {
     navigator.clipboard.writeText(textElem.innerText);
@@ -918,11 +917,23 @@ let activeTypingInterval = null;
 
 let blockNextMicActivation = false; 
 
-let chatHistory = JSON.parse(localStorage.getItem('tg_chat_history_v3')) || [];
-let kairosChatHistory = []; 
+// --- LOCAL STORAGE CONTEXT MEMORY KEYS ---
+const LLM_HISTORY_KEY = 'kairos_llm_history_v1';
+const MUSIC_STATE_KEY = 'avalon_music_state_v1';
+
+// Load LLM Chat History context from LocalStorage
+let kairosChatHistory = JSON.parse(localStorage.getItem(LLM_HISTORY_KEY)) || [];
+let chatHistory = JSON.parse(localStorage.getItem('tg_chat_history_v2')) || [];
 let conversationMemory = []; 
 
 const SILENCE_WAIT_TIME = 10000; 
+
+function saveLLMHistory() {
+  if (kairosChatHistory.length > 30) {
+    kairosChatHistory = kairosChatHistory.slice(-30); 
+  }
+  localStorage.setItem(LLM_HISTORY_KEY, JSON.stringify(kairosChatHistory));
+}
 
 function getStatusTextElement() {
   return document.getElementById('status-text') || document.getElementById('dockStatusText');
@@ -953,7 +964,6 @@ let pannerNodeA = null, pannerNodeB = null;
 let ambientPanAngle = 0;
 let ambientPanInterval = null;
 
-// Helper to reliably locate transcript element
 function getTranscriptCanvas() {
   return document.getElementById('kairosTranscript') || document.getElementById('transcriptCanvas');
 }
@@ -966,7 +976,6 @@ const COPY_BTN_HTML = `
       </svg>
   </button>
 `;
-
 
 // =================================================================
 // 3. DATA STRUCTURES & PREMIUM AUDIO VAULT DIRECTORY
@@ -1092,11 +1101,77 @@ let currentTrackIndex = -1;
 let activeDeck = null;
 const crossfadeDuration = 10; 
 
+// Persistent Music Engine State Loader & Saver
+function saveMusicState() {
+  const currentDeck = activeDeck;
+  const isPaused = currentDeck ? currentDeck.paused : true;
+  const currentTime = currentDeck ? currentDeck.currentTime : 0;
+
+  const state = {
+    queue: musicQueue,
+    index: currentTrackIndex,
+    time: currentTime,
+    paused: isPaused
+  };
+
+  localStorage.setItem(MUSIC_STATE_KEY, JSON.stringify(state));
+}
+
+function restoreMusicState() {
+  try {
+    const savedState = localStorage.getItem(MUSIC_STATE_KEY);
+    if (!savedState) return;
+
+    const parsedState = JSON.parse(savedState);
+    if (parsedState.queue && parsedState.queue.length > 0) {
+      musicQueue = parsedState.queue;
+      currentTrackIndex = parsedState.index >= 0 ? parsedState.index : 0;
+      
+      const trackFile = musicQueue[currentTrackIndex];
+      const deckA = document.getElementById('audioDeckA');
+      if (deckA && trackFile) {
+        activeDeck = deckA;
+        deckA.src = trackFile;
+        deckA.currentTime = parsedState.time || 0;
+        setupTrackEndMonitor(deckA);
+
+        const trackTitle = formatTrackTitle(trackFile);
+        if (!parsedState.paused) {
+          updateStatusDisplay(`Playing ${trackTitle}...`);
+        } else {
+          updateStatusDisplay(`Paused: ${trackTitle}`);
+        }
+      }
+    }
+  } catch (e) {
+    console.warn("Could not restore music state:", e);
+  }
+}
+
+// Restore saved transcripts into UI on application start
+function restoreSavedTranscripts() {
+  const canvas = getTranscriptCanvas();
+  if (!canvas || kairosChatHistory.length === 0) return;
+
+  kairosChatHistory.forEach(item => {
+    const role = item.role;
+    const text = item.parts && item.parts[0] ? item.parts[0].text : "";
+
+    if (!text) return;
+
+    if (role === "user") {
+      appendUserMessage(text, false);
+    } else if (role === "model") {
+      setKairosMessageText(renderMarkdownToHTML(text), false);
+    }
+  });
+}
+
 // ====================================================================
 // KAIROS MASTER KNOWLEDGE REGISTRY (FAQ & SYSTEM ABILITIES)
 // ====================================================================
 const KAIROS_MASTER_KNOWLEDGE = `
-You are Kairos, an intuitive, calm, supportive, and knowledgeable AI vocal assistant. The year is 2026. 
+You are Kairos, an intuitive, calm, supportive, and knowledgeable AI vocal assistant. The current year is 2026. 
 
 Your knowledge base includes the following official operational parameters and FAQs:
 
@@ -1123,7 +1198,7 @@ Your knowledge base includes the following official operational parameters and F
 - When users ask to "play [song name]", "pause", "resume", "skip/next", or "go back", you must yield to the script's local media interceptors.
 
 4. Message to Yusra:
-- ‎Because we operate on an enterprise infrastructure, our project allocations, milestones, and release triggers are managed directly through our internal system so we can automate releases the moment the final delivery is approved, rather than accept proposals through third-party marketplace escrows.
+- Because we operate on an enterprise infrastructure, our project allocations, milestones, and release triggers are managed directly through our internal system so we can automate releases the moment the final delivery is approved, rather than accept proposals through third-party marketplace escrows.
 
 CONVERSATIONAL RULES:
 - Respond naturally, with genuine empathy, matching a present-knowledge conversational tone.
@@ -1346,8 +1421,8 @@ if (photoInput && profilePhoto) {
     });
 }
 
-// SAFE UI RENDERER: Appends a dedicated user message bubble with chat header and copy button
-function appendUserMessage(text) {
+// SAFE UI RENDERER: Appends a dedicated user message bubble
+function appendUserMessage(text, scroll = true) {
   const canvas = getTranscriptCanvas();
   if (!canvas) return;
 
@@ -1374,12 +1449,11 @@ function appendUserMessage(text) {
     <img src="${profilePhotoSrc}" class="chat-bubble-avatar" alt="User Avatar" style="margin-left: 8px;">
   `;
   canvas.appendChild(msgWrap);
-  canvas.scrollTop = canvas.scrollHeight;
+  if (scroll) canvas.scrollTop = canvas.scrollHeight;
 }
 
-
-// SAFE UI RENDERER: Updates or appends Kairos responses safely with header and copy button
-function setKairosMessageText(formattedHtmlText) {
+// SAFE UI RENDERER: Updates or appends Kairos responses safely
+function setKairosMessageText(formattedHtmlText, scroll = true) {
   const canvas = getTranscriptCanvas();
   if (!canvas) return;
 
@@ -1406,7 +1480,7 @@ function setKairosMessageText(formattedHtmlText) {
     canvas.appendChild(msgWrap);
   }
   
-  canvas.scrollTop = canvas.scrollHeight;
+  if (scroll) canvas.scrollTop = canvas.scrollHeight;
 }
 
 function initializeSpatialEngine() {
@@ -1458,6 +1532,86 @@ function startAmbientAutoPanning() {
   }, 50);
 }
 
+// =================================================================
+// 6. STREAMING LLM API PIPELINE WITH MULTI-MODEL FALLBACK
+// =================================================================
+async function streamGeminiResponse(commandText) {
+  const GEMINI_API_KEY = KAIROS_KEYS.gemini || "";
+  const requestContents = [...kairosChatHistory, { role: "user", parts: [{ text: commandText }] }];
+
+  const requestBody = {
+    contents: requestContents,
+    systemInstruction: {
+      parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
+    },
+    generationConfig: { maxOutputTokens: 8192 }
+  };
+
+  const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro"];
+
+  for (const model of modelsToTry) {
+    try {
+      const URL = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
+      const response = await fetch(URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let fullAccumulatedText = "";
+      let buffer = "";
+
+      setWaveAnimationSpeed(true);
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop(); // Keep incomplete line in the buffer
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const jsonStr = line.replace(/^data:\s*/, "").trim();
+            if (jsonStr === "[DONE]") continue;
+
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const chunk = parsed?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+              if (chunk) {
+                fullAccumulatedText += chunk;
+                setKairosMessageText(renderMarkdownToHTML(fullAccumulatedText));
+              }
+            } catch (e) {
+              // Ignore invalid JSON chunk parses
+            }
+          }
+        }
+      }
+
+      setWaveAnimationSpeed(false);
+
+      if (fullAccumulatedText.trim().length > 0) {
+        kairosChatHistory.push({ role: "user", parts: [{ text: commandText }] });
+        kairosChatHistory.push({ role: "model", parts: [{ text: fullAccumulatedText.trim() }] });
+        saveLLMHistory();
+
+        speakResponse(fullAccumulatedText.trim());
+        return true; 
+      }
+    } catch (err) {
+      console.warn(`Streaming failed on model ${model}, trying fallback if available...`, err);
+    }
+  }
+
+  return false; 
+}
+
 /**
  * MASTER ROUTING FRAMEWORK: Handles local media interceptors & streams directly to LLM
  */
@@ -1475,6 +1629,7 @@ async function processUserCommandLocally(commandText) {
   ) {
       if (currentLiveDeck && !currentLiveDeck.paused) {
           currentLiveDeck.pause();
+          saveMusicState();
           speakResponse("Music paused. Let me know when you want to resume");
           updateStatusDisplay("Music Paused");
       } else {
@@ -1490,6 +1645,7 @@ async function processUserCommandLocally(commandText) {
   ) {
       if (currentLiveDeck && currentLiveDeck.paused && currentLiveDeck.src) {
           currentLiveDeck.play().catch(err => console.log(err));
+          saveMusicState();
           speakResponse("Resuming track");
           updateStatusDisplay(`Playing ${formatTrackTitle(currentLiveDeck.src)}...`);
       } else {
@@ -1599,10 +1755,10 @@ async function processUserCommandLocally(commandText) {
     return;
   }
 
-  // Set typing indicator in chat window while model produces content
+  // Set typing indicator in chat window while model streams content
   setKairosMessageText("Thinking...");
 
-  // Fallback A: Chrome Gemini Nano
+  // Fallback A: Chrome Gemini Nano Local Engine
   if (window.ai && window.ai.languageModel) {
     try {
       const caps = await window.ai.languageModel.capabilities();
@@ -1615,6 +1771,7 @@ async function processUserCommandLocally(commandText) {
 
         kairosChatHistory.push({ role: "user", parts: [{ text: commandText }] });
         kairosChatHistory.push({ role: "model", parts: [{ text: aiReply.trim() }] });
+        saveLLMHistory();
 
         speakResponse(aiReply.trim());
         return;
@@ -1624,64 +1781,11 @@ async function processUserCommandLocally(commandText) {
     }
   }
 
-  // Fallback B: Primary API Model
-  try {
-    const GEMINI_API_KEY = KAIROS_KEYS.gemini || "";
-    const PRIMARY_MODEL = "gemini-3.1-flash-lite"; 
-    const URL = `https://generativelanguage.googleapis.com/v1beta/models/${PRIMARY_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  // Fallback B & C: Streaming Cloud API Pipeline (Gemini Models via ReadableStream)
+  const streamSuccess = await streamGeminiResponse(commandText);
 
-    const requestContents = [...kairosChatHistory, { role: "user", parts: [{ text: commandText }] }];
-    const response = await fetch(URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: requestContents,
-        systemInstruction: {
-          parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
-        },
-        generationConfig: { maxOutputTokens: 51233 }
-      })
-    });
-
-    if (!response.ok) throw new Error();
-    const data = await response.json();
-    const replyText = data.candidates[0].content.parts[0].text.trim();
-
-    kairosChatHistory.push({ role: "user", parts: [{ text: commandText }] });
-    kairosChatHistory.push({ role: "model", parts: [{ text: replyText }] });
-
-    speakResponse(replyText);
-  } catch (err) {
-    // Fallback C: Secondary API Model
-    try {
-      const GEMINI_API_KEY = KAIROS_KEYS.gemini || "";
-      const FALLBACK_MODEL = "gemini-3.5-flash"; 
-      const URL = `https://generativelanguage.googleapis.com/v1beta/models/${FALLBACK_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-
-      const requestContents = [...kairosChatHistory, { role: "user", parts: [{ text: commandText }] }];
-      const response = await fetch(URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: requestContents,
-          systemInstruction: {
-            parts: [{ text: KAIROS_MASTER_KNOWLEDGE }]
-          },
-          generationConfig: { maxOutputTokens: 51233 }
-        })
-      });
-
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      const replyText = data.candidates[0].content.parts[0].text.trim();
-
-      kairosChatHistory.push({ role: "user", parts: [{ text: commandText }] });
-      kairosChatHistory.push({ role: "model", parts: [{ text: replyText }] });
-
-      speakResponse(replyText);
-    } catch (fallbackErr) {
-      speakResponse("What would you like help with—support, rewards, or dashboard settings?");
-    }
+  if (!streamSuccess) {
+    speakResponse("What would you like help with—support, rewards, or dashboard settings?");
   }
 }
 
@@ -1749,7 +1853,7 @@ async function speakResponse(rawResponseText) {
 
   chatHistory = chatHistory || [];
   chatHistory.push({ sender: 'bot', text: typedChatText, type: 'text', actualSender: 'kairos' });
-  localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
+  localStorage.setItem('tg_chat_history_v2', JSON.stringify(chatHistory));
 
   const transcriptCanvas = getTranscriptCanvas();
   if (!transcriptCanvas) return;
@@ -1761,7 +1865,7 @@ async function speakResponse(rawResponseText) {
     return;
   }
 
-  // --- VAULT PIPELINE (Pre-recorded Audio Assets) ---
+  // --- VAULT PIPELINE ---
   if (vaultAssetPath) {
     console.log(`🎵 Playing Premium Vault Audio Asset directly: ${vaultAssetPath}`);
     const nativeVaultAudio = new Audio(vaultAssetPath);
@@ -1804,7 +1908,6 @@ async function speakResponse(rawResponseText) {
     return;
   }
 
-  // --- DIRECT ROUTING TO LOCAL ENGINE ---
   fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas);
 }
 
@@ -1856,7 +1959,6 @@ function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas)
 function botMusicReply(file) {
     const trackTitle = formatTrackTitle(file);
 
-    // FIX 2: Route music status strictly to top status display instead of appending to chat
     updateStatusDisplay(`Playing ${trackTitle}...`);
 
     const deckA = document.getElementById('audioDeckA');
@@ -1873,7 +1975,7 @@ function botMusicReply(file) {
         activeDeck.src = file;
         activeDeck.volume = 1;
         activeDeck.load();
-        activeDeck.play().catch(err => console.log(err));
+        activeDeck.play().then(() => saveMusicState()).catch(err => console.log(err));
         setupTrackEndMonitor(activeDeck);
     } else {
         executeCrossfade(secondaryDeck, primaryDeck, file);
@@ -1908,6 +2010,7 @@ function executeCrossfade(currentDeck, nextDeck, nextFile) {
 
     nextDeck.play().then(() => {
         setupTrackEndMonitor(nextDeck);
+        saveMusicState();
     }).catch(err => console.log("Crossfade play error:", err));
 
     activeDeck = nextDeck;
@@ -1951,6 +2054,8 @@ function setupTrackEndMonitor(audioDeck) {
     audioDeck.ontimeupdate = () => {
         if (!audioDeck.duration || audioDeck.duration === 0) return;
 
+        saveMusicState();
+
         const timeRemaining = audioDeck.duration - audioDeck.currentTime;
 
         if (timeRemaining <= crossfadeDuration) {
@@ -1961,7 +2066,6 @@ function setupTrackEndMonitor(audioDeck) {
                 const nextFile = musicQueue[currentTrackIndex];
                 let trackTitle = formatTrackTitle(nextFile);
 
-                // FIX 2: Keep track announcements inside status text rather than sending chat messages
                 updateStatusDisplay(`Next Up: ${trackTitle}...`);
 
                 blockNextMicActivation = true; 
@@ -1977,6 +2081,7 @@ function setupTrackEndMonitor(audioDeck) {
                 audioDeck.onended = () => {
                     setWaveAnimationSpeed(false);
                     blockNextMicActivation = false; 
+                    saveMusicState();
                     updateStatusDisplay(KAIROS_TITLE + "...");
                 };
             }
@@ -1985,7 +2090,7 @@ function setupTrackEndMonitor(audioDeck) {
 }
 
 // ====================================================================
-// 8b. INTEGRATED CLOUD STREAMING PIPELINE (PUBLIC API STREAMING VERSION)
+// 8b. INTEGRATED CLOUD STREAMING PIPELINE
 // ====================================================================
 async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
   const cleanCommand = commandText.toLowerCase().trim();
@@ -2011,6 +2116,7 @@ async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
 
     if (isDelayedHandoff) {
       musicQueue.push(streamUrl);
+      saveMusicState();
       console.log(`[API Stream] Background queued cloud track: ${displayTitle}`);
     } else {
       botMusicReply(streamUrl);
@@ -2021,7 +2127,7 @@ async function handleYouTubeMusicSearch(commandText, isDelayedHandoff = false) {
 }
 
 // ==========================================
-// 9. HARDWARE VOICE RECOGNITION (DICTATION)
+// 9. HARDWARE VOICE RECOGNITION
 // ==========================================
 function killSpeechEngineCompletely() {
   isKairosListeningActive = false;
@@ -2187,7 +2293,7 @@ function sendMessage() {
   conversationMemory.push({ role: "user", content: text, time: Date.now() });
   chatHistory = chatHistory || [];
   chatHistory.push({ sender: 'user', text: text, type: "text" });
-  localStorage.setItem('tg_chat_history_v3', JSON.stringify(chatHistory));
+  localStorage.setItem('tg_chat_history_v2', JSON.stringify(chatHistory));
 
   processUserCommandLocally(text);
 
@@ -2246,6 +2352,8 @@ function updateSpeakingIndicator(isSpeaking) {
 
 window.addEventListener('DOMContentLoaded', () => {
   sendVisitorDetailsToTelegram();
+  restoreSavedTranscripts();
+  restoreMusicState();
 
   const dockWrap = document.getElementById('dockWrap') || document.querySelector('.assistant-dock-wrap');
   const collapsedView = document.getElementById('collapsedView');
@@ -2320,6 +2428,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
     </script>
 </body>
 </html>
