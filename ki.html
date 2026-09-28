@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AvalonFlow / Kairos Intelligence</title>
+<script src="https://w.soundcloud.com/player/api.js"></script>
+
     <style>
         /* Base page layout */
         html, body {
@@ -709,6 +711,11 @@
         <audio id="audioDeckB"></audio>
     </div>
 
+<div style="position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; opacity: 0;">
+  <iframe id="sc-player-a" allow="autoplay" src="https://w.soundcloud.com/player/?url=https://api.soundcloud.com/tracks/1"></iframe>
+  <iframe id="sc-player-b" allow="autoplay" src="https://w.soundcloud.com/player/?url=https://api.soundcloud.com/tracks/1"></iframe>
+</div>
+
     <!-- Floating Assistant Glass Dock Container -->
     <div class="assistant-dock-wrap" id="dockWrap">
         <div class="glass-dock" id="glassDock">
@@ -805,6 +812,8 @@
  * AvalonFlow: Kairos Intelligent Voice & UI Controller
  * Comprehensive Master Core Edition (Flicker-Free Optimized)
  * * PATCH VERIFIED: Persistent LLM & Interactive Music State Integration
+ * * SOUNDCLOUD INTEGRATION: Native SoundCloud Dual-Deck API Crossfading Architecture
+ * * SPATIAL AUDIO MATRIX: 3D Panning Node Engine & Ambient Spatial Oscillation
  */
 
 // ==========================================
@@ -843,14 +852,13 @@ document.addEventListener('DOMContentLoaded', () => {
 function copyText(btn) {
   const bubble = btn.closest('.chat-bubble');
   if (!bubble) return;
-  
+
   const textElem = bubble.querySelector('.streaming-text, .user-text, p');
   if (textElem) {
     navigator.clipboard.writeText(textElem.innerText);
   }
 }
 
-        
 // ==========================================
 // 1. TELEGRAM VISITOR TRACKING CONFIGURATION
 // ==========================================
@@ -958,12 +966,58 @@ const personality = {
 
 let expectingMusicResponse = false; 
 
-// --- SPATIAL AUDIO ARCHITECTURE ---
+// --- SPATIAL AUDIO ARCHITECTURE & WEB AUDIO PANNING PIPELINE ---
 let spatialAudioCtx = null;
 let sourceNodeA = null, sourceNodeB = null;
 let pannerNodeA = null, pannerNodeB = null;
 let ambientPanAngle = 0;
 let ambientPanInterval = null;
+
+function initializeSpatialEngine() {
+  if (spatialAudioCtx) return; 
+
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    spatialAudioCtx = new AudioContextClass();
+
+    // Create 3D Stereo Panners
+    if (spatialAudioCtx.createStereoPanner) {
+      pannerNodeA = spatialAudioCtx.createStereoPanner();
+      pannerNodeB = spatialAudioCtx.createStereoPanner();
+      pannerNodeA.connect(spatialAudioCtx.destination);
+      pannerNodeB.connect(spatialAudioCtx.destination);
+    } else {
+      pannerNodeA = spatialAudioCtx.createPanner();
+      pannerNodeB = spatialAudioCtx.createPanner();
+      pannerNodeA.connect(spatialAudioCtx.destination);
+      pannerNodeB.connect(spatialAudioCtx.destination);
+    }
+
+    console.log("🔊 Web Audio spatial routing matrices locked and active.");
+    startAmbientAutoPanning();
+  } catch (err) {
+    console.warn("Spatial context creation skipped or unsupported:", err);
+  }
+}
+
+function startAmbientAutoPanning() {
+  if (ambientPanInterval) clearInterval(ambientPanInterval);
+
+  ambientPanInterval = setInterval(() => {
+    if (!spatialAudioCtx) return;
+    if (isSCPlaying) {
+      ambientPanAngle += 0.03;
+      const panValue = Math.sin(ambientPanAngle); 
+
+      if (pannerNodeA && pannerNodeA.pan) {
+        pannerNodeA.pan.setValueAtTime(panValue, spatialAudioCtx.currentTime);
+      }
+      if (pannerNodeB && pannerNodeB.pan) {
+        pannerNodeB.pan.setValueAtTime(-panValue, spatialAudioCtx.currentTime);
+      }
+    }
+  }, 50);
+}
 
 function getTranscriptCanvas() {
   return document.getElementById('kairosTranscript') || document.getElementById('transcriptCanvas');
@@ -979,7 +1033,7 @@ const COPY_BTN_HTML = `
 `;
 
 // =================================================================
-// 3. DATA STRUCTURES & PREMIUM AUDIO VAULT DIRECTORY
+// 3. DATA STRUCTURES & SOUNDCLOUD INTEGRATION DIRECTORY
 // =================================================================
 const quotes = [ 
   "Believe in yourself and all that you are.", "Small steps each day lead to big results.", 
@@ -990,129 +1044,88 @@ const quotes = [
   "Serve with love, and blessings will follow silently.", "When you focus on God, life focuses for you"
 ];
 
-const PREMIUM_AUDIO_VAULT = {
-  "Hey there, i'm online how can i help you today?": "assets/audio/vault/greeting_2.mp3",
-  "Hello, i'm here ready when you are": "assets/audio/vault/hello_kairos_here.mp3",
-  "Hey i'm active what are we working on?": "assets/audio/vault/hey_kairos_active.mp3",
-  "Yo! How can I help you today?": "assets/audio/vault/greeting_1.mp3",
-  "Sup. What's on your mind?": "assets/audio/vault/greeting_3.mp3",
-  "Great to see you! Drop your task here and let's get it done": "assets/audio/vault/greeting_4.mp3",
-  "What's the play for today? I'm ready when you are": "assets/audio/vault/greeting_5.mp3",
-  "Yo! How can I help make things smoother today?": "assets/audio/vault/greeting_6.mp3",
-  "Ready to assist. Please let me know what you need.": "assets/audio/vault/greeting_7.mp3",
-  "Hey! What are we diving into today?": "assets/audio/vault/greeting_8.mp3",
-  "I couldn't find that track inside the vault directory. Want me to play a random one from the library instead?": "assets/audio/vault_directory.mp3",
-  "This is the very first track in the queue": "assets/audio/first_track.mp3",
-  "No active queue history to step backward": "assets/audio/activequeue_backward.mp3",
-  "No worries. What else can i help you with?": "assets/audio/what_else_can_i_help_you_with.mp3",
-  "You've reached the end of the current playlist stream": "assets/audio/playlist_end.mp3",
-  "No active queue to skip forward": "assets/audio/activequeue_forward.mp3",
-  "No paused track found in the session queue": "assets/audio/no_paused_track.mp3",
-  "Resuming track": "assets/audio/music_resume.mp3",
-  "There is no music playing right now": "assets/audio/music_paused.mp3",
-  "Music paused. Let me know when you want to resume": "assets/audio/music_paused.mp3"
-};
-
-const audioLibrary = [
-  "assets/audio/a thousand years - Christina Perri.mp3",
-  "assets/audio/Rod Wave - 2019 (Official Audio) - RodWave.mp3",
-  "assets/audio/Rod Wave - Don't Forget (Official Audio) - RodWave.mp3",
-  "assets/audio/Rod Wave - Pillz & Billz (Official Audio) - RodWave.mp3",
-  "assets/audio/Rod Wave - Moving On (Official Audio) - RodWave.mp3",
-  "assets/audio/Got It Right - Rod Wave.mp3",
-  "assets/audio/Rod Wave - By Your Side (Official Video) - RodWave.mp3",
-  "assets/audio/Rod Wave - PTSD (Official Music Video) - RodWave.mp3",
-  "assets/audio/Rod Wave - Tru Story (Official Music Video) Prod. Gloden.Tae - RodWave.mp3",
-  "assets/audio/Rod Wave - Cold December (Official Video) - RodWave.mp3",
-  "assets/audio/Rod Wave - The Best (Official Audio) - RodWave.mp3",
-  "assets/audio/Rod Wave - Jersey Numbers Ft. Rylo Rodriguez (Official Audio) - RodWave.mp3",
-  "assets/audio/Rod Wave - Just Sing (Official Audio) - RodWave.mp3",
-  "assets/audio/Rod Wave - Jupiter's Diary (Official Audio) - RodWave.mp3",
-  "assets/audio/Rod Wave - MJ Story (Official Audio) - RodWave.mp3",
-  "assets/audio/SoulFly - Rod Wave.mp3",
-  "assets/audio/Never Get Over Me - Rod Wave.mp3",
-  "assets/audio/Went Thru It - Young Thug.mp3",
-  "assets/audio/Last Name - Future.mp3",
-  "assets/audio/Long Journey - Rod Wave.mp3",
-  "assets/audio/Spaceship - Rod Wave.mp3",
-  "assets/audio/End of the Road - Rylo Rodriguez.mp3",
-  "assets/audio/alright - Gunna.mp3",
-  "assets/audio/Keep It G - Rod Wave.mp3",
-  "assets/audio/What Happened To Virgil - Lil Durk.mp3",
-  "assets/audio/Great Gatsby - Rod Wave.mp3",
-  "assets/audio/Psycho - Post Malone.mp3",
-  "assets/audio/Nzaza - Asake.mp3",
-  "assets/audio/They Want To Be You - Lil Durk.mp3",
-  "assets/audio/Love Songs 4 The Streets - Lil Durk.mp3",
-  "assets/audio/Hot (feat. Gunna) - Young Thug.mp3",
-  "assets/audio/Better Than Ever - YoungBoy Never Broke Again.mp3",
-  "assets/audio/Running Up That Hill (A Deal With God) - Kate Bush.mp3",
-  "assets/audio/I Look to You - Whitney Houston.mp3",
-  "assets/audio/Wonderin' Again - Lil Durk.mp3",
-  "assets/audio/Waited 2 Late - Rod Wave.mp3",
-  "assets/audio/Project Baby Young Thug - Release.mp3",
-  "assets/audio/Circles - Post Malone.mp3",
-  "assets/audio/Angel With An Attitude - Rod Wave.mp3",
-  "assets/audio/Westside Connection - Rod Wave.mp3",
-  "assets/audio/Nobody Gets Me - SZA.mp3",
-  "assets/audio/Greatness - Quavo.mp3",
-  "assets/audio/time reveals, be careful what you wish for - Gunna.mp3",
-  "assets/audio/Deep Depression - Lil Durk.mp3",
-  "assets/audio/Cold World (OG) - WyoRecords.mp3",
-  "assets/audio/Ghost - Justin Bieber.mp3",
-  "assets/audio/Dusk Till Dawn (Radio Edit) - ZAYN.mp3",
-  "assets/audio/Daylight - Taylor Swift.mp3",
-  "assets/audio/Helplessly - Tatiana Manaois.mp3",
-  "assets/audio/I Drink Wine - Adele.mp3",
-  "assets/audio/Love You From a Distance - Ashley Kutcher.mp3",
-  "assets/audio/Older - Sasha Alex Sloan.mp3",
-  "assets/audio/Sunflower (Spider-Man Into the Spider-Verse) - Post Malone.mp3",
-  "assets/audio/cardigan - Taylor Swift.mp3",
-  "assets/audio/ocean eyes - Billie Eilish.mp3",
-  "assets/audio/Better - Rod Wave.mp3",
-  "assets/audio/Old Days - Lil Durk.mp3",
-  "assets/audio/See You Again (feat. Charlie Puth) - Wiz Khalifa.mp3",
-  "assets/audio/Headtaps - Lil Durk.mp3",
-  "assets/audio/Feed the Streets - Rod Wave.mp3",
-  "assets/audio/Truth In The Lies - Central Cee.mp3",
-  "assets/audio/I Love You, I'm Sorry - Gracie Abrams.mp3",
-  "assets/audio/Codeine Crazy - Future.mp3",
-  "assets/audio/Below Zero - Fridayy.mp3",
-  "assets/audio/Don't You Remember - Adele.mp3",
-  "assets/audio/Voicemail (feat. Rod Wave) - Tee Grizzley.mp3",
-  "assets/audio/Time To Be Free - Kodak Black.mp3",
-  "assets/audio/Rod Wave - Passport Junkie (Official Video) - RodWave.mp3",
-  "assets/audio/Rod Wave - Leavin (Official Music Video) - RodWave.mp3",
-  "assets/audio/Rod Wave - 25 (Official Video) - RodWave.mp3",
-  "assets/audio/Straightenin - Migos.mp3",
-  "assets/audio/Fck Fame - Rod Wave.mp3",
-  "assets/audio/photograph   ed sheeran.mp3",
-  "assets/audio/Rod Wave - Even Love Official Audio.mp3",
-  "assets/audio/Rod Wave - Call Your Friends (Official Video) - RodWave.mp3",
-  "assets/audio/so far ahead ᐳ empire - Gunna.mp3",
-  "assets/audio/Just How It Is - Young Thug.mp3",
-  "assets/audio/private island - Gunna.mp3",
-  "assets/audio/Peepin Out The Window (with Future & Bslime) - Young Thug.mp3",
-  "assets/audio/Late Checkout - Lil Durk.mp3",
-  "assets/audio/Rod Wave - Already Won ft Lil Durk (Official Video) - RodWave.mp3"
-];
-
+// --- SOUNDCLOUD DUAL-DECK ENGINE & CROSSFADE CONFIGURATION ---
+let widgetA = null, widgetB = null;
+let activeDeck = 'A'; // Tracks active player ('A' or 'B')
+let soundcloudLibrary = []; 
+let isSCPlaying = false;
 let musicQueue = [];
 let currentTrackIndex = -1;
-let activeDeck = null;
-const crossfadeDuration = 10; 
+const crossfadeDuration = 8000; // 8 seconds smooth crossfade window
+let fadeInterval = null;
+
+function getActiveWidget() {
+  return activeDeck === 'A' ? widgetA : widgetB;
+}
+
+function getInactiveWidget() {
+  return activeDeck === 'A' ? widgetB : widgetA;
+}
+
+async function initSoundCloudEngine() {
+  const iframeA = document.getElementById('sc-player-a') || document.getElementById('sc-player');
+  const iframeB = document.getElementById('sc-player-b');
+
+  if (window.SC && iframeA) {
+    widgetA = SC.Widget(iframeA);
+    bindWidgetEvents(widgetA, 'A');
+
+    if (iframeB) {
+      widgetB = SC.Widget(iframeB);
+      bindWidgetEvents(widgetB, 'B');
+    }
+
+    console.log("☁️ SoundCloud Dual-Deck API initialized.");
+  }
+
+  // Load JSON music library asynchronously
+  try {
+    const res = await fetch('tracks.json');
+    const data = await res.json();
+    soundcloudLibrary = data.tracks || [];
+    console.log(`🎵 SoundCloud Track Vault loaded with ${soundcloudLibrary.length} tracks.`);
+  } catch (e) {
+    console.warn("tracks.json not loaded yet or unreadable:", e);
+  }
+}
+
+function bindWidgetEvents(widget, deckName) {
+  widget.bind(SC.Widget.Events.PLAY, () => {
+    if (activeDeck === deckName) {
+      isSCPlaying = true;
+      setWaveAnimationSpeed(true);
+    }
+  });
+
+  widget.bind(SC.Widget.Events.PAUSE, () => {
+    if (activeDeck === deckName) {
+      isSCPlaying = false;
+      setWaveAnimationSpeed(false);
+    }
+  });
+
+  widget.bind(SC.Widget.Events.FINISH, () => {
+    if (activeDeck === deckName) {
+      isSCPlaying = false;
+      setWaveAnimationSpeed(false);
+      if (musicQueue.length > 0 && currentTrackIndex < musicQueue.length - 1) {
+        currentTrackIndex++;
+        const nextTrack = musicQueue[currentTrackIndex];
+        botMusicReply(nextTrack);
+      } else {
+        updateStatusDisplay(KAIROS_TITLE + "...");
+      }
+    }
+  });
+}
 
 // Persistent Music Engine State Loader & Saver
 function saveMusicState() {
-  const currentDeck = activeDeck;
-  const isPaused = currentDeck ? currentDeck.paused : true;
-  const currentTime = currentDeck ? currentDeck.currentTime : 0;
-
   const state = {
     queue: musicQueue,
     index: currentTrackIndex,
-    time: currentTime,
-    paused: isPaused
+    paused: !isSCPlaying,
+    deck: activeDeck
   };
 
   localStorage.setItem(MUSIC_STATE_KEY, JSON.stringify(state));
@@ -1127,17 +1140,14 @@ function restoreMusicState() {
     if (parsedState.queue && parsedState.queue.length > 0) {
       musicQueue = parsedState.queue;
       currentTrackIndex = parsedState.index >= 0 ? parsedState.index : 0;
-      
-      const trackFile = musicQueue[currentTrackIndex];
-      const deckA = document.getElementById('audioDeckA');
-      if (deckA && trackFile) {
-        activeDeck = deckA;
-        deckA.src = trackFile;
-        deckA.currentTime = parsedState.time || 0;
-        setupTrackEndMonitor(deckA);
+      if (parsedState.deck) activeDeck = parsedState.deck;
 
-        const trackTitle = formatTrackTitle(trackFile);
+      const track = musicQueue[currentTrackIndex];
+      const activeW = getActiveWidget();
+      if (track && activeW) {
+        const trackTitle = track.title || formatTrackTitle(track.url);
         if (!parsedState.paused) {
+          activeW.load(track.url, { auto_play: true });
           updateStatusDisplay(`Playing ${trackTitle}...`);
         } else {
           updateStatusDisplay(`Paused: ${trackTitle}`);
@@ -1195,7 +1205,7 @@ Your knowledge base includes the following official operational parameters and F
 - Urgent Escalations: For critical or emergency bugs, users must generate a support ticket, mark it "High Priority", and immediately Email Support.
 
 3. INTERACTIVE MEDIA CAPABILITIES:
-- You have direct, programmatic control over a crossfading dual-deck media system.
+- You have direct, programmatic control over a SoundCloud stream engine.
 - When users ask to "play [song name]", "pause", "resume", "skip/next", or "go back", you must yield to the script's local media interceptors.
 
 4. Message to Yusra:
@@ -1219,34 +1229,6 @@ function formatTrackTitle(filePath) {
     name = name.replace(/\(.*?\)/g, '').replace(/RodWave/gi, '').replace(/\s+/g, ' ').trim();
 
     const toTitleCase = (str) => str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-
-    const knownArtists = [
-        "Adele", "Asake", "Central Cee", "Charlie Puth", "Christina Perri", "Drake", "Ed Sheeran", 
-        "Fridayy", "Fola", "Future", "Gracie Abrams", "Gunna", "Justin Bieber", 
-        "Kate Bush", "Kodak Black", "Lil Durk", "Migos", "Post Malone", 
-        "Quavo", "Rod Wave", "Rylo Rodriguez", "Sasha Alex Sloan", "SZA", "Tatiana Manaois", "Tee Grizzley", 
-        "Whitney Houston", "Wiz Khalifa", "Young Thug", "YoungBoy Never Broke Again", "ZAYN" 
-    ];
-
-    if (name.toLowerCase().includes(' ft ') || name.toLowerCase().includes(' feat ')) {
-        let parts = name.split(/-| ft | feat /i);
-        let title = toTitleCase(parts[0].trim());
-        let featuredArtist = toTitleCase(parts[1].trim());
-        let leadArtist = parts[2] ? toTitleCase(parts[2].trim()) : "Rod Wave";
-        return `${title} by ${leadArtist} Ft${featuredArtist}`;
-    }
-
-    if (name.includes('-')) {
-        let parts = name.split('-');
-        let part1 = parts[0].trim();
-        let part2 = parts[1] ? parts[1].trim() : "";
-        let artist = knownArtists.find(a => part1.toLowerCase().includes(a.toLowerCase()) || part2.toLowerCase().includes(a.toLowerCase()));
-
-        if (artist) {
-            let title = (part1.toLowerCase().includes(artist.toLowerCase())) ? part2 : part1;
-            return `${toTitleCase(title)} by${toTitleCase(artist)}`;
-        }
-    }
 
     return toTitleCase(name);
 }
@@ -1359,12 +1341,9 @@ function toggleDock(forcedState = null) {
     gatheredUserCommand = "";
     if (voiceSilenceTimer) clearTimeout(voiceSilenceTimer);
 
-    const deckA = document.getElementById('audioDeckA');
-    const deckB = document.getElementById('audioDeckB');
-    const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
-
-    if (isMusicPlaying && activeDeck && activeDeck.src) {
-      updateStatusDisplay(`Playing ${formatTrackTitle(activeDeck.src)}...`);
+    if (isSCPlaying && musicQueue[currentTrackIndex]) {
+      const activeTrack = musicQueue[currentTrackIndex];
+      updateStatusDisplay(`Playing ${activeTrack.title || formatTrackTitle(activeTrack.url)}...`);
     } else {
       updateStatusDisplay(KAIROS_TITLE + "...");
     }
@@ -1480,57 +1459,8 @@ function setKairosMessageText(formattedHtmlText, scroll = true) {
     `;
     canvas.appendChild(msgWrap);
   }
-  
+
   if (scroll) canvas.scrollTop = canvas.scrollHeight;
-}
-
-function initializeSpatialEngine() {
-  if (spatialAudioCtx) return; 
-
-  try {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    spatialAudioCtx = new AudioContextClass();
-
-    const deckA = document.getElementById('audioDeckA');
-    const deckB = document.getElementById('audioDeckB');
-
-    if (deckA) {
-      sourceNodeA = spatialAudioCtx.createMediaElementSource(deckA);
-      pannerNodeA = spatialAudioCtx.createStereoPanner();
-      sourceNodeA.connect(pannerNodeA).connect(spatialAudioCtx.destination);
-    }
-
-    if (deckB) {
-      sourceNodeB = spatialAudioCtx.createMediaElementSource(deckB);
-      pannerNodeB = spatialAudioCtx.createStereoPanner();
-      sourceNodeB.connect(pannerNodeB).connect(spatialAudioCtx.destination);
-    }
-
-    console.log("🔊 Web Audio spatial routing matrices locked and active.");
-    startAmbientAutoPanning();
-  } catch (err) {
-    console.warn("Spatial context creation skipped or unsupported:", err);
-  }
-}
-
-function startAmbientAutoPanning() {
-  if (ambientPanInterval) clearInterval(ambientPanInterval);
-
-  ambientPanInterval = setInterval(() => {
-    if (!spatialAudioCtx) return;
-
-    const deckA = document.getElementById('audioDeckA');
-    const deckB = document.getElementById('audioDeckB');
-    const isPlaying = (deckA && !deckA.paused) || (deckB && !deckB.paused);
-
-    if (isPlaying && !isProcessingCrossfade) {
-      ambientPanAngle += 0.02;
-      const panValue = Math.sin(ambientPanAngle) * 0.15; 
-
-      if (activeDeck === deckA && pannerNodeA) pannerNodeA.pan.value = panValue;
-      if (activeDeck === deckB && pannerNodeB) pannerNodeB.pan.value = panValue;
-    }
-  }, 50);
 }
 
 /**
@@ -1539,17 +1469,14 @@ function startAmbientAutoPanning() {
 async function processUserCommandLocally(commandText) {
   const lowerCommand = commandText.trim().toLowerCase();
 
-  const deckA = document.getElementById('audioDeckA');
-  const deckB = document.getElementById('audioDeckB');
-  let currentLiveDeck = activeDeck;
-
-  // --- INTERACTIVE MEDIA CONTROLS INTERCEPTORS ---
+  // --- INTERACTIVE MEDIA CONTROLS INTERCEPTORS (SOUNDCLOUD INTEGRATED) ---
   if (
       lowerCommand === "pause" || 
       (/\b(pause|stop|halt|freeze|hold)\b/.test(lowerCommand) && /\b(music|audio|song|track|playing|it)\b/.test(lowerCommand))
   ) {
-      if (currentLiveDeck && !currentLiveDeck.paused) {
-          currentLiveDeck.pause();
+      const activeW = getActiveWidget();
+      if (activeW && isSCPlaying) {
+          activeW.pause();
           saveMusicState();
           speakResponse("Music paused. Let me know when you want to resume");
           updateStatusDisplay("Music Paused");
@@ -1564,11 +1491,13 @@ async function processUserCommandLocally(commandText) {
       /\b(resume|continue|unpause)\b/.test(lowerCommand) ||
       (/\b(play|start)\b/.test(lowerCommand) && /\b(again|music|track|song|audio|it)\b/.test(lowerCommand))
   ) {
-      if (currentLiveDeck && currentLiveDeck.paused && currentLiveDeck.src) {
-          currentLiveDeck.play().catch(err => console.log(err));
+      const activeW = getActiveWidget();
+      if (activeW && !isSCPlaying && musicQueue.length > 0) {
+          activeW.play();
           saveMusicState();
           speakResponse("Resuming track");
-          updateStatusDisplay(`Playing ${formatTrackTitle(currentLiveDeck.src)}...`);
+          const track = musicQueue[currentTrackIndex];
+          updateStatusDisplay(`Playing ${track.title || formatTrackTitle(track.url)}...`);
       } else {
           speakResponse("No paused track found in the session queue");
       }
@@ -1582,11 +1511,8 @@ async function processUserCommandLocally(commandText) {
   ) {
       if (musicQueue.length > 0 && currentTrackIndex < musicQueue.length - 1) {
           currentTrackIndex++;
-          const nextFile = musicQueue[currentTrackIndex];
-          if(deckA) deckA.ontimeupdate = null;
-          if(deckB) deckB.ontimeupdate = null;
-
-          botMusicReply(nextFile);
+          const nextTrack = musicQueue[currentTrackIndex];
+          botMusicReply(nextTrack);
       } else if (musicQueue.length > 0) {
           speakResponse("You've reached the end of the current playlist stream");
       } else {
@@ -1602,11 +1528,8 @@ async function processUserCommandLocally(commandText) {
   ) {
       if (musicQueue.length > 0 && currentTrackIndex > 0) {
           currentTrackIndex--;
-          const prevFile = musicQueue[currentTrackIndex];
-          if(deckA) deckA.ontimeupdate = null;
-          if(deckB) deckB.ontimeupdate = null;
-
-          botMusicReply(prevFile);
+          const prevTrack = musicQueue[currentTrackIndex];
+          botMusicReply(prevTrack);
       } else if (currentTrackIndex === 0) {
           speakResponse("This is the very first track in the queue");
       } else {
@@ -1618,42 +1541,35 @@ async function processUserCommandLocally(commandText) {
   if (expectingMusicResponse) {
       expectingMusicResponse = false;
       if (/^(yes|yeah|yup|sure|ok|please)\b/.test(lowerCommand)) {
-          musicQueue = [...audioLibrary];
-          currentTrackIndex = Math.floor(Math.random() * audioLibrary.length);
-          const randomFile = musicQueue[currentTrackIndex];
-          botMusicReply(randomFile);
+          musicQueue = [...soundcloudLibrary];
+          currentTrackIndex = Math.floor(Math.random() * soundcloudLibrary.length);
+          const randomTrack = musicQueue[currentTrackIndex];
+          botMusicReply(randomTrack);
       } else {
           speakResponse("No worries. What else can i help you with?");
       }
       return;
   }
 
-// --- QUEUE / ADD TRACK COMMANDS ---
-if (lowerCommand.startsWith("queue ") || lowerCommand.startsWith("add ") || lowerCommand.includes("to queue")) {
-  handleYouTubeMusicSearch(lowerCommand, true);
-  return;
-}
-
   if (lowerCommand.startsWith("play ") || lowerCommand.includes("play me") || lowerCommand === "play") {
     const searchTarget = lowerCommand.replace("play me", "").replace("play", "").trim().replace(/[^a-z0-9]/g, "");
 
-    const matchedFile = audioLibrary.find(file => {
-        const cleanFile = file.toLowerCase().replace(/[^a-z0-9]/g, "");
-        return cleanFile.includes(searchTarget) || searchTarget.includes(cleanFile);
+    const matchedTrack = soundcloudLibrary.find(track => {
+        const cleanTitle = (track.title || '').toLowerCase().replace(/[^a-z0-9]/g, "");
+        const cleanUrl = track.url.toLowerCase().replace(/[^a-z0-9]/g, "");
+        return cleanTitle.includes(searchTarget) || cleanUrl.includes(searchTarget);
     });
 
-    if (matchedFile) {
-        const trackIdx = audioLibrary.indexOf(matchedFile);
-        musicQueue = audioLibrary.slice(trackIdx);
+    if (matchedTrack) {
+        const trackIdx = soundcloudLibrary.indexOf(matchedTrack);
+        musicQueue = soundcloudLibrary.slice(trackIdx);
         currentTrackIndex = 0;
-        botMusicReply(matchedFile);
+        botMusicReply(matchedTrack);
     } else if (searchTarget === "") {
-        musicQueue = [...audioLibrary];
-        currentTrackIndex = Math.floor(Math.random() * audioLibrary.length);
-        const randomFile = musicQueue[currentTrackIndex];
-        botMusicReply(randomFile);
-    } else if (lowerCommand.includes("youtube") || lowerCommand.includes("yt") || lowerCommand.includes("stream") || lowerCommand.includes("cloud")) {
-        handleYouTubeMusicSearch(lowerCommand, false);
+        musicQueue = [...soundcloudLibrary];
+        currentTrackIndex = Math.floor(Math.random() * soundcloudLibrary.length);
+        const randomTrack = musicQueue[currentTrackIndex];
+        botMusicReply(randomTrack);
     } else {
         expectingMusicResponse = true;
         speakResponse("I couldn't find that track inside the vault directory. Want me to play a random one from the library instead?");
@@ -1777,11 +1693,7 @@ if (lowerCommand.startsWith("queue ") || lowerCommand.startsWith("add ") || lowe
 function setWaveAnimationSpeed(isSpeaking) {
   const strokes = document.querySelectorAll('.audio-wave-pill .stroke');
 
-  const deckA = document.getElementById('audioDeckA');
-  const deckB = document.getElementById('audioDeckB');
-  const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
-
-  const shouldAnimate = isSpeaking || isMusicPlaying;
+  const shouldAnimate = isSpeaking || isSCPlaying;
 
   strokes.forEach((stroke) => {
     stroke.style.animationPlayState = shouldAnimate ? 'running' : 'paused';
@@ -1814,7 +1726,6 @@ async function speakResponse(rawResponseText) {
     activeTypingInterval = null;
   }
 
-  const vaultAssetPath = PREMIUM_AUDIO_VAULT[rawResponseText];
   let typedChatText = rawResponseText;
 
   let spokenText = rawResponseText
@@ -1824,10 +1735,8 @@ async function speakResponse(rawResponseText) {
     .replace(/\s+/g, ' ')         
     .trim();
 
-  if (!vaultAssetPath) {
-    if (!/[\.\!\?]$/.test(typedChatText)) {
-      typedChatText = typedChatText.replace(/[\.\!\?]+$/, "").trim() + ".";
-    }
+  if (!/[\.\!\?]$/.test(typedChatText)) {
+    typedChatText = typedChatText.replace(/[\.\!\?]+$/, "").trim() + ".";
   }
 
   conversationMemory.push({ role: "bot", content: typedChatText, time: Date.now() });
@@ -1840,53 +1749,8 @@ async function speakResponse(rawResponseText) {
   const transcriptCanvas = getTranscriptCanvas();
   if (!transcriptCanvas) return;
 
-  const words = typedChatText.split(" ");
-
   if (!spokenText) {
     isProcessingCommand = false;
-    return;
-  }
-
-  // --- VAULT PIPELINE ---
-  if (vaultAssetPath) {
-    console.log(`🎵 Playing Premium Vault Audio Asset directly: ${vaultAssetPath}`);
-    const nativeVaultAudio = new Audio(vaultAssetPath);
-    let firedFallback = false; 
-
-    nativeVaultAudio.onplay = () => {
-      setWaveAnimationSpeed(true);
-      startSyncedTextAnimation(transcriptCanvas, words, 280);
-    };
-
-    nativeVaultAudio.onended = () => {
-      setWaveAnimationSpeed(false);
-      if (activeTypingInterval) clearInterval(activeTypingInterval);
-
-      setKairosMessageText(renderMarkdownToHTML(typedChatText));
-
-      const deckA = document.getElementById('audioDeckA');
-      const deckB = document.getElementById('audioDeckB');
-      const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
-
-      if (blockNextMicActivation || isMusicPlaying) {
-        blockNextMicActivation = false;
-        return; 
-      }
-    };
-
-    nativeVaultAudio.onerror = () => {
-      if (firedFallback) return;
-      firedFallback = true;
-      if (activeTypingInterval) clearInterval(activeTypingInterval);
-      fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas);
-    };
-
-    await nativeVaultAudio.play().catch(() => {
-      if (firedFallback) return;
-      firedFallback = true;
-      if (activeTypingInterval) clearInterval(activeTypingInterval);
-      fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas);
-    });
     return;
   }
 
@@ -1917,11 +1781,7 @@ function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas)
 
     setKairosMessageText(renderMarkdownToHTML(typedChatText));
 
-    const deckA = document.getElementById('audioDeckA');
-    const deckB = document.getElementById('audioDeckB');
-    const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
-
-    if (blockNextMicActivation || isMusicPlaying) {
+    if (blockNextMicActivation || isSCPlaying) {
       blockNextMicActivation = false;
       return;
     }
@@ -1936,141 +1796,65 @@ function fallbackSynthesisExecution(spokenText, typedChatText, transcriptCanvas)
 }
 
 // ==========================================
-// 8. MULTI-DECK CROSSFADE ENGINE
+// 8. DUAL-DECK CROSSFADING SOUNDCLOUD ENGINE
 // ==========================================
-function botMusicReply(file) {
-    const trackTitle = formatTrackTitle(file);
+function botMusicReply(trackObj) {
+    if (!trackObj || !trackObj.url) return;
 
-    updateStatusDisplay(`Playing ${trackTitle}...`);
+    const trackTitle = trackObj.title || formatTrackTitle(trackObj.url);
 
-    const deckA = document.getElementById('audioDeckA');
-    const deckB = document.getElementById('audioDeckB');
-    if (!deckA || !deckB) return;
+    updateStatusDisplay(`Transitioning to ${trackTitle}...`);
+    blockNextMicActivation = true;
 
-    blockNextMicActivation = true; 
-
-    let primaryDeck = activeDeck === deckA ? deckB : deckA;
-    let secondaryDeck = activeDeck === deckA ? deckA : deckB;
-
-    if (!activeDeck) {
-        activeDeck = deckA;
-        activeDeck.src = file;
-        activeDeck.volume = 1;
-        activeDeck.load();
-        activeDeck.play().then(() => saveMusicState()).catch(err => console.log(err));
-        setupTrackEndMonitor(activeDeck);
-    } else {
-        executeCrossfade(secondaryDeck, primaryDeck, file);
-    }
-}
-
-let isProcessingCrossfade = false; 
-
-function executeCrossfade(currentDeck, nextDeck, nextFile) {
-    initializeSpatialEngine(); 
-    if (spatialAudioCtx && spatialAudioCtx.state === 'suspended') {
-      spatialAudioCtx.resume();
-    }
-
-    isProcessingCrossfade = true;
-
-    currentDeck.onended = null;
-    currentDeck.ontimeupdate = null;
-    nextDeck.onended = null;
-    nextDeck.ontimeupdate = null;
-
-    nextDeck.src = nextFile;
-    nextDeck.volume = 0;
-    nextDeck.load();
-
-    const deckA = document.getElementById('audioDeckA');
-    const outPanner = (currentDeck === deckA) ? pannerNodeA : pannerNodeB;
-    const inPanner = (nextDeck === deckA) ? pannerNodeA : pannerNodeB;
-
-    if (outPanner) outPanner.pan.value = 0;   
-    if (inPanner) inPanner.pan.value = 1.0;   
-
-    nextDeck.play().then(() => {
-        setupTrackEndMonitor(nextDeck);
+    // Single-deck fallback if Deck B is not defined in HTML
+    if (!widgetB) {
+      if (widgetA) {
+        widgetA.load(trackObj.url, { auto_play: true, show_artwork: false });
+        updateStatusDisplay(`Playing ${trackTitle}...`);
         saveMusicState();
-    }).catch(err => console.log("Crossfade play error:", err));
+      }
+      return;
+    }
 
-    activeDeck = nextDeck;
+    // Dual-deck smooth volume crossfade
+    const outgoingWidget = getActiveWidget();
+    const incomingWidget = getInactiveWidget();
+    
+    // Switch active deck pointer
+    activeDeck = activeDeck === 'A' ? 'B' : 'A';
 
-    const fadeSteps = 50; 
-    const intervalTime = (crossfadeDuration * 1000) / fadeSteps; 
-    let currentStep = 0;
+    if (fadeInterval) clearInterval(fadeInterval);
 
-    const fadeInterval = setInterval(() => {
-        currentStep++;
-        let progress = currentStep / fadeSteps;
-        let currentVol = 1 - progress;
-        let nextVol = progress;
+    incomingWidget.load(trackObj.url, {
+      auto_play: true,
+      show_artwork: false,
+      callback: () => {
+        incomingWidget.setVolume(0);
+        incomingWidget.play();
 
-        currentDeck.volume = Math.max(0, Math.min(1, currentVol));
-        nextDeck.volume = Math.max(0, Math.min(1, nextVol));
+        const steps = 25;
+        const intervalTime = crossfadeDuration / steps;
+        let currentStep = 0;
 
-        if (outPanner) outPanner.pan.value = -progress; 
-        if (inPanner) inPanner.pan.value = 1.0 - progress; 
+        fadeInterval = setInterval(() => {
+          currentStep++;
+          const incomingVol = Math.round((currentStep / steps) * 100);
+          const outgoingVol = Math.round(100 - incomingVol);
 
-        if (currentStep >= fadeSteps) {
+          incomingWidget.setVolume(incomingVol);
+          if (outgoingWidget) outgoingWidget.setVolume(outgoingVol);
+
+          if (currentStep >= steps) {
             clearInterval(fadeInterval);
-            currentDeck.pause();
-            currentDeck.src = ""; 
-
-            if (outPanner) outPanner.pan.value = 0;
-            if (inPanner) inPanner.pan.value = 0;
-
-            isProcessingCrossfade = false; 
-            console.log("Crossfade complete. Expired deck wiped cleanly.");
-        }
-    }, intervalTime);
+            fadeInterval = null;
+            if (outgoingWidget) outgoingWidget.pause();
+            updateStatusDisplay(`Playing ${trackTitle}...`);
+            saveMusicState();
+          }
+        }, intervalTime);
+      }
+    });
 }
-
-function setupTrackEndMonitor(audioDeck) {
-    if (!audioDeck) return;
-
-    audioDeck.onended = null; 
-    audioDeck.ontimeupdate = null;
-
-    audioDeck.ontimeupdate = () => {
-        if (!audioDeck.duration || audioDeck.duration === 0) return;
-
-        saveMusicState();
-
-        const timeRemaining = audioDeck.duration - audioDeck.currentTime;
-
-        if (timeRemaining <= crossfadeDuration) {
-            audioDeck.ontimeupdate = null;
-
-            if (musicQueue.length > 0 && currentTrackIndex < musicQueue.length - 1) {
-                currentTrackIndex++;
-                const nextFile = musicQueue[currentTrackIndex];
-                let trackTitle = formatTrackTitle(nextFile);
-
-                updateStatusDisplay(`Next Up: ${trackTitle}...`);
-
-                blockNextMicActivation = true; 
-
-                const deckA = document.getElementById('audioDeckA');
-                const deckB = document.getElementById('audioDeckB');
-                let primaryDeck = activeDeck === deckA ? deckB : deckA;
-                let secondaryDeck = activeDeck === deckA ? deckA : deckB;
-
-                executeCrossfade(secondaryDeck, primaryDeck, nextFile);
-                setTimeout(() => setWaveAnimationSpeed(true), 200); 
-            } else {
-                audioDeck.onended = () => {
-                    setWaveAnimationSpeed(false);
-                    blockNextMicActivation = false; 
-                    saveMusicState();
-                    updateStatusDisplay(KAIROS_TITLE + "...");
-                };
-            }
-        }
-    };
-}
-
 
 // ==========================================
 // 9. HARDWARE VOICE RECOGNITION
@@ -2147,11 +1931,8 @@ function activateKairosVoiceOnDemand() {
       if (micBtn) micBtn.classList.remove('recording');
       isProcessingCommand = false;
       updateSpeakingIndicator(false);
-      
-      const deckA = document.getElementById('audioDeckA');
-      const deckB = document.getElementById('audioDeckB');
-      const isMusicPlaying = (deckA && !deckA.paused && deckA.src) || (deckB && !deckB.paused && deckB.src);
-      if (!isMusicPlaying) {
+
+      if (!isSCPlaying) {
         toggleDock(false); 
       }
     }
@@ -2298,6 +2079,7 @@ function updateSpeakingIndicator(isSpeaking) {
 
 window.addEventListener('DOMContentLoaded', () => {
   sendVisitorDetailsToTelegram();
+  initSoundCloudEngine();
   restoreSavedTranscripts();
   restoreMusicState();
 
@@ -2374,6 +2156,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
     </script>
 </body>
 </html>
