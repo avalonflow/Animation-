@@ -2072,166 +2072,177 @@ function setupTrackEndMonitor(audioDeck) {
 }
 
 // ====================================================================
-// 8b. INTEGRATED CLOUD STREAMING & QUEUE PIPELINE (URL + SEARCH)
+// 8b. DIRECT YOUTUBE MUSIC URL PLAYER PIPELINE
 // ====================================================================
 
+let jsonPlaylist = [];
+let currentPlaylistIndex = 0;
+
 /**
- * Extracts YouTube Video ID from various link formats
- * Handles: music.youtube.com, youtube.com/watch?v=, youtu.be/, shorts, etc.
+ * Extracts Video ID directly from YouTube Music URLs
+ * Example Input: "https://music.youtube.com/watch?v=lk_oRGocMZU&si=kzv_kFVyHJGPhhn4"
+ * Output: "lk_oRGocMZU"
  */
-function extractYouTubeId(input) {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
-  const match = input.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
+function extractYouTubeId(url) {
+  if (!url || typeof url !== 'string') return null;
+
+  try {
+    const parsedUrl = new URL(url.trim());
+    const videoId = parsedUrl.searchParams.get('v');
+    if (videoId && videoId.length === 11) return videoId;
+  } catch (err) {
+    console.warn(`[URL Parser]: Invalid URL structure: ${url}`);
+  }
+
+  // Backup match if URL constructor fails
+  const match = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
 }
 
 /**
- * Streams directly from a YouTube/YT Music URL or falls back to text search
- * @param {string} commandText - URL or search query
- * @param {boolean} queueOnly - Appends to queue without interrupting playback
+ * Step 1: Loads your playlist JSON file containing the YT Music links
  */
-async function handleYouTubeMusicSearch(commandText, queueOnly = false) {
-  let rawInput = commandText.trim();
-  if (!rawInput) return;
+async function loadPlaylistFromJSON(jsonPath = './playlist.json') {
+  try {
+    if (typeof updateStatusDisplay === 'function') updateStatusDisplay("Loading playlist...");
+    const response = await fetch(jsonPath);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    
+    jsonPlaylist = await response.json();
+    console.log(`[Playlist Engine]: Loaded ${jsonPlaylist.length} tracks from JSON.`);
+    if (typeof updateStatusDisplay === 'function') updateStatusDisplay(`Loaded ${jsonPlaylist.length} tracks.`);
+    return jsonPlaylist;
+  } catch (err) {
+    console.error("[Playlist Engine]: Failed to load JSON playlist:", err);
+    if (typeof updateStatusDisplay === 'function') updateStatusDisplay("Failed to load playlist JSON.");
+    return [];
+  }
+}
 
-  // Check if the input contains or is a YouTube / YT Music URL
-  const extractedId = extractYouTubeId(rawInput);
-  let videoId = extractedId;
-  let displayTitle = "";
-
-  if (videoId) {
-    displayTitle = "Shared Track";
-    if (queueOnly) {
-      updateStatusDisplay(`Resolving URL & queuing...`);
-    } else {
-      speakResponse(`Loading YouTube Music link...`);
-    }
-  } else {
-    // Process standard search query text
-    let searchQuery = rawInput.toLowerCase()
-      .replace(/\b(play me|play|queue up|queue|add|search for|lookup|find|put on|open)\b/gi, "")
-      .replace(/\b(to queue|to the queue|next|on youtube music|on yt music|in youtube music|in yt music|on youtube|on yt|youtube|yt)\b/gi, "")
-      .trim();
-
-    if (!searchQuery) return;
-
-    displayTitle = searchQuery.split(' ')
-      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(' ');
-
-    if (queueOnly) {
-      updateStatusDisplay(`Searching & queuing: ${displayTitle}...`);
-    } else {
-      speakResponse(`Searching for ${displayTitle}...`);
-    }
+/**
+ * Step 2: Directly resolves the playable stream from your YouTube Music link
+ */
+async function getStreamFromUrl(targetUrl) {
+  const videoId = extractYouTubeId(targetUrl);
+  if (!videoId) {
+    console.warn(`[Stream Extractor]: Missing or invalid video ID in URL: ${targetUrl}`);
+    return null;
   }
 
-  const invidiousInstances = [
+  // Public stream resolvers
+  const instances = [
     "https://inv.tux.pizza",
     "https://yewtu.be",
     "https://invidious.privacydev.net",
     "https://inv.nadeko.net"
   ];
 
-  let directAudioUrl = null;
-
-  // STEP 1: If no video ID was passed directly in the URL, resolve via Invidious search
-  if (!videoId) {
-    for (const instance of invidiousInstances) {
-      try {
-        let searchRes = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(rawInput + " official audio")}&type=video`);
-        if (!searchRes.ok) {
-          searchRes = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(rawInput)}&type=video`);
-        }
-        if (!searchRes.ok) continue;
-
-        const results = await searchRes.json();
-        if (results && results.length > 0 && results[0].videoId) {
-          videoId = results[0].videoId;
-          break;
-        }
-      } catch (err) {
-        console.warn(`Search instance ${instance} failed:`, err);
-      }
-    }
-  }
-
-  if (!videoId) {
-    speakResponse(`Could not find a video ID to stream.`);
-    updateStatusDisplay("Video ID resolution failed.");
-    return;
-  }
-
-  // STEP 2: Extract audio stream URL using resolved/provided video ID
-  for (const instance of invidiousInstances) {
+  for (const instance of instances) {
     try {
-      const streamRes = await fetch(`${instance}/api/v1/videos/${videoId}`);
-      if (!streamRes.ok) continue;
+      const res = await fetch(`${instance}/api/v1/videos/${videoId}`);
+      if (!res.ok) continue;
 
-      const streamData = await streamRes.json();
+      const data = await res.json();
       
-      // Update display title to actual track title if URL was used
-      if (streamData.title) displayTitle = streamData.title;
-
-      const audioStream = streamData.adaptiveFormats?.find(f => f.type?.includes('audio/webm') || f.type?.includes('audio/mp4'))
-                       || streamData.formatStreams?.find(f => f.container === 'mp4' || f.quality === 'medium')
-                       || streamData.formatStreams?.[0];
+      // Select the best available audio format
+      const audioStream = data.adaptiveFormats?.find(f => f.type?.includes('audio/webm') || f.type?.includes('audio/mp4'))
+                       || data.formatStreams?.find(f => f.container === 'mp4' || f.quality === 'medium')
+                       || data.formatStreams?.[0];
 
       if (audioStream && audioStream.url) {
-        directAudioUrl = audioStream.url.replace(/^http:\/\//i, 'https://');
-        break;
+        return {
+          directAudioUrl: audioStream.url.replace(/^http:\/\//i, 'https://'),
+          title: data.title || "Unknown Track"
+        };
       }
     } catch (err) {
-      console.warn(`Stream extraction instance ${instance} failed:`, err);
+      console.warn(`[Resolver Error] ${instance} failed for ID (${videoId}):`, err);
     }
   }
 
-  // STEP 3: Fallback via Piped API if Invidious extraction fails
-  if (!directAudioUrl) {
-    const pipedInstances = ["https://pipedapi.kavin.rocks", "https://pipedapi.mha.fi"];
-    for (const pInstance of pipedInstances) {
-      try {
-        const pRes = await fetch(`${pInstance}/streams/${videoId}`);
-        if (!pRes.ok) continue;
+  // Backup Piped API resolver
+  const pipedInstances = ["https://pipedapi.kavin.rocks", "https://pipedapi.mha.fi"];
+  for (const pInstance of pipedInstances) {
+    try {
+      const pRes = await fetch(`${pInstance}/streams/${videoId}`);
+      if (!pRes.ok) continue;
 
-        const pData = await pRes.json();
-        if (pData.title) displayTitle = pData.title;
-
-        const audioObj = pData.audioStreams?.find(s => s.mimeType?.includes('audio'));
-        if (audioObj && audioObj.url) {
-          directAudioUrl = audioObj.url;
-          break;
-        }
-      } catch (err) {
-        console.warn(`Piped fallback ${pInstance} failed:`, err);
+      const pData = await pRes.json();
+      const audioObj = pData.audioStreams?.find(s => s.mimeType?.includes('audio'));
+      if (audioObj && audioObj.url) {
+        return {
+          directAudioUrl: audioObj.url,
+          title: pData.title || "Unknown Track"
+        };
       }
+    } catch (err) {
+      console.warn(`[Piped Fallback] ${pInstance} failed for ID (${videoId}):`, err);
     }
   }
 
-  // STEP 4: Play or Queue Track
-  if (!directAudioUrl) {
-    speakResponse(`Couldn't extract a playable stream for ${displayTitle}.`);
-    updateStatusDisplay("Stream extraction failed.");
+  return null;
+}
+
+/**
+ * Step 3: Plays a track directly from your JSON playlist
+ */
+async function playTrackFromJSON(identifier = 0) {
+  if (jsonPlaylist.length === 0) {
+    await loadPlaylistFromJSON();
+  }
+
+  if (jsonPlaylist.length === 0) {
+    if (typeof speakResponse === 'function') speakResponse("Playlist is empty.");
     return;
   }
 
-  const isDeckPlaying = (typeof activeDeck !== 'undefined' && activeDeck && !activeDeck.paused);
+  let targetIndex = 0;
+  if (typeof identifier === 'number') {
+    targetIndex = identifier;
+  } else if (typeof identifier === 'string') {
+    const search = identifier.toLowerCase();
+    const foundIdx = jsonPlaylist.findIndex(item => 
+      (item.title && item.title.toLowerCase().includes(search)) ||
+      (item.url && item.url.toLowerCase().includes(search))
+    );
+    if (foundIdx !== -1) targetIndex = foundIdx;
+  }
 
-  if (queueOnly || isDeckPlaying) {
-    musicQueue.push(directAudioUrl);
-    if (typeof musicTitleQueue !== 'undefined') musicTitleQueue.push(displayTitle);
-    if (typeof saveMusicState === 'function') saveMusicState();
+  if (targetIndex < 0 || targetIndex >= jsonPlaylist.length) {
+    targetIndex = 0;
+  }
 
-    speakResponse(`Queued ${displayTitle} to your playlist.`);
-    updateStatusDisplay(`Queued: ${displayTitle}`);
+  currentPlaylistIndex = targetIndex;
+  const track = jsonPlaylist[currentPlaylistIndex];
+  const trackName = track.title || `Track #${currentPlaylistIndex + 1}`;
+
+  if (typeof speakResponse === 'function') speakResponse(`Playing ${trackName}...`);
+  if (typeof updateStatusDisplay === 'function') updateStatusDisplay(`Loading stream: ${trackName}...`);
+
+  const streamInfo = await getStreamFromUrl(track.url);
+
+  if (!streamInfo) {
+    if (typeof speakResponse === 'function') speakResponse(`Could not load stream for ${trackName}. Playing next track.`);
+    playNextJSONTrack();
+    return;
+  }
+
+  // Send direct audio stream URL to audio deck
+  if (typeof botMusicReply === 'function') {
+    botMusicReply(streamInfo.directAudioUrl);
+  }
+  
+  if (typeof updateStatusDisplay === 'function') updateStatusDisplay(`Streaming: ${streamInfo.title}`);
+}
+
+/**
+ * Auto-advances to the next song in the JSON list
+ */
+function playNextJSONTrack() {
+  if (currentPlaylistIndex + 1 < jsonPlaylist.length) {
+    playTrackFromJSON(currentPlaylistIndex + 1);
   } else {
-    musicQueue = [directAudioUrl];
-    if (typeof musicTitleQueue !== 'undefined') musicTitleQueue = [displayTitle];
-    currentTrackIndex = 0;
-    if (typeof saveMusicState === 'function') saveMusicState();
-
-    botMusicReply(directAudioUrl);
-    updateStatusDisplay(`Streaming: ${displayTitle}...`);
+    if (typeof updateStatusDisplay === 'function') updateStatusDisplay("Playlist finished.");
   }
 }
 
