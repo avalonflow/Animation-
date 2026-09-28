@@ -2072,33 +2072,60 @@ function setupTrackEndMonitor(audioDeck) {
 }
 
 // ====================================================================
-// 8b. INTEGRATED CLOUD STREAMING & QUEUE PIPELINE
+// 8b. INTEGRATED CLOUD STREAMING & QUEUE PIPELINE (URL + SEARCH)
 // ====================================================================
 
 /**
- * Searches and extracts YouTube/YT Music audio streams with instance failover.
- * @param {string} commandText - Raw command text
- * @param {boolean} queueOnly - If true, appends to queue without interrupting playback
+ * Extracts YouTube Video ID from various link formats
+ * Handles: music.youtube.com, youtube.com/watch?v=, youtu.be/, shorts, etc.
+ */
+function extractYouTubeId(input) {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
+  const match = input.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+}
+
+/**
+ * Streams directly from a YouTube/YT Music URL or falls back to text search
+ * @param {string} commandText - URL or search query
+ * @param {boolean} queueOnly - Appends to queue without interrupting playback
  */
 async function handleYouTubeMusicSearch(commandText, queueOnly = false) {
-  let searchQuery = commandText.toLowerCase()
-    .replace(/\b(play me|play|queue up|queue|add|search for|lookup|find|put on|open)\b/gi, "")
-    .replace(/\b(to queue|to the queue|next|on youtube music|on yt music|in youtube music|in yt music|on youtube|on yt|youtube|yt)\b/gi, "")
-    .trim();
+  let rawInput = commandText.trim();
+  if (!rawInput) return;
 
-  if (!searchQuery) return;
+  // Check if the input contains or is a YouTube / YT Music URL
+  const extractedId = extractYouTubeId(rawInput);
+  let videoId = extractedId;
+  let displayTitle = "";
 
-  const displayTitle = searchQuery.split(' ')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-
-  if (queueOnly) {
-    updateStatusDisplay(`Searching & queuing: ${displayTitle}...`);
+  if (videoId) {
+    displayTitle = "Shared Track";
+    if (queueOnly) {
+      updateStatusDisplay(`Resolving URL & queuing...`);
+    } else {
+      speakResponse(`Loading YouTube Music link...`);
+    }
   } else {
-    speakResponse(`Searching for ${displayTitle}...`);
+    // Process standard search query text
+    let searchQuery = rawInput.toLowerCase()
+      .replace(/\b(play me|play|queue up|queue|add|search for|lookup|find|put on|open)\b/gi, "")
+      .replace(/\b(to queue|to the queue|next|on youtube music|on yt music|in youtube music|in yt music|on youtube|on yt|youtube|yt)\b/gi, "")
+      .trim();
+
+    if (!searchQuery) return;
+
+    displayTitle = searchQuery.split(' ')
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+
+    if (queueOnly) {
+      updateStatusDisplay(`Searching & queuing: ${displayTitle}...`);
+    } else {
+      speakResponse(`Searching for ${displayTitle}...`);
+    }
   }
 
-  // Active public Invidious API instances
   const invidiousInstances = [
     "https://inv.tux.pizza",
     "https://yewtu.be",
@@ -2106,58 +2133,74 @@ async function handleYouTubeMusicSearch(commandText, queueOnly = false) {
     "https://inv.nadeko.net"
   ];
 
-  let videoId = null;
   let directAudioUrl = null;
 
-  // 1. Resolve Video ID
-  for (const instance of invidiousInstances) {
-    try {
-      // Try official audio query target first
-      let searchRes = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(searchQuery + " official audio")}&type=video`);
-      if (!searchRes.ok) {
-        searchRes = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(searchQuery)}&type=video`);
-      }
-      
-      if (!searchRes.ok) continue;
-
-      const results = await searchRes.json();
-      if (results && results.length > 0 && results[0].videoId) {
-        videoId = results[0].videoId;
-
-        // 2. Fetch direct stream manifest from working instance
-        const streamRes = await fetch(`${instance}/api/v1/videos/${videoId}`);
-        if (streamRes.ok) {
-          const streamData = await streamRes.json();
-          
-          // Select best standalone audio stream
-          const audioStream = streamData.adaptiveFormats?.find(f => f.type?.includes('audio/webm') || f.type?.includes('audio/mp4'))
-                           || streamData.formatStreams?.find(f => f.container === 'mp4' || f.quality === 'medium')
-                           || streamData.formatStreams?.[0];
-
-          if (audioStream && audioStream.url) {
-            directAudioUrl = audioStream.url.replace(/^http:\/\//i, 'https://');
-            break; // Successfully resolved!
-          }
+  // STEP 1: If no video ID was passed directly in the URL, resolve via Invidious search
+  if (!videoId) {
+    for (const instance of invidiousInstances) {
+      try {
+        let searchRes = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(rawInput + " official audio")}&type=video`);
+        if (!searchRes.ok) {
+          searchRes = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(rawInput)}&type=video`);
         }
+        if (!searchRes.ok) continue;
+
+        const results = await searchRes.json();
+        if (results && results.length > 0 && results[0].videoId) {
+          videoId = results[0].videoId;
+          break;
+        }
+      } catch (err) {
+        console.warn(`Search instance ${instance} failed:`, err);
       }
-    } catch (err) {
-      console.warn(`Instance ${instance} failed:`, err);
     }
   }
 
-  // 3. Fallback: Piped API
-  if (!directAudioUrl && videoId) {
+  if (!videoId) {
+    speakResponse(`Could not find a video ID to stream.`);
+    updateStatusDisplay("Video ID resolution failed.");
+    return;
+  }
+
+  // STEP 2: Extract audio stream URL using resolved/provided video ID
+  for (const instance of invidiousInstances) {
+    try {
+      const streamRes = await fetch(`${instance}/api/v1/videos/${videoId}`);
+      if (!streamRes.ok) continue;
+
+      const streamData = await streamRes.json();
+      
+      // Update display title to actual track title if URL was used
+      if (streamData.title) displayTitle = streamData.title;
+
+      const audioStream = streamData.adaptiveFormats?.find(f => f.type?.includes('audio/webm') || f.type?.includes('audio/mp4'))
+                       || streamData.formatStreams?.find(f => f.container === 'mp4' || f.quality === 'medium')
+                       || streamData.formatStreams?.[0];
+
+      if (audioStream && audioStream.url) {
+        directAudioUrl = audioStream.url.replace(/^http:\/\//i, 'https://');
+        break;
+      }
+    } catch (err) {
+      console.warn(`Stream extraction instance ${instance} failed:`, err);
+    }
+  }
+
+  // STEP 3: Fallback via Piped API if Invidious extraction fails
+  if (!directAudioUrl) {
     const pipedInstances = ["https://pipedapi.kavin.rocks", "https://pipedapi.mha.fi"];
     for (const pInstance of pipedInstances) {
       try {
         const pRes = await fetch(`${pInstance}/streams/${videoId}`);
-        if (pRes.ok) {
-          const pData = await pRes.json();
-          const audioObj = pData.audioStreams?.find(s => s.mimeType?.includes('audio'));
-          if (audioObj && audioObj.url) {
-            directAudioUrl = audioObj.url;
-            break;
-          }
+        if (!pRes.ok) continue;
+
+        const pData = await pRes.json();
+        if (pData.title) displayTitle = pData.title;
+
+        const audioObj = pData.audioStreams?.find(s => s.mimeType?.includes('audio'));
+        if (audioObj && audioObj.url) {
+          directAudioUrl = audioObj.url;
+          break;
         }
       } catch (err) {
         console.warn(`Piped fallback ${pInstance} failed:`, err);
@@ -2165,26 +2208,32 @@ async function handleYouTubeMusicSearch(commandText, queueOnly = false) {
     }
   }
 
-  // 4. Handle Execution Failure or Playback
+  // STEP 4: Play or Queue Track
   if (!directAudioUrl) {
     speakResponse(`Couldn't extract a playable stream for ${displayTitle}.`);
     updateStatusDisplay("Stream extraction failed.");
     return;
   }
 
-  if (queueOnly || (typeof activeDeck !== 'undefined' && activeDeck && !activeDeck.paused)) {
+  const isDeckPlaying = (typeof activeDeck !== 'undefined' && activeDeck && !activeDeck.paused);
+
+  if (queueOnly || isDeckPlaying) {
     musicQueue.push(directAudioUrl);
+    if (typeof musicTitleQueue !== 'undefined') musicTitleQueue.push(displayTitle);
     if (typeof saveMusicState === 'function') saveMusicState();
+
     speakResponse(`Queued ${displayTitle} to your playlist.`);
     updateStatusDisplay(`Queued: ${displayTitle}`);
   } else {
     musicQueue = [directAudioUrl];
+    if (typeof musicTitleQueue !== 'undefined') musicTitleQueue = [displayTitle];
     currentTrackIndex = 0;
+    if (typeof saveMusicState === 'function') saveMusicState();
+
     botMusicReply(directAudioUrl);
     updateStatusDisplay(`Streaming: ${displayTitle}...`);
   }
 }
-
 
 // ==========================================
 // 9. HARDWARE VOICE RECOGNITION
