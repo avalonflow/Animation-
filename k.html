@@ -2076,7 +2076,7 @@ function setupTrackEndMonitor(audioDeck) {
 // ====================================================================
 
 /**
- * Searches and adds YouTube streams to the music engine using Invidious API.
+ * Searches and adds YouTube streams to the music engine using Invidious/Piped APIs.
  * @param {string} commandText - Raw command text
  * @param {boolean} queueOnly - If true, appends to the queue without interrupting current track
  */
@@ -2098,71 +2098,81 @@ async function handleYouTubeMusicSearch(commandText, queueOnly = false) {
     speakResponse(`Searching YouTube for ${displayTitle}...`);
   }
 
-  // Active production Invidious API instances for redundant failover
-  const apiInstances = [
+  // Active public instances with CORS enabled
+  const invidiousInstances = [
     "https://inv.nadeko.net",
     "https://invidious.nerdvpn.de",
-    "https://invidious.tiekoetter.com"
+    "https://inv.tux.pizza"
   ];
 
   try {
-    let searchData = null;
-    let usedInstance = "";
+    let videoId = null;
+    let directAudioUrl = null;
 
-    // 1. Resolve Video ID with instance failover
-    for (const instance of apiInstances) {
+    // STEP 1: Search for Video ID across Invidious instances
+    for (const instance of invidiousInstances) {
       try {
-        const response = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(searchQuery)}&type=video`);
-        if (response.ok) {
-          searchData = await response.json();
-          usedInstance = instance;
-          break;
+        const searchRes = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(searchQuery)}&type=video`);
+        if (!searchRes.ok) continue;
+        const results = await searchRes.json();
+        
+        if (results && results.length > 0 && results[0].videoId) {
+          videoId = results[0].videoId;
+
+          // STEP 2: Extract Stream Manifest from the same working instance
+          const streamRes = await fetch(`${instance}/api/v1/videos/${videoId}`);
+          if (streamRes.ok) {
+            const streamData = await streamRes.json();
+            
+            // Extract best audio format from adaptive or standard streams
+            const audioStream = streamData.adaptiveFormats?.find(f => f.type?.includes('audio/webm') || f.type?.includes('audio/mp4'))
+                             || streamData.formatStreams?.find(f => f.container === 'mp4' || f.quality === 'medium')
+                             || streamData.formatStreams?.[0];
+
+            if (audioStream && audioStream.url) {
+              directAudioUrl = audioStream.url.replace(/^http:\/\//i, 'https://');
+              break; // Stream successfully resolved!
+            }
+          }
         }
       } catch (err) {
-        console.warn(`Instance ${instance} failed, trying next...`);
+        console.warn(`Instance ${instance} failed:`, err);
       }
     }
 
-    if (!searchData || !searchData.length) {
-      speakResponse(`Couldn't find a playable audio stream for ${displayTitle}.`);
+    // STEP 3: Fallback to Piped API if Invidious fails to get direct stream
+    if (!directAudioUrl && videoId) {
+      const pipedInstances = ["https://pipedapi.kavin.rocks", "https://api.piped.privacydev.net"];
+      for (const pInstance of pipedInstances) {
+        try {
+          const pRes = await fetch(`${pInstance}/streams/${videoId}`);
+          if (pRes.ok) {
+            const pData = await pRes.json();
+            const audioObj = pData.audioStreams?.find(s => s.mimeType?.includes('audio'));
+            if (audioObj && audioObj.url) {
+              directAudioUrl = audioObj.url;
+              break;
+            }
+          }
+        } catch (err) {
+          console.warn(`Piped instance ${pInstance} failed:`, err);
+        }
+      }
+    }
+
+    if (!directAudioUrl) {
+      speakResponse(`Couldn't extract a playable audio stream for ${displayTitle}.`);
+      updateStatusDisplay("Stream extraction failed.");
       return;
     }
 
-    const topResult = searchData[0];
-    const videoId = topResult.videoId;
-
-    if (!videoId) {
-      speakResponse(`Couldn't resolve video ID for ${displayTitle}.`);
-      return;
-    }
-
-    // 2. Fetch Direct Stream Manifest
-    const streamApiResponse = await fetch(`${usedInstance}/api/v1/videos/${videoId}`);
-    if (!streamApiResponse.ok) throw new Error("Stream extraction failed.");
-
-    const streamData = await streamApiResponse.json();
-
-    // Select dedicated audio adaptive format or fallback to low-res format with audio
-    const audioStream = streamData.adaptiveFormats?.find(f => f.type?.includes('audio/webm') || f.type?.includes('audio/mp4'))
-                     || streamData.formatStreams?.[0];
-
-    if (!audioStream || !audioStream.url) {
-      speakResponse(`Could not extract playable audio for ${displayTitle}.`);
-      return;
-    }
-
-    // Enforce HTTPS
-    const directAudioUrl = audioStream.url.replace(/^http:\/\//i, 'https://');
-
-    // 3. Queue Logic
+    // STEP 4: Queue or Play Stream
     if (queueOnly || (typeof activeDeck !== 'undefined' && activeDeck && !activeDeck.paused)) {
-      // Append to active queue without stopping current playback
       musicQueue.push(directAudioUrl);
       if (typeof saveMusicState === 'function') saveMusicState();
       speakResponse(`Queued ${displayTitle} to your playlist.`);
       updateStatusDisplay(`Queued: ${displayTitle}`);
     } else {
-      // Start fresh playback if nothing is currently playing
       musicQueue = [directAudioUrl];
       currentTrackIndex = 0;
       botMusicReply(directAudioUrl);
@@ -2174,18 +2184,6 @@ async function handleYouTubeMusicSearch(commandText, queueOnly = false) {
     speakResponse("I couldn't queue that track from YouTube. Please try again.");
   }
 }
-
-/**
- * Batch queue multiple songs given array of search queries
- * Example: queueMultipleYouTubeTracks(["rod wave street runner", "drake passionfruit", "post malone circles"])
- */
-async function queueMultipleYouTubeTracks(trackQueries) {
-  speakResponse(`Queuing up ${trackQueries.length} tracks...`);
-  for (const query of trackQueries) {
-    await handleYouTubeMusicSearch(query, true);
-  }
-}
-
 
 
 // ==========================================
