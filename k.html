@@ -958,33 +958,14 @@ function getTranscriptCanvas() {
   return document.getElementById('kairosTranscript') || document.getElementById('transcriptCanvas');
 }
 
-// SAFE UI RENDERER: Updates inner streaming text without destroying HTML/CSS structure
-function setKairosMessageText(formattedHtmlText) {
-  const canvas = getTranscriptCanvas();
-  if (!canvas) return;
-
-  let streamingTextElem = canvas.querySelector('.chat-bubble.kairos .streaming-text') || canvas.querySelector('.streaming-text');
-
-  if (streamingTextElem) {
-    streamingTextElem.innerHTML = formattedHtmlText;
-  } else {
-    const msgWrap = document.createElement('div');
-    msgWrap.className = 'msgWrap';
-    msgWrap.innerHTML = `
-      <img src="${KAIROS_AVATAR}" class="chat-bubble-avatar" alt="Kairos Avatar">
-      <div class="chat-bubble kairos">
-          <div class="speaker-label">${KAIROS_TITLE}</div>
-          <p class="streaming-text">${formattedHtmlText}</p>
-          <div class="meta">
-              <span class="timestamp">${getCurrentTime()}</span>
-          </div>
-      </div>
-    `;
-    canvas.appendChild(msgWrap);
-  }
-  
-  canvas.scrollTop = canvas.scrollHeight;
-}
+// Reusable Copy Button SVG Template
+const COPY_BTN_HTML = `
+  <button class="copy-btn" onclick="copyText(this)" aria-label="Copy message">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+          <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+      </svg>
+  </button>
+`;
 
 
 // =================================================================
@@ -1365,7 +1346,7 @@ if (photoInput && profilePhoto) {
     });
 }
 
-// SAFE UI RENDERER: Appends a dedicated user message bubble with dynamic signature styling, ticks, and image-matched layout
+// SAFE UI RENDERER: Appends a dedicated user message bubble with chat header and copy button
 function appendUserMessage(text) {
   const canvas = getTranscriptCanvas();
   if (!canvas) return;
@@ -1381,7 +1362,9 @@ function appendUserMessage(text) {
   msgWrap.className = 'msgWrap user-wrap';
   msgWrap.innerHTML = `
     <div class="chat-bubble user">
-        <div class="speaker-label">${userSig}</div>
+        <div class="chat-bubble-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <div class="speaker-label">${userSig}</div>${COPY_BTN_HTML}
+        </div>
         <p class="user-text" style="margin: 0; word-break: break-word;">${renderMarkdownToHTML(text)}</p>
         <div class="meta">
             <span class="timestamp">${timeStr}</span>
@@ -1395,7 +1378,7 @@ function appendUserMessage(text) {
 }
 
 
-// SAFE UI RENDERER: Updates or appends Kairos responses safely without overlapping user bubbles
+// SAFE UI RENDERER: Updates or appends Kairos responses safely with header and copy button
 function setKairosMessageText(formattedHtmlText) {
   const canvas = getTranscriptCanvas();
   if (!canvas) return;
@@ -1411,7 +1394,9 @@ function setKairosMessageText(formattedHtmlText) {
     msgWrap.innerHTML = `
       <img src="${KAIROS_AVATAR}" class="chat-bubble-avatar" alt="Kairos Avatar" style="width: 28px; height: 28px; border-radius: 50%; margin-right: 8px;">
       <div class="chat-bubble kairos">
-          <div class="speaker-label" style="font-size: 0.75em; opacity: 0.7;">${KAIROS_TITLE}</div>
+          <div class="chat-bubble-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <div class="speaker-label" style="font-size: 0.75em; opacity: 0.7;">${KAIROS_TITLE}</div>${COPY_BTN_HTML}
+          </div>
           <p class="streaming-text" style="margin: 0; word-break: break-word;">${formattedHtmlText}</p>
           <div class="meta">
               <span class="timestamp">${timeStr}</span>
@@ -2335,7 +2320,6 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
     </script>
 </body>
 </html>
