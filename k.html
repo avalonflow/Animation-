@@ -815,7 +815,7 @@ function getCurrentTime() {
 
 function getUserDisplayName() {
   try {
-    const storedUser = localStorage.getItem('user_profile') || localStorage.getItem('userData');
+    const storedUser = localStorage.getItem("section2Data");
     if (storedUser) {
       const parsed = JSON.parse(storedUser);
       if (parsed.name) return parsed.name;
@@ -838,6 +838,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initialTimeElem.textContent = getCurrentTime();
   }
 });
+
+
 
 function copyText(btn) {
             const text = btn.closest('.chat-bubble').querySelector('.streaming-text').innerText;
@@ -1402,6 +1404,18 @@ if (photoInput && profilePhoto) {
         reader.readAsDataURL(file);
     });
 }
+
+// SAFE UI RENDERER: Appends a dedicated user message bubble with dynamic signature styling, ticks, and image-matched layout
+function appendUserMessage(text) {
+  const canvas = getTranscriptCanvas();
+  if (!canvas) return;
+
+  const activeStream = canvas.querySelector('.streaming-text');
+  if (activeStream) activeStream.classList.remove('streaming-text');
+
+  // Pull avatar dynamically from DOM / localStorage / default fallback
+  const profilePhotoSrc = profilePhoto?.getAttribute('src') || DEFAULT_AVATAR;
+
   const userSig = getUserSignature();
   const timeStr = getCurrentTime();
 
