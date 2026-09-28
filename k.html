@@ -1348,15 +1348,7 @@ function toggleDock(forcedState = null) {
   }
 }
 
-// SAFE UI RENDERER: Appends a dedicated user message bubble with dynamic signature styling, ticks, and image-matched layout
-function appendUserMessage(text) {
-  const canvas = getTranscriptCanvas();
-  if (!canvas) return;
-
-  const activeStream = canvas.querySelector('.streaming-text');
-  if (activeStream) activeStream.classList.remove('streaming-text');
-
-  // ---------- Profile Picture Assets & Configuration ----------
+// ---------- Profile Picture Assets & Configuration ----------
 const photoInput = document.getElementById('photoInput');
 const profilePhoto = document.getElementById('profilePhoto');
 const DEFAULT_AVATAR = 'default-avatar.png';
@@ -1435,6 +1427,7 @@ function appendUserMessage(text) {
   canvas.appendChild(msgWrap);
   canvas.scrollTop = canvas.scrollHeight;
 }
+
 
 // SAFE UI RENDERER: Updates or appends Kairos responses safely without overlapping user bubbles (Tick marks excluded)
 function setKairosMessageText(formattedHtmlText) {
