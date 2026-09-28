@@ -98,6 +98,7 @@
             --gemini-cyan: #06b6d4;
             --neon-glow: rgba(59, 130, 246, 0.35); 
 
+            /* Updated User Bubble Style: Dark Theme Purple Gradient with signature styling */
             --user-bubble-bg: linear-gradient(135deg, #2e1065, #581c87);
             --kairos-bubble-bg: rgba(255, 255, 255, 0.06);
         }
@@ -110,14 +111,14 @@
             transform: translateX(-50%);
             z-index: 9999;
             width: 100%;
-            max-width: 380px;
+            max-width: 380px; /* Base card width for mobile */
             padding: 0 16px;
             box-sizing: border-box;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .assistant-dock-wrap.expanded {
-            max-width: 380px;
+            max-width: 380px; /* Kept identical to base mobile card width */
         }
 
         /* Full-Height State */
@@ -380,12 +381,45 @@
             animation: bubblePop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
+        .chat-bubble-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            gap: 8px;
+        }
+
+        /* Copy Button Styling */
+        .copy-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .copy-btn svg {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
+        }
+
         @keyframes bubblePop {
             0% { opacity: 0; transform: translateY(6px) scale(0.96); }
             100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* User Bubble Styling */
+        /* Image-Matched User Bubble Design */
         .chat-bubble.user {
             background: linear-gradient(135deg, #2a085c, #581c87, #3b0764);
             color: #f5f3ff;
@@ -399,7 +433,6 @@
             font-weight: 700;
             letter-spacing: 0.8px;
             font-size: 11px;
-            margin-bottom: 4px;
             opacity: 0.9;
         }
 
@@ -416,7 +449,6 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
             opacity: 0.6;
         }
 
@@ -425,16 +457,36 @@
             font-size: 13px;
             line-height: 1.5;
             margin: 0;
-            white-space: pre-wrap;
+            white-space: pre-wrap; /* Keeps multi-line formatting intact */
         }
 
-        /* Message Meta & Copy Action */
+        /* Audio Player Styling inside Chat */
+        .chat-bubble:has(audio), .message:has(audio) {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 8px 12px !important;
+            border-radius: 16px !important;
+        }
+
+        .chat-bubble audio, .message audio {
+            display: block;
+            width: 100%;
+            min-width: 180px;
+            max-width: 240px;
+            height: 38px;
+            outline: none;
+            color-scheme: dark; 
+        }
+
+        /* Message Meta & Ticks */
         .meta {
             display: flex;
             justify-content: flex-end;
             align-items: center;
-            gap: 6px;
-            margin-top: 6px;
+            gap: 4px;
+            margin-top: 4px;
         }
 
         .timestamp {
@@ -443,32 +495,27 @@
             color: #e9d5ff;
         }
 
-        .copy-btn {
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.5);
-            cursor: pointer;
-            padding: 2px 4px;
-            border-radius: 4px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
+        .tick {
+            font-size: 11px;
+            letter-spacing: -2px;
+            display: inline-block;
+            margin-left: 2px;
         }
 
-        .copy-btn:hover {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.15);
+        .tick.delivered::after {
+            content: "✓✓";
+            color: #bbb;
         }
 
-        .copy-btn.copied {
-            color: var(--gemini-cyan);
+        .tick.seen::after {
+            content: "✓✓";
+            color: #a855f7;
         }
 
         /* 7. Auto-Expanding Input Bar Component */
         .dock-input-bar {
             display: flex;
-            align-items: flex-end;
+            align-items: flex-end; /* Align icons with bottom of expanding textarea */
             gap: 6px;
             background: rgba(0, 0, 0, 0.25);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -502,11 +549,11 @@
             font-size: 13px;
             font-family: inherit;
             padding: 4px 0;
-            resize: none;
-            max-height: 120px;
+            resize: none; /* Disables manual drag handle */
+            max-height: 120px; /* Limits maximum expansion height */
             line-height: 1.4;
             box-sizing: border-box;
-            overflow-y: hidden;
+            overflow-y: hidden; /* Dynamic toggle via JS when exceeding max height */
         }
 
         .dock-input-bar textarea::placeholder {
@@ -612,12 +659,24 @@
             z-index: 6;
         }
 
-        /* Desktop Responsiveness */
+        /* ================= Desktop Responsiveness Overrides ================= */
         @media (min-width: 1024px) {
-            body { padding: 0; }
-            .minimal-logo-header { margin-top: -60px; }
-            .assistant-dock-wrap { max-width: 650px; }
-            .assistant-dock-wrap.expanded { max-width: 650px; }
+            body {
+                padding: 0;
+            }
+
+            .minimal-logo-header {
+                margin-top: -60px;
+            }
+
+            .assistant-dock-wrap {
+                max-width: 650px; /* Base card width for desktop */
+            }
+
+            .assistant-dock-wrap.expanded {
+                max-width: 650px; /* Kept identical to desktop card width */
+            }
+
             .assistant-dock-wrap.full-height {
                 top: 20px;
                 bottom: 70px;
@@ -625,7 +684,10 @@
                 max-height: calc(100vh - 40px);
                 max-width: 650px;
             }
-            .glass-dock { border-radius: 28px; }
+
+            .glass-dock {
+                border-radius: 28px;
+            }
         }
     </style>
 </head>
@@ -639,6 +701,7 @@
         </div>
     </header>
 
+    <!-- Hidden Storage Nodes for User Photos, Files & Audio Decks -->
     <div style="display:none;">
         <img id="profilePhoto" src="default-avatar.png" alt="Profile Node">
         <input type="file" id="photoInput" accept="image/*">
@@ -677,48 +740,55 @@
                 <div class="voice-transcript-canvas" id="transcriptCanvas">
                     <div id="status-text" class="ambient">Synchronization online.</div>
 
-                    <!-- Kairos Bubble with Copy Button -->
+                    <!-- Kairos Message Bubble -->
                     <div class="msgWrap">
                         <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Kairos&backgroundColor=6b2cd8" class="chat-bubble-avatar" alt="Kairos Avatar">
                         <div class="chat-bubble kairos">
-                            <div class="speaker-label">KAIROS INTELLIGENCE</div>
+                            <div class="chat-bubble-header">
+                                <div class="speaker-label">KAIROS INTELLIGENCE</div>
+                                <button class="copy-btn" onclick="copyText(this)" aria-label="Copy message">
+                                    <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                                </button>
+                            </div>
                             <p class="streaming-text">How can I assist you today?</p>
                             <div class="meta">
                                 <span class="timestamp" id="initialKairosTime">10:00 AM</span>
-                                <button class="copy-btn" onclick="copyMessageText(this)" aria-label="Copy text">
-                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
-                                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                                    </svg>
-                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Sample User Bubble with Copy Button -->
+                    <!-- User Message Bubble -->
                     <div class="msgWrap user-wrap">
                         <div class="chat-bubble user">
-                            <div class="speaker-label">YOU</div>
-                            <p class="streaming-text">Testing copy function on user bubbles.</p>
-                            <div class="meta">
-                                <span class="timestamp">10:01 AM</span>
-                                <button class="copy-btn" onclick="copyMessageText(this)" aria-label="Copy text">
-                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
-                                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                                    </svg>
+                            <div class="chat-bubble-header">
+                                <div class="speaker-label">YOU</div>
+                                <button class="copy-btn" onclick="copyText(this)" aria-label="Copy message">
+                                    <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                                 </button>
                             </div>
+                            <p class="streaming-text">Hello Kairos!</p>
+                            <div class="meta">
+                                <span class="timestamp">10:01 AM</span>
+                                <span class="tick seen"></span>
+                            </div>
                         </div>
-                        <img src="default-avatar.png" id="profilePhoto" class="chat-bubble-avatar" alt="User Avatar">
+                        <img src="default-avatar.png" class="chat-bubble-avatar" alt="User Avatar">
                     </div>
 
                 </div>
 
                 <!-- Input Component Bar -->
                 <div class="dock-input-bar">
+                    <!-- Hidden File Input Trigger -->
                     <input type="file" id="dockFileInput" style="display: none;">
+
+                    <!-- Typing Pipe Cursor -->
                     <span id="idleCursor" class="typing-cursor" style="display: none;">|</span>
+
+                    <!-- Auto-Expanding Textarea with Mobile Return Key Hint -->
                     <textarea id="dockInput" rows="1" placeholder="Message..." enterkeyhint="enter" autocomplete="off"></textarea>
 
+                    <!-- Microphone Button with Pulse Animation Ring -->
                     <button class="action-icon-btn" id="dockMicBtn" aria-label="Voice Input">
                         <span class="recording-pulse"></span>
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
@@ -727,6 +797,7 @@
                         </svg>
                     </button>
 
+                    <!-- Send Button -->
                     <button class="action-icon-btn" id="dockSendBtn" aria-label="Send Message">
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
@@ -737,6 +808,8 @@
 
         </div>
     </div>
+
+    
 
     
     <footer>
@@ -783,27 +856,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-function copyMessageText(btn) {
-            const bubble = btn.closest('.chat-bubble');
-            const textToCopy = bubble.querySelector('.streaming-text').innerText;
-
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                btn.classList.add('copied');
-                btn.innerHTML = `
-                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                    </svg>`;
-                
-                setTimeout(() => {
-                    btn.classList.remove('copied');
-                    btn.innerHTML = `
-                        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
-                            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                        </svg>`;
-                }, 1500);
-            }).catch(err => {
-                console.error('Failed to copy text: ', err);
-            });
+function copyText(btn) {
+            const text = btn.closest('.chat-bubble').querySelector('.streaming-text').innerText;
+            navigator.clipboard.writeText(text);
         }
         
 // ==========================================
