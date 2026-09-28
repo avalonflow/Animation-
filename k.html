@@ -1628,6 +1628,12 @@ async function processUserCommandLocally(commandText) {
       return;
   }
 
+// --- QUEUE / ADD TRACK COMMANDS ---
+if (lowerCommand.startsWith("queue ") || lowerCommand.startsWith("add ") || lowerCommand.includes("to queue")) {
+  handleYouTubeMusicSearch(lowerCommand, true);
+  return;
+}
+
   if (lowerCommand.startsWith("play ") || lowerCommand.includes("play me") || lowerCommand === "play") {
     const searchTarget = lowerCommand.replace("play me", "").replace("play", "").trim().replace(/[^a-z0-9]/g, "");
 
@@ -2070,7 +2076,7 @@ function setupTrackEndMonitor(audioDeck) {
 // ====================================================================
 
 /**
- * Searches and adds YouTube streams to the music engine.
+ * Searches and adds YouTube streams to the music engine using Invidious API.
  * @param {string} commandText - Raw command text
  * @param {boolean} queueOnly - If true, appends to the queue without interrupting current track
  */
@@ -2092,40 +2098,67 @@ async function handleYouTubeMusicSearch(commandText, queueOnly = false) {
     speakResponse(`Searching YouTube for ${displayTitle}...`);
   }
 
+  // Active production Invidious API instances for redundant failover
+  const apiInstances = [
+    "https://inv.nadeko.net",
+    "https://invidious.nerdvpn.de",
+    "https://invidious.tiekoetter.com"
+  ];
+
   try {
-    // 1. Resolve Video ID
-    const pipedSearchResponse = await fetch(`https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(searchQuery)}&filter=music_songs`);
-    if (!pipedSearchResponse.ok) throw new Error("Search query resolution failed.");
+    let searchData = null;
+    let usedInstance = "";
 
-    const searchData = await pipedSearchResponse.json();
-    const topResult = searchData.items?.find(item => item.type === 'stream');
+    // 1. Resolve Video ID with instance failover
+    for (const instance of apiInstances) {
+      try {
+        const response = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(searchQuery)}&type=video`);
+        if (response.ok) {
+          searchData = await response.json();
+          usedInstance = instance;
+          break;
+        }
+      } catch (err) {
+        console.warn(`Instance ${instance} failed, trying next...`);
+      }
+    }
 
-    if (!topResult || !topResult.url) {
+    if (!searchData || !searchData.length) {
       speakResponse(`Couldn't find a playable audio stream for ${displayTitle}.`);
       return;
     }
 
-    const videoId = topResult.url.split('v=')[1];
+    const topResult = searchData[0];
+    const videoId = topResult.videoId;
+
+    if (!videoId) {
+      speakResponse(`Couldn't resolve video ID for ${displayTitle}.`);
+      return;
+    }
 
     // 2. Fetch Direct Stream Manifest
-    const streamApiResponse = await fetch(`https://pipedapi.kavin.rocks/streams/${videoId}`);
+    const streamApiResponse = await fetch(`${usedInstance}/api/v1/videos/${videoId}`);
     if (!streamApiResponse.ok) throw new Error("Stream extraction failed.");
 
     const streamData = await streamApiResponse.json();
-    const audioStream = streamData.audioStreams?.find(stream => stream.mimeType.includes('audio')) || streamData.audioStreams[0];
+
+    // Select dedicated audio adaptive format or fallback to low-res format with audio
+    const audioStream = streamData.adaptiveFormats?.find(f => f.type?.includes('audio/webm') || f.type?.includes('audio/mp4'))
+                     || streamData.formatStreams?.[0];
 
     if (!audioStream || !audioStream.url) {
       speakResponse(`Could not extract playable audio for ${displayTitle}.`);
       return;
     }
 
-    const directAudioUrl = audioStream.url;
+    // Enforce HTTPS
+    const directAudioUrl = audioStream.url.replace(/^http:\/\//i, 'https://');
 
     // 3. Queue Logic
-    if (queueOnly || (activeDeck && !activeDeck.paused)) {
+    if (queueOnly || (typeof activeDeck !== 'undefined' && activeDeck && !activeDeck.paused)) {
       // Append to active queue without stopping current playback
       musicQueue.push(directAudioUrl);
-      saveMusicState();
+      if (typeof saveMusicState === 'function') saveMusicState();
       speakResponse(`Queued ${displayTitle} to your playlist.`);
       updateStatusDisplay(`Queued: ${displayTitle}`);
     } else {
@@ -2138,7 +2171,7 @@ async function handleYouTubeMusicSearch(commandText, queueOnly = false) {
 
   } catch (error) {
     console.error("[API Stream Queue Error]:", error);
-    speakResponse("I couldn't queue that track. Please try again.");
+    speakResponse("I couldn't queue that track from YouTube. Please try again.");
   }
 }
 
@@ -2152,6 +2185,7 @@ async function queueMultipleYouTubeTracks(trackQueries) {
     await handleYouTubeMusicSearch(query, true);
   }
 }
+
 
 
 // ==========================================
