@@ -465,17 +465,6 @@ footer {
 .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #00ff6a; box-shadow: 0 0 10px #00ff6a; }
 .status-offline { background: #ccc; box-shadow: 0 0 5px #ccc; }
 
-#ticketFile {
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
-    padding: 8px;
-    color: #fff;
-    width: 100%;
-    box-sizing: border-box;
-    margin-top: 12px;
-    border: 1px dashed rgba(255,255,255,0.3);
-}
-
 .badge-item {
     background: linear-gradient(90deg,#6b2cd8,#9b59b6);
     color: #fff;
@@ -531,28 +520,30 @@ footer {
         <!-- Issue Category Dropdown -->
         <select id="issueCategory" class="input">
             <option value="">Select Issue Category</option>
-            <option value="technical">Technical Support</option>
-            <option value="billing">Billing & Payouts</option>
-            <option value="account">Account Security & Access</option>
-            <option value="other">General Inquiry</option>
+            <option value="Technical Support">Technical Support</option>
+            <option value="Billing & Payouts">Billing & Payouts</option>
+            <option value="Account Security & Access">Account Security & Access</option>
+            <option value="General Inquiry">General Inquiry</option>
         </select>
 
         <!-- Issue Description Input -->
         <input type="text" id="issueInput" class="input" placeholder="Briefly describe your issue (optional)...">
 
-        <!-- Optional File Attachment -->
-        <input type="file" id="ticketFile" onchange="handleFileSelect(event)">
-
         <button class="button" onclick="generateTicket()">Generate Ticket Reference</button>
         <p id="ticketResult" style="margin-top:15px; font-weight:bold; color: #a78bfa; word-break: break-all;"></p>
         
         <!-- Email Support Button -->
-        <a href="mailto:avalonflow@usa.com" 
+        <a id="emailSupportBtn" href="mailto:avalonflow@usa.com" 
            class="button" 
            style="display: block; text-align: center; box-sizing: border-box; text-decoration: none; margin-top: 15px;" 
-           onclick="notify('Include your ticket reference in the email.')">
+           onclick="prepareEmailDraft(event)">
            📧 Email Support Desk
         </a>
+
+        <!-- Copy Ticket Details Button -->
+        <button class="button" style="background: rgba(107, 44, 216, 0.4); border: 1px solid rgba(167, 139, 250, 0.3);" onclick="copyTicketDetails()">
+            📋 Copy Ticket Details to Clipboard
+        </button>
     </div>
 
     <!-- Gamification Panel -->
@@ -864,16 +855,6 @@ function notify(msg){
     setTimeout(() => n.classList.remove('show'), 3000); 
 }
 
-// ---------- File upload handler ----------
-let uploadedFileName = null;
-function handleFileSelect(event) {
-    const file = event.target.files[0];
-    if (file) {
-        uploadedFileName = file.name;
-        notify(`Attached: ${uploadedFileName}`);
-    }
-}
-
 // ---------- Ticket System ----------
 let lastTicket = '';
 const issueCounts = {};
@@ -891,11 +872,6 @@ function generateTicket() {
     lastTicket = `AF-SUP-${stamp}-${rand}`;
 
     let ticketText = `Ticket Reference: ${lastTicket}`;
-    if (uploadedFileName) {
-        ticketText += ` | Attached: ${uploadedFileName}`;
-        uploadedFileName = null; 
-    }
-
     document.getElementById('ticketResult').textContent = ticketText;
     notify('Ticket reference generated.');
 
@@ -905,6 +881,54 @@ function generateTicket() {
     else issueCounts[input] = 1;
 
     recordTicketGenerated();
+}
+
+// ---------- Email Support Draft Builder ----------
+function prepareEmailDraft(event) {
+    const categorySelect = document.getElementById('issueCategory');
+    const issueInput = document.getElementById('issueInput');
+    
+    const category = categorySelect.value ? categorySelect.value : "General Inquiry";
+    const description = issueInput.value ? issueInput.value : "Please find my details below.";
+    const ticketRef = lastTicket ? lastTicket : "No ticket generated yet";
+
+    const subject = encodeURIComponent(`Support Request: ${category}`);
+    const body = encodeURIComponent(
+        `Hello AvalonFlow Support Team,\n\n` +
+        `I am reaching out regarding assistance on my account.\n\n` +
+        `Issue Description:\n${description}\n\n` +
+        `Ticket Reference Number: ${ticketRef}\n\n` +
+        `Thank you!`
+    );
+
+    const emailBtn = document.getElementById('emailSupportBtn');
+    emailBtn.href = `mailto:avalonflow@usa.com?subject=${subject}&body=${body}`;
+    notify('Opening email client with your ticket details.');
+}
+
+// ---------- Copy Ticket Details to Clipboard ----------
+function copyTicketDetails() {
+    const categorySelect = document.getElementById('issueCategory');
+    const issueInput = document.getElementById('issueInput');
+    
+    const category = categorySelect.value ? categorySelect.value : "General Inquiry";
+    const description = issueInput.value ? issueInput.value : "No additional description provided.";
+    const ticketRef = lastTicket ? lastTicket : "No ticket generated yet";
+
+    const textToCopy = 
+        `Support Request: ${category}\n` +
+        `----------------------------------------\n` +
+        `Issue Description:\n${description}\n\n` +
+        `Ticket Reference: ${ticketRef}\n` +
+        `----------------------------------------\n` +
+        `Sent via AvalonFlow Support Desk`;
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        notify('📋 Ticket details copied to clipboard!');
+    }).catch(err => {
+        console.error('Failed to copy text: ', err);
+        notify('⚠️ Could not copy details. Please try again.');
+    });
 }
 
 // ---------- Mini TV ----------
@@ -998,6 +1022,7 @@ function updateEngagementUI() {
 window.onload = () => {
     notify('Get assistance or clarification here.');
 };
+
 
 
 
