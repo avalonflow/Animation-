@@ -901,36 +901,42 @@ function generateTicket() {
 function openEmailOptions() {
     const categorySelect = document.getElementById('issueCategory');
     const issueInput = document.getElementById('issueInput');
-    
-    const category = categorySelect.value ? categorySelect.value : "General Inquiry";
-    const description = issueInput.value ? issueInput.value : "Please find my details below.";
+
+    const category = categorySelect && categorySelect.value ? categorySelect.value : "General Inquiry";
+    const description = issueInput && issueInput.value ? issueInput.value : "No additional description provided.";
     const ticketRef = lastTicket ? lastTicket : "No ticket generated yet";
 
     const recipient = "avalonflow@usa.com";
     const subject = `Support Request: ${category}`;
-    const body = 
-        `Hello AvalonFlow Support Team,\n\n` +
-        `I am reaching out regarding assistance on my account.\n\n` +
-        `Issue Description:\n${description}\n\n` +
-        `Ticket Reference Number: ${ticketRef}\n\n` +
-        `Thank you!`;
-
-    // Auto-copy text to clipboard as a safety net backup for mobile devices
-    const textToCopy = 
-        `Support Request: ${category}\n` +
-        `----------------------------------------\n` +
-        `Issue Description:\n${description}\n\n` +
-        `Ticket Reference: ${ticketRef}\n` +
-        `----------------------------------------\n` +
-        `Sent via AvalonFlow Support Desk`;
     
+    const body = 
+        "Hello AvalonFlow Support Team,\n\n" +
+        "I am reaching out regarding assistance on my account.\n\n" +
+        "Issue Description:\n" + description + "\n\n" +
+        "Ticket Reference Number: " + ticketRef + "\n\n" +
+        "Thank you!";
+
+    // Text backup copied to clipboard
+    const textToCopy = 
+        "Support Request: " + category + "\n" +
+        "----------------------------------------\n" +
+        "Issue Description:\n" + description + "\n\n" +
+        "Ticket Reference: " + ticketRef + "\n" +
+        "----------------------------------------\n" +
+        "Sent via AvalonFlow Support Desk";
+
     navigator.clipboard.writeText(textToCopy).catch(err => console.log(err));
 
-    // Populate URLs for different providers dynamically
-    document.getElementById('modalGmail').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipient)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    document.getElementById('modalOutlook').href = `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(recipient)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    document.getElementById('modalYahoo').href = `https://compose.mail.yahoo.com/?to=${encodeURIComponent(recipient)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    document.getElementById('modalMailto').href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    // Safely encode parameters to prevent mail client appending errors
+    const encodedRecipient = encodeURIComponent(recipient);
+    const encodedSubject = encodeURIComponent(subject);
+    const encodedBody = encodeURIComponent(body);
+
+    // Assign href values cleanly
+    document.getElementById('modalGmail').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodedRecipient}&su=${encodedSubject}&body=${encodedBody}`;
+    document.getElementById('modalOutlook').href = `https://outlook.office.com/mail/deeplink/compose?to=${encodedRecipient}&subject=${encodedSubject}&body=${encodedBody}`;
+    document.getElementById('modalYahoo').href = `https://compose.mail.yahoo.com/?to=${encodedRecipient}&subject=${encodedSubject}&body=${encodedBody}`;
+    document.getElementById('modalMailto').href = `mailto:${recipient}?subject=${encodedSubject}&body=${encodedBody}`;
 
     // Show modal
     document.getElementById('emailModal').style.display = 'flex';
