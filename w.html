@@ -561,17 +561,18 @@ footer {
     <div style="background:#1a1a1a; border:1px solid rgba(167,139,250,0.3); border-radius:16px; padding:25px; width:100%; max-width:400px; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
         <h3 style="margin-top:0; color:#a78bfa; font-size:20px;">Choose Email Provider</h3>
         <p style="font-size:14px; color:#ccc; margin-bottom:15px;">Your ticket details are automatically copied! Select your mail client below:</p>
-        
+
         <div style="display:flex; flex-direction:column; gap:10px;">
-            <a id="modalGmail" href="#" target="_blank" class="button" style="text-align:center; background:#ea4335; margin:0; font-size:14px; padding:10px;">Open in Gmail</a>
-            <a id="modalOutlook" href="#" target="_blank" class="button" style="text-align:center; background:#0078d4; margin:0; font-size:14px; padding:10px;">Open in Outlook</a>
-            <a id="modalYahoo" href="#" target="_blank" class="button" style="text-align:center; background:#6001d2; margin:0; font-size:14px; padding:10px;">Open in Yahoo Mail</a>
-            <a id="modalMailto" href="#" class="button" style="text-align:center; background:#333; margin:0; font-size:14px; padding:10px;">Default Phone App (Mailto)</a>
+            <button type="button" onclick="triggerEmailProvider('gmail')" class="button" style="text-align:center; background:#ea4335; margin:0; font-size:14px; padding:10px; cursor:pointer; border:none; color:#fff; border-radius:8px;">Open in Gmail</button>
+            <button type="button" onclick="triggerEmailProvider('outlook')" class="button" style="text-align:center; background:#0078d4; margin:0; font-size:14px; padding:10px; cursor:pointer; border:none; color:#fff; border-radius:8px;">Open in Outlook</button>
+            <button type="button" onclick="triggerEmailProvider('yahoo')" class="button" style="text-align:center; background:#6001d2; margin:0; font-size:14px; padding:10px; cursor:pointer; border:none; color:#fff; border-radius:8px;">Open in Yahoo Mail</button>
+            <button type="button" onclick="triggerEmailProvider('mailto')" class="button" style="text-align:center; background:#333; margin:0; font-size:14px; padding:10px; cursor:pointer; border:none; color:#fff; border-radius:8px;">Default Phone App (Mailto)</button>
         </div>
 
-        <button onclick="closeEmailOptions()" style="width:100%; margin-top:15px; background:transparent; border:1px solid #555; color:#fff; padding:10px; border-radius:8px; cursor:pointer;">Close</button>
+        <button type="button" onclick="closeEmailOptions()" style="width:100%; margin-top:15px; background:transparent; border:1px solid #555; color:#fff; padding:10px; border-radius:8px; cursor:pointer;">Close</button>
     </div>
 </div>
+
 
 <!-- Sticky Footer -->
 <footer>
