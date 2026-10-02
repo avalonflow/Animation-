@@ -49,16 +49,16 @@
         .brand-logo {
             display: flex;
             align-items: center;
-            gap: 6px;
             font-weight: 900;
             font-size: 22px;
-            letter-spacing: 1.5px;
+            letter-spacing: -0.5px;
             color: var(--text-primary);
             text-decoration: none;
         }
 
         .brand-logo span {
             color: var(--accent-yellow);
+            margin-left: 1px;
         }
 
         /* --- Bybit Login Layout --- */
@@ -226,6 +226,54 @@
             display: none;
         }
 
+        /* --- Authentic Bybit Success Toast Alert --- */
+        #toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bybit-toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: #1e2329;
+            color: #ffffff;
+            padding: 14px 18px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            border: 1px solid #2b313a;
+            border-left: 4px solid var(--buy-green);
+            font-size: 14px;
+            font-weight: 500;
+            min-width: 300px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .bybit-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .bybit-toast-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background-color: var(--buy-green);
+            color: #fff;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
         /* --- Dashboard Area Styles --- */
         #dashboard-content {
             display: none;
@@ -254,6 +302,7 @@
             font-size: 18px;
             padding: 4px 10px;
             border-radius: 4px;
+            letter-spacing: -0.5px;
         }
 
         .dash-title {
@@ -309,6 +358,9 @@
     </style>
 </head>
 <body>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
 
     <!-- Nav Banner (Sign-in Mode) -->
     <div id="nav-header" class="navbar">
@@ -508,8 +560,9 @@
     </div>
 
     <script>
-        // Set hardcoded access credentials
+        // Set hardcoded access credentials (including allowed email)
         const AUTH_UID = "12345678";
+        const AUTH_EMAIL = "v38341922@gmail.com";
         const AUTH_PASS = "password123";
 
         function switchTab(type) {
@@ -531,17 +584,44 @@
             }
         }
 
+        function showSuccessToast(message) {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = "bybit-toast";
+            toast.innerHTML = `
+                <div class="bybit-toast-icon">✓</div>
+                <div>${message}</div>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
         document.getElementById("login-form").addEventListener("submit", function(e) {
             e.preventDefault();
-            const inputUid = document.getElementById("uid").value.trim();
+            const inputUid = document.getElementById("uid").value.trim().toLowerCase();
             const inputPass = document.getElementById("password").value;
             const errorBanner = document.getElementById("error-banner");
 
-            if (inputUid === AUTH_UID && inputPass === AUTH_PASS) {
+            // Allow login if matching UID or Email along with the password
+            if ((inputUid === AUTH_UID || inputUid === AUTH_EMAIL.toLowerCase()) && inputPass === AUTH_PASS) {
                 // Success
-                document.getElementById("login-view").style.display = "none";
-                document.getElementById("dashboard-content").style.display = "block";
-                updateTableData();
+                errorBanner.style.display = "none";
+                showSuccessToast("Login Successful");
+                
+                setTimeout(() => {
+                    document.getElementById("login-view").style.display = "none";
+                    document.getElementById("dashboard-content").style.display = "block";
+                    document.getElementById("nav-header").style.display = "none";
+                    updateTableData();
+                }, 800);
             } else {
                 // Error
                 errorBanner.style.display = "block";
@@ -566,7 +646,7 @@
                     BTC: data.bitcoin?.ghs || fallbackRates.BTC,
                     ETH: data.ethereum?.ghs || fallbackRates.ETH,
                     SOL: data.solana?.ghs || fallbackRates.SOL,
-                    USDT: data.tether?.ghs || fallbackRates.USDT
+                    USDT: data.tether?.ghs || fallbackRates.USDTH || fallbackRates.USDT
                 };
             } catch (error) {
                 return fallbackRates;
