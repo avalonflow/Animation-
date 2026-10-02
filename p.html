@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bybit P2P Order History</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --accent-yellow: #f7a600;
+            --buy-green: #10b981;
+            --buy-bg: rgba(16, 185, 129, 0.15);
+            --sell-red: #ef4444;
+            --sell-bg: rgba(239, 68, 68, 0.15);
+            --completed-blue: #3b82f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding: 24px;
+            line-height: 1.5;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            background-color: var(--accent-yellow);
+            color: #000;
+            font-weight: 800;
+            font-size: 18px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            letter-spacing: 1px;
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .meta-info {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .table-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #0f172a;
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .badge-buy {
+            color: var(--buy-green);
+            background-color: var(--buy-bg);
+        }
+
+        .badge-sell {
+            color: var(--sell-red);
+            background-color: var(--sell-bg);
+        }
+
+        .badge-completed {
+            color: #60a5fa;
+            background-color: rgba(59, 130, 246, 0.15);
+        }
+
+        .order-id {
+            font-family: monospace;
+            color: var(--text-secondary);
+        }
+
+        .counterparty {
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="brand">
+            <span class="brand-logo">BYBIT</span>
+            <span class="brand-title">P2P Order History</span>
+        </div>
+        <div class="meta-info">Total Records: 100 | Timezone: UTC+01:00</div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order No.</th>
+                    <th>Type</th>
+                    <th>Direction</th>
+                    <th>Fiat Amount</th>
+                    <th>Unit Price</th>
+                    <th>Coin Amount</th>
+                    <th>Tx Fee</th>
+                    <th>Counterparty</th>
+                    <th>Status</th>
+                    <th>Time (UTC+01:00)</th>
+                </tr>
+            </thead>
+            <tbody id="order-rows">
+                <!-- Example Row -->
+                <tr>
+                    <td class="order-id">1827394827163821</td>
+                    <td>P2P</td>
+                    <td><span class="badge badge-buy">BUY</span></td>
+                    <td><strong>100000 NGN</strong></td>
+                    <td class="price-cell">0 NGN</td>
+                    <td class="coin-cell">0 USDT</td>
+                    <td>0 USDT</td>
+                    <td class="counterparty">TraderX</td>
+                    <td><span class="badge badge-completed">COMPLETED</span></td>
+                    <td>2026-03-29 14:20:00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Real market price sync using Binance/Bybit market rate API
+        async function fetchMarketPriceAndCalculate() {
+            try {
+                // Fetch live BTC or USDT price (e.g. USDT/USDC or BTC/USDT)
+                // For fiat rates like USD/NGN or USDT live prices:
+                const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+                const data = await response.json();
+                const marketPrice = parseFloat(data.price);
+
+                const rows = document.querySelectorAll("#order-rows tr");
+                rows.forEach(row => {
+                    const fiatTd = row.children[3];
+                    const priceTd = row.children[4];
+                    const coinTd = row.children[5];
+
+                    if (fiatTd && priceTd && coinTd) {
+                        const fiatVal = parseFloat(fiatTd.innerText.replace(/[^0-9.-]+/g, ""));
+                        const fiatCurr = fiatTd.innerText.replace(/[0-9.-]/g, "").trim();
+                        const coinSymbol = coinTd.innerText.replace(/[0-9.-]/g, "").trim();
+
+                        // Set live market price in the table
+                        priceTd.innerText = `${marketPrice.toFixed(2)} ${fiatCurr}`;
+
+                        // Calculate updated coin amount based on live market price
+                        if (fiatVal > 0 && marketPrice > 0) {
+                            const calculatedCoin = (fiatVal / marketPrice).toFixed(4);
+                            coinTd.innerText = `${calculatedCoin} ${coinSymbol}`;
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Failed to fetch market price:", error);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", fetchMarketPriceAndCalculate);
+    </script>
+</body>
+</html>
