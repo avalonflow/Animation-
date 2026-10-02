@@ -726,7 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // 🔔 LIGHTWEIGHT TAB & BADGE WATCHER
 // ==========================================
 const CLEARANCE_REDIRECT_URL = "clearance.html"; 
-const ENABLE_SUBPAGE_HOLD_REDIRECT = true;     
+const ENABLE_SUBPAGE_HOLD_REDIRECT = false;     
 
 const originalDocumentTitle = "Notifications";
 let titleInterval = null;
@@ -897,6 +897,13 @@ function generateTicket() {
     recordTicketGenerated();
 }
 
+// Store parameters globally so the modal action buttons can read them cleanly
+let currentEmailParams = {
+    recipient: "avalonflow@usa.com",
+    subject: "",
+    body: ""
+};
+
 // ---------- Universal Email Options Modal Logic ----------
 function openEmailOptions() {
     const categorySelect = document.getElementById('issueCategory');
@@ -906,10 +913,8 @@ function openEmailOptions() {
     const description = issueInput && issueInput.value ? issueInput.value : "No additional description provided.";
     const ticketRef = lastTicket ? lastTicket : "No ticket generated yet";
 
-    const recipient = "avalonflow@usa.com";
-    const subject = `Support Request: ${category}`;
-    
-    const body = 
+    currentEmailParams.subject = `Support Request: ${category}`;
+    currentEmailParams.body = 
         "Hello AvalonFlow Support Team,\n\n" +
         "I am reaching out regarding assistance on my account.\n\n" +
         "Issue Description:\n" + description + "\n\n" +
@@ -927,25 +932,42 @@ function openEmailOptions() {
 
     navigator.clipboard.writeText(textToCopy).catch(err => console.log(err));
 
-    // Safely encode parameters to prevent mail client appending errors
-    const encodedRecipient = encodeURIComponent(recipient);
-    const encodedSubject = encodeURIComponent(subject);
-    const encodedBody = encodeURIComponent(body);
-
-    // Assign href values cleanly
-    document.getElementById('modalGmail').href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodedRecipient}&su=${encodedSubject}&body=${encodedBody}`;
-    document.getElementById('modalOutlook').href = `https://outlook.office.com/mail/deeplink/compose?to=${encodedRecipient}&subject=${encodedSubject}&body=${encodedBody}`;
-    document.getElementById('modalYahoo').href = `https://compose.mail.yahoo.com/?to=${encodedRecipient}&subject=${encodedSubject}&body=${encodedBody}`;
-    document.getElementById('modalMailto').href = `mailto:${recipient}?subject=${encodedSubject}&body=${encodedBody}`;
-
-    // Show modal
+    // Show modal cleanly
     document.getElementById('emailModal').style.display = 'flex';
     notify('📋 Ticket copied! Choose your mail provider.');
+}
+
+function triggerEmailProvider(provider) {
+    const encTo = encodeURIComponent(currentEmailParams.recipient);
+    const encSub = encodeURIComponent(currentEmailParams.subject);
+    const encBody = encodeURIComponent(currentEmailParams.body);
+
+    let targetUrl = "";
+
+    if (provider === 'gmail') {
+        targetUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encTo}&su=${encSub}&body=${encBody}`;
+    } else if (provider === 'outlook') {
+        targetUrl = `https://outlook.office.com/mail/deeplink/compose?to=${encTo}&subject=${encSub}&body=${encBody}`;
+    } else if (provider === 'yahoo') {
+        targetUrl = `https://compose.mail.yahoo.com/?to=${encTo}&subject=${encSub}&body=${encBody}`;
+    } else if (provider === 'mailto') {
+        targetUrl = `mailto:${currentEmailParams.recipient}?subject=${encSub}&body=${encBody}`;
+    }
+
+    if (targetUrl) {
+        if (provider === 'mailto') {
+            window.location.href = targetUrl;
+        } else {
+            window.open(targetUrl, '_blank');
+        }
+    }
+    closeEmailOptions();
 }
 
 function closeEmailOptions() {
     document.getElementById('emailModal').style.display = 'none';
 }
+
 
 // ---------- Copy Ticket Details to Clipboard ----------
 function copyTicketDetails() {
