@@ -559,123 +559,159 @@
         </div>
     </div>
 
-    <script>
-        // Set hardcoded access credentials (including allowed email)
-        const AUTH_UID = "12345678";
-        const AUTH_EMAIL = "v38341922@gmail.com";
-        const AUTH_PASS = "password123";
+   <script>
+    // --- Inactivity Timeout Configuration (15 Minutes) ---
+    const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
+    let inactivityTimer;
 
-        function switchTab(type) {
-            const emailTab = document.getElementById("tab-email");
-            const mobileTab = document.getElementById("tab-mobile");
-            const label = document.getElementById("field-label");
-            const input = document.getElementById("uid");
-
-            if (type === "email") {
-                emailTab.classList.add("active");
-                mobileTab.classList.remove("active");
-                label.textContent = "Email or Subaccount UID";
-                input.placeholder = "Enter Email or UID";
-            } else {
-                mobileTab.classList.add("active");
-                emailTab.classList.remove("active");
-                label.textContent = "Mobile Number";
-                input.placeholder = "Enter Mobile Number";
-            }
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        
+        // Only run the timer if the user is currently logged into the dashboard
+        const dashboard = document.getElementById("dashboard-content");
+        if (dashboard && dashboard.style.display === "block") {
+            inactivityTimer = setTimeout(() => {
+                logoutUser("Session expired due to 15 minutes of inactivity.");
+            }, INACTIVITY_TIMEOUT);
         }
+    }
 
-        function showSuccessToast(message) {
-            const container = document.getElementById("toast-container");
-            const toast = document.createElement("div");
-            toast.className = "bybit-toast";
-            toast.innerHTML = `
-                <div class="bybit-toast-icon">✓</div>
-                <div>${message}</div>
-            `;
-            container.appendChild(toast);
+    function logoutUser(reason) {
+        // Clear session state or reset views back to login
+        document.getElementById("dashboard-content").style.display = "none";
+        document.getElementById("login-view").style.display = "flex";
+        document.getElementById("nav-header").style.display = "flex";
+        
+        // Clear sensitive inputs
+        document.getElementById("password").value = "";
+        
+        // Show notification toast if desired
+        if (reason) {
+            showSuccessToast(reason); // Or create a warning toast variant
+        }
+    }
+
+    // Listen for common user interactions to reset the idle countdown
+    window.addEventListener("mousemove", resetInactivityTimer);
+    window.addEventListener("keypress", resetInactivityTimer);
+    window.addEventListener("click", resetInactivityTimer);
+    window.addEventListener("scroll", resetInactivityTimer);
+
+    // Set hardcoded access credentials (including allowed email)
+    const AUTH_UID = "12345678";
+    const AUTH_EMAIL = "v38341922@gmail.com";
+    const AUTH_PASS = "password123";
+
+    function switchTab(type) {
+        const emailTab = document.getElementById("tab-email");
+        const mobileTab = document.getElementById("tab-mobile");
+        const label = document.getElementById("field-label");
+        const input = document.getElementById("uid");
+
+        if (type === "email") {
+            emailTab.classList.add("active");
+            mobileTab.classList.remove("active");
+            label.textContent = "Email or Subaccount UID";
+            input.placeholder = "Enter Email or UID";
+        } else {
+            mobileTab.classList.add("active");
+            emailTab.classList.remove("active");
+            label.textContent = "Mobile Number";
+            input.placeholder = "Enter Mobile Number";
+        }
+    }
+
+    function showSuccessToast(message) {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className = "bybit-toast";
+        toast.innerHTML = `
+            <div class="bybit-toast-icon">✓</div>
+            <div>${message}</div>
+        `;
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add("show");
+        }, 100);
+
+        setTimeout(() => {
+            toast.classList.remove("show");
+            setTimeout(() => toast.remove(), 300);
+        }, 2500);
+    }
+
+    document.getElementById("login-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const inputUid = document.getElementById("uid").value.trim().toLowerCase();
+        const inputPass = document.getElementById("password").value;
+        const errorBanner = document.getElementById("error-banner");
+
+        if ((inputUid === AUTH_UID || inputUid === AUTH_EMAIL.toLowerCase()) && inputPass === AUTH_PASS) {
+            errorBanner.style.display = "none";
+            showSuccessToast("Login Successful");
             
             setTimeout(() => {
-                toast.classList.add("show");
-            }, 100);
-
-            setTimeout(() => {
-                toast.classList.remove("show");
-                setTimeout(() => toast.remove(), 300);
-            }, 2500);
-        }
-
-        document.getElementById("login-form").addEventListener("submit", function(e) {
-            e.preventDefault();
-            const inputUid = document.getElementById("uid").value.trim().toLowerCase();
-            const inputPass = document.getElementById("password").value;
-            const errorBanner = document.getElementById("error-banner");
-
-            // Allow login if matching UID or Email along with the password
-            if ((inputUid === AUTH_UID || inputUid === AUTH_EMAIL.toLowerCase()) && inputPass === AUTH_PASS) {
-                // Success
-                errorBanner.style.display = "none";
-                showSuccessToast("Login Successful");
+                document.getElementById("login-view").style.display = "none";
+                document.getElementById("dashboard-content").style.display = "block";
+                document.getElementById("nav-header").style.display = "none";
                 
-                setTimeout(() => {
-                    document.getElementById("login-view").style.display = "none";
-                    document.getElementById("dashboard-content").style.display = "block";
-                    document.getElementById("nav-header").style.display = "none";
-                    updateTableData();
-                }, 800);
-            } else {
-                // Error
-                errorBanner.style.display = "block";
+                updateTableData();
+                resetInactivityTimer(); // Start tracking inactivity upon successful login
+            }, 800);
+        } else {
+            errorBanner.style.display = "block";
+        }
+    });
+
+    const fallbackRates = {
+        BTC: 1350000.00,
+        ETH: 42000.00,
+        SOL: 2200.00,
+        USDT: 15.50
+    };
+
+    async function fetchMarketPrices() {
+        try {
+            const response = await fetch(
+                "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,tether&vs_currencies=ghs"
+            );
+            if (!response.ok) throw new Error("Network response error");
+            const data = await response.json();
+            return {
+                BTC: data.bitcoin?.ghs || fallbackRates.BTC,
+                ETH: data.ethereum?.ghs || fallbackRates.ETH,
+                SOL: data.solana?.ghs || fallbackRates.SOL,
+                USDT: data.tether?.ghs || fallbackRates.USDT
+            };
+        } catch (error) {
+            return fallbackRates;
+        }
+    }
+
+    async function updateTableData() {
+        const rates = await fetchMarketPrices();
+        const rows = document.querySelectorAll("#order-rows tr");
+
+        rows.forEach(row => {
+            const fiatCell = row.querySelector("td:nth-child(4) strong");
+            const priceCell = row.querySelector(".price-cell");
+            const coinCell = row.querySelector(".coin-cell");
+
+            if (fiatCell && priceCell && coinCell) {
+                const fiatText = fiatCell.textContent.replace(/[^0-9.]/g, '');
+                const fiatAmount = parseFloat(fiatText);
+                const symbol = coinCell.getAttribute("data-symbol");
+                const unitPrice = rates[symbol] || fallbackRates[symbol];
+
+                if (fiatAmount && unitPrice) {
+                    const coinAmount = fiatAmount / unitPrice;
+                    priceCell.textContent = `${unitPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} GHS`;
+                    coinCell.textContent = `${coinAmount.toFixed(4)} ${symbol}`;
+                }
             }
         });
-
-        const fallbackRates = {
-            BTC: 1350000.00,
-            ETH: 42000.00,
-            SOL: 2200.00,
-            USDT: 15.50
-        };
-
-        async function fetchMarketPrices() {
-            try {
-                const response = await fetch(
-                    "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,tether&vs_currencies=ghs"
-                );
-                if (!response.ok) throw new Error("Network response error");
-                const data = await response.json();
-                return {
-                    BTC: data.bitcoin?.ghs || fallbackRates.BTC,
-                    ETH: data.ethereum?.ghs || fallbackRates.ETH,
-                    SOL: data.solana?.ghs || fallbackRates.SOL,
-                    USDT: data.tether?.ghs || fallbackRates.USDTH || fallbackRates.USDT
-                };
-            } catch (error) {
-                return fallbackRates;
-            }
-        }
-
-        async function updateTableData() {
-            const rates = await fetchMarketPrices();
-            const rows = document.querySelectorAll("#order-rows tr");
-
-            rows.forEach(row => {
-                const fiatCell = row.querySelector("td:nth-child(4) strong");
-                const priceCell = row.querySelector(".price-cell");
-                const coinCell = row.querySelector(".coin-cell");
-
-                if (fiatCell && priceCell && coinCell) {
-                    const fiatText = fiatCell.textContent.replace(/[^0-9.]/g, '');
-                    const fiatAmount = parseFloat(fiatText);
-                    const symbol = coinCell.getAttribute("data-symbol");
-                    const unitPrice = rates[symbol] || fallbackRates[symbol];
-
-                    if (fiatAmount && unitPrice) {
-                        const coinAmount = fiatAmount / unitPrice;
-                        priceCell.textContent = `${unitPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} GHS`;
-                        coinCell.textContent = `${coinAmount.toFixed(4)} ${symbol}`;
-                    }
-                }
-            });
-        }
-    </script>
+    }
+</script>
 </body>
 </html>
