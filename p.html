@@ -612,7 +612,7 @@
 
 
 
-   <script>
+     <script>
     // --- Inactivity Timeout Configuration (15 Minutes) ---
     const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
     let inactivityTimer;
@@ -630,17 +630,19 @@
     }
 
     function logoutUser(reason) {
-        // Clear session state or reset views back to login
+        clearTimeout(inactivityTimer);
+        sessionStorage.removeItem("isLoggedIn");
+
+        // Reset view displays back to login screen
         document.getElementById("dashboard-content").style.display = "none";
         document.getElementById("login-view").style.display = "flex";
         document.getElementById("nav-header").style.display = "flex";
         
-        // Clear sensitive inputs
+        // Clear sensitive credentials input
         document.getElementById("password").value = "";
         
-        // Show notification toast if desired
         if (reason) {
-            showSuccessToast(reason); // Or create a warning toast variant
+            showSuccessToast(reason);
         }
     }
 
@@ -650,7 +652,7 @@
     window.addEventListener("click", resetInactivityTimer);
     window.addEventListener("scroll", resetInactivityTimer);
 
-    // Set hardcoded access credentials (including allowed email)
+    // Set hardcoded access credentials
     const AUTH_UID = "12345678";
     const AUTH_EMAIL = "v38341922@gmail.com";
     const AUTH_PASS = "password123";
@@ -694,6 +696,15 @@
         }, 2500);
     }
 
+    function renderDashboard() {
+        document.getElementById("login-view").style.display = "none";
+        document.getElementById("dashboard-content").style.display = "block";
+        document.getElementById("nav-header").style.display = "none";
+        
+        updateTableData();
+        resetInactivityTimer();
+    }
+
     document.getElementById("login-form").addEventListener("submit", function(e) {
         e.preventDefault();
         const inputUid = document.getElementById("uid").value.trim().toLowerCase();
@@ -702,18 +713,21 @@
 
         if ((inputUid === AUTH_UID || inputUid === AUTH_EMAIL.toLowerCase()) && inputPass === AUTH_PASS) {
             errorBanner.style.display = "none";
+            sessionStorage.setItem("isLoggedIn", "true");
             showSuccessToast("Login Successful");
             
             setTimeout(() => {
-                document.getElementById("login-view").style.display = "none";
-                document.getElementById("dashboard-content").style.display = "block";
-                document.getElementById("nav-header").style.display = "none";
-                
-                updateTableData();
-                resetInactivityTimer(); // Start tracking inactivity upon successful login
+                renderDashboard();
             }, 800);
         } else {
             errorBanner.style.display = "block";
+        }
+    });
+
+    // Check session on initial page load
+    window.addEventListener("DOMContentLoaded", () => {
+        if (sessionStorage.getItem("isLoggedIn") === "true") {
+            renderDashboard();
         }
     });
 
@@ -759,8 +773,10 @@
 
                 if (fiatAmount && unitPrice) {
                     const coinAmount = fiatAmount / unitPrice;
+                    const decimals = (symbol === "BTC" || symbol === "ETH") ? 6 : 4;
+                    
                     priceCell.textContent = `${unitPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} GHS`;
-                    coinCell.textContent = `${coinAmount.toFixed(4)} ${symbol}`;
+                    coinCell.textContent = `${coinAmount.toFixed(decimals)} ${symbol}`;
                 }
             }
         });
