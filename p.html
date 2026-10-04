@@ -379,6 +379,53 @@
         .badge-sell { color: var(--sell-red); background-color: var(--sell-bg); }
         .badge-completed { color: #60a5fa; background-color: rgba(59, 130, 246, 0.15); }
         .order-id { font-family: monospace; color: var(--text-secondary); }
+
+.user-profile-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #1e2126;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.user-avatar {
+    width: 28px;
+    height: 28px;
+    background-color: var(--accent-yellow);
+    color: #000;
+    font-weight: 700;
+    font-size: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.user-status {
+    font-size: 10px;
+    color: var(--buy-green);
+    font-weight: 500;
+}
+
+.header-divider {
+    width: 1px;
+    height: 24px;
+    background-color: var(--border-color);
+}
     </style>
 </head>
 <body>
@@ -437,17 +484,27 @@
     </div>
 
     <!-- Dashboard Content Area -->
-    <div id="dashboard-content">
-        <div class="dashboard-header">
-            <div class="dash-brand">
-                <span class="dash-logo">BYBIT</span>
-                <span class="dash-title">P2P Order History</span>
-            </div>
-            <div class="dash-right-controls">
-                <div style="color: var(--text-secondary); font-size: 14px;">Total Records: 128 | Timezone: UTC+01:00</div>
-                <button type="button" class="btn-logout" onclick="logoutUser('Logged out successfully.')">Log Out</button>
-            </div>
+<div id="dashboard-content">
+    <div class="dashboard-header">
+        <div class="dash-brand">
+            <span class="dash-logo">BYBIT</span>
+            <span class="dash-title">P2P Order History</span>
         </div>
+        <div class="dash-right-controls">
+            <!-- Account Holder Display -->
+            <div class="user-profile-badge">
+                <span class="user-avatar">OR</span>
+                <div class="user-info">
+                    <span class="user-name">Okugo Rochas Chimaobi</span>
+                    <span class="user-status">Verified Account</span>
+                </div>
+            </div>
+            <div class="header-divider"></div>
+            <div style="color: var(--text-secondary); font-size: 13px;">Total Records: 128 | Timezone: UTC+01:00</div>
+            <button type="button" class="btn-logout" onclick="logoutUser('Logged out successfully.')">Log Out</button>
+        </div>
+    </div>
+
 
         <div class="table-container">
             <table>
@@ -714,7 +771,7 @@
         if ((inputUid === AUTH_UID || inputUid === AUTH_EMAIL.toLowerCase()) && inputPass === AUTH_PASS) {
             errorBanner.style.display = "none";
             sessionStorage.setItem("isLoggedIn", "true");
-            showSuccessToast("Login Successful");
+            showSuccessToast("Login Successful, Okugo Rochas Chimaobi");
             
             setTimeout(() => {
                 renderDashboard();
