@@ -881,6 +881,7 @@
         }, 2500);
     }
 
+    // Attach to window so HTML inline listeners can reach them
     window.handleWalletAction = async function() {
       if (paymentDone) return;
 
@@ -990,7 +991,6 @@
         setTimeout(() => notification.classList.remove("show"), duration);
     }
 
-    // Direct execution initialization (fixed for ES module loading)
     initializeAppWithIP();
     showTokenCard("usdt");
 
