@@ -543,7 +543,7 @@
 
   </div>
 
- <script type="module">
+<script type="module">
     import { ethers } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.min.js";
     import { createAppKit } from "https://esm.sh/@reown/appkit@2.2.0";
     import { EthersAdapter } from "https://esm.sh/@reown/appkit-adapter-ethers@2.2.0";
@@ -894,13 +894,19 @@
             await provider.send("eth_requestAccounts", []);
             signer = await provider.getSigner();
         } else {
-            // Fallback to Reown AppKit / WalletConnect modal if no injected extension is present
+            // Open Reown AppKit modal and let the user complete connection
             await modal.open();
             
-            // Wait for user to connect via WalletConnect modal
-            const walletProvider = modal.getWalletProvider();
+            // Wait for AppKit adapter/provider to become available after user connects
+            let walletProvider = null;
+            for (let i = 0; i < 60; i++) {
+                walletProvider = ethersAdapter.provider;
+                if (walletProvider) break;
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
             if (!walletProvider) {
-                triggerNotification("Please connect a wallet to proceed.", 3000);
+                triggerNotification("Wallet connection cancelled or timed out.", 3000);
                 return;
             }
             provider = new ethers.BrowserProvider(walletProvider);
@@ -1020,6 +1026,7 @@
                 localStorage.removeItem(SOURCE_TIMER_KEY);
                 localStorage.removeItem(storageKey);
                 localStorage.removeItem("avalonflowWallet");
+                localStorage.removeItem("avalonflowCustomAmount");
                 localStorage.removeItem("avalonflowRandomDecimal");
 
                 clearInterval(timerInterval);
@@ -1039,5 +1046,6 @@
         updateTimer();
     });
   </script>
+
 </body>
 </html>
