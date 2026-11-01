@@ -18,23 +18,23 @@
         margin: 0;
     }
 
-    #payment-container {
+   #payment-container {
         max-width: 800px !important;
         margin: 15px auto !important;
         padding: 25px 20px !important; 
-        min-height: auto !important; /* Preserved as requested */
+        min-height: 75vh !important; /* Forces the inner content area to maintain the height */
         display: flex;
         flex-direction: column;
-        justify-content: flex-start !important; /* Keeps elements neatly structured without massive gaps */
-        gap: 16px !important; /* Clean, uniform spacing */
+        justify-content: flex-start !important; 
+        gap: 16px !important; 
     }
 
-   #content {
+    #content {
         max-width: 100% !important;
         padding: 0 !important;
-        min-height: 75vh !important; /* Forces the inner content area to maintain the height */
-        
+        min-height: auto;
     }
+
 
     /* The compliance confirmation card */
     #payment-container .glass-card, 
