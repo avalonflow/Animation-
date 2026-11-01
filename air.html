@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-                                       /* ---------- FIX FOR DESKTOP MODE ON MOBILE PHONES ONLY ---------- */
+                                                           /* ---------- FIX FOR DESKTOP MODE ON MOBILE PHONES ONLY ---------- */
 @media (min-width: 768px) and (pointer: coarse) {
     body {
         display: flex;
@@ -17,53 +17,53 @@
         min-height: 100vh;
         margin: 0;
     }
+
     #payment-container {
         max-width: 800px !important;
         margin: 15px auto !important;
         padding: 25px 20px !important; 
-        min-height: 75vh; 
+        min-height: 75vh !important; /* Preserved as requested */
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-    }
-    #content {
-        max-width: 100% !important;
-        padding: 5px !important;
+        justify-content: flex-start !important; /* Keeps elements neatly structured without massive gaps */
+        gap: 16px !important; /* Clean, uniform spacing */
     }
 
-    /* Keeps the checkbox/text card compact and centered */
+    #content {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    /* The compliance confirmation card */
     #payment-container .glass-card, 
     #payment-container .neon-card,
     .glass-card {
         max-width: 800px !important;
-        min-height: 200px !important;
+        min-height: 200px !important; /* Keeps your 200px card height */
         box-sizing: border-box;
-        margin: 6px auto !important;
+        margin: 0 auto !important;
         padding: 18px !important;
-        margin-top: -240px !important;
+        margin-top: 0 !important; /* No negative margins needed */
     }
-    
+
     .glass-card label span {
-        font-size: 18px !important; /* Bumped up from 10px */
+        font-size: 18px !important; /* Large, readable text */
+        line-height: 1.5 !important;
     }
 
-    #tokenSelector {
-        margin-top: -230px !important;
-    }
-
+    /* Reset all elements to flow naturally with positive spacing */
+    #tokenSelector,
     #token-card,
-    #token-card.inactive {
-        margin-top: -230px !important;
+    #token-card.inactive,
+    .footer-note {
+        margin-top: 0 !important; 
     }
 
-    .footer-note {
-        margin-top: -230px !important;
-    }
-    
     #payment-container p + p {
         font-size: 1.35rem !important;
     }
 }
+
 
 
 
