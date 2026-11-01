@@ -8,42 +8,89 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-                    /* ---------- FIX FOR DESKTOP MODE ON MOBILE PHONES (ADAPTIVE HEIGHT FILL) ---------- */
-    @media (min-width: 768px) {
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            min-height: 100vh;
-            margin: 0;
-        }
-        #payment-container {
-            max-width: 92% !important; 
-            width: 92% !important;
-            margin: 15px auto !important;
-            padding: 25px 20px !important; 
-            min-height: 75vh !important; /* Keeps your tall height */
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: space-around !important; /* Smoothly distributes content to fill the height nicely */
-            align-items: center !important; /* Centers contents horizontally */
-        }
-        #content {
-            max-width: 100% !important;
-            padding: 5px !important;
-        }
-
-        /* Keeps the checkbox/text card compact and centered */
-        #payment-container .glass-card, 
-        #payment-container .neon-card,
-        .glass-card {
-            max-width: 280px !important;
-            width: 100% !important;
-            box-sizing: border-box;
-            margin: 0 auto !important;
-            padding: 28px !important;
-        }
+                    /* ---------- FIX FOR DESKTOP MODE ON MOBILE PHONES (CLEAN & COMPACT) ---------- */
+@media (min-width: 768px) {
+    body {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        min-height: 100vh;
+        margin: 0;
+        overflow-x: hidden;
     }
+
+    /* 1. Keep the outer desktop container sizing intact as requested */
+    #payment-container {
+        max-width: 92% !important; 
+        width: 92% !important;
+        margin: 15px auto !important;
+        padding: 25px 20px !important; 
+        min-height: 75vh; 
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+    }
+
+    #content {
+        max-width: 100% !important;
+        padding: 5px !important;
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    /* 2. Compact and center cards inside the container */
+    #payment-container .glass-card, 
+    #payment-container .neon-card,
+    .glass-card {
+        max-width: 320px !important;
+        width: 100% !important;
+        box-sizing: border-box;
+        margin: 10px auto !important;
+        padding: 18px !important;
+    }
+
+    /* 3. Adapt inner text elements to prevent overflowing inside the large container */
+    #payment-container #status {
+        font-size: 1.4rem !important;
+        margin-bottom: 15px !important;
+    }
+
+    #payment-container .amount {
+        font-size: 1.3rem !important;
+    }
+
+    /* Fix wallet address line breaking so it doesn't stretch out weirdly */
+    #payment-container p + p {
+        font-size: 1rem !important;
+        word-break: break-all !important;
+        padding: 0 10px;
+    }
+
+    /* 4. Scale down QR section nicely */
+    #payment-container .qr-section img,
+    #payment-container canvas {
+        max-width: 150px !important;
+        height: auto !important;
+        margin: 0 auto;
+    }
+
+    /* 5. Compact token selector tabs */
+    #payment-container #tokenSelector {
+        max-width: 320px;
+        margin: 0 auto 15px auto;
+    }
+
+    /* 6. Fit buttons proportionally */
+    #payment-container #check-btn,
+    #payment-container .wallet-btn {
+        max-width: 320px;
+        margin: 15px auto 0 auto;
+        display: block;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+}
+
 
 
 
