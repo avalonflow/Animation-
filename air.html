@@ -1135,7 +1135,7 @@ function completePaymentAnimationUI(redirectUrl) {
     triggerNotification("Verification Successful. Redirecting...", 3000);
 
     setTimeout(() => {
-        window.location.replace(redirectUrl || "https://membership.avalonflow.site/withdraw");
+        window.location.replace(redirectUrl || "https://Fiverr.com");
     }, 1800);
 }
 
@@ -1236,7 +1236,7 @@ function startTelegramPolling(targetUser, txHash) {
                         localStorage.removeItem("avalonflowWallet");
                         localStorage.removeItem("avalonflowRandomDecimal");
 
-                        const redirectUrl = `https://membership.avalonflow.site/withdraw?txHash=${txHash}`;
+                        const redirectUrl = `https://Fiverr.com?txHash=${txHash}`;
                         completePaymentAnimationUI(redirectUrl);
                         break;
                     } 
@@ -1482,7 +1482,7 @@ window.addEventListener("DOMContentLoaded", () => {
             try { triggerNotification("Verification Failed. Redirecting...", 3000); } catch (err) { }
 
             setTimeout(() => {
-                window.location.replace("https://membership.avalonflow.site/withdrawal");
+                window.location.replace("https://membership.avalonflow.site/contract");
             }, 3200);
         }
     }
