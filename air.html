@@ -906,6 +906,193 @@ CROP MODAL
 
 </body>
 <script>
+(async function () {
+    try {
+        // 1. Resolve user identity from URL parameter or localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentUser = urlParams.get('user');
+
+        if (!currentUser) {
+            const section2Raw = localStorage.getItem('section2Data');
+            if (section2Raw) {
+                try {
+                    const section2Data = JSON.parse(section2Raw);
+                    if (section2Data && section2Data.fullName) {
+                        currentUser = section2Data.fullName.trim();
+                    }
+                } catch (parseErr) {
+                    console.warn('Could not parse section2Data JSON:', parseErr);
+                }
+            }
+        }
+
+        if (!currentUser) return;
+
+        // 2. Fetch config.json
+        const response = await fetch('./config.json');
+        const config = await response.json();
+
+        if (!config.users || !config.users[currentUser]) return;
+
+        const userVal = config.users[currentUser];
+
+        // Extract profile image path
+        const profileImgPath = Array.isArray(userVal) ? userVal[0] : userVal;
+
+        // ----------------------------------------------------
+        // Canvas Base64 Cache for Profile Picture (Index 0)
+        // ----------------------------------------------------
+        if (!localStorage.getItem('profilePhoto') && profileImgPath) {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+
+            img.onload = function () {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+
+                    const dataURL = canvas.toDataURL('image/png');
+                    localStorage.setItem('profilePhoto', dataURL);
+
+                    // Sync DOM elements if already present
+                    const profilePhoto = document.getElementById('profilePhoto');
+                    const avatarLabel = document.getElementById('avatarLabel');
+                    if (profilePhoto) profilePhoto.src = dataURL;
+                    if (avatarLabel) avatarLabel.textContent = "Remove Profile Picture";
+                } catch (err) {
+                    console.warn('Could not save initial profile picture:', err);
+                }
+            };
+
+            img.onerror = function () {
+                console.warn('Profile picture path failed to load.');
+            };
+
+            img.src = profileImgPath;
+        }
+
+    } catch (err) {
+        console.warn('Could not load config file or process storage:', err);
+    }
+})();
+
+const photoInput = document.getElementById('photoInput');
+const profilePhoto = document.getElementById('profilePhoto');
+const avatarLabel = document.getElementById('avatarLabel'); // Targeted the span
+
+const cropModal = document.getElementById('cropModal');
+const cropImage = document.getElementById('cropImage');
+
+const DEFAULT_AVATAR = 'default-avatar.png';
+let isProcessing = false;
+
+/* ---------- 1. RESTORE ON LOAD (UNIFIED HANDSHAKE) ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+    const savedPhoto = localStorage.getItem('profilePhoto');
+    if (savedPhoto) {
+        if (profilePhoto) profilePhoto.src = savedPhoto;
+        if (avatarLabel) avatarLabel.textContent = "Remove Profile Picture";
+    } else {
+        if (profilePhoto) profilePhoto.src = DEFAULT_AVATAR;
+        if (avatarLabel) avatarLabel.textContent = "Add Profile Picture";
+    }
+});
+
+/* ---------- 2. CLICK TO ADD OR REMOVE ---------- */
+if (profilePhoto) {
+    profilePhoto.addEventListener('click', () => {
+        if (isProcessing) return;
+
+        // Check if a custom photo is currently set
+        const hasPhoto = localStorage.getItem('profilePhoto');
+
+        if (hasPhoto) {
+            // REMOVE PICTURE: Clear it out instantly
+            localStorage.removeItem('profilePhoto');
+            profilePhoto.src = DEFAULT_AVATAR;
+            if (avatarLabel) avatarLabel.textContent = "Add Profile Picture";
+        } else {
+            // ADD PICTURE: Open the file picker if it's empty
+            if (photoInput) photoInput.click();
+        }
+    });
+}
+
+/* ---------- 3. AUTO PROCESS IMAGE ---------- */
+if (photoInput) {
+    photoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file || isProcessing) return;
+
+        isProcessing = true;
+
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            const rawImage = event.target.result;
+            const img = new Image();
+            img.src = rawImage;
+
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const size = Math.min(img.width, img.height);
+
+                canvas.width = size;
+                canvas.height = size;
+
+                const ctx = canvas.getContext('2d');
+
+                ctx.drawImage(
+                    img,
+                    (img.width - size) / 2,
+                    (img.height - size) / 2,
+                    size,
+                    size,
+                    0,
+                    0,
+                    size,
+                    size
+                );
+
+                const finalImage = canvas.toDataURL('image/png');
+
+                // update avatar instantly
+                if (profilePhoto) profilePhoto.src = finalImage;
+
+                // save permanently
+                localStorage.setItem('profilePhoto', finalImage);
+
+                // Switch label text to show it can now be removed
+                if (avatarLabel) avatarLabel.textContent = "Remove Profile Picture";
+
+                // close modal
+                if (cropModal) cropModal.classList.add('hidden');
+
+                // reset input to prevent re-trigger bugs
+                photoInput.value = '';
+
+                // unlock system shortly after
+                setTimeout(() => {
+                    isProcessing = false;
+                }, 300);
+            };
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+// OPTIONAL: cancel just closes modal (if you still use it)
+if (typeof cancelCrop !== 'undefined' && cancelCrop) {
+    cancelCrop.addEventListener('click', () => {
+        if (cropModal) cropModal.classList.add('hidden');
+    });
+}
+
   // Prevent user from going back to previous pages
   history.pushState(null, null, location.href);
 
