@@ -12,154 +12,14 @@
             box-sizing: border-box;
         }
 
-/* ---------- Upgraded Seasonal Boot Infrastructure ---------- */
-#boot-screen {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  font-family: "Courier New", monospace;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 20px;
-  overflow: hidden;
-  transition: opacity 0.8s ease, backdrop-filter 0.8s ease;
-}
 
-/* ---------- FOUR SEASON ENVIRONMENT BACKDROPS ---------- */
-#boot-screen.season-spring {
-  background: #06140e; /* Emerald charcoal blend */
-}
-#boot-screen.season-summer {
-  background: #070a14; /* Deep midnight space blue */
-}
-#boot-screen.season-autumn {
-  background: #120e0b; /* Earthy wood-smoke charcoal */
-}
-#boot-screen.season-winter {
-  background: #030307; /* Freezing stark deep cosmic black */
-}
-
-/* Fade out hook logic */
-#boot-screen.fade-out {
-  opacity: 0;
-  backdrop-filter: blur(12px);
-}
-
-/* ---------- SYSTEM TEXT CONSOLE LAYER ---------- */
-#boot-text {
-  font-size: 16px;
-  line-height: 1.8;
-  white-space: pre-wrap;
-  width: 100%;
-  max-width: 420px;       /* Constrains terminal text block width */
-  text-align: left;       /* Keeps terminal syntax and bullet strings perfectly straight */
-  display: block;
-  margin: 0 auto;         /* Centers the code block on the screen */
-  z-index: 2;
-  box-sizing: border-box;
-}
-
-/* ---------- FOUR SEASON TYPOGRAPHY THEMING ENGINE ---------- */
-
-/* Spring Texts (Mint) */
-.season-text-spring { color: #00ffa6; }
-#boot-screen.season-spring .cursor { background-color: #00ffa6; }
-.glow.season-text-spring { text-shadow: 0 0 8px #00ffa6, 0 0 16px rgba(0,255,166,0.4); }
-
-/* Summer Texts (Pure Dashboard Balance Cyan) */
-.season-text-summer { color: #00f2fe; }
-#boot-screen.season-summer .cursor { background-color: #00f2fe; }
-.glow.season-text-summer { text-shadow: 0 0 8px #00f2fe, 0 0 20px rgba(0,242,254,0.6); }
-
-/* Autumn Texts (Harvest Matte Gold) */
-.season-text-autumn { color: #fbbf24; }
-#boot-screen.season-autumn .cursor { background-color: #fbbf24; }
-.glow.season-text-autumn { text-shadow: 0 0 8px #fbbf24, 0 0 16px rgba(251,191,36,0.5); }
-
-/* Winter Texts (Diamond Polar White) */
-.season-text-winter { color: #ffffff; }
-#boot-screen.season-winter .cursor { background-color: #ffffff; }
-.glow.season-text-winter { text-shadow: 0 0 8px #ffffff, 0 0 16px rgba(255,255,255,0.6); }
-
-/* Dynamic Glow Pulse Loop */
-.glow {
-  animation: pulseGlow 1.5s infinite alternate;
-}
-@keyframes pulseGlow {
-  0% { opacity: 0.85; }
-  100% { opacity: 1; }
-}
-
-/* ---------- CLEAN AUTOMATED LOADING BAR FIX --------- */
-.suspense-loader-row {
-    margin: 15px 0;
-    display: block;
-    width: 100%;
-}
-.suspense-pulse-text {
-    font-size: 0.95rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    animation: terminalFlash 1.2s ease-in-out infinite alternate;
-}
-/* Assign color values dynamically based on current parent setup rules */
-#boot-screen.season-spring .suspense-pulse-text { color: #00ffa6; }
-#boot-screen.season-summer .suspense-pulse-text { color: #00f2fe; }
-#boot-screen.season-autumn .suspense-pulse-text { color: #fbbf24; }
-#boot-screen.season-winter .suspense-pulse-text { color: #ffffff; }
-
-@keyframes terminalFlash {
-    0% { opacity: 0.3; }
-    100% { opacity: 1; }
-}
-
-/* Blinking terminal tracking block cursor */
-.cursor {
-  display: inline-block;
-  width: 10px; height: 18px;
-  margin-left: 6px;
-  vertical-align: middle;
-  animation: blink 1s infinite;
-}
-@keyframes blink {
-  0%,50%,100% { opacity: 1; }
-  25%,75% { opacity: 0; }
-}
-
-/* Final screen entrance glow rule formatting variables */
-.final-glow {
-  font-weight: 700;
-  animation: finalGlow 1.2s ease-out forwards;
-}
-@keyframes finalGlow {
-  0% { opacity: 0; transform: scale(0.98); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-@media (max-width: 768px) {
-  #boot-text { 
-    font-size: 14px; 
-    max-width: 330px; /* Sweeter compact bounding box for mobile layouts */
-  }
-}
-
-#particle-canvas {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  z-index: 1;
-  pointer-events: none;
-}
 
     /* --- Headings & Status --- */
     #status {
         font-size: 1.8rem;
         margin-bottom: 29px;
         color: #0ff;
-        text-shadow: 0 0 8px #0ff, 0 0 12px #0ff;
+        
         transition: all 0.3s ease-in-out;
     }
 
@@ -167,7 +27,7 @@
         font-weight: bold;
         font-size: 1.6rem;
         color: #ff3fff;
-        text-shadow: 0 0 10px #ff3fff, 0 0 20px #ff3fff;
+        
     }
 
     p {
@@ -180,7 +40,7 @@
                 font-family: 'Georgia', sans-serif; 
         font-size: clamp(1.6rem, 4vw, 1.8rem);
         color: #0ff;
-        text-shadow: 0 0 6px #0ff;
+        
         word-break: break-all;
         overflow-wrap: normal !important;
     }
@@ -210,7 +70,7 @@
         font-size: 1rem;
         font-weight: bold !important;
         color: var(--accent-red) !important;
-        text-shadow: 0 0 5px rgba(239, 68, 68, 0.4);
+        
         margin-top: 15px;
         text-align: center;
     }
@@ -556,21 +416,7 @@
           0 0 36px rgba(155,89,182,0.45);
     }
 
-    @media (max-width: 400px) {
-        #payment-container {
-            padding: 20px 15px;
-            max-width: 300px;
-        }
-        .amount {
-            font-size: 1.4rem;
-        }
-        p {
-            font-size: 0.9rem;
-        }
-        #status {
-            font-size: 1.4rem;
-        }
-    }
+    
 
 /* ---------- Glass Cards ---------- */
 .glass-card {
@@ -636,6 +482,7 @@
             justify-content: center;
         }
 
+
         .document-card {
             max-width: 800px;
             width: 100%;
@@ -648,328 +495,7 @@
 
         
 
-        .doc-subtitle {
-            font-size: 11pt;
-            font-weight: 500;
-            color: #d96b43;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 0;
-        }
-
-        .meta-grid {
-            display: table;
-            width: 100%;
-            margin-bottom: 25px;
-            background-color: #f4efe8;
-            border-radius: 6px;
-            padding: 14px 16px;
-            border: 1px solid #e6dfd5;
-        }
-
-        .meta-row {
-            display: table-row;
-        }
-
-        .meta-cell {
-            display: table-cell;
-            padding: 4px 10px;
-            font-size: 9.5pt;
-        }
-
-        .meta-label {
-            font-weight: 700;
-            color: #635b54;
-            width: 15%;
-        }
-
-        .meta-value {
-            color: #2c2825;
-            width: 35%;
-        }
-
-        /* ---------- Mini TV Video ---------- */
-.video-container {
-    position: relative;
-    width: 100%;
-    max-width: 600px;
-    margin: 20px auto;
-    border-radius: 16px;
-    overflow: hidden;
-    background: rgba(0,0,0,0.3);
-    backdrop-filter: blur(8px);
-}
-
-.video-overlay {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: rgba(107,44,216,0.25);
-    backdrop-filter: blur(8px);
-    padding: 6px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    color: #fff;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(107,44,216,0.5);
-}
-
-.video-container video {
-    width: 100%;
-    display: block;
-}
-
-/* --- SURGICAL CONTROL REMOVALS --- */
-
-/* Strips out the center play icon overlays */
-video::-webkit-media-controls-start-playback-button,
-video::-webkit-media-controls-overlay-play-button {
-    display: none !important;
-    -webkit-appearance: none !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-/* Hides the bottom left control bar play/pause toggle */
-video::-webkit-media-controls-play-button {
-    display: none !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-/* Hides the horizontal progress line / slider tracker */
-video::-webkit-media-controls-timeline {
-    display: none !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-/* Hides the numerical duration text string (e.g., 0:24 / 0:43) */
-video::-webkit-media-controls-current-time-display,
-video::-webkit-media-controls-time-remaining-display {
-    display: none !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-.video-controls {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 4px;
-}
-
-.video-controls input[type=range] {
-    width: 100px;
-}
-
-
-        h2 {
-            font-size: 13pt;
-            font-weight: 700;
-            color: #1a1615;
-            border-left: 4px solid #d96b43;
-            padding-left: 10px;
-            margin: 22px 0 10px 0;
-        }
-
-        p {
-            margin: 0 0 10px 0;
-        }
-
-                ul {
-            margin: 0 0 12px 0;
-            padding-left: 20px;
-        }
-
-        ul ul {
-            list-style-type: circle;
-        }
-
-        li {
-            margin-bottom: 5px;
-        }
-
-
-        .table-container {
-            width: 100%;
-            margin: 12px 0 20px 0;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 9.5pt;
-        }
-
-        th {
-            background-color: #2c2825;
-            color: #ffffff;
-            font-weight: 600;
-            text-align: left;
-            padding: 8px 12px;
-            font-size: 9pt;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            padding: 9px 12px;
-            border-bottom: 1px solid #e8e2d9;
-            vertical-align: top;
-        }
-
-        tr:nth-child(even) td {
-            background-color: #f8f5f0;
-        }
-
-        .highlight-box {
-            background-color: #fff8f5;
-            border: 1px solid #f0d5c8;
-            border-left: 4px solid #d96b43;
-            border-radius: 4px;
-            padding: 12px 15px;
-            margin: 15px 0;
-            font-size: 9.5pt;
-        }
-
-        .signature-section {
-            margin-top: 35px;
-        }
-
-        .sig-table {
-            display: table;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        .sig-row {
-            display: table-row;
-        }
-
-        .sig-col {
-            display: table-cell;
-            width: 48%;
-            padding-right: 4%;
-            vertical-align: top;
-        }
-
-        .sig-col:last-child {
-            padding-right: 0;
-        }
-
-        .sig-box {
-            border-top: 1px solid #2c2825;
-            padding-top: 8px;
-            margin-top: 45px;
-        }
-
-        .sig-title {
-            font-weight: 700;
-            font-size: 10pt;
-            color: #1a1615;
-            margin-bottom: 2px;
-        }
-
-        .sig-sub {
-            font-size: 8.5pt;
-            color: #635b54;
-        }
-
-        /* Standard Client Signature Styling */
-        .signature-font {
-            font-family: 'Brush Script MT', 'cursive', sans-serif;
-            font-size: 18pt;
-            color: #1a2a3a;
-            margin-bottom: -35px;
-            margin-left: 10px;
-        }
-
-        /* Distinct Contractor Signature Styling */
-        .contractor-sig-font {
-            font-family: 'Caveat', 'Segoe Script', 'Bradley Hand', cursive;
-            font-size: 26pt;
-            font-weight: 600;
-            color: #1d3557; /* Deep ink blue */
-            margin-bottom: -38px;
-            margin-left: 8px;
-            display: inline-block;
-            transform: rotate(-2deg); /* Slight natural ink tilt */
-            letter-spacing: 0.5px;
-            user-select: none;
-        }
-
-        /* Interactive Action Box */
-        .action-container {
-            margin-top: 40px;
-            padding-top: 25px;
-            border-top: 2px dashed #e8e2d9;
-            text-align: center;
-        }
-
-
-        .sign-btn {
-            background-color: #d96b43;
-            color: #ffffff;
-            font-size: 11pt;
-            font-weight: 700;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .sign-btn:hover {
-            background-color: #be5934;
-        }
-
-        @media screen and (max-width: 768px) {
-            .meta-grid {
-                display: block !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-
-            .meta-row {
-                display: grid !important;
-                grid-template-columns: auto 1fr !important;
-                gap: 6px 12px !important;
-                margin-bottom: 8px;
-            }
-
-            .meta-row:last-child {
-                margin-bottom: 0;
-            }
-
-            .meta-cell {
-                display: block !important;
-                width: auto !important;
-                padding: 0 !important;
-            }
-        }
-
-.step-image {
-    width: 100%; /* or a smaller width, e.g., 300px */
-height: 180px;   /* reduce this value */
-    max-width: 100%;
-    margin-top: 10px;
-    border-radius: 8px; /* optional for rounded corners */
-}
-        /* Footer */
-        footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            padding: 18px 0;
-            font-size: 14px;
-            color: #555;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
-            z-index: 6;
-        }
-
+        
 /* =========================
 TOP RIGHT PROFILE POSITION
 ========================= */
@@ -1239,11 +765,7 @@ CROP MODAL
 </div>
 
 
-<div id="boot-screen">
-  <pre id="boot-text"></pre>
-  <div class="cursor"></div>
-  <canvas id="particle-canvas"></canvas>
-</div>
+
 
 <div id="planNotification" class="notification-bar"></div>
 
