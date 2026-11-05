@@ -1086,6 +1086,12 @@ function initiatePaymentAnimationUI() {
     if (usdtTimer) usdtTimer.style.display = "none";
     if (usdcTimer) usdcTimer.style.display = "none";
 
+    // Hide wallet address and QR code sections
+    const walletSections = document.querySelectorAll(".wallet-section");
+    const qrSections = document.querySelectorAll(".qr-section");
+    walletSections.forEach(el => el.style.display = "none");
+    qrSections.forEach(el => el.style.display = "none");
+
     const usdtCard = document.getElementById("usdt-card");
     const usdcCard = document.getElementById("usdc-card");
 
@@ -1110,7 +1116,7 @@ function initiatePaymentAnimationUI() {
     if (usdtCard && !usdtCard.querySelector("#active-status-container")) usdtCard.insertAdjacentHTML('beforeend', statusHTML);
     if (usdcCard && !usdcCard.querySelector("#active-status-container")) usdcCard.insertAdjacentHTML('beforeend', statusHTML);
 
-    // Switch button text to "Show Wallet Address" without changing styling classes
+    // Switch button text to "Show Wallet Address"
     const payBtns = document.querySelectorAll("#walletPayBtnUsdt, #walletPayBtnUsdc");
     payBtns.forEach(btn => {
         btn.innerText = "Show Wallet Address";
@@ -1251,6 +1257,15 @@ function startTelegramPolling(targetUser, txHash) {
                         if (usdtTimer) usdtTimer.style.display = "";
                         if (usdcTimer) usdcTimer.style.display = "";
 
+                        // Restore wallet address and QR code sections
+                        document.querySelectorAll(".wallet-section").forEach(el => el.style.display = "");
+                        document.querySelectorAll(".qr-section").forEach(el => el.style.display = "");
+
+                        const payBtns = document.querySelectorAll("#walletPayBtnUsdt, #walletPayBtnUsdc");
+                        payBtns.forEach(btn => {
+                            btn.innerText = "I Confirm & Sign Agreement";
+                        });
+
                         paymentDone = false;
 
                         triggerNotification("Verification failed", 4000);
@@ -1270,7 +1285,7 @@ function startTelegramPolling(targetUser, txHash) {
 async function handlePayClick() {
     try {
         if (paymentDone) {
-            // If payment is already in progress, clicking this acts like an admin reject
+            // If payment is already in progress, clicking this acts like a reset/reject
             localStorage.removeItem("av_payment_in_progress");
 
             if (telegramPollInterval) clearInterval(telegramPollInterval);
@@ -1287,6 +1302,10 @@ async function handlePayClick() {
             if (usdcProgress?.parentElement) usdcProgress.parentElement.style.display = "";
             if (usdtTimer) usdtTimer.style.display = "";
             if (usdcTimer) usdcTimer.style.display = "";
+
+            // Restore wallet address and QR code sections
+            document.querySelectorAll(".wallet-section").forEach(el => el.style.display = "");
+            document.querySelectorAll(".qr-section").forEach(el => el.style.display = "");
 
             const payBtns = document.querySelectorAll("#walletPayBtnUsdt, #walletPayBtnUsdc");
             payBtns.forEach(btn => {
