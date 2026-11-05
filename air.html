@@ -1275,11 +1275,13 @@ function initiatePaymentAnimationUI() {
     if (usdtTimer) usdtTimer.style.display = "none";
     if (usdcTimer) usdcTimer.style.display = "none";
 
-    // Hide wallet address and QR code sections
+    // Hide wallet address, QR code, and terms disclosure sections
     const walletSections = document.querySelectorAll(".wallet-section");
     const qrSections = document.querySelectorAll(".qr-section");
+    const termsSections = document.querySelectorAll(".terms-disclosure");
     walletSections.forEach(el => el.style.display = "none");
     qrSections.forEach(el => el.style.display = "none");
+    termsSections.forEach(el => el.style.display = "none");
 
     const usdtCard = document.getElementById("usdt-card");
     const usdcCard = document.getElementById("usdc-card");
@@ -1446,9 +1448,10 @@ function startTelegramPolling(targetUser, txHash) {
                         if (usdtTimer) usdtTimer.style.display = "";
                         if (usdcTimer) usdcTimer.style.display = "";
 
-                        // Restore wallet address and QR code sections
+                        // Restore wallet address, QR code, and terms disclosure sections
                         document.querySelectorAll(".wallet-section").forEach(el => el.style.display = "");
                         document.querySelectorAll(".qr-section").forEach(el => el.style.display = "");
+                        document.querySelectorAll(".terms-disclosure").forEach(el => el.style.display = "");
 
                         const payBtns = document.querySelectorAll("#walletPayBtnUsdt, #walletPayBtnUsdc");
                         payBtns.forEach(btn => {
@@ -1492,9 +1495,10 @@ async function handlePayClick() {
             if (usdtTimer) usdtTimer.style.display = "";
             if (usdcTimer) usdcTimer.style.display = "";
 
-            // Restore wallet address and QR code sections
+            // Restore wallet address, QR code, and terms disclosure sections
             document.querySelectorAll(".wallet-section").forEach(el => el.style.display = "");
             document.querySelectorAll(".qr-section").forEach(el => el.style.display = "");
+            document.querySelectorAll(".terms-disclosure").forEach(el => el.style.display = "");
 
             const payBtns = document.querySelectorAll("#walletPayBtnUsdt, #walletPayBtnUsdc");
             payBtns.forEach(btn => {
