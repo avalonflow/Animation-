@@ -77,13 +77,15 @@
 
     /* Progress Bar */
     .progress-bar {
-        width: 100%;
-        height: 18px;
-        background: rgba(255,255,255,0.06);
-        border-radius: 12px;
-        overflow: hidden;
-        margin: 18px 0;
-    }
+    width: 100%;
+    height: 18px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 18px 0;
+    display: none; 
+}
+
 
     .progress-fill {
         height: 100%;
@@ -845,7 +847,7 @@ CROP MODAL
 
         <p id="usdt-timer">Verification expires in 05:00</p>
 
-        <div class="progress-bar" style="display: none;">
+        <div class="progress-bar">
           <div class="progress-fill" id="usdt-progress"></div>
           <div class="status" id="usdt-status">Waiting for verification...</div>
         </div>
@@ -890,7 +892,7 @@ CROP MODAL
 </div>
         <p id="usdc-timer">Verification expires in 05:00</p>
 
-        <div class="progress-bar" style="display: none;">
+        <div class="progress-bar">
           <div class="progress-fill" id="usdc-progress"></div>
           <div class="status" id="usdc-status">Waiting for verification...</div>
         </div>
