@@ -6,180 +6,152 @@
     <title>Security Protocol</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
     <style>
-                                                           /* ---------- FIX FOR DESKTOP MODE ON MOBILE PHONES ONLY ---------- */
-@media (min-width: 768px) and (pointer: coarse) {
-    body {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        min-height: 100vh;
-        margin: 0;
-    }
-
-   #payment-container {
-        max-width: 800px !important;
-        margin: 15px auto !important;
-        padding: 25px 20px !important; 
-        min-height: 75vh !important; /* Forces the inner content area to maintain the height */
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start !important; 
-        gap: 16px !important; 
-    }
-
-    #content {
-        max-width: 100% !important;
-        padding: 0 !important;
-        min-height: auto;
-    }
-
-
-    /* The compliance confirmation card */
-    #payment-container .glass-card, 
-    #payment-container .neon-card,
-    .glass-card {
-        max-width: 800px !important;
-        min-height: 200px !important; /* Keeps your 200px card height */
-        box-sizing: border-box;
-        margin: 0 auto !important;
-        padding: 18px !important;
-        margin-top: 0 !important; /* No negative margins needed */
-    }
-
-    .glass-card label span {
-        font-size: 18px !important; /* Large, readable text */
-        line-height: 1.5 !important;
-    }
-
-    /* Reset all elements to flow naturally with positive spacing */
-    #tokenSelector,
-    #token-card,
-    #token-card.inactive,
-    .footer-note {
-        margin-top: 0 !important; 
-    }
-
-    #payment-container p + p {
-        font-size: 1.35rem !important;
-    }
-}
-
-
-
-
-
-
-
-
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-red: #ef4444;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --btn-green: #10b981;
-            --btn-green-hover: #059669;
+        *, *::before, *::after {
+            box-sizing: border-box;
         }
 
-            /* ---------- Base ---------- */
-    body {
-        font-family: 'Georgia', sans-serif; 
-        margin: 0;
-        color: #fff;
-        background-color: var(--bg-color);
-        background: linear-gradient(135deg,#0d0f1a,#050608);
-        overflow-x:hidden;
-    }
-    button { cursor: pointer; }
-    a { color: inherit; text-decoration: none; font-weight: bold; }
-
-    /* ---------- Content ---------- */
-    #content {
-        position: relative;
-        z-index: 1;
-        padding: 20px 15px;       /* smaller padding for mobile */
-        max-width: 600px;
-        margin: auto;
-        padding-bottom: 40px;
-        text-align: center;
-    }
-
-/* ---------- Glass Cards ---------- */
-.glass-card {
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(12px);
-  border-radius: 18px;
-  padding: 28px;
-  margin: 80px auto 30px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-  max-width: 280px !important;
-}
-
-/* ---------- Checkbox ---------- */
-.checkbox-container {
+/* ---------- Upgraded Seasonal Boot Infrastructure ---------- */
+#boot-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  font-family: "Courier New", monospace;
   display: flex;
-  flex-direction: row-reverse; /* Flips the visual order so input goes to the right */
-  align-items: flex-end;      /* CHANGED: Pulls the checkbox down to the bottom edge */
-  justify-content: space-between; /* Pushes text to left, checkbox to far right */
-  gap: 16px; /* Slightly more breathing room since it's on the right */
-  margin-top: 14px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  overflow: hidden;
+  transition: opacity 0.8s ease, backdrop-filter 0.8s ease;
 }
 
-        .security-note img.security-avatar {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-
+/* ---------- FOUR SEASON ENVIRONMENT BACKDROPS ---------- */
+#boot-screen.season-spring {
+  background: #06140e; /* Emerald charcoal blend */
+}
+#boot-screen.season-summer {
+  background: #070a14; /* Deep midnight space blue */
+}
+#boot-screen.season-autumn {
+  background: #120e0b; /* Earthy wood-smoke charcoal */
+}
+#boot-screen.season-winter {
+  background: #030307; /* Freezing stark deep cosmic black */
 }
 
-.checkbox-container input {
-  margin-bottom: 4px;         /* CHANGED: Switched from top to bottom margin for a cleaner baseline alignment */
-  cursor: pointer;
+/* Fade out hook logic */
+#boot-screen.fade-out {
+  opacity: 0;
+  backdrop-filter: blur(12px);
 }
 
-.checkbox-container label {
-  flex: 1; /* Ensures the label takes up all remaining space on the left */
+/* ---------- SYSTEM TEXT CONSOLE LAYER ---------- */
+#boot-text {
+  font-size: 16px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  width: 100%;
+  max-width: 420px;       /* Constrains terminal text block width */
+  text-align: left;       /* Keeps terminal syntax and bullet strings perfectly straight */
+  display: block;
+  margin: 0 auto;         /* Centers the code block on the screen */
+  z-index: 2;
+  box-sizing: border-box;
 }
 
+/* ---------- FOUR SEASON TYPOGRAPHY THEMING ENGINE ---------- */
 
-/* Red warning glow */
-.neon-card.warning {
-  animation: warning-glow 0.8s ease-in-out 2;
-  box-shadow: 0 0 20px 4px rgba(255,77,77,0.9);
+/* Spring Texts (Mint) */
+.season-text-spring { color: #00ffa6; }
+#boot-screen.season-spring .cursor { background-color: #00ffa6; }
+.glow.season-text-spring { text-shadow: 0 0 8px #00ffa6, 0 0 16px rgba(0,255,166,0.4); }
+
+/* Summer Texts (Pure Dashboard Balance Cyan) */
+.season-text-summer { color: #00f2fe; }
+#boot-screen.season-summer .cursor { background-color: #00f2fe; }
+.glow.season-text-summer { text-shadow: 0 0 8px #00f2fe, 0 0 20px rgba(0,242,254,0.6); }
+
+/* Autumn Texts (Harvest Matte Gold) */
+.season-text-autumn { color: #fbbf24; }
+#boot-screen.season-autumn .cursor { background-color: #fbbf24; }
+.glow.season-text-autumn { text-shadow: 0 0 8px #fbbf24, 0 0 16px rgba(251,191,36,0.5); }
+
+/* Winter Texts (Diamond Polar White) */
+.season-text-winter { color: #ffffff; }
+#boot-screen.season-winter .cursor { background-color: #ffffff; }
+.glow.season-text-winter { text-shadow: 0 0 8px #ffffff, 0 0 16px rgba(255,255,255,0.6); }
+
+/* Dynamic Glow Pulse Loop */
+.glow {
+  animation: pulseGlow 1.5s infinite alternate;
+}
+@keyframes pulseGlow {
+  0% { opacity: 0.85; }
+  100% { opacity: 1; }
 }
 
-@keyframes warning-glow {
-  0% { box-shadow: 0 0 0 rgba(255,77,77,0.7); }
-  50% { box-shadow: 0 0 20px 6px rgba(255,77,77,0.9); }
-  100% { box-shadow: 0 0 0 rgba(255,77,77,0.7); }
+/* ---------- CLEAN AUTOMATED LOADING BAR FIX --------- */
+.suspense-loader-row {
+    margin: 15px 0;
+    display: block;
+    width: 100%;
+}
+.suspense-pulse-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    animation: terminalFlash 1.2s ease-in-out infinite alternate;
+}
+/* Assign color values dynamically based on current parent setup rules */
+#boot-screen.season-spring .suspense-pulse-text { color: #00ffa6; }
+#boot-screen.season-summer .suspense-pulse-text { color: #00f2fe; }
+#boot-screen.season-autumn .suspense-pulse-text { color: #fbbf24; }
+#boot-screen.season-winter .suspense-pulse-text { color: #ffffff; }
+
+@keyframes terminalFlash {
+    0% { opacity: 0.3; }
+    100% { opacity: 1; }
 }
 
+/* Blinking terminal tracking block cursor */
+.cursor {
+  display: inline-block;
+  width: 10px; height: 18px;
+  margin-left: 6px;
+  vertical-align: middle;
+  animation: blink 1s infinite;
+}
+@keyframes blink {
+  0%,50%,100% { opacity: 1; }
+  25%,75% { opacity: 0; }
+}
 
-    /* --- Container Glass Panel --- */
-    #payment-container {
-        background-color: var(--card-bg);
-        border: 1px solid var(--border-color);
-        backdrop-filter: blur(15px);
-        border-radius: 20px;
-        padding: 25px 20px;       /* smaller padding for mobile */
-        box-shadow: 0 0 20px rgba(0,255,255,0.2), 0 0 40px rgba(255,0,255,0.1);
-        text-align: center;
-        max-width: 350px;          /* narrower to show edges on mobile */
-        width: 95%;                /* almost full width on small screens */
-        animation: pulseGlow 3s infinite alternate;
-        margin: 0 auto 50px auto;
-    }
+/* Final screen entrance glow rule formatting variables */
+.final-glow {
+  font-weight: 700;
+  animation: finalGlow 1.2s ease-out forwards;
+}
+@keyframes finalGlow {
+  0% { opacity: 0; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1); }
+}
 
-    @keyframes pulseGlow {
-        0% { box-shadow: 0 0 20px rgba(0,255,255,0.2), 0 0 40px rgba(255,0,255,0.1); }
-        50% { box-shadow: 0 0 30px rgba(0,255,255,0.4), 0 0 60px rgba(255,0,255,0.2); }
-        100% { box-shadow: 0 0 25px rgba(0,255,255,0.3), 0 0 50px rgba(255,0,255,0.15); }
-    }
+@media (max-width: 768px) {
+  #boot-text { 
+    font-size: 14px; 
+    max-width: 330px; /* Sweeter compact bounding box for mobile layouts */
+  }
+}
+
+#particle-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
 
     /* --- Headings & Status --- */
     #status {
@@ -598,12 +570,816 @@
             font-size: 1.4rem;
         }
     }
+
+/* ---------- Glass Cards ---------- */
+.glass-card {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(12px);
+  border-radius: 18px;
+  padding: 28px;
+  margin: 80px auto 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  max-width: 280px !important;
+}
+
+/* ---------- Checkbox ---------- */
+.checkbox-container {
+  display: flex;
+  flex-direction: row-reverse; /* Flips the visual order so input goes to the right */
+  align-items: flex-end;      /* CHANGED: Pulls the checkbox down to the bottom edge */
+  justify-content: space-between; /* Pushes text to left, checkbox to far right */
+  gap: 16px; /* Slightly more breathing room since it's on the right */
+  margin-top: 14px;
+}
+
+        .security-note img.security-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+
+}
+
+.checkbox-container input {
+  margin-bottom: 4px;         /* CHANGED: Switched from top to bottom margin for a cleaner baseline alignment */
+  cursor: pointer;
+}
+
+.checkbox-container label {
+  flex: 1; /* Ensures the label takes up all remaining space on the left */
+}
+
+
+/* Red warning glow */
+.neon-card.warning {
+  animation: warning-glow 0.8s ease-in-out 2;
+  box-shadow: 0 0 20px 4px rgba(255,77,77,0.9);
+}
+
+@keyframes warning-glow {
+  0% { box-shadow: 0 0 0 rgba(255,77,77,0.7); }
+  50% { box-shadow: 0 0 20px 6px rgba(255,77,77,0.9); }
+  100% { box-shadow: 0 0 0 rgba(255,77,77,0.7); }
+}
+
+        body {
+            margin: 0;
+            padding: 40px 20px 80px 20px;
+            font-family: 'Georgia', serif;  
+            color: #2c2825;
+            line-height: 1.55;
+            font-size: 10pt;
+            background-color: #f4efe8;
+            display: flex;
+            justify-content: center;
+        }
+
+        .document-card {
+            max-width: 800px;
+            width: 100%;
+            background-color: #fcfbf9;
+            padding: 40px;
+            border-radius: 8px;
+            border: 1px solid #e6dfd5;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            border-bottom: 2px solid #e8e2d9;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .doc-subtitle {
+            font-size: 11pt;
+            font-weight: 500;
+            color: #d96b43;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .meta-grid {
+            display: table;
+            width: 100%;
+            margin-bottom: 25px;
+            background-color: #f4efe8;
+            border-radius: 6px;
+            padding: 14px 16px;
+            border: 1px solid #e6dfd5;
+        }
+
+        .meta-row {
+            display: table-row;
+        }
+
+        .meta-cell {
+            display: table-cell;
+            padding: 4px 10px;
+            font-size: 9.5pt;
+        }
+
+        .meta-label {
+            font-weight: 700;
+            color: #635b54;
+            width: 15%;
+        }
+
+        .meta-value {
+            color: #2c2825;
+            width: 35%;
+        }
+
+        /* ---------- Mini TV Video ---------- */
+.video-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(8px);
+}
+
+.video-overlay {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(107,44,216,0.25);
+    backdrop-filter: blur(8px);
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #fff;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(107,44,216,0.5);
+}
+
+.video-container video {
+    width: 100%;
+    display: block;
+}
+
+/* --- SURGICAL CONTROL REMOVALS --- */
+
+/* Strips out the center play icon overlays */
+video::-webkit-media-controls-start-playback-button,
+video::-webkit-media-controls-overlay-play-button {
+    display: none !important;
+    -webkit-appearance: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Hides the bottom left control bar play/pause toggle */
+video::-webkit-media-controls-play-button {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Hides the horizontal progress line / slider tracker */
+video::-webkit-media-controls-timeline {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Hides the numerical duration text string (e.g., 0:24 / 0:43) */
+video::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-time-remaining-display {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.video-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+
+.video-controls input[type=range] {
+    width: 100px;
+}
+
+
+        h2 {
+            font-size: 13pt;
+            font-weight: 700;
+            color: #1a1615;
+            border-left: 4px solid #d96b43;
+            padding-left: 10px;
+            margin: 22px 0 10px 0;
+        }
+
+        p {
+            margin: 0 0 10px 0;
+        }
+
+                ul {
+            margin: 0 0 12px 0;
+            padding-left: 20px;
+        }
+
+        ul ul {
+            list-style-type: circle;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+
+        .table-container {
+            width: 100%;
+            margin: 12px 0 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9.5pt;
+        }
+
+        th {
+            background-color: #2c2825;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 9pt;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #e8e2d9;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f8f5f0;
+        }
+
+        .highlight-box {
+            background-color: #fff8f5;
+            border: 1px solid #f0d5c8;
+            border-left: 4px solid #d96b43;
+            border-radius: 4px;
+            padding: 12px 15px;
+            margin: 15px 0;
+            font-size: 9.5pt;
+        }
+
+        .signature-section {
+            margin-top: 35px;
+        }
+
+        .sig-table {
+            display: table;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .sig-row {
+            display: table-row;
+        }
+
+        .sig-col {
+            display: table-cell;
+            width: 48%;
+            padding-right: 4%;
+            vertical-align: top;
+        }
+
+        .sig-col:last-child {
+            padding-right: 0;
+        }
+
+        .sig-box {
+            border-top: 1px solid #2c2825;
+            padding-top: 8px;
+            margin-top: 45px;
+        }
+
+        .sig-title {
+            font-weight: 700;
+            font-size: 10pt;
+            color: #1a1615;
+            margin-bottom: 2px;
+        }
+
+        .sig-sub {
+            font-size: 8.5pt;
+            color: #635b54;
+        }
+
+        /* Standard Client Signature Styling */
+        .signature-font {
+            font-family: 'Brush Script MT', 'cursive', sans-serif;
+            font-size: 18pt;
+            color: #1a2a3a;
+            margin-bottom: -35px;
+            margin-left: 10px;
+        }
+
+        /* Distinct Contractor Signature Styling */
+        .contractor-sig-font {
+            font-family: 'Caveat', 'Segoe Script', 'Bradley Hand', cursive;
+            font-size: 26pt;
+            font-weight: 600;
+            color: #1d3557; /* Deep ink blue */
+            margin-bottom: -38px;
+            margin-left: 8px;
+            display: inline-block;
+            transform: rotate(-2deg); /* Slight natural ink tilt */
+            letter-spacing: 0.5px;
+            user-select: none;
+        }
+
+        /* Interactive Action Box */
+        .action-container {
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 2px dashed #e8e2d9;
+            text-align: center;
+        }
+
+
+        .sign-btn {
+            background-color: #d96b43;
+            color: #ffffff;
+            font-size: 11pt;
+            font-weight: 700;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .sign-btn:hover {
+            background-color: #be5934;
+        }
+
+        @media screen and (max-width: 768px) {
+            .meta-grid {
+                display: block !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .meta-row {
+                display: grid !important;
+                grid-template-columns: auto 1fr !important;
+                gap: 6px 12px !important;
+                margin-bottom: 8px;
+            }
+
+            .meta-row:last-child {
+                margin-bottom: 0;
+            }
+
+            .meta-cell {
+                display: block !important;
+                width: auto !important;
+                padding: 0 !important;
+            }
+        }
+
+.step-image {
+    width: 100%; /* or a smaller width, e.g., 300px */
+height: 180px;   /* reduce this value */
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 8px; /* optional for rounded corners */
+}
+        /* Footer */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 18px 0;
+            font-size: 14px;
+            color: #555;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
+            z-index: 6;
+        }
+
+/* =========================
+TOP RIGHT PROFILE POSITION
+========================= */
+.top-right-profile {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 999;
+}
+
+#profilePhoto:not([src]), 
+#profilePhoto[src="default-avatar.png"] {
+    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c0a9ff'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/%3E%3C/svg%3E") !important;
+    background: #1a1625 !important;
+    box-sizing: border-box !important;
+    padding: 6px !important;
+}
+
+
+/* =========================
+OUTER RING WRAPPER
+========================= */
+.avatar-ring {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    padding: 3px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* =========================
+PURPLE NEON SPIN + PULSE
+========================= */
+.avatar-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+
+    /* PURE PURPLE GLOW */
+    background: conic-gradient(
+        #a855f7,
+        #7c3aed,
+        #a855f7
+    );
+
+    animation:
+    spin 3s linear infinite,
+    hueShift 6s linear infinite;
+
+    filter: blur(5px);
+    opacity: 0.9;
+    z-index: 0;
+}
+
+
+/* =========================
+INNER CUT
+========================= */
+.avatar-ring::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    background: transparent;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+
+/* =========================
+PROFILE IMAGE
+========================= */
+.avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    position: relative;
+    z-index: 2;
+    border: 1px solid rgba(168,85,247,0.25);
+}
+
+
+/* =========================
+ANIMATIONS
+========================= */
+
+/* spinning ring */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes hueShift {
+    0% {
+        filter: blur(4px) hue-rotate(0deg);
+        opacity: 0.75;
+    }
+    50% {
+        filter: blur(5px) hue-rotate(180deg);
+        opacity: 0.9;
+    }
+    100% {
+        filter: blur(4px) hue-rotate(360deg);
+        opacity: 0.75;
+    }
+}
+
+/* Crop Modal Container */
+.crop-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+/* Hide the modal properly when .hidden class is present */
+.crop-modal.hidden {
+    display: none !important;
+}
+
+/* Hide the raw file input off-screen */
+#photoInput {
+    display: none;
+}
+
+                                :root {
+    --text-secondary: #64748b;
+}
+
+        .security-note {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            line-height: 1.4;
+            padding: 0 4px;
+        }
+
+        .security-note img.security-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+
+}
+
+                        /* ---------- Sidebar ---------- */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 320px;
+
+    /* FIX 1: Make height end exactly before the footer starts */
+    height: calc(100% - 52px); 
+
+    background: rgba(40, 75, 135, 0.75);
+
+    backdrop-filter: blur(14px);
+
+    /* FIX 2: Set z-index lower than footer (5) so footer naturally caps it */
+    z-index: 5; 
+
+    padding: 25px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+        #sidebar.open { transform: translateX(0); }
+        #sidebar h2{
+font-size:22px;
+margin-bottom:20px;
+color:#a78bfa;
+}
+        #sidebar button {
+            width: 100%;
+            margin: 12px 0;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 16px;
+        }
+
+/* ---------- Menu Button ---------- */
+
+        /* ---------- Menu Button ---------- */
+        #menuBtn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 6;
+            background: #6b2cd8;
+            border: none;
+            color: #fff;
+            padding: 12px 14px;
+            border-radius: 10px;
+}
+
+/* move button when sidebar opens */
+#menuBtn.shift{
+left:250px;
+}
+
     </style>
 </head>
-
 <body>
 
-  <div id="content">
+
+<!-- =========================
+TOP RIGHT PROFILE AVATAR
+========================= -->
+<div class="top-right-profile">
+     <div class="avatar-ring">
+        <img id="profilePhoto" src="default-avatar.png" class="avatar" alt="Profile picture">
+    </div>
+
+    <div style="position: absolute; top: 58px; right: 70%; transform: translateX(50%); white-space: nowrap; pointer-events: none; text-align: center;">
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+CROP MODAL
+========================= -->
+<div id="cropModal" class="crop-modal hidden">
+
+    <div class="crop-box">
+
+        <!-- file input (hidden trigger via JS) -->
+        <input type="file" id="photoInput" accept="image/*">
+
+        <!-- crop preview -->
+        <div class="crop-preview">
+            <img id="cropImage">
+        </div>
+
+        <!-- actions -->
+        <div class="crop-actions">
+            <button id="saveCropped">Save Photo</button>
+            <button id="cancelCrop">Cancel</button>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div id="boot-screen">
+  <pre id="boot-text"></pre>
+  <div class="cursor"></div>
+  <canvas id="particle-canvas"></canvas>
+</div>
+
+<div id="planNotification" class="notification-bar"></div>
+
+    <div class="document-card">
+        <div class="header">
+            <p class="doc-subtitle">Lead Design Strategist — Visual Architecture Suite (Phase 1) Agreement</p>
+        </div>
+
+        <div class="meta-grid">
+            <div class="meta-row">
+
+                <div class="meta-cell meta-label">Effective Date:</div>
+                <div class="meta-cell meta-value" id="metaEffectiveDate">Loading...</div>
+            </div>
+            <div class="meta-row">
+                <div class="meta-cell meta-label">Strategic Partner:</div>
+                <div class="meta-cell meta-value" id="metaContractorName">Anna Grzybowska</div>
+
+                <div class="meta-cell meta-label">Total Budget:</div>
+                <div class="meta-cell meta-value">$9,500.00 USD</div>
+                </div>
+        </div>
+
+        <h2>1. Scope of Work & Comprehensive Deliverables</h2>
+        <p>The Strategic Partner agrees to provide comprehensive <strong>Visual Architecture Suite(Phase 1)</strong>. This collaboration establishes the foundational aesthetic governance and design logic ensuring long-term visual coherence for all current and future deployments. The specific deliverables under this Agreement include:</p>
+        <ul>
+            <li><strong>System Icons & Usage Guide:</strong> A 4–6 page whitepaper defining the core visual design language, geometric grid systems, and psychological rationale for the system icons:</li>
+<li style="list-style-type: none; position: relative;">
+    <span style="position: absolute; left: -16px; color: #d96b43;">&#9670;</span><strong>Safety Icon:</strong> Communicating impenetrable security without feeling cold or clinical.</li>
+<li style="list-style-type: none; position: relative;">
+    <span style="position: absolute; left: -16px; color: #d96b43;">&#9670;</span><strong>Sync Icon:</strong> Background cooling-off period signifying secure transaction batches.</li>
+<li style="list-style-type: none; position: relative;">
+    <span style="position: absolute; left: -16px; color: #d96b43;">&#9670;</span><strong>Compliance Icon:</strong> "Custom" Bond where a governing regulatory body oversees high-value verification processes.</li>
+<li style="list-style-type: none; position: relative;">
+    <span style="position: absolute; left: -16px; color: #d96b43;">&#9670;</span><strong>Support Icon:</strong> Encouraging members to easily reach out for assistance.</li>
+
+<li style="list-style-type: circle;"><em>Typography:</em> Georgia for all headlines and body text to deliver a refined, classic, and readable aesthetic, serving both as an external presentation piece and an internal reference document.</li>
+            <li><strong>Master System Grid Assets:</strong> Fully editable <strong>.AI / .EPS</strong> vector source files, optimized for high-fidelity scalability. These are the "source code" of the UI aesthetic, establishing the geometric rules that all future interface elements will follow.</li>
+            <li><strong>Production-Ready UI:</strong> Clean, high-performance, web-optimized <strong>.SVG</strong> assets, calibrated for both light mode and dark mode. This also includes the integration specs for mobile-responsive modules.</li>
+        </ul>
+
+            <li><strong>Visual Requirements:</strong>
+                <ul>
+                    <li style="list-style-type: circle;"><em>Vibe & Theme:</em> "Connected Trust" featuring warm, human-centric soft drop shadows & translucent glass morphic elements.</li>
+                    <li style="list-style-type: circle;"><em>Color Palette:</em> Light slate and soft sky blue base (#F8FAFC / #CFE8FF) paired with pure white surfaces (#FFFFFF), deep imperial purple (#6D28D9), and warm terracotta accents (#C2410C) for key actions, while maintaining full high-contrast adaptability for dark mode surfaces (#0F172A / #1E293B).</li>
+                </ul>
+            </li>
+
+
+
+<h2>2. Technical & Delivery Specifications</h2>
+        <div class="highlight-box">
+            <strong>Strategic Deliverable Packaging:</strong> All architectural files and documentation contained within an organized single compressed<code>.zip</code> archive strictly <strong>under 50MB</strong>. 
+        </div>
+
+        <h2>3. Project Schedule & Milestones</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Milestone / Date</th>
+                        <th style="width: 75%;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong id="m-date-0">Loading...</strong></td>
+                        <td>Agreement Finalization, Disbursal Acquisition & Visual Architecture Suite (Phase 1) execution by the Strategic Partner.</td>
+                    </tr>
+                    <tr>
+                        <td><strong id="m-date-1">Loading...</strong></td>
+                        <td>Deadline for the Strategic Partner to deliver Discovery, Grid Systems, and Initial Design Concept Sets for review.</td>
+                    </tr>
+                    <tr>
+                        <td><strong id="m-date-2">Loading...</strong></td>
+                        <td>Initial Client Review & Design Alignment checkpoint for feedback on conceptual foundations.</td>
+                    </tr>
+                    <tr>
+                        <td><strong id="m-date-3">Loading...</strong></td>
+                        <td>Vector asset production, dual-mode UI light/dark calibrations, and drafting of the core whitepaper documentation.</td>
+                    </tr>
+                    <tr>
+                        <td><strong id="m-date-4">Loading...</strong></td>
+                        <td>Deadline for the Strategic Partner to deliver the finalized, high-performance .zip archive (strictly under 50MB).</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+
+
+        <h2>4. Intellectual Property Rights</h2>
+        <p>During delivery of the optimized Visual Architecture Suite(Phase 1) <strong>packaged in a .zip archive strictly under 50MB</strong>, the Strategic Partner formalizes the transfer of all intellectual property rights, titles, and interest. This conveyance ensures that the Client holds exclusive rights to the aesthetic assets and design methodologies created by <span class="dynamic-contractor-name">Anna Grzybowska</span>, facilitating the full-scale deployment of the established visual language.</p>
+
+        <h2>5. Governing Agreement</h2>
+        <p>This instrument represents the comprehensive and final agreement with <span class="dynamic-contractor-name">Anna Grzybowska</span> concerning the commissioning of the Visual Architecture Suite(Phase 1). All prior discussions, understandings, and negotiations—whether written or verbal—are superseded by the terms, strategic scope, and valuation frameworks contained herein, establishing a singular, binding foundation for this collaboration.</p>
+
+        <div class="signature-section">
+            <h2>6. Authorization & Signatures</h2>
+            <div class="sig-table">
+                <div class="sig-row">
+                    <div class="sig-col">
+                        <p style="font-weight: 600; margin-bottom: 5px;">On Behalf Of Client:</p>
+                        <div class="signature-font">Garry Oakes</div>
+                        <div class="sig-box">
+                            <div class="sig-title">Garry Oakes</div>
+                            <div class="sig-sub">Operations/Legal Dept, AvalonFlow Corp<br>Date: <span id="clientSigDate">Loading...</span></div>
+                        </div>
+                    </div>
+                    <div class="sig-col">
+                        <p style="font-weight: 600; margin-bottom: 5px;">For Strategic Partner:</p>
+                        <div class="contractor-sig-font" id="contractorSignature" style="display: none;">Anna Grzybowska</div>
+                        <div class="sig-box">
+                            <div class="sig-title" id="contractorSigTitle">Anna Grzybowska</div>
+                            <div class="sig-sub">Lead Design Strategist<br>Date: <span id="sigDate">Pending Execution</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-container" id="actionArea">
+            <button class="sign-btn" id="agreeBtn">I Acknowledge & Accept Agreement</button>
+        </div>
+<div class="security-note">
+    <img src="assets/pictures/download (2).png" alt="Profile" class="security-avatar">
+    <span>Verified via Dribbble • Digitally Bound SHA-256</span>
+</div>
+
+    </div>
+
+    
 
     <!-- Notification Bar -->
     <div id="planNotification" class="notification-bar"></div>
