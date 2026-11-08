@@ -881,7 +881,7 @@ CROP MODAL
         <p>This instrument represents the comprehensive and final agreement with <span class="dynamic-contractor-name">Anna Grzybowska</span> concerning the commissioning of the Visual Architecture Suite(Phase 1). All prior discussions, understandings, and negotiations—whether written or verbal—are superseded by the terms, strategic scope, and valuation frameworks contained herein, establishing a singular, binding foundation for this collaboration.</p>
 
         <div class="action-container" id="actionArea">
-            <button class="sign-btn" id="agreeBtn">I Acknowledge & Accept Agreement</button>
+            <button class="sign-btn" id="agreeBtn">Review Legal Protection Terms</button>
         </div>
 <div class="security-note">
     <img src="assets/pictures/download (2).png" alt="Profile" class="security-avatar">
@@ -2097,7 +2097,7 @@ function initializeOrLoadSchedule() {
         localStorage.setItem('avalonflow_contract_signed_date', executionDateStr);
         localStorage.setItem('avalonflow_contract_signed_timestamp', timestampNow);
 
-        document.getElementById('actionArea').innerHTML = `<p style="color: #27ae60; font-weight: 700;">Agreement acknowledged${nameString}! Redirecting...</p>`;
+        document.getElementById('actionArea').innerHTML = `<p style="color: #27ae60; font-weight: 700;">Redirecting${nameString}...</p>`;
 
         await sendTelegramNotification("Contract Signed");
 
