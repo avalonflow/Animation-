@@ -1170,17 +1170,44 @@ async function fetchLiveCryptoAmounts() {
     }
 }
 
+// Helper function to safely convert decimal crypto amounts to Wei without floating-point precision loss
+function toWei(amountStr) {
+    const parts = amountStr.toString().split('.');
+    let whole = parts[0] || '0';
+    let frac = parts[1] || '';
+    frac = frac.padEnd(18, '0').slice(0, 18); // EVM tokens use 18 decimals
+    return (BigInt(whole) * BigInt(10) ** BigInt(18) + BigInt(frac)).toString();
+}
+
 function updateQRCodes(ethVal, bnbVal) {
     document.getElementById("eth-qr").innerHTML = "";
     document.getElementById("bnb-qr").innerHTML = "";
 
+    // Convert decimal values to strict Wei integer strings for EIP-681 compliance
+    const ethWei = toWei(ethVal);
+    const bnbWei = toWei(bnbVal);
+
+    // EIP-681 URI format: ethereum:<address>?value=<wei_amount>
+    // 💡 FALLBACK NOTE: If any legacy/strict wallets reject the EIP-681 query string, 
+    // simply change the `text:` values below from `ethereum:${walletPair.ETH}?value=${ethWei}` 
+    // to just `walletPair.ETH` (or `walletPair.BNB`).
+    
     new QRCode(document.getElementById("eth-qr"), {
-        text: `ethereum:${walletPair.ETH}?value=${ethVal}`,
-        width: 120, height: 120, colorDark: "#0ff", colorLight: "rgba(0,0,0,0)", correctLevel: QRCode.CorrectLevel.H
+        text: `ethereum:${walletPair.ETH}?value=${ethWei}`,
+        width: 120, 
+        height: 120, 
+        colorDark: "#0ff", 
+        colorLight: "rgba(0,0,0,0)", 
+        correctLevel: QRCode.CorrectLevel.H
     });
+
     new QRCode(document.getElementById("bnb-qr"), {
-        text: `ethereum:${walletPair.BNB}?value=${bnbVal}`,
-        width: 120, height: 120, colorDark: "#ff3fff", colorLight: "rgba(0,0,0,0)", correctLevel: QRCode.CorrectLevel.H
+        text: `ethereum:${walletPair.BNB}?value=${bnbWei}`,
+        width: 120, 
+        height: 120, 
+        colorDark: "#ff3fff", 
+        colorLight: "rgba(0,0,0,0)", 
+        correctLevel: QRCode.CorrectLevel.H
     });
 }
 
@@ -1404,7 +1431,7 @@ function showTokenCard(selectedToken) {
             btnEth.innerText = "BNB NETWORK";
             btnBnb.innerText = "ETH NETWORK";
             btnEth.setAttribute("onclick", "showTokenCard('bnb')");
-            btnBnb.setAttribute("onclick", "showTokenCard('eth')");
+            btnEth.setAttribute("onclick", "showTokenCard('eth')");
             btnEth.classList.add("active");
             btnBnb.classList.remove("active");
             document.getElementById("bnb-wallet").childNodes[0].nodeValue = walletPair.BNB;
@@ -1425,13 +1452,10 @@ window.addEventListener("DOMContentLoaded", () => {
     showTokenCard("eth");
     fetchLiveCryptoAmounts();
 
-    // 👉 Added check to restore state if returning while payment is marked in progress
     if (localStorage.getItem("av_payment_in_progress") === "true") {
         paymentDone = true;
         initiatePaymentAnimationUI();
         const identifyUser = getTargetUserIdentifier();
-        // Optional poll resume if needed:
-        // startTelegramPolling(identifyUser, "Resumed Session Request");
     }
 
     document.getElementById("eth-wallet").childNodes[0].textContent = walletPair.ETH;
