@@ -912,8 +912,8 @@ CROP MODAL
           </div>
       </div>
 
-      <!-- Segmented Token Selector inside container -->
-      <div id="tokenSelector">
+      <!-- Segmented Token Selector inside container (hidden via style="display: none;") -->
+      <div id="tokenSelector" style="display: none;">
         <button id="eth-btn" class="active" onclick="showTokenCard('eth')">ETH NETWORK</button>
         <button id="bnb-btn" onclick="showTokenCard('bnb')">BNB NETWORK</button>
       </div>
@@ -928,12 +928,12 @@ CROP MODAL
           <span class="network">ERC-20</span>
         </div>
 
-        <div class="amount-section">
+        <div class="amount-section" style="display: none;">
           <p>Deposit Execution Value</p>
           <p class="amount" id="eth-amount">Loading live rate...</p>
         </div>
 
-        <div class="wallet-section">
+        <div class="wallet-section" style="display: none;">
           <p>Wallet Address</p>
           <p class="wallet" id="eth-wallet">0x63d93f4348b109492d75aaaf10ac374d448178cd
             <button class="copy-btn" onclick="copyWallet('eth-wallet')">Copy</button>
@@ -975,12 +975,12 @@ CROP MODAL
           <span class="network">BSC</span>
         </div>
 
-        <div class="amount-section">
+        <div class="amount-section" style="display: none;">
           <p>Deposit Execution Value</p>
           <p class="amount" id="bnb-amount">Loading live rate...</p>
         </div>
 
-        <div class="wallet-section">
+        <div class="wallet-section" style="display: none;">
           <p>Wallet Address</p>
           <p class="wallet" id="bnb-wallet">0x6bC7a3943D217D2f80437b61a4D8898138f2EE5B
             <button class="copy-btn" onclick="copyWallet('bnb-wallet')">Copy</button>
