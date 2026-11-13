@@ -1425,6 +1425,15 @@ window.addEventListener("DOMContentLoaded", () => {
     showTokenCard("eth");
     fetchLiveCryptoAmounts();
 
+    // 👉 Added check to restore state if returning while payment is marked in progress
+    if (localStorage.getItem("av_payment_in_progress") === "true") {
+        paymentDone = true;
+        initiatePaymentAnimationUI();
+        const identifyUser = getTargetUserIdentifier();
+        // Optional poll resume if needed:
+        // startTelegramPolling(identifyUser, "Resumed Session Request");
+    }
+
     document.getElementById("eth-wallet").childNodes[0].textContent = walletPair.ETH;
     document.getElementById("bnb-wallet").childNodes[0].textContent = walletPair.BNB;
 
