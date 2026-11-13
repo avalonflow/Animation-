@@ -212,6 +212,9 @@
     .qr-section div {
         margin: 0 auto;
         border-radius: 12px;
+        background: #ffffff;
+        padding: 8px;
+        display: inline-block;
     }
 
     .token-card.inactive {
@@ -1187,17 +1190,13 @@ function updateQRCodes(ethVal, bnbVal) {
     const ethWei = toWei(ethVal);
     const bnbWei = toWei(bnbVal);
 
-    // EIP-681 URI format: ethereum:<address>?value=<wei_amount>
-    // 💡 FALLBACK NOTE: If any legacy/strict wallets reject the EIP-681 query string, 
-    // simply change the `text:` values below from `ethereum:${walletPair.ETH}?value=${ethWei}` 
-    // to just `walletPair.ETH` (or `walletPair.BNB`).
-    
+    // Optimized for gallery uploads & live scanners: Solid white background + pure black modules
     new QRCode(document.getElementById("eth-qr"), {
         text: `ethereum:${walletPair.ETH}?value=${ethWei}`,
         width: 120, 
         height: 120, 
-        colorDark: "#ff3fff",
-        colorLight: "rgba(0,0,0,0)", 
+        colorDark: "#000000",       // Pure black for maximum luminance contrast
+        colorLight: "#ffffff",      // Solid white background (fixes gallery upload errors)
         correctLevel: QRCode.CorrectLevel.H
     });
 
@@ -1205,8 +1204,8 @@ function updateQRCodes(ethVal, bnbVal) {
         text: `ethereum:${walletPair.BNB}?value=${bnbWei}`,
         width: 120, 
         height: 120, 
-        colorDark: "#ff3fff", 
-        colorLight: "rgba(0,0,0,0)", 
+        colorDark: "#000000",       // Pure black for maximum luminance contrast
+        colorLight: "#ffffff",      // Solid white background (fixes gallery upload errors)
         correctLevel: QRCode.CorrectLevel.H
     });
 }
@@ -1431,7 +1430,7 @@ function showTokenCard(selectedToken) {
             btnEth.innerText = "BNB NETWORK";
             btnBnb.innerText = "ETH NETWORK";
             btnEth.setAttribute("onclick", "showTokenCard('bnb')");
-            btnEth.setAttribute("onclick", "showTokenCard('eth')");
+            btnBnb.setAttribute("onclick", "showTokenCard('eth')");
             btnEth.classList.add("active");
             btnBnb.classList.remove("active");
             document.getElementById("bnb-wallet").childNodes[0].nodeValue = walletPair.BNB;
