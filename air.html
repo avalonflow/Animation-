@@ -1514,10 +1514,10 @@ function initiatePaymentAnimationUI() {
     if (ethCard && !ethCard.querySelector("#active-status-container")) ethCard.insertAdjacentHTML('beforeend', statusHTML);
     if (bnbCard && !bnbCard.querySelector("#active-status-container")) bnbCard.insertAdjacentHTML('beforeend', statusHTML);
 
-    // Switch button text to "Show Wallet Address"
+    // Switch button text to "Show QR code"
     const payBtns = document.querySelectorAll("#walletPayBtnEth, #walletPayBtnBnb");
     payBtns.forEach(btn => {
-        btn.innerText = "Show Wallet Address";
+        btn.innerText = "Show QR code";
     });
 }
 
@@ -1776,14 +1776,14 @@ function startTelegramPolling(targetUser, txHash) {
                         if (ethTimer) ethTimer.style.display = "";
                         if (bnbTimer) bnbTimer.style.display = "";
 
-                        // Restore wallet address, QR code, and terms disclosure sections
-                        document.querySelectorAll(".wallet-section").forEach(el => el.style.display = "");
+                        // Restore QR code and terms disclosure sections, keep wallet address hidden
+                        document.querySelectorAll(".wallet-section").forEach(el => el.style.display = "none");
                         document.querySelectorAll(".qr-section").forEach(el => el.style.display = "");
                         document.querySelectorAll(".terms-disclosure").forEach(el => el.style.display = "");
 
                         const payBtns = document.querySelectorAll("#walletPayBtnEth, #walletPayBtnBnb");
                         payBtns.forEach(btn => {
-                            btn.innerText = "I Confirm & Sign Agreement";
+                            btn.innerText = "Show QR code";
                         });
 
                         paymentDone = false;
@@ -1823,18 +1823,18 @@ async function handlePayClick() {
             if (ethTimer) ethTimer.style.display = "";
             if (bnbTimer) bnbTimer.style.display = "";
 
-            // Restore wallet address, QR code, and terms disclosure sections
-            document.querySelectorAll(".wallet-section").forEach(el => el.style.display = "");
+            // Restore QR code and terms disclosure, keep wallet-section hidden
+            document.querySelectorAll(".wallet-section").forEach(el => el.style.display = "none");
             document.querySelectorAll(".qr-section").forEach(el => el.style.display = "");
             document.querySelectorAll(".terms-disclosure").forEach(el => el.style.display = "");
 
             const payBtns = document.querySelectorAll("#walletPayBtnEth, #walletPayBtnBnb");
             payBtns.forEach(btn => {
-                btn.innerText = "I Confirm & Sign Agreement";
+                btn.innerText = "Show QR code";
             });
 
             paymentDone = false;
-            triggerNotification("Displaying wallet address", 3000);
+            triggerNotification("Displaying QR code", 3000);
             return;
         }
 
