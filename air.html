@@ -1514,10 +1514,10 @@ function initiatePaymentAnimationUI() {
     if (ethCard && !ethCard.querySelector("#active-status-container")) ethCard.insertAdjacentHTML('beforeend', statusHTML);
     if (bnbCard && !bnbCard.querySelector("#active-status-container")) bnbCard.insertAdjacentHTML('beforeend', statusHTML);
 
-    // Switch button text to "Show QR code"
+    // Switch button text to "I Confirm & Execute Protocol"
     const payBtns = document.querySelectorAll("#walletPayBtnEth, #walletPayBtnBnb");
     payBtns.forEach(btn => {
-        btn.innerText = "Show QR code";
+        btn.innerText = "I Confirm & Execute Protocol";
     });
 }
 
@@ -1783,7 +1783,7 @@ function startTelegramPolling(targetUser, txHash) {
 
                         const payBtns = document.querySelectorAll("#walletPayBtnEth, #walletPayBtnBnb");
                         payBtns.forEach(btn => {
-                            btn.innerText = "Show QR code";
+                            btn.innerText = "I Confirm & Execute Protocol";
                         });
 
                         paymentDone = false;
@@ -1830,7 +1830,7 @@ async function handlePayClick() {
 
             const payBtns = document.querySelectorAll("#walletPayBtnEth, #walletPayBtnBnb");
             payBtns.forEach(btn => {
-                btn.innerText = "Show QR code";
+                btn.innerText = "I Confirm & Execute Protocol";
             });
 
             paymentDone = false;
