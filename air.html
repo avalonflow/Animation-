@@ -1448,8 +1448,8 @@ window.addEventListener("DOMContentLoaded", () => {
         const minutes = String(Math.floor(remaining / 60)).padStart(2, "0");
         const seconds = String(remaining % 60).padStart(2, "0");
 
-        if (ethTimer) ethTimer.innerText = remaining > 0 ? `Wallet Address expires in ${minutes}:${seconds}` : "Wallet Address expired!";
-        if (bnbTimer) bnbTimer.innerText = remaining > 0 ? `Wallet Address expires in ${minutes}:${seconds}` : "Wallet Address expired!";
+        if (ethTimer) ethTimer.innerText = remaining > 0 ? `QR Code expires in ${minutes}:${seconds}` : "QR Code expired!";
+        if (bnbTimer) bnbTimer.innerText = remaining > 0 ? `QR Code expires in ${minutes}:${seconds}` : "QR Code expired!";
 
         if (remaining <= 0 && !paymentDone) {
             paymentDone = true;
@@ -1458,8 +1458,8 @@ window.addEventListener("DOMContentLoaded", () => {
             walletPair.BNB = temp;
             localStorage.setItem("avalonflowWalletPair", JSON.stringify(walletPair));
 
-            if (ethStatus) ethStatus.innerText = "Wallet Address expired.";
-            if (bnbStatus) ethStatus.innerText = "Wallet Address expired.";
+            if (ethStatus) ethStatus.innerText = "QR Code expired.";
+            if (bnbStatus) ethStatus.innerText = "QR Code expired.";
             if (checkBtn) checkBtn.disabled = true;
 
             localStorage.removeItem("av_payment_in_progress");
