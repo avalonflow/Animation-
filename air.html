@@ -109,11 +109,7 @@
     }
 
     .plan-pay {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        flex-wrap: wrap;
+        display: none;
     }
 
     .plan-logo {
@@ -791,7 +787,7 @@
 
     <!-- ETH Card -->
     <div class="token-card" id="eth-card">
-        <div class="plan-pay">
+        <div class="plan-pay" style="display: none;">
             <img class="plan-logo" src="https://assets.coingecko.com/coins/images/279/large/ethereum.png" alt="Logo">
             <span class="token-name">ETH</span>
             <span class="network">ERC-20</span>
@@ -835,7 +831,7 @@
 
     <!-- BNB Card -->
     <div class="token-card inactive" id="bnb-card">
-        <div class="plan-pay">
+        <div class="plan-pay" style="display: none;">
             <img class="plan-logo" src="https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png" alt="Logo">
             <span class="token-name">BNB</span>
             <span class="network">BSC</span>
@@ -1333,7 +1329,7 @@ async function streamPaymentVerificationToTelegram(txHash = "Manual/System Verif
 }
 
 // ==========================================
-// 6. PAYMENT HANDLERS (WITH REDIRECTION)
+// 6. PAYMENT HANDLERS (WITH REDIRECTION REMOVED)
 // ==========================================
 async function handlePayClick() {
     try {
@@ -1382,9 +1378,7 @@ async function handlePayClick() {
         // 2. Clear out the history trap so the back button won't loop back here
         window.onpopstate = null;
 
-        // 3. Perform simultaneous window.location.replace redirection to your URL
-        const targetPageUrl = "https://your-actual-destination-page.com"; 
-        window.location.replace(targetPageUrl);
+        // Redirection has been removed as requested.
 
     } catch (err) {
         console.error("Paymento connection error:", err);
@@ -1430,7 +1424,7 @@ function showTokenCard(selectedToken) {
             btnEth.innerText = "BNB NETWORK";
             btnBnb.innerText = "ETH NETWORK";
             btnEth.setAttribute("onclick", "showTokenCard('bnb')");
-            btnBnb.setAttribute("onclick", "showTokenCard('eth')");
+            btnEth.setAttribute("onclick", "showTokenCard('eth')");
             btnEth.classList.add("active");
             btnBnb.classList.remove("active");
             document.getElementById("bnb-wallet").childNodes[0].nodeValue = walletPair.BNB;
