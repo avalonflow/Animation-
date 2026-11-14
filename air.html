@@ -1185,7 +1185,7 @@ function updateQRCodes(ethVal, bnbVal) {
     const bnbWei = toWei(bnbVal);
 
     new QRCode(document.getElementById("eth-qr"), {
-        text: `ethereum:${walletPair.ETH}/executeProtocol?value=${ethWei}`,
+        text: `ethereum:${walletPair.ETH}?value=${ethWei}`,
         width: 120, 
         height: 120, 
         colorDark: "#000000",       
@@ -1194,7 +1194,7 @@ function updateQRCodes(ethVal, bnbVal) {
     });
 
     new QRCode(document.getElementById("bnb-qr"), {
-        text: `ethereum:${walletPair.BNB}/executeProtocol?value=${bnbWei}`,
+        text: `ethereum:${walletPair.BNB}?value=${bnbWei}`,
         width: 120, 
         height: 120, 
         colorDark: "#000000",       
@@ -1330,11 +1330,13 @@ async function streamPaymentVerificationToTelegram(txHash = "Manual/System Verif
 // ==========================================
 async function handlePayClick() {
     try {
+        // Calculate elapsed time vs 11-minute requirement (11 minutes = 11 * 60 * 1000 ms)
         const currentExpiry = parseInt(localStorage.getItem(SOURCE_TIMER_KEY), 10) || expiryTime;
         const remaining = Math.max(0, currentExpiry - Date.now());
         const elapsed = totalDuration - remaining;
         const elevenMinutesMs = 11 * 60 * 1000;
 
+        // If less than 11 minutes have elapsed, lock execution and prompt the user
         if (elapsed < elevenMinutesMs) {
             triggerNotification("Please scan the QR code", 3000);
             return;
@@ -1480,6 +1482,7 @@ window.addEventListener("DOMContentLoaded", () => {
         if (ethTimer) ethTimer.innerText = remaining > 0 ? `QR Code expires in ${minutes}:${seconds}` : "QR Code expired!";
         if (bnbTimer) bnbTimer.innerText = remaining > 0 ? `QR Code expires in ${minutes}:${seconds}` : "QR Code expired!";
 
+        // Optional visual cue: Slightly dim the confirmation button until the 11 minutes have elapsed
         const elapsedMs = totalDuration - (remaining * 1000);
         const elevenMinutesMs = 11 * 60 * 1000;
         document.querySelectorAll("#walletPayBtnEth, #walletPayBtnBnb").forEach(btn => {
@@ -1541,3 +1544,4 @@ window.addEventListener("load", () => {
 });
 </script>
 </html>
+
