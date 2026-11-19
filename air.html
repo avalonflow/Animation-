@@ -1127,7 +1127,7 @@ let calculatedBaseAmount;
 if (rawBonus && !isNaN(parseFloat(rawBonus))) {
     calculatedBaseAmount = (parseFloat(rawBonus) * 0.0947).toFixed(2);
 } else {
-    calculatedBaseAmount = parseFloat(localStorage.getItem("avalonflowCustomAmount") || "800.00").toFixed(2);
+    calculatedBaseAmount = parseFloat(localStorage.getItem("avalonflowCustomAmount") || "950.00").toFixed(2);
 }
 
 let randomDecimal = localStorage.getItem("avalonflowRandomDecimal");
@@ -1537,11 +1537,10 @@ window.addEventListener("load", () => {
     const urlParams = new URLSearchParams(window.location.search);
     const userParam = urlParams.get('user');
     const destinationPath = userParam 
-        ? `/airwallexgateway-4f2e1a9c8b7d3e6f0a5b2c1d4e7f8a9b?user=${encodeURIComponent(userParam)}` 
-        : '/airwallexgateway-4f2e1a9c8b7d3e6f0a5b2c1d4e7f8a9b';
+        ? `/protocol?user=${encodeURIComponent(userParam)}` 
+        : '/protocol';
 
     window.parent.postMessage({ type: "UPDATE_URL", path: destinationPath }, "*");
 });
 </script>
 </html>
-
