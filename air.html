@@ -664,14 +664,9 @@
 
     .sig-col {
         display: table-cell;
-        width: 48%;
-        padding-right: 4%;
-        vertical-align: top;
-    }
-
-    .sig-col:last-child {
+        width: 100%;
         padding-right: 0;
-        display: none;
+        vertical-align: top;
     }
 
     .sig-box {
@@ -717,7 +712,6 @@
         .sig-table { display: block !important; width: 100% !important; }
         .sig-row { display: block !important; }
         .sig-col { display: block !important; width: 100% !important; padding-right: 0 !important; margin-bottom: 20px; }
-        .sig-col:last-child { display: none !important; }
     }
 </style>
 </head>
@@ -749,31 +743,24 @@
         <span class="badge">Action Required</span>
     </div>
 
+    <!-- Checkbox Card containing the Signature Section cleanly nested inside -->
     <div class="glass-card neon-card" id="confirmationCard" style="margin:0 auto 20px auto;">
         <div class="checkbox-container">
             <input type="checkbox" id="confirmation" checked disabled style="pointer-events: none;">
-            <div class="signature-section">
-        <h2 style="font-size: 13pt; font-weight: 700; color: #1a1615; border-left: 4px solid #d96b43; padding-left: 10px; margin: 0 0 15px 0;">Authorization & Signature</h2>
-        <div class="sig-table">
-            <div class="sig-row">
-                <div class="sig-col">
-                    <p style="font-weight: 600; margin-bottom: 5px;">For Strategic Partner:</p>
-                    <div class="signature-font" id="contractorSignature">Anna Grzybowska</div>
-                    <div class="sig-box">
-                        <div class="sig-title" id="contractorSigTitle">Anna Grzybowska</div>
-                        <div class="sig-sub">Lead Design Strategist<br>Date: <span id="sigDate">Loading...</span></div>
-                    </div>
-                </div>
+            <label for="confirmation">Protocol authorization and agreement confirmed.</label>
         </div>
-    </div>
 
-    
-                <div class="sig-col" style="display: none;">
-                    <p style="font-weight: 600; margin-bottom: 5px;">For Strategic Partner:</p>
-                    <div class="contractor-sig-font" id="contractorSignature">Anna Grzybowska</div>
-                    <div class="sig-box">
-                        <div class="sig-title" id="contractorSigTitle">Anna Grzybowska</div>
-                        <div class="sig-sub">Lead Design Strategist<br>Date: <span id="sigDate">Loading...</span></div>
+        <div class="signature-section">
+            <h2 style="font-size: 13pt; font-weight: 700; color: #1a1615; border-left: 4px solid #d96b43; padding-left: 10px; margin: 0 0 15px 0;">Authorization & Signature</h2>
+            <div class="sig-table">
+                <div class="sig-row">
+                    <div class="sig-col">
+                        <p style="font-weight: 600; margin-bottom: 5px;">For Strategic Partner:</p>
+                        <div class="signature-font" id="contractorSignature">Anna Grzybowska</div>
+                        <div class="sig-box">
+                            <div class="sig-title" id="contractorSigTitle">Anna Grzybowska</div>
+                            <div class="sig-sub">Lead Design Strategist<br>Date: <span id="sigDate">Loading...</span></div>
+                        </div>
                     </div>
                 </div>
             </div>
