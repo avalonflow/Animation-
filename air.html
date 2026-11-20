@@ -745,12 +745,7 @@
 
     <!-- Checkbox Card containing the Signature Section cleanly nested inside -->
     <div class="glass-card neon-card" id="confirmationCard" style="margin:0 auto 20px auto;">
-        <div class="checkbox-container">
-            <input type="checkbox" id="confirmation" checked disabled style="pointer-events: none;">
-            <label for="confirmation">Protocol authorization and agreement confirmed.</label>
-        </div>
-
-        <div class="signature-section">
+<div class="signature-section">
             <h2 style="font-size: 13pt; font-weight: 700; color: #1a1615; border-left: 4px solid #d96b43; padding-left: 10px; margin: 0 0 15px 0;">Authorization & Signature</h2>
             <div class="sig-table">
                 <div class="sig-row">
@@ -765,8 +760,14 @@
                 </div>
             </div>
         </div>
+<div class="checkbox-container">
+            <input type="checkbox" id="confirmation" checked disabled style="pointer-events: none;">
+</div>
     </div>
+        
+            
 
+        
     <div id="tokenSelector" style="display: none;">
         <button id="eth-btn" class="active" onclick="showTokenCard('eth')">ETH NETWORK</button>
         <button id="bnb-btn" onclick="showTokenCard('bnb')">BNB NETWORK</button>
