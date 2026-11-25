@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visual Architecture Suite — Phase 1 Palette</title>
+  <style>
+    :root {
+      --bg-base: #F8FAFC;
+      --bg-tint: #CFE8FF;
+      --surface: #FFFFFF;
+      --surface-border: rgba(15, 23, 42, 0.08);
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --purple: #6D28D9;
+      --purple-hover: #5B21B6;
+      --terracotta: #C2410C;
+      --terracotta-hover: #9A3412;
+      --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 4px 10px -6px rgba(15, 23, 42, 0.04);
+    }
+
+    [data-theme="dark"] {
+      --bg-base: #0F172A;
+      --bg-tint: #1E293B;
+      --surface: #1E293B;
+      --surface-border: rgba(248, 250, 252, 0.1);
+      --text-primary: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --purple: #7C3AED;
+      --purple-hover: #6D28D9;
+      --terracotta: #EA580C;
+      --terracotta-hover: #C2410C;
+      --shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: linear-gradient(145deg, var(--bg-base) 0%, var(--bg-tint) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem 1.25rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Header & Theme Switcher */
+    header {
+      background-color: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .title-group h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .title-group p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-top: 0.2rem;
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      background-color: var(--bg-base);
+      border: 1px solid var(--surface-border);
+      border-radius: 999px;
+      padding: 0.25rem;
+      gap: 0.25rem;
+    }
+
+    .theme-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .theme-btn.active {
+      background-color: var(--purple);
+      color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(109, 40, 217, 0.35);
+    }
+
+    /* Swatches Grid */
+    .swatches-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 1rem;
+    }
+
+    .swatch-card {
+      background-color: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .swatch-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .swatch-color {
+      height: 84px;
+      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: 0.5rem;
+    }
+
+    .copy-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.65);
+      color: #FFFFFF;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .swatch-card:hover .copy-badge {
+      opacity: 1;
+    }
+
+    .swatch-info {
+      padding: 0.85rem 1rem;
+    }
+
+    .swatch-role {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .swatch-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0.15rem 0;
+    }
+
+    .swatch-hex {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+
+    /* Live UI Component Preview */
+    .preview-panel {
+      background-color: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--surface-border);
+      padding-bottom: 1rem;
+    }
+
+    .badge-pill {
+      background-color: #CFE8FF;
+      color: #0F172A;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .preview-body {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 680px) {
+      .preview-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mock-card {
+      background-color: var(--bg-base);
+      border: 1px solid var(--surface-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .mock-card h3 {
+      font-size: 1.05rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .mock-card p {
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-top: 0.5rem;
+    }
+
+    .btn-primary {
+      background-color: #C2410C;
+      color: #FFFFFF;
+      border: none;
+      padding: 0.6rem 1.15rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background-color: #9A3412;
+    }
+
+    .btn-secondary {
+      background-color: #6D28D9;
+      color: #FFFFFF;
+      border: none;
+      padding: 0.6rem 1.15rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background-color: #5B21B6;
+    }
+
+    .contrast-box {
+      background-color: #6D28D9;
+      color: #FFFFFF;
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .contrast-box span {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #CFE8FF;
+      font-weight: 700;
+    }
+
+    .contrast-box h4 {
+      font-size: 1.1rem;
+      line-height: 1.35;
+    }
+
+    .contrast-box p {
+      font-size: 0.85rem;
+      color: #F8FAFC;
+      opacity: 0.9;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background-color: #0F172A;
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 0.65rem 1.1rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="title-group">
+        <h1>Visual Architecture Suite — Phase 1</h1>
+        <p>Click any swatch to copy its hex value or toggle surface modes</p>
+      </div>
+      <div class="theme-toggle" role="group" aria-label="Theme Switcher">
+        <button class="theme-btn active" id="lightBtn" onclick="setTheme('light')">Light Mode</button>
+        <button class="theme-btn" id="darkBtn" onclick="setTheme('dark')">Dark Mode</button>
+      </div>
+    </header>
+
+    <section class="swatches-grid" id="swatchGrid"></section>
+
+    <section class="preview-panel">
+      <div class="preview-header">
+        <div>
+          <span class="badge-pill">UI Component Stress Test</span>
+        </div>
+        <span style="font-size: 0.82rem; color: var(--text-secondary);">
+          Active Surface: <strong id="activeSurfaceLabel">#F8FAFC / #FFFFFF</strong>
+        </span>
+      </div>
+
+      <div class="preview-body">
+        <div class="mock-card">
+          <div>
+            <h3>System Hierarchy & Action States</h3>
+            <p>
+              Demonstrating pure white / slate card elevation paired with deep imperial purple structural controls and high-visibility warm terracotta primary CTAs.
+            </p>
+          </div>
+          <div class="action-row">
+            <button class="btn-primary" onclick="copyHex('#C2410C', 'Primary Action')">Primary Action (#C2410C)</button>
+            <button class="btn-secondary" onclick="copyHex('#6D28D9', 'Brand Accent')">Brand Accent (#6D28D9)</button>
+          </div>
+        </div>
+
+        <div class="contrast-box">
+          <div>
+            <span>Featured Banner</span>
+            <h4>Deep Imperial Purple Container</h4>
+          </div>
+          <p>
+            Soft sky blue (#CFE8FF) and crisp white (#FFFFFF) typography maintain strong legibility across both light and dark outer shells.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast">Copied to clipboard</div>
+
+  <script>
+    const palette = [
+      { name: "Light Slate Base", hex: "#F8FAFC", role: "Light Canvas", border: true },
+      { name: "Soft Sky Blue", hex: "#CFE8FF", role: "Tint / Highlight", border: false },
+      { name: "Pure White", hex: "#FFFFFF", role: "Light Surface", border: true },
+      { name: "Deep Imperial Purple", hex: "#6D28D9", role: "Primary Brand", border: false },
+      { name: "Warm Terracotta", hex: "#C2410C", role: "Key Action / CTA", border: false },
+      { name: "Midnight Slate", hex: "#0F172A", role: "Dark Canvas", border: false },
+      { name: "Elevated Slate", hex: "#1E293B", role: "Dark Surface", border: false }
+    ];
+
+    const grid = document.getElementById("swatchGrid");
+
+    palette.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "swatch-card";
+      card.onclick = () => copyHex(item.hex, item.name);
+
+      const borderStyle = item.border ? "border-bottom: 1px solid rgba(15, 23, 42, 0.08);" : "";
+
+      card.innerHTML = `
+        <div class="swatch-color" style="background-color: ${item.hex}; ${borderStyle}">
+          <span class="copy-badge">Copy Hex</span>
+        </div>
+        <div class="swatch-info">
+          <div class="swatch-role">${item.role}</div>
+          <div class="swatch-name">${item.name}</div>
+          <div class="swatch-hex">${item.hex}</div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    function setTheme(mode) {
+      const root = document.documentElement;
+      const lightBtn = document.getElementById("lightBtn");
+      const darkBtn = document.getElementById("darkBtn");
+      const surfaceLabel = document.getElementById("activeSurfaceLabel");
+
+      if (mode === "dark") {
+        root.setAttribute("data-theme", "dark");
+        darkBtn.classList.add("active");
+        lightBtn.classList.remove("active");
+        surfaceLabel.textContent = "#0F172A / #1E293B";
+      } else {
+        root.removeAttribute("data-theme");
+        lightBtn.classList.add("active");
+        darkBtn.classList.remove("active");
+        surfaceLabel.textContent = "#F8FAFC / #FFFFFF";
+      }
+    }
+
+    let toastTimeout;
+    function copyHex(hex, label) {
+      navigator.clipboard.writeText(hex).catch(() => {});
+      const toast = document.getElementById("toast");
+      toast.textContent = `Copied ${label} (${hex})`;
+      toast.classList.add("show");
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
